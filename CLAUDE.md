@@ -54,6 +54,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 | Headless sim runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | M1-16 |
 | Sim perf bench | `.\tools\perf_bench.ps1 [-Check]` | M1-17 |
 | Balance run vs targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` | M2-14 |
+| CI compile gate (portable twin of lint's compile step; CI: `docs/setup/ci.md`) | `.venv\Scripts\python.exe tools\compile_gate.py --godot <godot> --project .` | M0-13 |
 | Screenshot from emulator | `cmd /c "cd /d C:\ && adb exec-out screencap -p > C:\dev\tower\build\shot.png"` | done |
 
 ## Definition of done (every task)

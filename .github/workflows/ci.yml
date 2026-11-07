@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: tools/requirements.txt
+
+      - name: Cache Godot binary
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/godot
+          key: godot-linux-${{ hashFiles('tools/GODOT_VERSION') }}
+
+      - name: Setup Godot and Python tools
+        run: bash tools/ci_setup.sh "${{ runner.temp }}/godot"
+
+      - name: Repo rules
+        run: python tools/lint_repo.py
+
+      - name: gdformat and gdlint
+        run: |
+          mapfile -t files < <(python tools/lint_repo.py --list-gd)
+          gdformat --line-length 120 --check "${files[@]}"
+          gdlint "${files[@]}"
+
+      - name: Compile gate
+        run: python tools/compile_gate.py --godot "$GODOT_BIN" --project .
+
+      - name: Tests
+        run: python tools/test_runner.py --godot "$GODOT_BIN" --project .
+
+      - name: Canary
+        run: python tools/test_runner.py --godot "$GODOT_BIN" --canary
+
+      - name: Runner self-test
+        run: python tools/test_runner.py --self-test

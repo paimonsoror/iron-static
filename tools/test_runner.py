@@ -13,6 +13,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import time
@@ -94,12 +95,18 @@ def evaluate(output: str, junit_xml: str | None, allowlist: list[re.Pattern[str]
 def kill_tree(pid: int) -> None:
     if os.name == "nt":
         subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], capture_output=True, check=False)
+    else:  # POSIX: the child runs in its own session/process group (see run_godot)
+        try:
+            os.killpg(pid, signal.SIGKILL)
+        except OSError:
+            pass
 
 
 def run_godot(godot: str, project: Path, args: list[str], timeout: int) -> tuple[int, str]:
     cmd = [godot, "--headless", "--path", str(project)] + args
     proc = subprocess.Popen(
-        cmd, cwd=str(project), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL
+        cmd, cwd=str(project), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+        start_new_session=(os.name != "nt"),
     )
     try:
         raw, _ = proc.communicate(timeout=timeout)
