@@ -1,0 +1,17 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ogg binary
+*.wav binary
+*.ttf binary
+*.otf binary
+*.aar binary
+*.jar binary
+*.tres text eol=lf
+*.tscn text eol=lf
+*.gd text eol=lf
+*.md text eol=lf
+*.csv text eol=lf
+*.json text eol=lf
+*.ps1 text eol=lf
+*.py text eol=lf

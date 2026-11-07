@@ -1,0 +1,257 @@
+# 07 - UX, UI, Art and Audio
+
+Changelog: 2026-11-07 - Gauntlet screen and shop Pass tab tagged P1 (not in the Launch build); title IRON STATIC (icon and splash use the title text only on the splash).
+
+References: genre notes [GENRE A2] recommend neon vector/glow shapes on dark with a HUD "machine vision" chrome as the cheapest way to get strong sci-fi mood while keeping enemy readability at swarm density; The Tower praised for being one-handed and well-optimized [GENRE A1, AppSpy]. Everything here is design direction; engine specifics are not prescribed. All hex values are tunable but are the starting palette.
+
+---
+
+## 1. Layout principles
+- Reference screen: 1080 x 2400 (9:20 portrait); design for 9:16 to 9:21. Respect notches and gesture bars (safe-area insets).
+- **Battlefield top 56%** (roughly y 0-1340 px), **panel bottom 44%** (y 1340-2400). Thumb zone = bottom 40%. The right thumb must reach everything in the panel; left-handed mode mirrors the panel's small buttons (Settings).
+- Primary touch targets >= 56 dp, secondary >= 48 dp. Text >= 14 sp (numbers >= 16 sp). One screen = one purpose. No dialogs that cover the battlefield except drafts and results.
+- The battlefield never needs a tap to progress. Optional taps: salvage caches, Overdrive, weapon-system toggles, speed button.
+
+## 2. Screen wireframes (ASCII)
+
+### 2.1 Battle screen (in deployment)
+```
++--------------------------------------+
+| S01 QUIET YARDS   WAVE 37     [x2] [=]|  <- top bar: sector, wave, speed, pause
+| [=====wave timer 14s======]  BOSS 3w |  <- timer bar + boss/draft countdown chips
+| SCRAP 12.4K        DATA +3.2K  FLUX o|  <- run counters (amber / blue / teal)
+|                                      |
+|         .  v  .      /\              |
+|     v        \  |  /     .           |
+|      .   <-- (  CINDER  ) -->  v      |   BATTLEFIELD (circle arena, enemies from all sides)
+|     /\    /  |  \     .              |   integrity ring around Cinder
+|        .      ^                      |   adaptation chips (L K A B N) at left edge
+|   (OD)                  [1][2][3]    |   OD = Overdrive button (bottom-left of field)
+|   ADAPT L:42 K:3 A:0          weapon-system buttons (toggle) bottom-right of field
++--------------------------------------+
+| [ARMS] [CHASSIS] [SYSTEMS] [INTEL]   |  <- upgrade panel tabs
+| BUY: [x1][x10][x100][MAX]            |
+| (icon) LASER OUTPUT  L24  1.2K>1.3K  |
+|        ................ [   9.8K ]   |  <- cost button (amber if affordable)
+| (icon) CYCLE RATE    L11  1.44>1.48  |
+|        ................ [   410  ]   |
+| (icon) CRIT CHANCE   L5   6%>6.8%    |
+|        ................ [   1.1K ]   |
+| ... scroll ...                       |
++--------------------------------------+
+```
+HUD elements (ids): `hud_wave`, `hud_sector`, `hud_timer_bar`, `hud_speed`, `hud_pause`, `hud_scrap`, `hud_data_run`, `hud_flux_orb_counter`, `hud_integrity_ring`, `hud_adapt_bars`, `hud_overdrive_btn`, `hud_weapon_btn_1..3`, `hud_boss_chip`, `hud_draft_chip`, `hud_exposure_label` (shows band when it changes), `hud_cache_ping`. Tapping `hud_wave` opens Intel.
+
+### 2.2 Upgrade panel details (row spec)
+Each row (height 88 dp): icon (40 dp, damage-type color), name, run level `L`, current value -> next value, cost button (right, 120 dp wide). Gold ring flashes on rows within 3 levels of a x1.5 milestone (every 25 levels). Locked rows are not shown (progressive disclosure; a single "Next unlock at wave X" line at list bottom). Long-press on a row opens a tooltip with the formula and Foundry contribution (no hidden info).
+```
+Tabs: [ARMS]   rows: laser_output, cycle_rate, crit_chance, crit_mult, optic_range, standoff, split_*, burst_*, ricochet_*, overcrit_*, armor_tear_*
+      [CHASSIS] rows: hull_integrity, nano_repair, plating_*, spike_return, siphon_cell, push_*, razor_*, shock_*, mine_*, fail_safe, barricade_*
+      [SYSTEMS] rows: scrap_yield, scrap_per_wave, data_*, reinvest, free_*, pod_*, signal_lag_*, sensor_reach
+      [INTEL]   panels: Wave (current enemies/weights/hp/atk), Stats (final stat values and eHP), Adapt (per type %), Log (kills, damage by type, last 3 deaths)
+```
+Auto-buy and priority lists (Lab) appear as a gear icon on each tab header.
+
+### 2.3 Home screen (between runs)
+```
++--------------------------------------+
+| CINDER  ASH-07        PR 52   [gear] |
+| flux 120   cipher 3   merit 20       |
+|                                      |
+|            ( CINDER idle )           |  <- battlefield area shows Cinder at rest, slow scan sweep
+|          visor tracks a drifting dot |
+|                                      |
+|        [ SECTOR 02 v ]  best W45     |
+|        [     DEPLOY     ]  [x data]  |  <- ad_data_surge chip (optional)
++--------------------------------------+
+|  (content of selected menu below)    |
+|  Standby patrol: 3h 20m  +12.4K      |
+|    [CLAIM] [x2 watch ad]             |
+|  Research: LASER TUNING L12  4h 12m  |
+|                                      |
+|[HOME][FOUNDRY][LAB][ARSENAL][OPS][SHOP]|
++--------------------------------------+
+```
+Nav items unlock progressively (02/05 unlock order); locked items are hidden, not grayed.
+
+### 2.4 Foundry
+```
+| FOUNDRY                     DATA 12.4K |
+| [ARMS][CHASSIS][SYSTEMS]  BUY [x1][x10][MAX] |
+| LASER OUTPUT  F42   x10.1 -> x10.7     |
+|   next milestone F50 (x1.25)    [ 18.7K]|
+| HULL INTEGRITY F38  x8.6 -> x9.1        |
+|   ................................ [ 9.2K] |
+| NANO REPAIR F30 ...                    |
+| (Recommended glow on cheapest milestone-adjacent) |
+```
+### 2.5 Lab
+```
+| R&D LAB                       FLUX 120 |
+| SLOT 1  LASER TUNING L12   [###---] 4h12m   [RUSH 13f] [AD -30m 2/6] |
+| SLOT 2  LAB SPEED L4       [#-----] 55m     [RUSH 1f]  [AD]          |
+| SLOT 3  (locked: 250 flux) [UNLOCK]                                  |
+| Catalogue: Core | Tuning | Systems | Enemy studies  [search]         |
+|  LASER TUNING L12 -> L13 +2%   time 7.1h   cost 2.3K   [START]       |
+```
+### 2.6 Arsenal (tabs: Weapons | Firmware | Drones | Modules)
+```
+| ARSENAL  [WEAPONS][FIRMWARE][DRONES][MODULES(P)] |
+| Weapon slots [ARC][EMP][  +400f ]               |
+| ARC DISCHARGE  A L12 B L8 C L10  next: [A 3.4K] |
+| Offers (3): [Singularity 20c] [Painter 20c] [Grid 20c]  (unlock cost 20 cipher) |
+| FIRMWARE: slots 5/8  presets [1][2][3]            |
+|  chip grid 4x6 with stars, tap = detail, drag = equip |
+|  [PICK 1 OF 3  45 flux]  odds (i)                 |
+```
+### 2.7 Shop
+```
+| SHOP                         flux 120  |
+| [Flux][Packs][Pass (P1)][Cosmetics][Odds] |
+| DAILY SALVAGE DROP  +8 flux  [Watch ad 4/6]    |
+| STARTER PACK $2.99 (once)  6d left               |
+| flux packs: $0.99 80 | $4.99 450 | $9.99 1000 ... |
+| data caches: 4h $1.99 | 12h $4.99 | 28h $9.99  |
+| Operation Pass: free track / premium $7.99        |
+| "Ad-Free Claims" $7.99  (no forced ads exist)    |
+| Odds (i): Firmware pick: Common 62 Rare 30 Epic 8 |
+```
+### 2.8 Gauntlet (tournament) screen (P1, not in the Launch build)
+```
+| GAUNTLET  LG 2 ALLOY    ends 1d 14h    |
+| Bracket 30   PR 61   Attempts 1/3      |
+| rank | player        | best wave | time|
+|  1   | STATIC_WOLF   |    71     | 14:02|
+|  2   | ...                               |
+| ...  YOU 9  | 58 |                       |
+|   ----- promotion line (top 6) -----     |
+|   [ENTER GAUNTLET]   [+1 attempt: watch ad]|
+| Rules: no patches, 5 firmware slots, seed 4F2A (same for all) |
+| Rewards: rank 7-12: 24 flux, 8 cipher           |
+```
+### 2.9 Draft (patches) overlay
+```
+|         PATCH DRAFT (wave 20)            |
+| [ +15% Laser output ] [ Regen +50% ] [ GAMBLE: x1.8 data / -50% hull ] |
+| Picks so far: overcharge 2/5, plating 1/5 |
+| [Auto-pick ON] timer 12s                  |
+```
+The battlefield dims 60% and freezes behind the overlay. Gamble cards have a different border (dashed amber) and show both benefit and cost in two lines.
+
+### 2.10 Results screen
+```
+| DEPLOYMENT ENDED   wave 47  (best 45 +2)|
+| time 11:42  kills 1,204  cause: lancer  |
+| DATA +18.4K   (x1.00 surge)             |
+| damage by type: laser 72% kinetic 20% ...|
+| [FOUNDRY  3 upgrades affordable]        |
+| [REDEPLOY]  [HOME]   [ad: revive used]  |
+```
+
+## 3. First-time user experience (first 10 minutes)
+
+Goals: a first death within ~3 minutes, first Foundry purchase by minute 4, a patch draft in run 1 or 2, and a clear "next unlock" goal. No text walls; no forced waits; no ads; no permission prompts before minute 9.
+
+| Time | Screen | Beat | Notes |
+|---|---|---|---|
+| 0:00-0:15 | Splash/title | Logo, "tap to start" | Load, consent screens only if required by law (GDPR) - shown after tutorial where permitted; age gate if required |
+| 0:15-0:40 | Cold open | 3 amber system lines: `RELAY 06 ONLINE`, `HOSTILE SWARM DETECTED`, `HOLD THE RELAY` + Cinder fades in | Skippable; sets tone; story light |
+| 0:40-1:10 | Run 1, waves 1-2 | Cinder auto-fires; skitters approach; hand pointer on `laser_output` row ("UPGRADE") | The 20 starting scrap affords it immediately |
+| 1:10-1:50 | Waves 2-4 | After first kills, highlight `cycle_rate` when affordable; show scrap rising; speed button teased (2x available) | One line of text each |
+| 1:50-2:30 | Waves 5-8 | `dart` appears (first fast enemy) with a tiny label "DART - FAST"; `hull_integrity` highlighted after first damage taken; buy-x10 hint | Cinder's skin begins to scorch at band 1 (visual hook) |
+| 2:30-3:10 | Waves 9-12 | Wave 10: first Patch draft (3 patches, one gamble) with explanation "Patches last this deployment" | Player chooses; auto-pick off |
+| 3:10-3:30 | Death | Skin burn peaks; integrity 0; "RELAY LOST" fade | Death is dramatic, short |
+| 3:30-4:15 | Results | `DATA +190`, damage breakdown, "FOUNDRY" button pulses | `best_s1` 12 unlocks: optic_range, plating_pct, reinvest preview |
+| 4:15-5:30 | Foundry (guided) | Pointer on `laser_output`: buy x1 then x10; show "+X% starting damage" and preview of next run | Teaches permanence vs temporary |
+| 5:30-8:30 | Run 2 | Redeploy; stronger start; reaches wave ~16-20; run counters; first salvage? no (no elites yet); `crit_chance` upgrade appears | The "I got further" beat |
+| 8:30-9:30 | Death 2 / Results | New best; progress bar to "Next unlock: R&D Lab at wave 25"; Foundry spend again | Show checklist: 3 upcoming unlocks |
+| 9:30-10:00 | Home | Soft prompt: enable notifications ("Tell me when research finishes?") only after Lab is unlocked; for now: invite 2x speed toggle | No ads or IAP offer yet; starter pack appears at `best_s1` 25 or day 2 |
+Day 1 follow-up: when the Lab unlocks (wave 25) first research is free (0 `data`, 5 min). Ops Board arrives at wave 40. Standby Patrol tutorial when first closing the app after wave 30.
+
+## 4. Settings and accessibility
+- Number format (short / scientific), language, sound/music/haptics sliders, left-handed mode, reduce motion (disables scanlines, vignette pulse, screen shake), high-contrast mode, colorblind palettes (Deuteranopia/Protanopia/Tritanopia), screen-always-on toggle during deployments, battery saver (30 FPS cap + disable glow), auto-pick / auto-buy toggles, notifications, odds viewer, privacy/consent, restore purchases, cloud save.
+- Vibration: short tick on purchase, medium on boss spawn, long on death; off by default for micro-events.
+
+## 5. Art style guide: "machine-vision vector"
+
+### 5.1 Overall look
+Dark void background, thin glowing vector strokes, minimal fills. The world is drawn as seen through Cinder's targeting optics: a faint polar grid and range rings, tracking brackets around nearby targets, amber HUD text. Everything is procedural shapes and lines; no bitmap sprites required except icons and the logo.
+- Stroke widths (logical px at 1080 wide): enemies 3, elites 4 + inner line, bosses 6, Cinder frame 3, beam 3 core + 8 glow, grid 1.
+- Fills: enemies filled with `#2A0A10` at 80% for contrast; Cinder filled solid in layers.
+- Shapes only: circles, triangles, hexagons, diamonds, chevrons, lines. Max 12 line segments per enemy (performance).
+- Cinder is always the brightest, most saturated object at screen center; the swarm is darker with bright outlines.
+
+### 5.2 Palette (hex)
+| Role | Name | Hex | Use |
+|---|---|---|---|
+| Background | Void | `#07090C` | battlefield base |
+| Background | Grid | `#12171D` | polar grid lines, range rings |
+| Background | Red haze | `#140508` | edge vignette at low integrity |
+| HUD | Amber | `#FFB000` | primary HUD/text/affordable |
+| HUD | Amber glow | `#FFD27A` | highlights, active |
+| HUD | Amber dim | `#8A5F00` | secondary lines |
+| UI panel | Panel | `#0D1117` | bottom panel bg |
+| UI text | Text | `#F2E6C9` | primary text |
+| UI text | Text dim | `#9A8F78` | secondary text |
+| UI | Unaffordable | `#5C5546` | disabled costs |
+| Player | Core | `#FFE3A3` | chest core, beam core |
+| Player | Frame | `#8FA3B0` | frame lines |
+| Player | Skin | `#D9A383` | skin wedges |
+| Player | Char | `#3A2A22` | scorched skin |
+| Player | Emitter | `#FFFFFF` | muzzle flash |
+| Player shots | Laser | `#FFF1C9` core, `#FFB000` glow | `laser` hits |
+| Player shots | Kinetic | `#C9D1D9` | razors, shock ring |
+| Player shots | Arc | `#46E6F0` | arc_discharge, emp |
+| Player shots | Blast | `#FF8A1F` | missiles, mines, drone_ember |
+| Player shots | Nano | `#B28CFF` | nanite cloud |
+| Friendly/heal | Teal | `#2EE6D6` | heal, shield, `drone_*`, flux |
+| Enemy | Outline | `#FF2D4B` | normal enemy outline |
+| Enemy | Fill | `#2A0A10` | enemy interior |
+| Enemy | Elite | `#FF5A3C` | elite double outline |
+| Enemy fire | Magenta | `#FF4FD8` | enemy projectiles (diamond shape) |
+| Stealth | Ghost | `#FF2D4B` at 15% | shade |
+| Warning | Warning amber | `#FFC21A` | boss warning ring, spawn warning |
+| Warning | Critical | `#FF3B30` | integrity < 25% vignette, death |
+| Currency | scrap | `#D6B36A` | bent plate icon |
+| Currency | data | `#5BC8FF` | hex cell icon |
+| Currency | flux | `#2EE6D6` | diamond icon |
+| Currency | cipher | `#E0B0FF` | key-ring icon |
+| Currency | merit | `#FFD84D` | chevron star icon |
+Red is reserved for hostile units/danger; amber is Cinder and information; teal is "friend/positive"; magenta is only enemy projectiles. This multi-color system keeps the look from echoing any single franchise's red-tint trade dress [GENRE B1].
+
+### 5.3 Glow, scanlines, effects rules
+- One additive glow pass per frame for entities flagged `glow` (beams, Cinder core, enemy outlines). Glow radius <= 8 px for enemies, 14 px for Cinder. When more than 150 enemies are alive, per-enemy glow is disabled and outline brightness +15% is used instead.
+- Scanlines: 2 px lines at 6% opacity over the battlefield only (not the panel); disabled in reduce-motion/high-contrast.
+- Vignette: edge darken 20%; pulses red when integrity < 25%.
+- Polar grid: rings at 10 m, 20 m, 30 m (labelled for `standoff`); fades when > 100 enemies.
+- Projectile readability: beams are hitscan lines with 80 ms fade; at >8 shots/s merge consecutive beams into a single pulsing line to avoid a wall of lines. Missiles and mines are distinct shapes (triangle + trail, hexagon + blink).
+- Enemy palette uses outline luminance (L* >= 55) over dark fill; player effects L* >= 80, guaranteeing at least 25 L* difference between "friendly" and "hostile" regardless of hue.
+
+### 5.4 Readability and colorblind safety
+- Never rely on hue alone: hostile = dark fill + outline + angular shape set; friendly = bright fill + rounded shapes/rings; enemy projectiles are diamonds; player damage types are distinguished by shape (line/square/zigzag/circle/dots) as well as hue.
+- Colorblind modes swap pairs: Deuteranopia/Protanopia: enemy outline `#FF2D4B` -> magenta-violet `#FF5CF0` with a thicker stroke, and player amber -> `#FFD84D` (final values to be validated with a colorblind simulator); Tritanopia: teal `#2EE6D6` -> `#7CFFB0`, amber unchanged. All palette values live in one theme resource so modes are data-driven.
+- Contrast: all text >= 4.5:1 on its background; costs affordable vs not distinguished by color and a lock/dim icon.
+- Max simultaneous distinct effect colors on screen is limited by types equipped (5 damage types plus enemy colors).
+
+### 5.5 Damage and info numbers
+- Font: condensed monospace for numbers (e.g. "Share Tech Mono", OFL) and a squared sci-fi sans for headings (e.g. "Oxanium", OFL). Both are free fonts; verify licenses.
+- Show-rules: crits, overcrits, hits >= 1% of target max HP, plus the top 6 numbers per 0.5 s. Max 24 live numbers.
+- Style: normal `#F2E6C9` 18 px, crit `#FFD27A` 26 px with bracket `[ ]`, overcrit `#FFFFFF` 34 px with starburst, damage taken by Cinder `#FF3B30` 22 px near Cinder, heal `#2EE6D6` with `+`. Lifetime 0.6 s, rise 30 px, fade; 2-frame punch scale-in. Format: big-number short format (04).
+- Aggregation: repeated hits on the same enemy within 0.2 s are summed into one number.
+
+### 5.6 Cinder rendering
+Layers back to front: (1) range rings, (2) frame vector lines, (3) skin wedge ring (12 wedges), (4) chest core with pulse, (5) emitter ring (3 nodes, rotates toward target), (6) visor slit arc at facing direction, (7) integrity ring (thin arc around Cinder: teal -> amber -> red). Skin Burn states per 02 section 12.1. Idle animation: core pulse 1 Hz, slow scan sweep every 8 s. Death: wedges fly outward as ember lines, frame lines fade last.
+
+### 5.7 App icon and store art
+Icon: hex chest core in amber on near-black with a faint broken-circle range ring; no text; no skull or human face. Splash: amber text lines. Original art only; no The Tower look-alike hexagon-over-tower icon.
+
+## 6. VFX list (ids)
+`vfx_beam`, `vfx_muzzle`, `vfx_hit_spark`, `vfx_kill_shatter` (3 line shards), `vfx_crit_flare`, `vfx_overcrit_burst`, `vfx_ricochet_line`, `vfx_split_lines`, `vfx_razor_trail`, `vfx_shock_ring`, `vfx_mine_arm`, `vfx_mine_blast`, `vfx_arc_zigzag`, `vfx_emp_ring`, `vfx_missile_trail`, `vfx_singularity_swirl`, `vfx_dilation_ripple`, `vfx_nanite_cloud`, `vfx_beacon_pulse`, `vfx_painter_zone`, `vfx_skin_embers`, `vfx_band_transition`, `vfx_meltdown_whiteout`, `vfx_overdrive_afterimage`, `vfx_milestone_ring` (gold ring on x1.5), `vfx_wave_banner_glitch`, `vfx_boss_warning`, `vfx_draft_open`, `vfx_cache_glow`, `vfx_pod_beam`, `vfx_barricade_hex`, `vfx_turncoat_flip`, `vfx_adaptation_outline`, `vfx_death_unravel`.
+Performance budget: particle pool cap 400; each VFX has an LOD level that reduces at high enemy counts.
+
+## 7. Audio direction
+- **Music:** dark synth ambient, cold analog pads, sub-bass drone, glassy FM bell motifs, sparse rhythmic pulse that grows with wave number. Tempo 82-96 BPM, irregular meter (7/8) in battle layers. Mood: lonely, mechanical, tense. **Avoid** any anvil-style four-note motif, heavy synth march or melodic lines that resemble a famous film theme [GENRE B1]. Adaptive layers: base pad (always) -> pulse (wave >= 10) -> percussion (wave >= 30 or boss) -> lead bell (boss/low integrity). Home screen: stripped ambient. Menus: soft resonant hum.
+- **Mix:** SFX priority over music; heavy limiting of simultaneous beam SFX (voice cap 6; at high fire rate use a looping pulsing "charged beam" loop).
+- **SFX list (ids):** `sfx_laser_shot` (short tick-zap, pitch randomized +-3%), `sfx_hit_metal`, `sfx_crit` (bright ping), `sfx_overcrit` (low boom + ring), `sfx_enemy_death_small`, `sfx_enemy_death_heavy`, `sfx_player_hit` (dull thud), `sfx_integrity_warn` (heartbeat at band 3), `sfx_skin_burn` (crackle at band change), `sfx_wave_start` (low pulse), `sfx_boss_warn` (rising drone), `sfx_boss_death`, `sfx_upgrade_buy` (click-chirp scaling with x10), `sfx_milestone_x15` (gold chime), `sfx_draft_open`, `sfx_draft_pick`, `sfx_cache_open`, `sfx_pod_heal`, `sfx_razor_spin`, `sfx_shock_ring`, `sfx_mine_beep`, `sfx_arc`, `sfx_emp`, `sfx_missile_launch`, `sfx_singularity`, `sfx_dilation`, `sfx_nanite`, `sfx_overdrive_on/off`, `sfx_aegis_break`, `sfx_reboot`, `sfx_meltdown`, `sfx_purge`, `sfx_ui_tap`, `sfx_ui_deny`, `sfx_lab_complete`, `sfx_firmware_pick`, `sfx_gauntlet_rank_up`, `sfx_death` (system shutdown whine), `sfx_results_tally`.
+- **Voice:** no voice acting; machine "terminal" blips for text lines.
+- **Haptics:** tied to audio events (purchase tick, boss pulse, death thud).

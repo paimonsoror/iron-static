@@ -1,0 +1,79 @@
+# CLAUDE.md - IRON STATIC
+
+IRON STATIC (code name `ironstatic`, provisional applicationId `com.ironstatic.game`) is an original Android-first, portrait, free-to-play idle defense game in Godot 4.7.2 (statically typed GDScript). You are CINDER, a reprogrammed combat cyborg at the Relay; rogue machine swarms attack from every side; Cinder auto-fires a hitscan laser; the player buys temporary upgrades with `scrap` during a deployment and permanent ones with `data` between deployments. The user directs and playtests on the emulator; Claude and AI agents write nearly all code.
+
+## Doc map (read the one you need, not all)
+
+| What | Where |
+|---|---|
+| Game rules, terms, numbers, ids (source of truth for the game) | `docs/design/00..09_*.md` (GDD). Start with `00_overview.md` section 8 glossary |
+| Technical decisions (source of truth for technology) | `docs/TECH_ARCHITECTURE.md` |
+| Milestones M0-M7, P1, P2, critical path, Play timeline | `docs/ROADMAP.md` |
+| Agent-ready tasks | `docs/tasks/M0.md`, `M1.md`, `M2.md` (later files are written when the previous milestone closes) |
+| Toolchain, emulator, troubleshooting | `docs/setup/DEV_ENVIRONMENT.md` (+ other `docs/setup/*.md` written in M0) |
+| Open questions (ONE list) | `docs/design/09_open_questions.md` |
+| Background research on The Tower | `docs/research/` (comparison only) |
+
+## Source-of-truth rules
+
+- GDD wins on game rules, terms, numbers and ids. TECH_ARCHITECTURE wins on technology. If they conflict, stop, fix the losing doc in the same change, and add a changelog line at its top.
+- Use GDD vocabulary only: currencies `scrap`, `data`, `flux`, `cipher`, `merit` (exactly five, never add one without a GDD change); Foundry, Lab, Arsenal, weapon systems, firmware, patches, sectors, deployments, Gauntlets, Incursions, Cells. Never use The Tower's words (Cash, Coins, Gems, Power Stones, Workshop, Ultimate Weapons, Cards) in code, data or UI.
+- Numbers live in `data/*.csv` (ids from the GDD), not in code. Edit CSV, run the importer, commit CSV plus generated `src/data_gen/*.tres`. Never hand-edit `src/data_gen/`.
+- Scope tags in the GDD: MVP, Launch, Post-launch. N1 adaptive swarm, N3 salvage caches, N4 overdrive are Launch; N2 skin burn visuals MVP; N5 turncoat is deferred (P2). Gauntlets, Incursions, Operation Pass are P1; Cells P2. Do not build ahead of the current milestone.
+- Open or unspecified rule? Pick the simplest option, mark it **(impl)** in the commit message, and tell the main agent so it lands in the GDD or `09_open_questions.md`.
+
+## Architecture rules (hard)
+
+- `src/sim/` is pure `RefCounted` code: no Node, SceneTree, Input, OS/Time, autoloads, global `randf`/`randi`. Same for `src/meta/` and `src/save/` (injected interfaces only). Enforced by `tools\lint.ps1`.
+- Fixed 30 Hz tick; one wave = 24 s = 720 ticks; timers in integer ticks; game speed = more ticks per frame (cap 4x), never a scaled tick length. All randomness through `Rng` (PCG32, per-stream). Same `(seed, config, input log)` must give the same state hash.
+- Entities are packed-array stores with free lists; no Node per enemy or projectile; no allocation inside per-tick loops. Rendering is MultiMesh in `src/view/` and only reads the sim.
+- Number types: `BigNum` for currency and cost values (persist as strings); `float` for per-tick combat; `int` for `flux`/`cipher`/`merit`, levels, waves, ticks.
+- Save-shape change = bump schema version + migration + fixture in `tests/fixtures/`. Services (ads, billing, analytics, backend) sit behind interfaces in `src/services/` and `src/net/` with desktop stubs.
+- No new plugin or dependency without a decision note in `docs/setup/plugin_matrix.md`. No secrets, keystores or real ad ids in git (`secrets.local.json` is ignored).
+
+## Coding conventions
+
+- Typed GDScript everywhere (every var, param, return); no `Variant` in sim code. Warnings are errors (see `project.godot`); suppress only with `@warning_ignore("name")` plus a reason comment.
+- `snake_case` files, `PascalCase` `class_name`, one class per file, `UPPER_SNAKE` consts, private `_leading_underscore`, past-tense signals. Files under 300 lines (hard cap 500). Scenes expose a typed `setup(...)` and signals; never `get_node("../..")`.
+- Files are **UTF-8 without BOM**, LF line endings, tabs in `.gd`. PowerShell 5.1 `Set-Content -Encoding utf8` writes a BOM: use the Write tool or `[System.IO.File]::WriteAllText(path, text, (New-Object System.Text.UTF8Encoding($false)))`.
+- UI text goes through `data/strings_en.csv` keys (English only for now).
+
+## Commands (PowerShell, from `C:\dev\tower`; do not run from a `\\wsl$` path)
+
+Godot CLI: `C:\dev\tools\godot\4.7.2\Godot_v4.7.2-stable_win64_console.exe` (version pinned in `tools/GODOT_VERSION`).
+Headless Godot can exit 0 on failure: never judge by exit code alone and never call Godot test runs directly.
+
+| Task | Command | Exists after |
+|---|---|---|
+| Tests (import, run, parse output) | `.\tools\test.ps1` (`-Canary` proves the wrapper detects failures) | M0-05 |
+| Lint (gdformat, gdlint, layer rules, BOM, warnings-as-errors compile) | `.\tools\lint.ps1` | M0-06 |
+| Start emulator (AVD `tower_phone`, wait 25 s after cold boot) | `.\tools\run_emulator.ps1` | done |
+| Export, install, launch on emulator | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic` | M0-07 |
+| Emulator smoke test (log scan + screenshot check) | `.\tools\smoke_android.ps1` (`-SkipDeploy`, `-MinFps`) | M0-08 / M1-25 |
+| CSV to `.tres` importer | `.\tools\import_data.ps1` | M1-02 |
+| Headless sim runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | M1-16 |
+| Sim perf bench | `.\tools\perf_bench.ps1 [-Check]` | M1-17 |
+| Balance run vs targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` | M2-14 |
+| Screenshot from emulator | `cmd /c "cd /d C:\ && adb exec-out screencap -p > C:\dev\tower\build\shot.png"` | done |
+
+## Definition of done (every task)
+
+1. `tools\lint.ps1` clean. 2. `tools\test.ps1` passes with tests > 0 (add or adjust tests with every behavior change; sim changes need a sim scenario test). 3. Economy or sim changes: `tools\balance_run.ps1` output pasted in the commit message and compared to `data/targets.csv`. 4. UI or view changes: debug APK installs and launches on `tower_phone`, `tools\smoke_android.ps1` passes, screenshot attached. 5. Save-shape changes: migration and fixture. 6. Docs updated if an interface, command, schema or rule changed (changelog line at the top of the doc). 7. Sim or view perf changes: `tools\perf_bench.ps1 -Check` within 10% of baseline. 8. Acceptance criteria of the task file are all met and quoted.
+
+## Workflow and boundaries
+
+- Work from a task in `docs/tasks/`; read only the task and the doc sections it cites. One agent per module directory at a time. Shared files (`project.godot`, `export_presets.cfg`, `src/sim/sim_world.gd`, autoload list, `.gitignore`) are edited by the main agent or by the one task that owns them.
+- Do not modify `docs/setup/` or the toolchain scripts `tools/run_emulator.ps1`, `tools/deploy_android.ps1` unless the task says so. Do not touch export presets casually. Commit only when the user asks. Never skip hooks.
+- Agents verify visuals only through emulator screenshots; the user judges feel and balance. Wait 20-30 s after an emulator cold boot; the first launch has about 30 s of black screen (shader compile).
+
+## IP guardrails (hard)
+
+- No Terminator franchise names, marks or likenesses: no Terminator, Skynet, Cyberdyne, T-800/T-1000/T-X or any "T-number" names, Hunter-Killer or "HK", Judgment Day, Sarah/John Connor, Kyle Reese, Miles Dyson; no signature lines ("I'll be back", "Hasta la vista"); no chrome skull endoskeleton with glowing red eyes, half-flesh face, liquid-metal enemy, time-travel plot, T-shaped logo, anvil-style four-note motif. Never write "Terminator-like" anywhere (code, listing, tags).
+- Original names only: Cinder (serial ASH-07), CHORUS (hostile AI), Orrery Combine, Hollow Accord, Lantern Cell. Multi-color HUD (amber primary, teal friendly, red hostile, magenta enemy fire). No The Tower names, icons, tables or layouts. Details: `docs/design/00_overview.md` section 7.
+
+## Gotchas log (append findings; keep entries one line)
+
+- GDScript `int` is signed 64-bit and `>>` is arithmetic: mask after shifts in the RNG and hashes.
+- Godot 4.7 export targets SDK 36: Build-Tools 36.0.0 must be installed. Project icon is required for export. Gradle build untested until M0-09.
+- `adb exec-out screencap` fails from a UNC working directory; use `C:\`. After export Godot restarts adb: `adb start-server`.
+- Emulator needs `hw.gpu.mode=host`; the one-time "Viewing full screen" dialog needs a tap on first launch.

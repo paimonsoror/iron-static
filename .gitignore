@@ -1,0 +1,30 @@
+# Godot
+.godot/
+.import/
+*.tmp
+
+# Build outputs
+build/
+*.apk
+*.aab
+*.idsig
+reports/
+
+# Android Gradle build: keep the template tracked, ignore outputs only
+android/build/build/
+android/build/.gradle/
+.gradle/
+
+# Secrets and signing (never commit)
+*.keystore
+*.jks
+secrets.local.json
+
+# Python
+.venv/
+__pycache__/
+
+# Misc
+*.bak
+!tests/fixtures/**/*.bak
+Thumbs.db
