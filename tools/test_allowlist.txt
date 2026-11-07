@@ -1,0 +1,2 @@
+# Regex lines (one per line) for known-benign Godot/GdUnit4 output that would otherwise match an
+# error pattern in tools/test_runner.py. Keep empty unless a benign message is proven; explain each entry.

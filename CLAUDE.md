@@ -77,3 +77,9 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - Godot 4.7 export targets SDK 36: Build-Tools 36.0.0 must be installed. Project icon is required for export. Gradle build untested until M0-09.
 - `adb exec-out screencap` fails from a UNC working directory; use `C:\`. After export Godot restarts adb: `adb start-server`.
 - Emulator needs `hw.gpu.mode=host`; the one-time "Viewing full screen" dialog needs a tap on first launch.
+- Warnings-as-errors print as `Parse Error: <description> (Warning treated as error.)` without the warning's name; Godot output has ANSI escapes (strip before matching).
+- `return_value_discarded` is Warn (1), not Error: GdUnit4 fluent asserts return values. Packed-array `append`/`push_back`/`resize` also return values.
+- Never pass `-d` to headless Godot: on a script error the debugger waits on stdin and the run hangs.
+- Run tests only via `.\tools\test.ps1` (GdUnit4 6.2.3 CLI needs `--ignoreHeadlessMode`; reports land in `build/test/report/report_N/results.xml`).
+- `--check-only --script` does not load autoloads; compile checks go through `tools/compile_check.gd` (run by `lint.ps1`).
+- Deliberately broken `.gd` files live in folders with `.gdignore` + `.lintignore`; `test.ps1 -Canary` runs them in a copy under `build/canary/`.

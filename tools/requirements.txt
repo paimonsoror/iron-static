@@ -1,1 +1,3 @@
-# Python tool dependencies for IRON STATIC (install into .venv). gdtoolkit is added in M0-06.
+# Python tool dependencies for IRON STATIC (installed into .venv by tools/lint.ps1).
+# gdtoolkit 4.5.0 is the newest 4.x release (gdformat, gdlint); verified to parse the project's GDScript on Godot 4.7.2.
+gdtoolkit==4.5.0
