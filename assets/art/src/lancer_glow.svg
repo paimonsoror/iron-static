@@ -1,39 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="432" height="112" viewBox="0 0 432 112">
 <defs>
-  <radialGradient id="g_hull" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#2A0A10"/><stop offset="0.6" stop-color="#1B080D"/><stop offset="1" stop-color="#12060A"/></radialGradient>
-  <radialGradient id="g_plate" cx="0.5" cy="0.45" r="0.65"><stop offset="0" stop-color="#4A1220"/><stop offset="0.7" stop-color="#2A0A10"/><stop offset="1" stop-color="#1B080D"/></radialGradient>
-  <radialGradient id="g_plate_hi" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stop-color="#7A1E30"/><stop offset="0.6" stop-color="#4A1220"/><stop offset="1" stop-color="#2A0A10"/></radialGradient>
-  <linearGradient id="g_dark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A0A10"/><stop offset="1" stop-color="#12060A"/></linearGradient>
-  <radialGradient id="g_shadow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#12060A" stop-opacity="0.85"/><stop offset="0.6" stop-color="#12060A" stop-opacity="0.5"/><stop offset="1" stop-color="#12060A" stop-opacity="0"/></radialGradient>
-  <radialGradient id="g_halo_red" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF6B7E" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF2D4B" stop-opacity="0.6"/><stop offset="0.65" stop-color="#FF2D4B" stop-opacity="0.2"/><stop offset="1" stop-color="#FF2D4B" stop-opacity="0"/></radialGradient>
-  <radialGradient id="g_halo_mag" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF4FD8" stop-opacity="0.6"/><stop offset="0.65" stop-color="#FF4FD8" stop-opacity="0.2"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></radialGradient>
-  <radialGradient id="g_halo_amb" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFD27A" stop-opacity="0.7"/><stop offset="0.4" stop-color="#FFB000" stop-opacity="0.4"/><stop offset="1" stop-color="#FFB000" stop-opacity="0"/></radialGradient>
-  <radialGradient id="g_lens" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFE0F8"/><stop offset="0.35" stop-color="#FF9AE8"/><stop offset="0.7" stop-color="#FF4FD8"/><stop offset="1" stop-color="#8A1F78"/></radialGradient>
-  <radialGradient id="g_vent" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFC2CC"/><stop offset="0.5" stop-color="#FF6B7E"/><stop offset="1" stop-color="#FF2D4B"/></radialGradient>
-  <linearGradient id="g_rim" gradientUnits="userSpaceOnUse" x1="45" y1="0" x2="101" y2="0"><stop offset="0" stop-color="#FFB000" stop-opacity="0"/><stop offset="0.5" stop-color="#FFB000" stop-opacity="0.45"/><stop offset="1" stop-color="#FFD27A"/></linearGradient>
-  <linearGradient id="g_barrel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A1E30"/><stop offset="0.35" stop-color="#4A1220"/><stop offset="0.7" stop-color="#2A0A10"/><stop offset="1" stop-color="#12060A"/></linearGradient>
+  <linearGradient id="g_p_a" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#2B343B"/><stop offset="1" stop-color="#222B38"/></linearGradient>
+  <linearGradient id="g_p_b" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#222B38"/><stop offset="1" stop-color="#151B24"/></linearGradient>
+  <linearGradient id="g_p_c" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></linearGradient>
+  <radialGradient id="g_hull" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#222B38"/><stop offset="0.55" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></radialGradient>
+  <radialGradient id="g_shadow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#080B10" stop-opacity="0.85"/><stop offset="0.6" stop-color="#080B10" stop-opacity="0.5"/><stop offset="1" stop-color="#080B10" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#B28CFF" stop-opacity="0.95"/><stop offset="0.3" stop-color="#A35CFF" stop-opacity="0.6"/><stop offset="0.65" stop-color="#A35CFF" stop-opacity="0.2"/><stop offset="1" stop-color="#A35CFF" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_vent" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#E0B0FF"/><stop offset="0.5" stop-color="#B28CFF"/><stop offset="1" stop-color="#A35CFF"/></radialGradient>
+  <linearGradient id="g_rim" gradientUnits="userSpaceOnUse" x1="45" y1="0" x2="101" y2="0"><stop offset="0" stop-color="#B28CFF" stop-opacity="0"/><stop offset="0.5" stop-color="#B28CFF" stop-opacity="0.55"/><stop offset="1" stop-color="#E0B0FF"/></linearGradient>
+  <linearGradient id="g_amb" gradientUnits="userSpaceOnUse" x1="45" y1="0" x2="101" y2="0"><stop offset="0" stop-color="#FFB000" stop-opacity="0"/><stop offset="0.6" stop-color="#FFB000" stop-opacity="0.35"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0.95"/></linearGradient>
+  <linearGradient id="g_barrel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#56656F"/><stop offset="0.35" stop-color="#2B343B"/><stop offset="0.7" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></linearGradient>
   <linearGradient id="g_flash" gradientUnits="userSpaceOnUse" x1="119" y1="0" x2="133" y2="0"><stop offset="0" stop-color="#FFE0F8" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF4FD8" stop-opacity="0.8"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></linearGradient>
+  <radialGradient id="g_lens" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFE0F8"/><stop offset="0.35" stop-color="#FF9AE8"/><stop offset="0.7" stop-color="#FF4FD8"/><stop offset="1" stop-color="#8A1F78"/></radialGradient>
+  <radialGradient id="g_halo_mag" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF4FD8" stop-opacity="0.6"/><stop offset="0.65" stop-color="#FF4FD8" stop-opacity="0.2"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></radialGradient>
 </defs>
 <g id="slot.frame_0" transform="translate(0,0)">
  <g id="layer.emissive.frame_0">
   <circle cx="116.5" cy="56" r="12" fill="url(#g_halo_mag)" opacity="0.80"/>
-  <circle cx="39.5" cy="45" r="7" fill="url(#g_halo_red)" opacity="0.70"/>
-  <circle cx="39.5" cy="67" r="7" fill="url(#g_halo_red)" opacity="0.70"/>
-  <circle cx="22" cy="56" r="8" fill="url(#g_halo_red)" opacity="0.90"/>
-  <circle cx="68.5" cy="47.5" r="5" fill="url(#g_halo_red)" opacity="0.60"/>
-  <polygon points="20,52 31,38 49,24 68,34 83,47 89,50 89,62 83,65 68,78 49,88 31,74 20,60" fill="none" stroke="#FF2D4B" stroke-width="4.5" stroke-linejoin="round" opacity="0.14"/>
+  <circle cx="39.5" cy="45" r="7" fill="url(#g_halo)" opacity="0.70"/>
+  <circle cx="39.5" cy="67" r="7" fill="url(#g_halo)" opacity="0.70"/>
+  <circle cx="22" cy="56" r="8" fill="url(#g_halo)" opacity="0.90"/>
+  <circle cx="68.5" cy="47.5" r="5" fill="url(#g_halo)" opacity="0.60"/>
+  <polygon points="20,52 31,38 49,24 68,34 83,47 89,50 89,62 83,65 68,78 49,88 31,74 20,60" fill="none" stroke="#A35CFF" stroke-width="4.5" stroke-linejoin="round" opacity="0.14"/>
   <polygon points="20,52 31,38 49,24 68,34 83,47 89,50 89,62 83,65 68,78 49,88 31,74 20,60" fill="none" stroke="url(#g_rim)" stroke-width="4" stroke-linejoin="round" opacity="0.40"/>
  </g>
 </g>
 <g id="slot.frame_1" transform="translate(144,0)">
  <g id="layer.emissive.frame_1">
   <circle cx="115" cy="56" r="20" fill="url(#g_halo_mag)"/>
-  <polyline points="86.5,56 111.5,56" fill="none" stroke="#FF4FD8" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" opacity="0.50"/>
-  <circle cx="39.5" cy="45" r="7" fill="url(#g_halo_red)" opacity="0.70"/>
-  <circle cx="39.5" cy="67" r="7" fill="url(#g_halo_red)" opacity="0.70"/>
-  <circle cx="22" cy="56" r="8" fill="url(#g_halo_red)" opacity="0.90"/>
-  <circle cx="68.5" cy="47.5" r="5" fill="url(#g_halo_red)" opacity="0.60"/>
-  <polygon points="20,52 31,38 49,24 68,34 83,47 89,50 89,62 83,65 68,78 49,88 31,74 20,60" fill="none" stroke="#FF2D4B" stroke-width="4.5" stroke-linejoin="round" opacity="0.14"/>
+  <polyline points="86.5,56 111.5,56" fill="none" stroke="#A35CFF" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" opacity="0.50"/>
+  <circle cx="39.5" cy="45" r="7" fill="url(#g_halo)" opacity="0.70"/>
+  <circle cx="39.5" cy="67" r="7" fill="url(#g_halo)" opacity="0.70"/>
+  <circle cx="22" cy="56" r="8" fill="url(#g_halo)" opacity="0.90"/>
+  <circle cx="68.5" cy="47.5" r="5" fill="url(#g_halo)" opacity="0.60"/>
+  <polygon points="20,52 31,38 49,24 68,34 83,47 89,50 89,62 83,65 68,78 49,88 31,74 20,60" fill="none" stroke="#A35CFF" stroke-width="4.5" stroke-linejoin="round" opacity="0.14"/>
   <polygon points="20,52 31,38 49,24 68,34 83,47 89,50 89,62 83,65 68,78 49,88 31,74 20,60" fill="none" stroke="url(#g_rim)" stroke-width="4" stroke-linejoin="round" opacity="0.40"/>
  </g>
 </g>
@@ -41,12 +41,12 @@
  <g id="layer.emissive.frame_2">
   <circle cx="112" cy="56" r="23" fill="url(#g_halo_mag)"/>
   <polygon points="114.5,49 133,52 133,60 114.5,63" fill="url(#g_flash)"/>
-  <polyline points="81.5,56 108.5,56" fill="none" stroke="#FF2D4B" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" opacity="0.40"/>
-  <circle cx="39.5" cy="45" r="7" fill="url(#g_halo_red)" opacity="0.70"/>
-  <circle cx="39.5" cy="67" r="7" fill="url(#g_halo_red)" opacity="0.70"/>
-  <circle cx="22" cy="56" r="8" fill="url(#g_halo_red)" opacity="0.90"/>
-  <circle cx="68.5" cy="47.5" r="5" fill="url(#g_halo_red)" opacity="0.60"/>
-  <polygon points="20,52 31,38 49,24 68,34 83,47 89,50 89,62 83,65 68,78 49,88 31,74 20,60" fill="none" stroke="#FF2D4B" stroke-width="4.5" stroke-linejoin="round" opacity="0.14"/>
+  <polyline points="81.5,56 108.5,56" fill="none" stroke="#B28CFF" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" opacity="0.40"/>
+  <circle cx="39.5" cy="45" r="7" fill="url(#g_halo)" opacity="0.70"/>
+  <circle cx="39.5" cy="67" r="7" fill="url(#g_halo)" opacity="0.70"/>
+  <circle cx="22" cy="56" r="8" fill="url(#g_halo)" opacity="0.90"/>
+  <circle cx="68.5" cy="47.5" r="5" fill="url(#g_halo)" opacity="0.60"/>
+  <polygon points="20,52 31,38 49,24 68,34 83,47 89,50 89,62 83,65 68,78 49,88 31,74 20,60" fill="none" stroke="#A35CFF" stroke-width="4.5" stroke-linejoin="round" opacity="0.14"/>
   <polygon points="20,52 31,38 49,24 68,34 83,47 89,50 89,62 83,65 68,78 49,88 31,74 20,60" fill="none" stroke="url(#g_rim)" stroke-width="4" stroke-linejoin="round" opacity="0.40"/>
  </g>
 </g>

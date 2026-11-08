@@ -1,33 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="64" viewBox="0 0 256 64">
 <title>enemy bolt body sheet: 2 frames of 128x64, pivot (56,32), art faces +x</title>
 <defs>
-<linearGradient id="g_tail" gradientUnits="userSpaceOnUse" x1="46" y1="0" x2="6" y2="0"><stop offset="0" stop-color="#FF4FD8" stop-opacity="0.95"/><stop offset="0.6" stop-color="#8A1F78" stop-opacity="0.55"/><stop offset="1" stop-color="#8A1F78" stop-opacity="0"/></linearGradient>
-<linearGradient id="g_streak" gradientUnits="userSpaceOnUse" x1="52" y1="0" x2="14" y2="0"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.9"/><stop offset="1" stop-color="#FF9AE8" stop-opacity="0"/></linearGradient>
-<linearGradient id="g_streak2" gradientUnits="userSpaceOnUse" x1="52" y1="0" x2="2" y2="0"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.9"/><stop offset="1" stop-color="#FF9AE8" stop-opacity="0"/></linearGradient>
-<radialGradient id="g_core" gradientUnits="userSpaceOnUse" cx="76" cy="32" r="18"><stop offset="0" stop-color="#FFE0F8"/><stop offset="0.6" stop-color="#FF9AE8"/><stop offset="1" stop-color="#FF4FD8"/></radialGradient>
+  <linearGradient id="g_tail" gradientUnits="userSpaceOnUse" x1="46" y1="0" x2="6" y2="0"><stop offset="0" stop-color="#FF4FD8" stop-opacity="0.95"/><stop offset="0.6" stop-color="#8A1F78" stop-opacity="0.55"/><stop offset="1" stop-color="#8A1F78" stop-opacity="0"/></linearGradient>
+  <linearGradient id="g_streak" gradientUnits="userSpaceOnUse" x1="52" y1="0" x2="14" y2="0"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.9"/><stop offset="1" stop-color="#FF9AE8" stop-opacity="0"/></linearGradient>
+  <linearGradient id="g_streak2" gradientUnits="userSpaceOnUse" x1="52" y1="0" x2="2" y2="0"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.9"/><stop offset="1" stop-color="#FF9AE8" stop-opacity="0"/></linearGradient>
+  <radialGradient id="g_core" gradientUnits="userSpaceOnUse" cx="76" cy="32" r="18"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.35" stop-color="#FFE0F8"/><stop offset="0.7" stop-color="#FF9AE8"/><stop offset="1" stop-color="#FF4FD8"/></radialGradient>
 </defs>
-<g id="slot.frame_0">
-<g id="layer.base_0">
-<path d="M52 27 Q30 30 8 32 Q30 34 52 37 Z" fill="url(#g_tail)"/>
-<path d="M54 25 L16 21 M54 39 L16 43" fill="none" stroke="url(#g_streak)" stroke-width="3" stroke-linecap="round"/>
-<path d="M102 32 L74 13 L44 32 L74 51 Z" fill="#FF4FD8" stroke="#FFE0F8" stroke-width="2.5" stroke-linejoin="round" stroke-opacity="0.7"/>
-<path d="M44 32 L74 51 L102 32 Z" fill="#8A1F78" fill-opacity="0.8"/>
-<path d="M44 32 L74 13 L102 32 Z" fill="#FF9AE8" fill-opacity="0.55"/>
-</g>
-<g id="layer.emissive_0">
-<path d="M92 32 L76 22 L58 32 L76 42 Z" fill="url(#g_core)"/>
-</g>
+<g id="slot.frame_0" transform="translate(0,0)">
+ <g id="layer.base.frame_0">
+  <path d="M52 27 Q30 30 8 32 Q30 34 52 37 Z" fill="url(#g_tail)"/>
+  <path d="M54 25 L16 21 M54 39 L16 43" fill="none" stroke="url(#g_streak)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M104 32 L74 14 L42 32 L74 50 Z" fill="#8A1F78" stroke="#FFE0F8" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M101 32 L74 16.5 L45 32 L74 47.5 Z" fill="#FF4FD8"/>
+  <path d="M45 32 L74 47.5 L101 32 Z" fill="#8A1F78" opacity="0.85"/>
+  <path d="M45 32 L74 16.5 L101 32 Z" fill="#FF9AE8" opacity="0.6"/>
+ </g>
+ <g id="layer.emissive.frame_0">
+  <path d="M92 32 L76 22.5 L58 32 L76 41.5 Z" fill="url(#g_core)"/>
+ </g>
 </g>
 <g id="slot.frame_1" transform="translate(128,0)">
-<g id="layer.base_1">
-<path d="M52 27.5 Q28 30 4 32 Q28 34 52 36.5 Z" fill="url(#g_tail)"/>
-<path d="M54 26 L12 17 M54 38 L12 47" fill="none" stroke="url(#g_streak2)" stroke-width="3" stroke-linecap="round"/>
-<path d="M102 32 L74 13 L44 32 L74 51 Z" fill="#FF4FD8" stroke="#FFE0F8" stroke-width="2.5" stroke-linejoin="round" stroke-opacity="0.7"/>
-<path d="M44 32 L74 51 L102 32 Z" fill="#8A1F78" fill-opacity="0.8"/>
-<path d="M44 32 L74 13 L102 32 Z" fill="#FF9AE8" fill-opacity="0.55"/>
-</g>
-<g id="layer.emissive_1">
-<path d="M94 32 L76 20 L56 32 L76 44 Z" fill="url(#g_core)"/>
-</g>
+ <g id="layer.base.frame_1">
+  <path d="M52 27 Q30 30 4 32 Q30 34 52 37 Z" fill="url(#g_tail)"/>
+  <path d="M54 25 L12 17 M54 39 L12 47" fill="none" stroke="url(#g_streak2)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M104 32 L74 14 L42 32 L74 50 Z" fill="#8A1F78" stroke="#FFE0F8" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M101 32 L74 16.5 L45 32 L74 47.5 Z" fill="#FF4FD8"/>
+  <path d="M45 32 L74 47.5 L101 32 Z" fill="#8A1F78" opacity="0.85"/>
+  <path d="M45 32 L74 16.5 L101 32 Z" fill="#FF9AE8" opacity="0.6"/>
+ </g>
+ <g id="layer.emissive.frame_1">
+  <path d="M93.9 32 L76 21.4 L55.8 32 L76 42.6 Z" fill="url(#g_core)"/>
+ </g>
 </g>
 </svg>

@@ -64,9 +64,10 @@ Amber = Cinder and information; red = hostile only; teal = friendly/positive; ma
 ### 3.2 Material ramps (hex)
 | Material | Shadow | Base | Light | Highlight | Emissive / glow |
 |---|---|---|---|---|---|
-| **Cinder skin** (plated, section 4.2) | `#8A5A44` | `#D9A383` (= `SKIN`) | `#F0C4A0` | `#FFE6CC` | seam glow `#FFB000` at 40% |
+| **Cinder armor plates** (gunmetal / ceramic, V1-GATE decision 4, replaces the tan skin ramp; section 4.2) | `#38434B` (= `ARMOR_SHADOW`) | `#6B7882` (= `ARMOR_BASE`) | `#9AA8B3` (= `ARMOR_LIGHT`) | `#DCE6EC` (= `ARMOR_HIGHLIGHT`) | amber trim `#FFB000` (trim glow only, not a plate wash) |
+| **Cinder skin, legacy tan** (superseded by the armor plates; consts `SKIN*` stay only until the view/test code is migrated) | `#8A5A44` | `#D9A383` (= `SKIN`) | `#F0C4A0` | `#FFE6CC` | none |
 | **Cinder skin, charred** | `#1F1612` | `#3A2A22` (= `CHAR`) | `#5A4034` | `#7A5A48` | ember edge `#FF8A1F`, spark `#FFD27A` |
-| **Cinder frame** (gunmetal) | `#2B343B` | `#56656F` | `#8FA3B0` (= `FRAME`) | `#D4E0E8` | none (hot state: `#FFF1C9`) |
+| **Cinder frame** (gunmetal; deepest cavity tone `#12181D` = `FRAME_DEEP`) | `#2B343B` | `#56656F` | `#8FA3B0` (= `FRAME`) | `#D4E0E8` | none (hot state: `#FFF1C9`) |
 | **Cinder trim** (amber hazard paint) | `#8A5F00` (= `AMBER_DIM`) | `#FFB000` (= `AMBER`) | `#FFD27A` (= `AMBER_GLOW`) | `#FFF1C9` | `#FFB000` |
 | **Cinder core** | `#8A5F00` | `#FFB000` | `#FFE3A3` (= `CORE`) | `#FFFFFF` | halo `#FFB000`, hot `#FFF1C9`, crack glow `#FF3B30` |
 | **Enemy hull** (all normal types) | `#12060A` | `#2A0A10` (= `ENEMY_FILL`) | `#4A1220` | `#7A1E30` | rim/edge `#FF2D4B` (= `ENEMY_OUTLINE`), hot edge `#FF6B7E`, vent core `#FFC2CC` |
@@ -110,7 +111,7 @@ Minimum on-screen sizes (acceptance for readability, V1-19): no enemy body narro
 The values live in `assets/art/slots.csv` (`body_radius_px`) and `ViewMath` consts so one edit rescales a type.
 
 ### 4.2 Cinder look decisions
-- **Plated "skin"** [D]: the warm outer ring is **synthetic composite armor panels** (ceramic-polymer scales with seams, panel lines and a warm sand-peach glaze), not organic skin: no pores, veins, flesh texture, gore or face. This keeps the GDD 01 idea "synthetic skin over a combat frame" and the IP guardrails. Open question 09 Q42 (recommendation: plated).
+- **Plated "skin"** [D]: the outer ring is **gunmetal / ceramic armor plates** (V1-GATE decision 4: raised light panels on dark plates, amber trim arc and indicator marks, rivets, scratches; supersedes the earlier warm sand-peach glaze), not organic skin: no pores, veins, flesh texture, gore or face. This keeps the GDD 01 idea "synthetic skin over a combat frame" and the IP guardrails. Open question 09 Q42 (recommendation: plated).
 - **No face, no skull, no red eyes**: the visor is a horizontal **amber slit** on the facing arc (GDD 01 s3); no unit in the game has eyes.
 - **Asymmetry**: left shoulder emitter assembly (larger than the skin ring's detail), fixed to the screen; three emitter nodes at 0/120/240 degrees on the rotating ring; one **amber hazard-paint bar** on the upper right frame only.
 - **Construction**, back to front: shadow, frame (gunmetal ribbed disc with under-skin cavities), 12 skin wedges (alternating 2 art variants A/B so the ring is not identical), trim ring, core housing, core, emitter ring (rotates to the target), visor slit, shoulder assembly, glow layers (additive, half resolution).

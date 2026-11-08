@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="g_plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></linearGradient>
+</defs>
+<g id="slot.crit_mult">
+<g id="layer.plate"><polygon points="0.5,24.7 24.7,0.5 127.5,0.5 127.5,103.3 103.3,127.5 0.5,127.5" fill="url(#g_plate)"/><polygon points="9,36.7 36.7,9 119,9 119,91.3 91.3,119 9,119" fill="none" stroke="#FFB000" stroke-width="1.5" stroke-linejoin="round" stroke-opacity="0.35"/><polygon points="2,26.8 26.8,2 126,2 126,101.2 101.2,126 2,126" fill="none" stroke="#FFB000" stroke-width="4" stroke-linejoin="round"/><polyline points="94,2 126,2 126,34" fill="none" stroke="#FFD27A" stroke-width="4"/><polyline points="2,94 2,126 34,126" fill="none" stroke="#FFD27A" stroke-width="4"/></g>
+<g id="layer.glyph">
+<polygon points="67,18 75.4,46.7 101.6,32.4 87.3,58.6 116,67 87.3,75.4 101.6,101.6 75.4,87.3 67,116 58.6,87.3 32.4,101.6 46.7,75.4 18,67 46.7,58.6 32.4,32.4 58.6,46.7" fill="#8A5F00" stroke="#8A5F00" stroke-width="3" stroke-linejoin="round"/><polygon points="64,15 72.4,43.7 98.6,29.4 84.3,55.6 113,64 84.3,72.4 98.6,98.6 72.4,84.3 64,113 55.6,84.3 29.4,98.6 43.7,72.4 15,64 43.7,55.6 29.4,29.4 55.6,43.7" fill="#FFB000" stroke="#0D1117" stroke-width="2.5" stroke-linejoin="round"/><polygon points="64,26 72.4,43.7 90.9,37.1 84.3,55.6 102,64 84.3,72.4 90.9,90.9 72.4,84.3 64,102 55.6,84.3 37.1,90.9 43.7,72.4 26,64 43.7,55.6 37.1,37.1 55.6,43.7" fill="#FFD27A"/><circle cx="64" cy="64" r="21" fill="#0D1117"/><polyline points="53,53 75,75" fill="none" stroke="#FFF1C9" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><polyline points="75,53 53,75" fill="none" stroke="#FFF1C9" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><polyline points="53,53 75,75" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><polyline points="75,53 53,75" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+</svg>

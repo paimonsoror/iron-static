@@ -1,14 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="512" viewBox="0 0 1024 512">
-<title>fx_sheet: neutral white FX cells 128x128, tinted at use, premultiplied-alpha friendly (alpha falls to 0 inside every cell)</title>
+<title>fx_sheet: neutral white FX cells 128x128 (+ beam_strip 256x32 at y=384), tinted at use, premultiplied-alpha friendly (alpha falls to 0 inside every cell)</title>
 <defs>
 <radialGradient id="g_halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/><stop offset="0.12" stop-color="#FFFFFF" stop-opacity="0.62"/><stop offset="0.3" stop-color="#FFFFFF" stop-opacity="0.32"/><stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0.11"/><stop offset="0.8" stop-color="#FFFFFF" stop-opacity="0.025"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
-<radialGradient id="g_disc" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.45" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.62" stop-color="#FFFFFF" stop-opacity="0.7"/><stop offset="0.8" stop-color="#FFFFFF" stop-opacity="0.22"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+<radialGradient id="g_disc" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.3" stop-color="#FFFFFF" stop-opacity="0.98"/><stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.88"/><stop offset="0.58" stop-color="#FFFFFF" stop-opacity="0.66"/><stop offset="0.7" stop-color="#FFFFFF" stop-opacity="0.4"/><stop offset="0.82" stop-color="#FFFFFF" stop-opacity="0.18"/><stop offset="0.92" stop-color="#FFFFFF" stop-opacity="0.06"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
 <radialGradient id="g_star" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="58"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0.8"/><stop offset="0.75" stop-color="#FFFFFF" stop-opacity="0.25"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
 <radialGradient id="g_ring_thin" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="58"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.74" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.86" stop-color="#FFFFFF" stop-opacity="0.95"/><stop offset="0.93" stop-color="#FFFFFF" stop-opacity="0.45"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
 <radialGradient id="g_ring_thick" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="58"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.52" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.68" stop-color="#FFFFFF" stop-opacity="0.8"/><stop offset="0.82" stop-color="#FFFFFF" stop-opacity="0.9"/><stop offset="0.92" stop-color="#FFFFFF" stop-opacity="0.35"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
-<linearGradient id="g_spark" gradientUnits="userSpaceOnUse" x1="-36" y1="0" x2="34" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.7" stop-color="#FFFFFF" stop-opacity="0.85"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="1"/></linearGradient>
-<radialGradient id="g_spark_head" gradientUnits="userSpaceOnUse" cx="30" cy="0" r="10"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
-<radialGradient id="g_ember" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.3" stop-color="#FFFFFF" stop-opacity="0.85"/><stop offset="0.65" stop-color="#FFFFFF" stop-opacity="0.25"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+<radialGradient id="g_ember" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.4" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.62" stop-color="#FFFFFF" stop-opacity="0.7"/><stop offset="0.8" stop-color="#FFFFFF" stop-opacity="0.28"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+<linearGradient id="g_spark" gradientUnits="userSpaceOnUse" x1="-58" y1="0" x2="56" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.35" stop-color="#FFFFFF" stop-opacity="0.3"/><stop offset="0.7" stop-color="#FFFFFF" stop-opacity="0.85"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="1"/></linearGradient>
+<radialGradient id="g_spark_head" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="17"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.4" stop-color="#FFFFFF" stop-opacity="0.85"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+<linearGradient id="g_beam" gradientUnits="objectBoundingBox" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.0208" stop-color="#FFFFFF" stop-opacity="0.0004"/><stop offset="0.0417" stop-color="#FFFFFF" stop-opacity="0.0018"/><stop offset="0.0625" stop-color="#FFFFFF" stop-opacity="0.0052"/><stop offset="0.0833" stop-color="#FFFFFF" stop-opacity="0.0111"/><stop offset="0.1042" stop-color="#FFFFFF" stop-opacity="0.0206"/><stop offset="0.125" stop-color="#FFFFFF" stop-opacity="0.0342"/><stop offset="0.1458" stop-color="#FFFFFF" stop-opacity="0.0523"/><stop offset="0.1667" stop-color="#FFFFFF" stop-opacity="0.0743"/><stop offset="0.1875" stop-color="#FFFFFF" stop-opacity="0.0984"/><stop offset="0.2083" stop-color="#FFFFFF" stop-opacity="0.1218"/><stop offset="0.2292" stop-color="#FFFFFF" stop-opacity="0.1469"/><stop offset="0.25" stop-color="#FFFFFF" stop-opacity="0.1749"/><stop offset="0.2708" stop-color="#FFFFFF" stop-opacity="0.2055"/><stop offset="0.2917" stop-color="#FFFFFF" stop-opacity="0.2391"/><stop offset="0.3125" stop-color="#FFFFFF" stop-opacity="0.2766"/><stop offset="0.3333" stop-color="#FFFFFF" stop-opacity="0.3211"/><stop offset="0.3542" stop-color="#FFFFFF" stop-opacity="0.3788"/><stop offset="0.375" stop-color="#FFFFFF" stop-opacity="0.4591"/><stop offset="0.3958" stop-color="#FFFFFF" stop-opacity="0.5719"/><stop offset="0.4167" stop-color="#FFFFFF" stop-opacity="0.7214"/><stop offset="0.4375" stop-color="#FFFFFF" stop-opacity="0.8976"/><stop offset="0.4583" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.4792" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.5208" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.5417" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.5625" stop-color="#FFFFFF" stop-opacity="0.8976"/><stop offset="0.5833" stop-color="#FFFFFF" stop-opacity="0.7214"/><stop offset="0.6042" stop-color="#FFFFFF" stop-opacity="0.5719"/><stop offset="0.625" stop-color="#FFFFFF" stop-opacity="0.4591"/><stop offset="0.6458" stop-color="#FFFFFF" stop-opacity="0.3788"/><stop offset="0.6667" stop-color="#FFFFFF" stop-opacity="0.3211"/><stop offset="0.6875" stop-color="#FFFFFF" stop-opacity="0.2766"/><stop offset="0.7083" stop-color="#FFFFFF" stop-opacity="0.2391"/><stop offset="0.7292" stop-color="#FFFFFF" stop-opacity="0.2055"/><stop offset="0.75" stop-color="#FFFFFF" stop-opacity="0.1749"/><stop offset="0.7708" stop-color="#FFFFFF" stop-opacity="0.1469"/><stop offset="0.7917" stop-color="#FFFFFF" stop-opacity="0.1218"/><stop offset="0.8125" stop-color="#FFFFFF" stop-opacity="0.0984"/><stop offset="0.8333" stop-color="#FFFFFF" stop-opacity="0.0743"/><stop offset="0.8542" stop-color="#FFFFFF" stop-opacity="0.0523"/><stop offset="0.875" stop-color="#FFFFFF" stop-opacity="0.0342"/><stop offset="0.8958" stop-color="#FFFFFF" stop-opacity="0.0206"/><stop offset="0.9167" stop-color="#FFFFFF" stop-opacity="0.0111"/><stop offset="0.9375" stop-color="#FFFFFF" stop-opacity="0.0052"/><stop offset="0.9583" stop-color="#FFFFFF" stop-opacity="0.0018"/><stop offset="0.9792" stop-color="#FFFFFF" stop-opacity="0.0004"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+<radialGradient id="g_cap" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="64" gradientTransform="translate(128,64) scale(2,1)"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.0417" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.0833" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.125" stop-color="#FFFFFF" stop-opacity="0.8976"/><stop offset="0.1667" stop-color="#FFFFFF" stop-opacity="0.7214"/><stop offset="0.2083" stop-color="#FFFFFF" stop-opacity="0.5719"/><stop offset="0.25" stop-color="#FFFFFF" stop-opacity="0.4591"/><stop offset="0.2917" stop-color="#FFFFFF" stop-opacity="0.3788"/><stop offset="0.3333" stop-color="#FFFFFF" stop-opacity="0.3211"/><stop offset="0.375" stop-color="#FFFFFF" stop-opacity="0.2766"/><stop offset="0.4167" stop-color="#FFFFFF" stop-opacity="0.2391"/><stop offset="0.4583" stop-color="#FFFFFF" stop-opacity="0.2055"/><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.1749"/><stop offset="0.5417" stop-color="#FFFFFF" stop-opacity="0.1469"/><stop offset="0.5833" stop-color="#FFFFFF" stop-opacity="0.1218"/><stop offset="0.625" stop-color="#FFFFFF" stop-opacity="0.0984"/><stop offset="0.6667" stop-color="#FFFFFF" stop-opacity="0.0743"/><stop offset="0.7083" stop-color="#FFFFFF" stop-opacity="0.0523"/><stop offset="0.75" stop-color="#FFFFFF" stop-opacity="0.0342"/><stop offset="0.7917" stop-color="#FFFFFF" stop-opacity="0.0206"/><stop offset="0.8333" stop-color="#FFFFFF" stop-opacity="0.0111"/><stop offset="0.875" stop-color="#FFFFFF" stop-opacity="0.0052"/><stop offset="0.9167" stop-color="#FFFFFF" stop-opacity="0.0018"/><stop offset="0.9583" stop-color="#FFFFFF" stop-opacity="0.0004"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+<linearGradient id="g_streak" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.2" stop-color="#FFFFFF" stop-opacity="0.9"/><stop offset="0.8" stop-color="#FFFFFF" stop-opacity="0.9"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+<linearGradient id="g_cone" gradientUnits="userSpaceOnUse" x1="14" y1="0" x2="102" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.25" stop-color="#FFFFFF" stop-opacity="0.7"/><stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0.26"/><stop offset="0.85" stop-color="#FFFFFF" stop-opacity="0.06"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+<linearGradient id="g_cone_in" gradientUnits="userSpaceOnUse" x1="14" y1="0" x2="90" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.4" stop-color="#FFFFFF" stop-opacity="0.85"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+<radialGradient id="g_sweep" gradientUnits="userSpaceOnUse" cx="64" cy="64" r="60"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.2"/><stop offset="0.25" stop-color="#FFFFFF" stop-opacity="0.75"/><stop offset="0.7" stop-color="#FFFFFF" stop-opacity="1"/><stop offset="0.88" stop-color="#FFFFFF" stop-opacity="0.7"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>
+<filter id="f_smoke" filterUnits="userSpaceOnUse" x="0" y="0" width="128" height="128"><feGaussianBlur stdDeviation="6"/></filter>
+<filter id="f_smoke2" filterUnits="userSpaceOnUse" x="0" y="0" width="128" height="128"><feGaussianBlur stdDeviation="6"/></filter>
+<filter id="f_cone" filterUnits="userSpaceOnUse" x="0" y="0" width="128" height="128"><feGaussianBlur stdDeviation="3.2"/></filter>
 </defs>
 <g id="slot.halo_soft" transform="translate(0,0)"><g id="layer.base_halo_soft">
 <circle cx="64" cy="64" r="60" fill="url(#g_halo)"/>
@@ -21,9 +30,16 @@
 <path d="M0 -58 Q2.2 -2.2 58 0 Q2.2 2.2 0 58 Q-2.2 2.2 -58 0 Q-2.2 -2.2 0 -58 Z" fill="url(#g_star)" transform="translate(64,64)"/>
 </g></g>
 <g id="slot.flare_star_8" transform="translate(384,0)"><g id="layer.base_flare_star_8">
-<circle cx="64" cy="64" r="28" fill="url(#g_halo)"/>
-<path d="M0 -58 Q2.2 -2.2 58 0 Q2.2 2.2 0 58 Q-2.2 2.2 -58 0 Q-2.2 -2.2 0 -58 Z" fill="url(#g_star)" transform="translate(64,64)"/>
-<path d="M0 -40 Q1.6 -1.6 40 0 Q1.6 1.6 0 40 Q-1.6 1.6 -40 0 Q-1.6 -1.6 0 -40 Z" fill="url(#g_star)" transform="translate(64,64) rotate(45)"/>
+<circle cx="64" cy="64" r="15" fill="url(#g_halo)"/>
+<path d="M0 -6.5 Q17.4 -2.925 58 0 Q17.4 2.925 0 6.5 Z" fill="url(#g_star)" transform="translate(64,64) rotate(0)"/>
+<path d="M0 -6.5 Q17.4 -2.925 58 0 Q17.4 2.925 0 6.5 Z" fill="url(#g_star)" transform="translate(64,64) rotate(90)"/>
+<path d="M0 -6.5 Q17.4 -2.925 58 0 Q17.4 2.925 0 6.5 Z" fill="url(#g_star)" transform="translate(64,64) rotate(180)"/>
+<path d="M0 -6.5 Q17.4 -2.925 58 0 Q17.4 2.925 0 6.5 Z" fill="url(#g_star)" transform="translate(64,64) rotate(270)"/>
+<path d="M0 -6 Q13.8 -2.7 46 0 Q13.8 2.7 0 6 Z" fill="url(#g_star)" transform="translate(64,64) rotate(45)"/>
+<path d="M0 -6 Q13.8 -2.7 46 0 Q13.8 2.7 0 6 Z" fill="url(#g_star)" transform="translate(64,64) rotate(135)"/>
+<path d="M0 -6 Q13.8 -2.7 46 0 Q13.8 2.7 0 6 Z" fill="url(#g_star)" transform="translate(64,64) rotate(225)"/>
+<path d="M0 -6 Q13.8 -2.7 46 0 Q13.8 2.7 0 6 Z" fill="url(#g_star)" transform="translate(64,64) rotate(315)"/>
+<circle cx="64" cy="64" r="7" fill="#FFFFFF" opacity="0.95"/>
 </g></g>
 <g id="slot.ring_thin" transform="translate(512,0)"><g id="layer.base_ring_thin">
 <circle cx="0" cy="0" r="58" fill="url(#g_ring_thin)" transform="translate(64,64)"/>
@@ -31,23 +47,58 @@
 <g id="slot.ring_thick" transform="translate(640,0)"><g id="layer.base_ring_thick">
 <circle cx="0" cy="0" r="58" fill="url(#g_ring_thick)" transform="translate(64,64)"/>
 </g></g>
+<g id="slot.smoke_puff_a" transform="translate(768,0)"><g id="layer.base_smoke_puff_a">
+<g filter="url(#f_smoke)" opacity="0.9">
+<circle cx="64" cy="70" r="26" fill="#FFFFFF"/>
+<circle cx="44" cy="60" r="19" fill="#FFFFFF"/>
+<circle cx="84" cy="58" r="21" fill="#FFFFFF"/>
+<circle cx="58" cy="44" r="16" fill="#FFFFFF"/>
+<circle cx="78" cy="82" r="17" fill="#FFFFFF"/>
+<circle cx="40" cy="82" r="14" fill="#FFFFFF"/>
+<circle cx="74" cy="84" r="13" fill="#9C9C9C" opacity="0.7"/>
+<circle cx="54" cy="88" r="10" fill="#9C9C9C" opacity="0.7"/>
+<circle cx="92" cy="66" r="9" fill="#9C9C9C" opacity="0.7"/>
+</g>
+</g></g>
+<g id="slot.smoke_puff_b" transform="translate(896,0)"><g id="layer.base_smoke_puff_b">
+<g filter="url(#f_smoke2)" opacity="0.9">
+<circle cx="60" cy="64" r="27" fill="#FFFFFF"/>
+<circle cx="88" cy="70" r="19" fill="#FFFFFF"/>
+<circle cx="36" cy="70" r="17" fill="#FFFFFF"/>
+<circle cx="70" cy="40" r="17" fill="#FFFFFF"/>
+<circle cx="50" cy="88" r="15" fill="#FFFFFF"/>
+<circle cx="92" cy="48" r="12" fill="#FFFFFF"/>
+<circle cx="80" cy="82" r="12" fill="#9C9C9C" opacity="0.7"/>
+<circle cx="60" cy="92" r="10" fill="#9C9C9C" opacity="0.7"/>
+<circle cx="98" cy="66" r="8" fill="#9C9C9C" opacity="0.7"/>
+</g>
+</g></g>
 <g id="slot.spark_a" transform="translate(0,128)"><g id="layer.base_spark_a">
-<path d="M-36 0 Q0 -4.5 34 -3.5 Q40 0 34 3.5 Q0 4.5 -36 0 Z" fill="url(#g_spark)" transform="translate(64,64)"/>
-<circle cx="30" cy="0" r="10" fill="url(#g_spark_head)" transform="translate(64,64)"/>
+<g transform="translate(64,64)">
+<path d="M-58 0 Q-8 -2.5 36 -9 Q55 -8 56 0 Q55 8 36 9 Q-8 2.5 -58 0 Z" fill="url(#g_spark)"/>
+<circle cx="44" cy="0" r="17" fill="url(#g_spark_head)"/>
+<path d="M-20 0 Q10 -1.8 44 -4.5 Q50 0 44 4.5 Q10 1.8 -20 0 Z" fill="#FFFFFF" opacity="0.9"/>
+</g>
 </g></g>
 <g id="slot.spark_b" transform="translate(128,128)"><g id="layer.base_spark_b">
-<path d="M-22 0 Q0 -6 24 -5 Q32 0 24 5 Q0 6 -22 0 Z" fill="url(#g_spark)" transform="translate(64,64) scale(1.0,1.0)"/>
-<circle cx="26" cy="0" r="9" fill="url(#g_spark_head)" transform="translate(60,64)"/>
+<g transform="translate(64,64)">
+<path d="M-40 0 Q-6 -3 30 -12 Q52 -10 54 0 Q52 10 30 12 Q-6 3 -40 0 Z" fill="url(#g_spark)"/>
+<circle cx="38" cy="0" r="16" fill="url(#g_spark_head)"/>
+<path d="M-6 0 Q18 -2 38 -6 Q44 0 38 6 Q18 2 -6 0 Z" fill="#FFFFFF" opacity="0.9"/>
+</g>
 </g></g>
 <g id="slot.spark_c" transform="translate(256,128)"><g id="layer.base_spark_c">
-<path d="M-36 4 L-14 -3 L-4 4 L12 -3 L34 0 L12 1 L-4 7 L-14 1 Z" fill="url(#g_spark)" transform="translate(64,64) scale(1.15)"/>
-<circle cx="30" cy="0" r="9" fill="url(#g_spark_head)" transform="translate(64,64) scale(1.15)"/>
+<g transform="translate(64,64)">
+<polyline points="-50,6 -30,-5 -12,6 10,-6 30,3 49,-1" fill="none" stroke="url(#g_spark)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+<polyline points="-50,6 -30,-5 -12,6 10,-6 30,3 49,-1" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+<circle cx="44" cy="0" r="14" fill="url(#g_spark_head)"/>
+</g>
 </g></g>
 <g id="slot.ember_a" transform="translate(384,128)"><g id="layer.base_ember_a">
-<circle cx="64" cy="64" r="18" fill="url(#g_ember)"/>
+<circle cx="64" cy="64" r="58" fill="url(#g_ember)"/>
 </g></g>
 <g id="slot.ember_b" transform="translate(512,128)"><g id="layer.base_ember_b">
-<ellipse cx="64" cy="64" rx="12" ry="20" fill="url(#g_ember)" transform="rotate(25 64 64)"/>
+<ellipse cx="64" cy="64" rx="30" ry="58" fill="url(#g_ember)" transform="rotate(25 64 64)"/>
 </g></g>
 <g id="slot.shard_1" transform="translate(640,128)"><g id="layer.base_shard_1">
 <path d="M24 78 L58 22 L98 52 L84 98 Z" fill="#FFFFFF"/>
@@ -66,5 +117,69 @@
 <path d="M52 30 L78 60 L60 74 Z" fill="#A0A0A0"/>
 <path d="M60 74 L78 60 L96 108 L40 100 Z" fill="#7A7A7A"/>
 <path d="M40 100 L52 30 L78 60 L96 108 Z" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+</g></g>
+<g id="slot.shard_4" transform="translate(0,256)"><g id="layer.base_shard_4">
+<path d="M14 100 L108 20 L88 64 L32 112 Z" fill="#FFFFFF"/>
+<path d="M14 100 L108 20 L88 64 Z" fill="#B0B0B0"/>
+<path d="M14 100 L88 64 L32 112 Z" fill="#6E6E6E"/>
+<path d="M14 100 L108 20 L88 64 L32 112 Z" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+</g></g>
+<g id="slot.shard_5" transform="translate(128,256)"><g id="layer.base_shard_5">
+<path d="M22 98 L60 18 L106 86 L70 72 Z" fill="#FFFFFF"/>
+<path d="M22 98 L60 18 L70 72 Z" fill="#A4A4A4"/>
+<path d="M60 18 L106 86 L70 72 Z" fill="#767676"/>
+<path d="M22 98 L60 18 L106 86 L70 72 Z" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+</g></g>
+<g id="slot.shard_6" transform="translate(256,256)"><g id="layer.base_shard_6">
+<path d="M26 36 L88 20 L108 58 L84 108 L40 82 Z" fill="#FFFFFF"/>
+<path d="M26 36 L88 20 L66 58 Z" fill="#B4B4B4"/>
+<path d="M88 20 L108 58 L66 58 Z" fill="#8C8C8C"/>
+<path d="M66 58 L108 58 L84 108 Z" fill="#6A6A6A"/>
+<path d="M66 58 L84 108 L40 82 Z" fill="#808080"/>
+<path d="M26 36 L66 58 L40 82 Z" fill="#9A9A9A"/>
+<path d="M26 36 L88 20 L108 58 L84 108 L40 82 Z" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>
+</g></g>
+<g id="slot.scan_sweep" transform="translate(384,256)"><g id="layer.base_scan_sweep">
+<path d="M64 64 L120.67 44.28 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L117.40 36.63 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L114.19 31.12 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L111.04 26.75 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L107.95 23.15 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L104.92 20.12 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L101.95 17.53 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L99.04 15.29 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L96.18 13.36 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L93.38 11.69 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L90.64 10.24 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L87.95 8.99 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L85.32 7.92 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L82.74 7.00 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L80.22 6.23 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L77.75 5.60 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L75.33 5.08 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L72.96 4.67 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L70.65 4.37 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L68.38 4.16 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L66.17 4.04 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L64.00 4.00 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.06"/>
+<path d="M64 64 L123.98 62.32 A60 60 0 0 1 124 64 Z" fill="url(#g_sweep)" fill-opacity="0.55"/>
+</g></g>
+<g id="slot.muzzle_cone" transform="translate(512,256)"><g id="layer.base_muzzle_cone">
+<g filter="url(#f_cone)">
+<path d="M14 64 L102 26 L102 102 Z" fill="url(#g_cone)" opacity="0.8"/>
+<path d="M14 64 L90 48 L90 80 Z" fill="url(#g_cone_in)"/>
+</g>
+</g></g>
+<g id="slot.beam_cap" transform="translate(640,256)"><g id="layer.base_beam_cap">
+<rect x="0" y="0" width="128" height="128" fill="url(#g_cap)"/>
+</g></g>
+<g id="slot.beam_strip" transform="translate(0,384)"><g id="layer.base_beam_strip">
+<rect x="0" y="0" width="256" height="32" fill="url(#g_beam)"/>
+<rect x="20" y="15.2" width="92" height="1.1" fill="url(#g_streak)" opacity="0.35"/>
+<rect x="130" y="16.6" width="110" height="1" fill="url(#g_streak)" opacity="0.3"/>
+<rect x="60" y="13.6" width="70" height="1" fill="url(#g_streak)" opacity="0.2"/>
+<rect x="170" y="18.2" width="64" height="1" fill="url(#g_streak)" opacity="0.2"/>
+<rect x="210" y="14.8" width="40" height="0.9" fill="url(#g_streak)" opacity="0.3"/>
+<rect x="5" y="16.1" width="34" height="0.9" fill="url(#g_streak)" opacity="0.25"/>
 </g></g>
 </svg>

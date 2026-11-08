@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="g_plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></linearGradient>
+</defs>
+<g id="slot.tab_intel">
+<g id="layer.plate"><polygon points="0.5,24.7 24.7,0.5 127.5,0.5 127.5,103.3 103.3,127.5 0.5,127.5" fill="url(#g_plate)"/><polygon points="9,36.7 36.7,9 119,9 119,91.3 91.3,119 9,119" fill="none" stroke="#FFB000" stroke-width="1.5" stroke-linejoin="round" stroke-opacity="0.35"/><polygon points="2,26.8 26.8,2 126,2 126,101.2 101.2,126 2,126" fill="none" stroke="#FFB000" stroke-width="4" stroke-linejoin="round"/><polyline points="94,2 126,2 126,34" fill="none" stroke="#FFD27A" stroke-width="4"/><polyline points="2,94 2,126 34,126" fill="none" stroke="#FFD27A" stroke-width="4"/></g>
+<g id="layer.glyph">
+<path d="M12,64 Q64,14 116,64 Q64,114 12,64 Z" fill="#0D1117" stroke="#0D1117" stroke-width="3" stroke-linejoin="round" transform="translate(3,3)"/><path d="M12,64 Q64,14 116,64 Q64,114 12,64 Z" fill="#8A5F00" stroke="#0D1117" stroke-width="3" stroke-linejoin="round"/><path d="M20,64 Q64,24 108,64 Q64,104 20,64 Z" fill="#FFB000"/><path d="M24,62 Q64,30 104,62" fill="none" stroke="#FFF1C9" stroke-width="3" stroke-linecap="round"/><circle cx="64" cy="64" r="24" fill="#0D1117" stroke="#FFD27A" stroke-width="4"/><polygon points="64,51 75.3,57.5 75.3,70.5 64,77 52.7,70.5 52.7,57.5" fill="#FFB000" stroke="#0D1117" stroke-width="2" stroke-linejoin="round"/><circle cx="64" cy="64" r="5" fill="#0D1117"/><circle cx="58" cy="58" r="3" fill="#FFFFFF"/>
+</g>
+</g>
+</svg>

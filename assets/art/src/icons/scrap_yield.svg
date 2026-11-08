@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="g_plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></linearGradient>
+</defs>
+<g id="slot.scrap_yield">
+<g id="layer.plate"><polygon points="0.5,24.7 24.7,0.5 127.5,0.5 127.5,103.3 103.3,127.5 0.5,127.5" fill="url(#g_plate)"/><polygon points="9,36.7 36.7,9 119,9 119,91.3 91.3,119 9,119" fill="none" stroke="#D6B36A" stroke-width="1.5" stroke-linejoin="round" stroke-opacity="0.35"/><polygon points="2,26.8 26.8,2 126,2 126,101.2 101.2,126 2,126" fill="none" stroke="#D6B36A" stroke-width="4" stroke-linejoin="round"/><polyline points="94,2 126,2 126,34" fill="none" stroke="#F0D9A0" stroke-width="4"/><polyline points="2,94 2,126 34,126" fill="none" stroke="#F0D9A0" stroke-width="4"/></g>
+<g id="layer.glyph">
+<polygon points="14,106 30,76 62,86 58,108" fill="#8C7240" stroke="#0D1117" stroke-width="2.5" stroke-linejoin="round"/><polygon points="14,106 30,76 42,80 28,106" fill="#E2C37E"/><polygon points="52,108 68,68 98,78 106,108" fill="#B3955A" stroke="#0D1117" stroke-width="2.5" stroke-linejoin="round"/><polygon points="68,68 98,78 90,86 72,80" fill="#F6E6BC"/><polygon points="88,108 104,82 118,92 116,108" fill="#C8A662" stroke="#0D1117" stroke-width="2.5" stroke-linejoin="round"/><polygon points="104,82 118,92 112,94 104,88" fill="#F6E6BC"/><polyline points="68,68 66,104" fill="none" stroke="#54421F" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round" stroke-opacity="0.8"/><polygon points="72,11 104,43 88,43 88,63 56,63 56,43 40,43" fill="#0D1117" stroke="#0D1117" stroke-width="4" stroke-linejoin="round"/><polygon points="70,8 102,40 86,40 86,60 54,60 54,40 38,40" fill="#E2C37E" stroke="#0D1117" stroke-width="2.5" stroke-linejoin="round"/><polyline points="41,38 70,12" fill="none" stroke="#F6E6BC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="58" y="44" width="5" height="13" fill="#F6E6BC" fill-opacity="0.9"/>
+</g>
+</g>
+</svg>

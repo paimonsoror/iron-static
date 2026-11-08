@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="g_plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></linearGradient>
+</defs>
+<g id="slot.ic_pause">
+<g id="layer.plate"><polygon points="0.5,24.7 24.7,0.5 127.5,0.5 127.5,103.3 103.3,127.5 0.5,127.5" fill="url(#g_plate)"/><polygon points="9,36.7 36.7,9 119,9 119,91.3 91.3,119 9,119" fill="none" stroke="#FFB000" stroke-width="1.5" stroke-linejoin="round" stroke-opacity="0.35"/><polygon points="2,26.8 26.8,2 126,2 126,101.2 101.2,126 2,126" fill="none" stroke="#FFB000" stroke-width="4" stroke-linejoin="round"/><polyline points="94,2 126,2 126,34" fill="none" stroke="#FFD27A" stroke-width="4"/><polyline points="2,94 2,126 34,126" fill="none" stroke="#FFD27A" stroke-width="4"/></g>
+<g id="layer.glyph">
+<rect x="33" y="27" width="28" height="76" fill="#0D1117" rx="4"/><rect x="30" y="24" width="28" height="76" fill="#F2E6C9" rx="4"/><rect x="30" y="24" width="8" height="76" fill="#FFFFFF" rx="4" fill-opacity="0.5"/><rect x="52" y="24" width="6" height="76" fill="#9A8F78" rx="3" fill-opacity="0.8"/><rect x="73" y="27" width="28" height="76" fill="#0D1117" rx="4"/><rect x="70" y="24" width="28" height="76" fill="#F2E6C9" rx="4"/><rect x="70" y="24" width="8" height="76" fill="#FFFFFF" rx="4" fill-opacity="0.5"/><rect x="92" y="24" width="6" height="76" fill="#9A8F78" rx="3" fill-opacity="0.8"/>
+</g>
+</g>
+</svg>

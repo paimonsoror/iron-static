@@ -1,18 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="32" viewBox="0 0 128 32">
 <title>enemy bolt glow sheet: 2 frames of 64x32 (half scale), additive</title>
 <defs>
-<radialGradient id="gl_halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF4FD8" stop-opacity="0.75"/><stop offset="0.5" stop-color="#FF4FD8" stop-opacity="0.3"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></radialGradient>
-<radialGradient id="gl_core" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFE0F8" stop-opacity="0.95"/><stop offset="1" stop-color="#FF9AE8" stop-opacity="0"/></radialGradient>
-<linearGradient id="gl_tail" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#FF4FD8" stop-opacity="0.5"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></linearGradient>
+  <radialGradient id="gl_halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF4FD8" stop-opacity="0.75"/><stop offset="0.5" stop-color="#FF4FD8" stop-opacity="0.3"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gl_core" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFE0F8" stop-opacity="0.95"/><stop offset="1" stop-color="#FFE0F8" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gl_tail" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#FF4FD8" stop-opacity="0.5"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></linearGradient>
 </defs>
-<g id="slot.glow_0"><g id="layer.emissive_0">
-<ellipse cx="34" cy="16" rx="23" ry="9.5" fill="url(#gl_halo)"/>
-<ellipse cx="18" cy="16" rx="10" ry="4" fill="url(#gl_tail)"/>
-<ellipse cx="37" cy="16" rx="10" ry="5" fill="url(#gl_core)"/>
-</g></g>
-<g id="slot.glow_1" transform="translate(64,0)"><g id="layer.emissive_1">
-<ellipse cx="34" cy="16" rx="23" ry="9.5" fill="url(#gl_halo)" opacity="0.9"/>
-<ellipse cx="18" cy="16" rx="11" ry="4.5" fill="url(#gl_tail)"/>
-<ellipse cx="37" cy="16" rx="11" ry="5.5" fill="url(#gl_core)"/>
-</g></g>
+<g id="slot.glow_0" transform="translate(0,0)">
+ <g id="layer.emissive.glow_0">
+  <ellipse cx="34" cy="16" rx="23" ry="9.5" fill="url(#gl_halo)"/>
+  <ellipse cx="18" cy="16" rx="10" ry="4" fill="url(#gl_tail)"/>
+  <ellipse cx="37" cy="16" rx="10" ry="5" fill="url(#gl_core)"/>
+ </g>
+</g>
+<g id="slot.glow_1" transform="translate(64,0)">
+ <g id="layer.emissive.glow_1">
+  <ellipse cx="34" cy="16" rx="25" ry="10.5" fill="url(#gl_halo)"/>
+  <ellipse cx="18" cy="16" rx="10" ry="4" fill="url(#gl_tail)"/>
+  <ellipse cx="37" cy="16" rx="10" ry="5" fill="url(#gl_core)"/>
+ </g>
+</g>
 </svg>

@@ -46,7 +46,7 @@ cinder_shoulder,cinder.svg,cinder_glow.svg,cinder_shoulder_glow,1024,1024,448,60
 cinder_shadow,cinder.svg,,,1024,1024,672,576,336,336,1,168,168,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
 cinder_integrity_ticks,cinder.svg,cinder_glow.svg,cinder_integrity_halo,1024,1024,0,704,448,64,1,224,32,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
 cinder_frame_hot,cinder_glow.svg,,,512,512,0,0,216,216,1,108,108,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
-cinder_emitter_glow,cinder_glow.svg,,,512,512,216,0,224,224,1,112,112,,,1,1,,2,1,add,cinder,ready,three small lens glows (1.3% coverage); lens glow reaches 3 texels from the top edge: margin relaxed to 2 until V1-04 shrinks it to the 6 texel rule
+cinder_emitter_glow,cinder_glow.svg,,,512,512,216,0,224,224,1,112,112,,,1,1,,6,,add,cinder,ready,"three lens glows with ring arc lights (restored to standard margin 6 and coverage in V1-04)"
 cinder_ember_edge_a,cinder_glow.svg,,,512,512,440,0,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
 cinder_ember_edge_b,cinder_glow.svg,,,512,512,440,72,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
 cinder_seam_glow,cinder_glow.svg,,,512,512,440,144,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
@@ -63,23 +63,23 @@ fx_flare_star_4,fx_sheet.svg,,,1024,512,256,0,128,128,1,64,64,,,2,1,,4,,add,fx,r
 fx_flare_star_8,fx_sheet.svg,,,1024,512,384,0,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
 fx_ring_thin,fx_sheet.svg,,,1024,512,512,0,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
 fx_ring_thick,fx_sheet.svg,,,1024,512,640,0,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
-fx_smoke_puff_a,fx_sheet.svg,,,1024,512,768,0,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
-fx_smoke_puff_b,fx_sheet.svg,,,1024,512,896,0,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
-fx_spark_a,fx_sheet.svg,,,1024,512,0,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
-fx_spark_b,fx_sheet.svg,,,1024,512,128,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
-fx_spark_c,fx_sheet.svg,,,1024,512,256,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
-fx_ember_a,fx_sheet.svg,,,1024,512,384,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
-fx_ember_b,fx_sheet.svg,,,1024,512,512,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_smoke_puff_a,fx_sheet.svg,,,1024,512,768,0,128,128,1,64,64,,,2,1,,4,,normal,fx,ready,"soft cloud, alpha blend (not additive); tint dark (#2A0A10 at 40%); draw 40-70 px"
+fx_smoke_puff_b,fx_sheet.svg,,,1024,512,896,0,128,128,1,64,64,,,2,1,,4,,normal,fx,ready,"soft cloud, alpha blend (not additive); tint dark (#2A0A10 at 40%); draw 40-70 px"
+fx_spark_a,fx_sheet.svg,,,1024,512,0,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"streak confined to rows 48..80 (crop 128x32, quad aspect 4:1); tinted at use"
+fx_spark_b,fx_sheet.svg,,,1024,512,128,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"streak confined to rows 48..80 (crop 128x32, quad aspect 4:1); tinted at use"
+fx_spark_c,fx_sheet.svg,,,1024,512,256,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"streak confined to rows 48..80 (crop 128x32, quad aspect 4:1); tinted at use"
+fx_ember_a,fx_sheet.svg,,,1024,512,384,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,soft disc filling the cell; quad 8-14 px; tinted at use
+fx_ember_b,fx_sheet.svg,,,1024,512,512,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,soft ellipse filling the cell; quad 8-14 px; tinted at use
 fx_shard_1,fx_sheet.svg,,,1024,512,640,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
 fx_shard_2,fx_sheet.svg,,,1024,512,768,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
 fx_shard_3,fx_sheet.svg,,,1024,512,896,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
-fx_shard_4,fx_sheet.svg,,,1024,512,0,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
-fx_shard_5,fx_sheet.svg,,,1024,512,128,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
-fx_shard_6,fx_sheet.svg,,,1024,512,256,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
-fx_scan_sweep,fx_sheet.svg,,,1024,512,384,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
-fx_muzzle_cone,fx_sheet.svg,,,1024,512,512,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
-fx_beam_cap,fx_sheet.svg,,,1024,512,640,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
-fx_beam_strip,fx_sheet.svg,,,1024,512,0,384,256,32,1,128,16,,,2,1,,0,,add,fx,todo,"beam body strip, separate row; authored by V1-06"
+fx_shard_4,fx_sheet.svg,,,1024,512,0,256,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"angular fragment, shaded facets; tinted at use"
+fx_shard_5,fx_sheet.svg,,,1024,512,128,256,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"angular fragment, shaded facets; tinted at use"
+fx_shard_6,fx_sheet.svg,,,1024,512,256,256,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"angular fragment, shaded facets; tinted at use"
+fx_scan_sweep,fx_sheet.svg,,,1024,512,384,256,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"90 degree radar wedge, leading edge +x, trail toward -y; rotate in code; radius 60 texels = quad half size"
+fx_muzzle_cone,fx_sheet.svg,,,1024,512,512,256,128,128,1,14,64,,,2,1,,4,,add,fx,ready,"forward cone along +x, apex at pivot; draw 90 px quad with pivot (14/128, 0.5)"
+fx_beam_cap,fx_sheet.svg,,,1024,512,640,256,128,128,1,128,64,,,2,1,,0,,add,fx,ready,"half-ellipse end cap; right edge column equals beam_strip profile; draw h x h quad, pivot (1,0.5), +x toward the beam"
+fx_beam_strip,fx_sheet.svg,,,1024,512,0,384,256,32,1,128,16,,,2,1,,0,,add,fx,ready,"256x32 across-profile strip, uniform along x (tiles/stretches); linear filter, no mipmaps; see V1-06 notes"
 ui_panel_plate,ui_kit.svg,,,512,384,0,0,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
 ui_panel_plate_active,ui_kit.svg,,,512,384,104,0,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
 ui_panel_inset,ui_kit.svg,,,512,384,208,0,96,96,1,24,24,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
@@ -88,6 +88,7 @@ ui_button_plate,ui_kit.svg,,,512,384,0,104,96,96,1,28,28,,,1,1,,0,,normal,ui,rea
 ui_button_plate_pressed,ui_kit.svg,,,512,384,104,104,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
 ui_button_plate_disabled,ui_kit.svg,,,512,384,208,104,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
 ui_button_plate_affordable,ui_kit.svg,,,512,384,312,104,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_button_plate_active,ui_kit.svg,,,512,384,416,104,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border; V1-07: selected buy-mode chip
 ui_tab_plate,ui_kit.svg,,,512,384,0,208,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
 ui_tab_plate_active,ui_kit.svg,,,512,384,104,208,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
 ui_bar_frame,ui_kit.svg,,,512,384,208,208,96,40,1,16,16,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
@@ -97,28 +98,30 @@ ui_bar_tick_minor,ui_kit.svg,,,512,384,376,208,8,16,1,0,0,,,1,1,,0,,normal,ui,re
 ui_bar_tick_major,ui_kit.svg,,,512,384,392,208,8,24,1,0,0,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
 ui_bracket_corner,ui_kit.svg,,,512,384,0,312,48,48,1,0,0,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
 ui_divider,ui_kit.svg,,,512,384,56,312,96,8,1,16,0,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_lock_mark,ui_kit.svg,,,512,384,416,208,32,32,1,0,0,,,1,1,,0,,normal,ui,ready,V1-07: plateless padlock for disabled buttons; not a 9-slice
+ui_hazard_stripe,ui_kit.svg,,,512,384,416,248,64,16,1,0,0,,,1,1,,0,,normal,ui,ready,V1-07: seamless in x (period 16); StyleBoxTexture axis_stretch TILE; not a 9-slice
 icon_laser_output,icons/laser_output.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
 icon_cycle_rate,icons/cycle_rate.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
-icon_crit_chance,icons/crit_chance.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_crit_mult,icons/crit_mult.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_optic_range,icons/optic_range.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_hull_integrity,icons/hull_integrity.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_nano_repair,icons/nano_repair.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_plating_pct,icons/plating_pct.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_scrap_yield,icons/scrap_yield.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_reinvest,icons/reinvest.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_tab_arms,icons/tab_arms.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_tab_chassis,icons/tab_chassis.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_tab_systems,icons/tab_systems.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_tab_intel,icons/tab_intel.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_crit_chance,icons/crit_chance.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_crit_mult,icons/crit_mult.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_optic_range,icons/optic_range.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_hull_integrity,icons/hull_integrity.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_nano_repair,icons/nano_repair.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_plating_pct,icons/plating_pct.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_scrap_yield,icons/scrap_yield.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_reinvest,icons/reinvest.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_tab_arms,icons/tab_arms.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_tab_chassis,icons/tab_chassis.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_tab_systems,icons/tab_systems.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_tab_intel,icons/tab_intel.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
 icon_cur_scrap,icons/cur_scrap.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
 icon_cur_data,icons/cur_data.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
-icon_cur_flux,icons/cur_flux.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_cur_cipher,icons/cur_cipher.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_cur_merit,icons/cur_merit.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_ic_speed,icons/ic_speed.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_ic_pause,icons/ic_pause.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_ic_play,icons/ic_play.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_ic_settings,icons/ic_settings.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_ic_lock,icons/ic_lock.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
-icon_ic_check,icons/ic_check.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_cur_flux,icons/cur_flux.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_cur_cipher,icons/cur_cipher.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_cur_merit,icons/cur_merit.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_ic_speed,icons/ic_speed.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_ic_pause,icons/ic_pause.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_ic_play,icons/ic_play.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_ic_settings,icons/ic_settings.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_ic_lock,icons/ic_lock.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_ic_check,icons/ic_check.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
