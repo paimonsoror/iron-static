@@ -34,7 +34,8 @@ func test_wave_clock_rolls_over_after_720_ticks() -> void:
 	assert_int(w.tick).is_equal(720)
 	assert_int(_count_kind(w, SimEventKind.WAVE_STARTED, 1)).is_equal(1)
 	assert_int(_count_kind(w, SimEventKind.WAVE_STARTED, 2)).is_equal(1)
-	assert_int(w.events.total_pushed).is_equal(2)
+	# Other systems (spawns, shots) also push events now, so only WAVE_STARTED is counted.
+	assert_int(_count_kind(w, SimEventKind.WAVE_STARTED, 3)).is_equal(0)
 
 
 func test_levels_start_with_sector_offset() -> void:
