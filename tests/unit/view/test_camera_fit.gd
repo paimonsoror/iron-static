@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const TALL := Vector2(1080.0, 2400.0)
 const SHORT := Vector2(1080.0, 1920.0)
+const BATTLE_VIEW_SCENE: PackedScene = preload("res://src/view/battle_view.tscn")
 
 
 func test_fit_width_at_base_range_is_52_m() -> void:
@@ -190,7 +191,7 @@ func test_renderer_sizes_follow_set_scale_without_rebuilding() -> void:
 
 func test_battle_view_eases_to_a_larger_optic_range_and_floors() -> void:
 	var world := SimWorld.new(SimConfigLoader.load_default(1))
-	var scene: PackedScene = load("res://src/view/battle_view.tscn")
+	var scene: PackedScene = BATTLE_VIEW_SCENE
 	var view: BattleView = auto_free(scene.instantiate())
 	add_child(view)
 	view.layout(TALL)
@@ -223,7 +224,7 @@ func test_field_insets_center_cinder_and_fit_the_range_into_the_field() -> void:
 	assert_float(w).is_equal_approx(52.0 * 1080.0 / 980.0, 1e-3)
 	assert_float(ViewMath.px_per_m(1080.0, w) * 26.0).is_less_equal(490.01)
 	var world := SimWorld.new(SimConfigLoader.load_default(1))
-	var scene: PackedScene = load("res://src/view/battle_view.tscn")
+	var scene: PackedScene = BATTLE_VIEW_SCENE
 	var view: BattleView = auto_free(scene.instantiate())
 	add_child(view)
 	view.layout(TALL)
