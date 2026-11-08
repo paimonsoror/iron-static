@@ -51,6 +51,7 @@ var tick_data: float = 0.0
 var run: RunStats
 var events: SimEvents
 var plan: WavePlanState
+var input_log: InputLog = InputLog.new()  ## accepted commands of this run (M2-07); not hashed
 
 var rng_spawn: Rng
 var rng_crit: Rng
@@ -139,7 +140,11 @@ func step() -> void:
 func command_buy(upgrade_index: int, count: int) -> int:
 	if run.ended:
 		return 0
-	return UpgradeSystem.buy(self, upgrade_index, count)
+	var bought: int = UpgradeSystem.buy(self, upgrade_index, count)
+	if bought > 0:
+		# Recorded at `tick` = the tick about to run: applied before its step() in live play and replay.
+		input_log.append(tick, InputLog.CMD_BUY, upgrade_index, count)
+	return bought
 
 
 func is_over() -> bool:

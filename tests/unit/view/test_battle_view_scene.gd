@@ -30,19 +30,18 @@ func test_hud_shows_values_and_emits_signals() -> void:
 	for i: int in 30:
 		world.step()
 	hud.refresh(world, 0.0)
-	hud.show_values(7, 360, 50.0, 100.0, 12.9, 3.2)
+	hud.show_values(7, 360, 50.0, 100.0, BigNum.from_float(12400.0), BigNum.from_float(3.0))
 	var wave_label: Label = hud.get_node("%WaveLabel")
 	var hp_label: Label = hud.get_node("%HpLabel")
 	var scrap_label: Label = hud.get_node("%ScrapLabel")
 	var data_label: Label = hud.get_node("%DataLabel")
 	var timer_bar: ProgressBar = hud.get_node("%TimerBar")
-	var panel_label: Label = hud.get_node("%PanelLabel")
 	assert_str(wave_label.text).is_equal("WAVE 7")
 	assert_str(hp_label.text).is_equal("50 / 100")
-	assert_str(scrap_label.text).is_equal("SCRAP 12")
+	assert_str(scrap_label.text).is_equal("SCRAP 12.4K")
 	assert_str(data_label.text).is_equal("DATA 3")
 	assert_float(timer_bar.value).is_equal(360.0)
-	assert_str(panel_label.text).is_equal("UPGRADES: M2")
+	assert_object(hud.upgrade_panel()).is_not_null()
 	var speeds: Array[int] = []
 	var pauses: Array[bool] = []
 	hud.speed_changed.connect(func(m: int) -> void: speeds.append(m))

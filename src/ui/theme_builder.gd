@@ -30,6 +30,15 @@ const VAR_BUTTON_UNAFFORDABLE: StringName = &"ButtonUnaffordable"
 const HEADING_WEIGHT: int = 600
 const CORNER: int = 8
 
+static var _shared: Theme = null
+
+
+## One cached Theme for all screens (build() loads fonts and creates many styleboxes).
+static func shared() -> Theme:
+	if _shared == null:
+		_shared = build()
+	return _shared
+
 
 static func build() -> Theme:
 	var theme := Theme.new()

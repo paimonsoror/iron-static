@@ -1,0 +1,107 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/upgrade_panel.gd" id="1_panel"]
+
+[node name="UpgradePanel" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_panel")
+
+[node name="Column" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TabBar" type="HBoxContainer" parent="Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Tab_arms" type="Button" parent="Column/TabBar"]
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="Tab_chassis" type="Button" parent="Column/TabBar"]
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="Tab_systems" type="Button" parent="Column/TabBar"]
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="Tab_intel" type="Button" parent="Column/TabBar"]
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="BuyBar" type="HBoxContainer" parent="Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BuyLabel" type="Label" parent="Column/BuyBar"]
+layout_mode = 2
+theme_type_variation = &"LabelDim"
+
+[node name="Buy_0" type="Button" parent="Column/BuyBar"]
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="Buy_1" type="Button" parent="Column/BuyBar"]
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="Buy_2" type="Button" parent="Column/BuyBar"]
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="Buy_3" type="Button" parent="Column/BuyBar"]
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="Scroll" type="ScrollContainer" parent="Column"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="RowsBox" type="VBoxContainer" parent="Column/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="HintLabel" type="Label" parent="Column/Scroll/RowsBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelDim"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="IntelLabel" type="Label" parent="Column/Scroll/RowsBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"LabelDim"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="RefreshTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.1

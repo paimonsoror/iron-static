@@ -1,0 +1,78 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/upgrade_row.gd" id="1_row"]
+
+[node name="UpgradeRow" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 231)
+mouse_filter = 1
+script = ExtResource("1_row")
+
+[node name="Content" type="HBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="Icon" type="ColorRect" parent="Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(105, 105)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Info" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TopLine" type="HBoxContainer" parent="Content/Info"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="Content/Info/TopLine"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+clip_text = true
+
+[node name="LevelLabel" type="Label" parent="Content/Info/TopLine"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"LabelDim"
+
+[node name="ValueLabel" type="Label" parent="Content/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+clip_text = true
+
+[node name="BuyButton" type="Button" parent="Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(316, 148)
+layout_mode = 2
+size_flags_vertical = 4
+clip_text = true
+
+[node name="Tooltip" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="TooltipLabel" type="Label" parent="Tooltip"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+autowrap_mode = 3
+
+[node name="PressTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+one_shot = true
+
+[node name="TipTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+one_shot = true

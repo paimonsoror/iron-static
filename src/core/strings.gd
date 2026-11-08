@@ -1,0 +1,59 @@
+class_name Strings
+extends RefCounted
+## UI text lookup from data/strings_en.csv (`key,text`), English only. Loaded once and cached.
+## A missing key returns the key itself and increments `missing_count` (tests assert it stays 0).
+## Texts may contain `{name}` placeholders and `\n` (two characters) for a line break; `fill` substitutes them.
+
+const PATH: String = "res://data/strings_en.csv"
+
+static var missing_count: int = 0
+static var _table: Dictionary[String, String] = {}
+static var _loaded: bool = false
+
+
+static func get_text(key: String) -> String:
+	_ensure_loaded()
+	if _table.has(key):
+		return _table[key]
+	missing_count += 1
+	return key
+
+
+static func has_key(key: String) -> bool:
+	_ensure_loaded()
+	return _table.has(key)
+
+
+static func key_count() -> int:
+	_ensure_loaded()
+	return _table.size()
+
+
+## Text of `key` with each `{name}` replaced by `values[name]` (stringified).
+static func fill(key: String, values: Dictionary[String, String]) -> String:
+	var text: String = get_text(key)
+	for k: String in values:
+		text = text.replace("{" + k + "}", values[k])
+	return text
+
+
+## One-placeholder shortcut for the common `{n}` / `{v}` cases.
+static func fill1(key: String, token: String, value: String) -> String:
+	return get_text(key).replace("{" + token + "}", value)
+
+
+static func _ensure_loaded() -> void:
+	if _loaded:
+		return
+	_loaded = true
+	var csv: CsvTable = CsvTable.load_file(PATH)
+	if not csv.error.is_empty():
+		push_error("Strings: " + csv.error)
+		return
+	var ki: int = csv.column_index("key")
+	var ti: int = csv.column_index("text")
+	if ki < 0 or ti < 0:
+		push_error("Strings: header must be key,text")
+		return
+	for row: PackedStringArray in csv.rows:
+		_table[row[ki]] = row[ti].replace("\n", "\n")

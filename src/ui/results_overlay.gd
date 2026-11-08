@@ -1,9 +1,9 @@
 class_name ResultsOverlay
 extends Control
 ## End-of-deployment screen (M1-23; GDD 07 section 2.10 results fields): wave reached, game time, kills,
-## cause of death, data and scrap earned (M1 floats shown as integers) and a REDEPLOY button.
-## Hidden by default; blocks touches to the HUD while shown. Signals only.
-## (impl) UI strings are constants here: data/strings_en.csv does not exist yet.
+## cause of death, data and scrap earned (`NumberFormat`), best-wave delta `--` (M3) and a REDEPLOY button.
+## Texts come from `ResultsModel` and data/strings_en.csv. Hidden by default; blocks touches to the HUD while
+## shown. Signals only.
 
 signal redeploy_pressed
 
@@ -14,10 +14,14 @@ signal redeploy_pressed
 @onready var _cause: Label = %CauseLabel
 @onready var _data: Label = %DataLabel
 @onready var _scrap: Label = %ScrapLabel
+@onready var _best: Label = %BestLabel
 @onready var _button: Button = %RedeployButton
 
 
 func _ready() -> void:
+	theme = ThemeBuilder.shared()
+	_title.text = Strings.get_text("results.title")
+	_button.text = Strings.get_text("results.redeploy")
 	_title.add_theme_color_override("font_color", Palette.AMBER)
 	for label: Label in [_wave, _time, _kills]:
 		label.add_theme_color_override("font_color", Palette.TEXT)
@@ -30,12 +34,14 @@ func _ready() -> void:
 
 ## Fills the fields from a finished world and shows the overlay.
 func show_results(world: SimWorld) -> void:
-	_wave.text = "WAVE REACHED  %d" % world.run.death_wave
-	_time.text = "TIME  %s" % RunController.time_text(world.tick)
-	_kills.text = "KILLS  %d" % world.run.kills
-	_cause.text = "CAUSE  %s" % RunController.cause_text(world)
-	_data.text = "DATA  %d" % floori(world.run.data_earned)
-	_scrap.text = "SCRAP  %d" % floori(world.run.scrap_earned)
+	var m: ResultsModel = ResultsModel.from_run(world.run, world.economy, world.tick, RunController.cause_text(world))
+	_wave.text = m.wave_text
+	_time.text = m.time_text
+	_kills.text = m.kills_text
+	_cause.text = m.cause_text
+	_data.text = m.data_text
+	_scrap.text = m.scrap_text
+	_best.text = m.best_text
 	show()
 
 

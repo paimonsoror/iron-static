@@ -1,0 +1,46 @@
+# UI strings (English only). key,text. Placeholders in {braces} are filled by Strings.fill. Quote texts that contain commas.
+key,text
+upgrade.laser_output,LASER OUTPUT
+upgrade.cycle_rate,CYCLE RATE
+upgrade.crit_chance,CRIT CHANCE
+upgrade.crit_mult,CRIT MULT
+upgrade.optic_range,OPTIC RANGE
+upgrade.hull_integrity,HULL INTEGRITY
+upgrade.nano_repair,NANO REPAIR
+upgrade.plating_pct,PLATING
+upgrade.scrap_yield,SCRAP YIELD
+upgrade.reinvest,REINVEST
+tab.arms,ARMS
+tab.chassis,CHASSIS
+tab.systems,SYSTEMS
+tab.intel,INTEL
+buy.label,BUY
+buy.x1,x1
+buy.x10,x10
+buy.x100,x100
+buy.max,MAX
+panel.next_unlock,Next unlock at wave {n}
+panel.intel_stub,INTEL: coming in a later update
+row.max,MAX
+row.level,L{n}
+row.value,{a} > {b}
+tooltip.d,"Base {base}. Each level adds {step} of base. Every 25 levels: x1.5. Level cap {cap}.\nFoundry: {foundry}"
+tooltip.c,"Base {base}, {step} per level. Level cap {cap}, limit {limit}.\nFoundry: {foundry}"
+tooltip.none,none
+tooltip.foundry_none,--
+hud.wave,WAVE {n}
+hud.scrap,SCRAP {v}
+hud.data,DATA {v}
+hud.hp,{a} / {b}
+hud.pause,PAUSE
+hud.resume,RESUME
+results.title,DEPLOYMENT ENDED
+results.wave,WAVE REACHED  {n}
+results.time,TIME  {v}
+results.kills,KILLS  {v}
+results.cause,CAUSE  {v}
+results.cause_unknown,UNKNOWN
+results.data,DATA  +{v}
+results.scrap,SCRAP  {v}
+results.best,BEST  --
+results.redeploy,REDEPLOY

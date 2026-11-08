@@ -1,28 +1,22 @@
 class_name Hud
 extends Control
-## Minimal battle HUD (GDD 07 section 2.1: hud_wave, hud_timer_bar, hud_speed, hud_pause,
-## hud_integrity_ring as a bar for M1) plus the bottom-44% placeholder panel.
+## Battle HUD (GDD 07 section 2.1: hud_wave, hud_timer_bar, hud_speed, hud_pause, hud_integrity_ring as a bar,
+## hud_scrap amber, hud_data_run blue) plus the bottom-44% `UpgradePanel` (M2-10).
 ## Base resolution 1080 wide: buttons are 150 px tall (about 57 dp at 1080 px = 411 dp).
-## Signals only; the owner (M1-23) feeds values with refresh(world, now_s) at any rate, the
-## HUD throttles label work to about 10 Hz and rewrites a label only when its integer changes.
-## (impl) UI strings are constants here: data/strings_en.csv does not exist yet.
+## Signals only; the owner feeds values with refresh(world, now_s) at any rate. Counter text comes from `HudModel`
+## (10 Hz throttle, `NumberFormat`); a label is rewritten only when its text changed. The panel is bound to the
+## world on the first refresh of each new world; its `buy_requested` is re-emitted here for M2-12.
 
 signal speed_changed(multiplier: int)
 signal pause_toggled(paused: bool)
+signal buy_requested(upgrade_index: int, count: int)
 
 const SPEEDS: Array[int] = [1, 2]
-const REFRESH_S: float = 0.1
-const PANEL_TEXT: String = "UPGRADES: M2"
 const BAR_BG := Color(Palette.GRID, 1.0)
 
 var _speed_index: int = 0
 var _paused: bool = false
-var _last_refresh_s: float = -1.0
-var _wave: int = -1
-var _hp: int = -1
-var _max_hp: int = -1
-var _scrap: int = -1
-var _data: int = -1
+var _model: HudModel = HudModel.new()
 
 @onready var _wave_label: Label = %WaveLabel
 @onready var _timer_bar: ProgressBar = %TimerBar
@@ -32,14 +26,11 @@ var _data: int = -1
 @onready var _hp_label: Label = %HpLabel
 @onready var _scrap_label: Label = %ScrapLabel
 @onready var _data_label: Label = %DataLabel
-@onready var _panel_label: Label = %PanelLabel
-@onready var _panel: ColorRect = %Panel
+@onready var _panel: UpgradePanel = %UpgradePanel
 
 
 func _ready() -> void:
-	_panel.color = Palette.PANEL
-	_panel_label.text = PANEL_TEXT
-	_panel_label.add_theme_color_override("font_color", Palette.TEXT_DIM)
+	theme = ThemeBuilder.shared()
 	_style_label(_wave_label, Palette.AMBER)
 	_style_label(_hp_label, Palette.TEXT)
 	_style_label(_scrap_label, Palette.SCRAP)
@@ -50,43 +41,38 @@ func _ready() -> void:
 	_style_button(_pause_button)
 	_speed_button.pressed.connect(_on_speed_pressed)
 	_pause_button.pressed.connect(_on_pause_pressed)
+	_panel.buy_requested.connect(_on_buy_requested)
 	_update_speed_text()
 	_update_pause_text()
 
 
-## Pulls values from the world; cheap to call every frame (throttled to REFRESH_S of `now_s`).
+## The upgrade panel (for M2-12 wiring and tests).
+func upgrade_panel() -> UpgradePanel:
+	return _panel
+
+
+## Pulls values from the world; cheap to call every frame (throttled to HudModel.REFRESH_S of `now_s`).
 func refresh(world: SimWorld, now_s: float) -> void:
-	if _last_refresh_s >= 0.0 and now_s - _last_refresh_s < REFRESH_S:
+	if _panel.bound_world() != world:
+		_panel.bind(world)
+	if not _model.due(now_s):
 		return
-	_last_refresh_s = now_s
 	show_values(
-		world.wave, world.wave_tick, world.cinder.hp, world.cinder.max_hp, world.run.scrap_earned, world.run.data_earned
+		world.wave, world.wave_tick, world.cinder.hp, world.cinder.max_hp, world.economy.scrap, world.economy.data_run
 	)
 
 
-## Pure setter (also used by tests). Labels are rewritten only when the integer changes.
-func show_values(wave: int, wave_tick: int, hp: float, max_hp: float, scrap: float, data: float) -> void:
+## Pure setter (also used by tests). Labels are rewritten only when their text changes.
+func show_values(wave: int, wave_tick: int, hp: float, max_hp: float, scrap: BigNum, data: BigNum) -> void:
 	_timer_bar.value = float(wave_tick)
-	var hp_i: int = ceili(maxf(hp, 0.0))
-	var max_i: int = ceili(maxf(max_hp, 0.0))
 	_integrity_bar.max_value = maxf(max_hp, 1.0)
 	_integrity_bar.value = clampf(hp, 0.0, maxf(max_hp, 1.0))
 	_style_integrity(hp / maxf(max_hp, 1.0))
-	if wave != _wave:
-		_wave = wave
-		_wave_label.text = "WAVE %d" % wave
-	if hp_i != _hp or max_i != _max_hp:
-		_hp = hp_i
-		_max_hp = max_i
-		_hp_label.text = "%d / %d" % [hp_i, max_i]
-	var scrap_i: int = floori(scrap)
-	if scrap_i != _scrap:
-		_scrap = scrap_i
-		_scrap_label.text = "SCRAP %d" % scrap_i
-	var data_i: int = floori(data)
-	if data_i != _data:
-		_data = data_i
-		_data_label.text = "DATA %d" % data_i
+	_model.set_values(wave, hp, max_hp, scrap, data)
+	_set_text(_wave_label, _model.wave_text)
+	_set_text(_hp_label, _model.hp_text)
+	_set_text(_scrap_label, _model.scrap_text)
+	_set_text(_data_label, _model.data_text)
 
 
 ## Current speed multiplier (1 or 2).
@@ -122,12 +108,21 @@ func _on_pause_pressed() -> void:
 	pause_toggled.emit(_paused)
 
 
+func _on_buy_requested(upgrade_index: int, count: int) -> void:
+	buy_requested.emit(upgrade_index, count)
+
+
+static func _set_text(label: Label, text: String) -> void:
+	if label.text != text:
+		label.text = text
+
+
 func _update_speed_text() -> void:
 	_speed_button.text = "%dx" % SPEEDS[_speed_index]
 
 
 func _update_pause_text() -> void:
-	_pause_button.text = "RESUME" if _paused else "PAUSE"
+	_pause_button.text = Strings.get_text("hud.resume" if _paused else "hud.pause")
 
 
 func _style_integrity(frac: float) -> void:

@@ -1,0 +1,128 @@
+class_name RunRecord
+extends RefCounted
+## One recorded run: everything needed to replay it (`Replay.run`) plus the outcome for checking.
+## JSON shape (human-readable, compact): {"format":1,"seed":int,"sim_version":int,"config_hash":str,
+## "sector":int,"best_wave_s1":int,"ruleset":str,"debug_invulnerable":bool,"final_tick":int,
+## "death_wave":int,"final_hash":str,"command_count":int,"commands":"dt,a,b;dt,a,b[,kind];..."}.
+## Commands are one string: ticks are deltas from the previous command; the kind is omitted for CMD_BUY (0)
+## and appended as a fourth field otherwise. About 7 bytes per buy, so 2,000 commands are about 14 KB.
+
+const FORMAT: int = 1
+
+var seed_value: int = 0
+var sim_version: int = SimVersion.CURRENT
+var config_hash: String = ""
+var sector: int = 1
+var best_wave_s1: int = 0
+var ruleset: String = "standard"
+var debug_invulnerable: bool = false
+var final_tick: int = 0
+var death_wave: int = 0
+var final_hash: String = ""
+var commands: InputLog = InputLog.new()
+
+
+## Snapshot of a world (finished or not): inputs from its config and log, outcome from its state.
+static func from_world(world: SimWorld) -> RunRecord:
+	var r: RunRecord = RunRecord.new()
+	var cfg: SimConfig = world.config
+	r.seed_value = cfg.seed_value
+	r.config_hash = ConfigHash.compute(cfg)
+	r.sector = cfg.sector
+	r.best_wave_s1 = cfg.best_wave_s1
+	r.ruleset = cfg.ruleset
+	r.debug_invulnerable = cfg.debug_invulnerable
+	r.final_tick = world.tick
+	r.death_wave = world.run.death_wave
+	r.final_hash = world.state_hash()
+	r.commands = world.input_log
+	return r
+
+
+## Copies the recorded run inputs into `cfg` (tuning, enemies and upgrades stay the caller's).
+func apply_to(cfg: SimConfig) -> void:
+	cfg.seed_value = seed_value
+	cfg.sector = sector
+	cfg.best_wave_s1 = best_wave_s1
+	cfg.ruleset = ruleset
+	cfg.debug_invulnerable = debug_invulnerable
+
+
+func to_json() -> String:
+	var parts: PackedStringArray = PackedStringArray()
+	var prev: int = 0
+	for i: int in commands.size():
+		var t: int = commands.ticks[i]
+		var s: String = "%d,%d,%d" % [t - prev, commands.arg_a[i], commands.arg_b[i]]
+		if commands.kinds[i] != InputLog.CMD_BUY:
+			s += ",%d" % commands.kinds[i]
+		if parts.append(s):
+			push_error("RunRecord: append failed")
+		prev = t
+	var d: Dictionary = {
+		"format": FORMAT,
+		"seed": seed_value,
+		"sim_version": sim_version,
+		"config_hash": config_hash,
+		"sector": sector,
+		"best_wave_s1": best_wave_s1,
+		"ruleset": ruleset,
+		"debug_invulnerable": debug_invulnerable,
+		"final_tick": final_tick,
+		"death_wave": death_wave,
+		"final_hash": final_hash,
+		"command_count": commands.size(),
+		"commands": ";".join(parts),
+	}
+	return JSON.stringify(d)
+
+
+## Parses `to_json` output; returns null on malformed input.
+static func from_json(text: String) -> RunRecord:
+	var parsed: Variant = JSON.parse_string(text)
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return null
+	var d: Dictionary = parsed
+	if _geti(d, "format", 0) != FORMAT:
+		return null
+	var r: RunRecord = RunRecord.new()
+	r.seed_value = _geti(d, "seed", 0)
+	r.sim_version = _geti(d, "sim_version", 0)
+	r.config_hash = _gets(d, "config_hash", "")
+	r.sector = _geti(d, "sector", 1)
+	r.best_wave_s1 = _geti(d, "best_wave_s1", 0)
+	r.ruleset = _gets(d, "ruleset", "standard")
+	r.debug_invulnerable = _getb(d, "debug_invulnerable")
+	r.final_tick = _geti(d, "final_tick", 0)
+	r.death_wave = _geti(d, "death_wave", 0)
+	r.final_hash = _gets(d, "final_hash", "")
+	var packed: String = _gets(d, "commands", "")
+	var t: int = 0
+	if packed != "":
+		for token: String in packed.split(";"):
+			var f: PackedStringArray = token.split(",")
+			if f.size() < 3 or f.size() > 4:
+				return null
+			t += int(f[0])
+			r.commands.append(t, int(f[3]) if f.size() == 4 else InputLog.CMD_BUY, int(f[1]), int(f[2]))
+	if r.commands.size() != _geti(d, "command_count", r.commands.size()):
+		return null
+	return r
+
+
+static func _geti(d: Dictionary, key: String, fallback: int) -> int:
+	var v: Variant = d.get(key, fallback)
+	if typeof(v) == TYPE_FLOAT or typeof(v) == TYPE_INT:
+		var n: float = v
+		return int(n)
+	return fallback
+
+
+static func _getb(d: Dictionary, key: String) -> bool:
+	var v: Variant = d.get(key, false)
+	return typeof(v) == TYPE_BOOL and v == true
+
+
+static func _gets(d: Dictionary, key: String, fallback: String) -> String:
+	var v: Variant = d.get(key, fallback)
+	return v if typeof(v) == TYPE_STRING else fallback

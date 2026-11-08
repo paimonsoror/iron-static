@@ -111,3 +111,5 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - Run `perf_bench` with the emulator idle or stopped: a running emulator inflates avg_ms by about 45-60% (2.65 vs 1.7 ms) and fails `-Check` against the baseline.
 - `test.ps1 -Path` takes several paths comma-separated (`-Path res://tests/unit/core,res://tests/unit/ui`); space-separated silently runs only the last. GdUnit test classes: max 20 public test methods (gdlint max-public-methods).
 - `floor()`/`ceil()` return Variant: use `floori`/`ceili`. UI sizes are in 1080-wide base pixels: 1 dp = 2.63 px (body text >= 38 px, touch targets >= 148 px; see `ThemeBuilder` constants).
+- Call `world.command_buy` only between frames (never inside `driver.advance`); it logs `world.tick` and applies before that tick. Sim outcome changes need a `SimVersion.CURRENT` bump; after CSV balance edits refresh the golden constants in `tests/sim/test_replay.gd`.
+- GDScript `%` formatting breaks on `%`-prefixed node paths (`"%Node/x_%d" % k`): concatenate. `test.ps1 -Path a,b` only splits when run from PowerShell, not via `powershell -File` from bash.
