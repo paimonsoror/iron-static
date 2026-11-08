@@ -45,7 +45,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 
 | Task | Command | Exists |
 |---|---|---|
-| Tests (import, run, parse output) | `.\tools\test.ps1` (`-Canary` proves the wrapper detects failures) | done (M0-05) |
+| Tests (import, run, parse output) | `.\tools\test.ps1` (`-Canary` proves the wrapper detects failures) (default runs tests/unit + tests/sim; -Path takes several) | done (M0-05) |
 | Lint (gdformat, gdlint, layer rules, BOM, warnings-as-errors compile) | `.\tools\lint.ps1` | done (M0-06) |
 | Format GDScript (gdformat + CRLF->LF; never run gdformat directly) | `.\tools\format.ps1 [paths]` | done |
 | Start emulator (AVD `tower_phone`, wait 25 s after cold boot; `-ColdBoot`, `-PublicDns`) | `.\tools\run_emulator.ps1` | done |
@@ -53,8 +53,8 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 | Export, install, launch on emulator | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic` | done (M0-07) |
 | Emulator smoke test (log scan + screenshot check) | `.\tools\smoke_android.ps1` (`-SkipDeploy`; `-MinFps`) | done (M0-08) |
 | CSV to `.tres` importer | `.\tools\import_data.ps1` | done (M1-02; flags -DataDir -OutDir -SkipImport) |
-| Headless sim runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | created in M1-16 |
-| Sim perf bench | `.\tools\perf_bench.ps1 [-Check]` | created in M1-17 |
+| Headless sim runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | done (M1-16; TIMING on stderr) |
+| Sim perf bench | `.\tools\perf_bench.ps1 [-Check]` | done (M1-17; -UpdateBaseline, baseline tests/perf_baseline.json) |
 | Balance run vs targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` | created in M2-14 |
 | CI compile gate (portable twin of lint's compile step; CI: `docs/setup/ci.md`) | `.venv\Scripts\python.exe tools\compile_gate.py --godot <godot> --project .` | done (M0-13) |
 | Screenshot from emulator | `cmd /c "cd /d C:\ && adb exec-out screencap -p > C:\dev\tower\build\shot.png"` | done |
@@ -102,3 +102,4 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - Godot imports every `.csv` as a translation (fails with Invalid locale): every data CSV folder needs a `.gdignore` (`data/` has one); `FileAccess` still reads `res://data/...`.
 - Passing a Variant (`dict[k]`, `arr[i]`) to a typed param or `float()`/`int()` fails compile: assign to a typed local first. `Resource.duplicate()` skips non-exported vars (clone field by field).
 - `HashingContext.update()` errors on an empty `PackedByteArray` (skip empty slices). A param named like a method (e.g. `capacity`) shadows it (error). Unused args: `@warning_ignore("unused_parameter")` + `# gdlint: ignore=unused-argument` (underscore prefix is not enough).
+- PS tools: use `Invoke-GodotRetry` (`_common.ps1`) for Godot runs that may overlap other agents; it retries the transient Sentry DLL copy collision.

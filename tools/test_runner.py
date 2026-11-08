@@ -39,6 +39,9 @@ ALLOWLIST_FILE = Path(__file__).resolve().parent / "test_allowlist.txt"
 CANARY_COPY_DIRS = ("addons", "src", "assets", "data")
 
 
+DEFAULT_PATHS = ["res://tests/unit", "res://tests/sim"]
+
+
 def strip_ansi(text: str) -> str:
     return ANSI_RE.sub("", text)
 
@@ -148,7 +151,21 @@ def prune_old_runs(runs_root: Path, keep: Path, max_age_s: float = 6 * 3600) -> 
             pass
 
 
-def run_pipeline(godot: str, project: Path, res_path: str, suite: str | None, timeout: int, quiet: bool = False) -> int:
+def resolve_targets(project: Path, res_path: "str | list[str]", suite: str | None) -> list[str]:
+    """res:// targets for GdUnit4. A suite name is looked up in each path (first hit wins)."""
+    paths = [res_path] if isinstance(res_path, str) else list(res_path)
+    paths = [p.rstrip("/") for p in paths]
+    if not suite:
+        return paths
+    if suite.startswith("res://"):
+        return [suite]
+    for p in paths:
+        if (project / p.removeprefix("res://") / f"{suite}.gd").is_file():
+            return [f"{p}/{suite}.gd"]
+    return [f"{paths[0]}/{suite}.gd"]
+
+
+def run_pipeline(godot: str, project: Path, res_path: "str | list[str]", suite: str | None, timeout: int, quiet: bool = False) -> int:
     """Import, run GdUnit4, parse. Prints the summary line last. Returns the exit code."""
     ensure_build_root(project)
     # Each invocation gets its own folder so parallel agents never clobber each other's
@@ -199,15 +216,15 @@ def run_pipeline(godot: str, project: Path, res_path: str, suite: str | None, ti
     if report_dir.exists():
         shutil.rmtree(report_dir, ignore_errors=True)
     report_dir.mkdir(parents=True)
-    target = res_path.rstrip("/")
-    if suite:
-        target = suite if suite.startswith("res://") else f"{target}/{suite}.gd"
+    targets = resolve_targets(project, res_path, suite)
     args = [
         "-s",
         "res://addons/gdUnit4/bin/GdUnitCmdTool.gd",
         "--ignoreHeadlessMode",
-        "-a",
-        target,
+    ]
+    for target in targets:
+        args += ["-a", target]  # GdUnit4's CLI accepts several -a options
+    args += [
         "-c",
         "-rd",
         f"res://build/test/runs/{run_name}/report",
@@ -299,7 +316,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--godot", help="Godot console executable")
     ap.add_argument("--project", default=str(REPO_ROOT), help="project directory")
-    ap.add_argument("--path", default="res://tests/unit", help="res:// directory of suites")
+    ap.add_argument(
+        "--path",
+        action="append",
+        help="res:// directory of suites; repeatable (default: res://tests/unit and res://tests/sim)",
+    )
     ap.add_argument("--suite", help="suite file name (without .gd) inside --path, or a res:// path")
     ap.add_argument("--canary", action="store_true", help="prove the runner detects failures")
     ap.add_argument("--self-test", action="store_true", help="run parser unit checks")
@@ -311,7 +332,7 @@ def main() -> int:
         ap.error("--godot is required")
     if a.canary:
         return run_canary(a.godot, a.timeout)
-    return run_pipeline(a.godot, Path(a.project).resolve(), a.path, a.suite, a.timeout)
+    return run_pipeline(a.godot, Path(a.project).resolve(), a.path or DEFAULT_PATHS, a.suite, a.timeout)
 
 
 if __name__ == "__main__":

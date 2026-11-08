@@ -71,3 +71,18 @@ function Write-Utf8NoBom {
     param([string]$Path, [string]$Text)
     [System.IO.File]::WriteAllText($Path, $Text, (New-Object System.Text.UTF8Encoding($false)))
 }
+
+# Parallel Godot processes can collide on the temp copy of a GDExtension library (Sentry):
+# "Failed to open ...~libsentry...dll" / "Error copying library". That is transient, so retry.
+$TransientGodotPattern = '~lib\S*\.(dll|so)|Error copying library|Error loading extension'
+
+function Invoke-GodotRetry {
+    param([string[]]$ArgList, [int]$TimeoutSec = 300, [int]$Retries = 2, [int]$WaitSec = 15)
+    $r = Invoke-Godot $ArgList -TimeoutSec $TimeoutSec
+    for ($n = 1; $n -le $Retries -and ($r.Output -match $TransientGodotPattern); $n++) {
+        Write-Host "Transient GDExtension copy error; retrying Godot ($n/$Retries) in $WaitSec s"
+        Start-Sleep -Seconds $WaitSec
+        $r = Invoke-Godot $ArgList -TimeoutSec $TimeoutSec
+    }
+    return $r
+}

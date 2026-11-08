@@ -2,16 +2,14 @@ class_name MovementSystem
 extends RefCounted
 ## Walks every alive enemy toward the origin (Cinder) and stops it at its stand-off distance
 ## (GDD 02 section 2, 03 section 1.1). Melee behaviors stop at `melee_range`; `ranged` stops at
-## clamp(max(lancer_range_min, lancer_range_factor * optic_range), 0, lancer_range_cap).
+## `EnemyAttackSystem.lancer_standoff` (the single source of truth for the formula).
 ## Scalar math only, no allocation, no enemy-enemy collision.
 
 
 static func step(world: SimWorld) -> void:
 	var t: SimTuning = world.config.tuning
 	var store: EnemyStore = world.enemies
-	var ranged_stop: float = clampf(
-		maxf(t.lancer_range_min, t.lancer_range_factor * world.stats.optic_range), 0.0, t.lancer_range_cap
-	)
+	var ranged_stop: float = EnemyAttackSystem.lancer_standoff(world)  # single source of truth
 	var melee_stop: float = t.melee_range
 	for i: int in store.high_water:
 		if store.alive[i] == 0:

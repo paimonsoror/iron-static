@@ -44,7 +44,7 @@ static func step(world: SimWorld) -> void:
 			hit_cinder(world, store.dmg[i] * mult, type)
 
 
-## Lancer stand-off distance: clamp(max(range_min, factor * optic_range), 0, cap) (same formula as MovementSystem).
+## Lancer stand-off: clamp(max(range_min, factor * optic_range), 0, cap). Source of truth; MovementSystem calls it.
 static func lancer_standoff(world: SimWorld) -> float:
 	var t: SimTuning = world.config.tuning
 	return clampf(maxf(t.lancer_range_min, t.lancer_range_factor * world.stats.optic_range), 0.0, t.lancer_range_cap)

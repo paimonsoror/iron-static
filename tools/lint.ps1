@@ -53,12 +53,12 @@ if (-not $SkipCompile) {
     # Import first so global classes (GdUnit4, class_name) resolve. Compile via tools/compile_check.gd
     # (autoloads exist in that mode; `--check-only` does not know them and fails on `Log`/`Game`).
     $bad = @()
-    $imp = Invoke-Godot @("--headless", "--import") -TimeoutSec 300
+    $imp = Invoke-GodotRetry @("--headless", "--import") -TimeoutSec 300
     $impText = $imp.Output -replace $ansi, ""
     $bad += @($impText -split "`r?`n" | Where-Object { $_ -cmatch 'SCRIPT ERROR|Parse Error|ERROR:' })
     for ($i = 0; $i -lt $files.Count; $i += 60) {
         $chunk = @($files[$i..([Math]::Min($i + 59, $files.Count - 1))] | ForEach-Object { "res://$_" })
-        $r = Invoke-Godot (@("--headless", "-s", "res://tools/compile_check.gd", "--") + $chunk) -TimeoutSec 300
+        $r = Invoke-GodotRetry (@("--headless", "-s", "res://tools/compile_check.gd", "--") + $chunk) -TimeoutSec 300
         $text = $r.Output -replace $ansi, ""
         $bad += @($text -split "`r?`n" | Where-Object {
             $_ -cmatch 'SCRIPT ERROR|Parse Error|ERROR:|Warning treated as error|Failed to instantiate|COMPILE FAIL' })

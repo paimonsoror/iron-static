@@ -1,3 +1,5 @@
+Changelog: 2026-11-08 test.ps1/test_runner.py default now runs res://tests/unit and res://tests/sim (repeatable --path / -Path); per-run report folders under build/test/runs/.
+
 # GdUnit4 setup and test wrapper
 
 Changelog: 2026-11-07 v1.0 (M0-04, M0-05).

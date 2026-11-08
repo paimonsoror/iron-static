@@ -2,7 +2,7 @@
 # 3 zero tests, 4 tool failure. Last output line: TEST SUMMARY: ...
 # Usage: .\tools\test.ps1 [-Path res://tests/unit] [-Suite test_smoke] [-Canary]
 param(
-    [string]$Path = "res://tests/unit",
+    [string[]]$Path = @("res://tests/unit", "res://tests/sim"),
     [string]$Suite = "",
     [switch]$Canary
 )
@@ -14,7 +14,7 @@ $pyRest = @(); if ($py.Count -gt 1) { $pyRest = $py[1..($py.Count - 1)] }
 $argList = @("$PSScriptRoot\test_runner.py", "--godot", $Godot, "--project", $RepoRoot)
 if ($Canary) { $argList += "--canary" }
 else {
-    $argList += @("--path", $Path)
+    foreach ($p in $Path) { $argList += @("--path", $p) }
     if ($Suite) { $argList += @("--suite", $Suite) }
 }
 & $py[0] @pyRest -u @argList

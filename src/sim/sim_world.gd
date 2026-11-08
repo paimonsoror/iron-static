@@ -96,7 +96,7 @@ func step() -> void:
 		return
 	events.tick = tick
 	if wave_tick == 0:
-		plan.begin(wave)
+		plan.begin(wave, true)  # carry unspawned entries over (GDD 02 section 6: never dropped)
 	SpawnSystem.step(self)
 	MovementSystem.step(self)
 	grid.rebuild(enemies)

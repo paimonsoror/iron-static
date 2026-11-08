@@ -1,0 +1,22 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://src/view/battle_view.gd" id="1_view"]
+[ext_resource type="Script" path="res://src/view/arena_background.gd" id="2_bg"]
+[ext_resource type="Script" path="res://src/view/enemy_renderer.gd" id="3_enemies"]
+[ext_resource type="Script" path="res://src/view/beam_renderer.gd" id="4_beams"]
+[ext_resource type="Script" path="res://src/view/cinder_view.gd" id="5_cinder"]
+
+[node name="BattleView" type="Node2D"]
+script = ExtResource("1_view")
+
+[node name="Background" type="Node2D" parent="."]
+script = ExtResource("2_bg")
+
+[node name="Enemies" type="Node2D" parent="."]
+script = ExtResource("3_enemies")
+
+[node name="Beams" type="Node2D" parent="."]
+script = ExtResource("4_beams")
+
+[node name="Cinder" type="Node2D" parent="."]
+script = ExtResource("5_cinder")

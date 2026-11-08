@@ -94,7 +94,13 @@ static func _projectiles(ctx: HashingContext, s: ProjectileStore) -> void:
 
 
 static func _plan(ctx: HashingContext, p: WavePlanState) -> void:
-	_put(ctx, PackedInt64Array([p.wave, int(p.built), p.count, p.cursor]).to_byte_array())
+	_put(
+		ctx,
+		(
+			PackedInt64Array([p.wave, int(p.built), p.count, p.cursor, p.carried, p.dropped_carry, p.dropped_slots])
+			. to_byte_array()
+		)
+	)
 	_put(ctx, p.type_index.slice(0, p.count).to_byte_array())
 	_put(ctx, p.spawn_tick.slice(0, p.count).to_byte_array())
 	_put(ctx, p.angle_idx.slice(0, p.count).to_byte_array())

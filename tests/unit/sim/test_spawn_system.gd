@@ -195,6 +195,68 @@ func test_alive_cap_throttles_but_never_drops() -> void:
 	assert_int(w.run.spawn_throttled).is_greater(0)
 
 
+func test_carry_over_spawns_every_planned_enemy_across_waves() -> void:
+	var w: SimWorld = _world(9, 1)
+	var planned: int = 0
+	var spawned: int = 0
+	var carried_seen: int = 0
+	for wave: int in range(1, 9):
+		w.wave = wave
+		w.plan.begin(wave, true)
+		for wt: int in Ticks.WAVE_TICKS:
+			w.wave_tick = wt
+			SpawnSystem.step(w)
+			if wt == 0:
+				planned += w.plan.count - w.plan.carried
+				carried_seen += w.plan.carried
+			if wt % 100 == 99:  # simulate kills
+				spawned += w.enemies.alive_count
+				for i: int in w.enemies.high_water:
+					w.enemies.release(i)
+	assert_int(carried_seen).is_greater(0)
+	# Drain: no new plan, keep killing; every leftover entry must still spawn.
+	for wt: int in range(Ticks.WAVE_TICKS, Ticks.WAVE_TICKS * 6):
+		w.wave_tick = Ticks.WAVE_TICKS - 1
+		SpawnSystem.step(w)
+		if wt % 5 == 0:
+			spawned += w.enemies.alive_count
+			for i: int in w.enemies.high_water:
+				w.enemies.release(i)
+	assert_int(w.plan.cursor).is_equal(w.plan.count)
+	assert_int(spawned).is_equal(planned)
+	assert_int(w.plan.dropped_carry).is_equal(0)
+	assert_int(w.plan.dropped_slots).is_equal(0)
+
+
+func test_carry_over_entries_lead_the_next_plan_and_are_hashed() -> void:
+	var w: SimWorld = _world(4, 0)
+	w.plan.begin(1)
+	WavePlanner.build(w)
+	var first_count: int = w.plan.count
+	var before: String = w.state_hash()
+	w.plan.begin(2, true)
+	assert_int(w.plan.carried).is_equal(first_count)
+	WavePlanner.build(w)
+	assert_int(w.plan.count).is_greater(first_count)
+	for i: int in first_count:
+		assert_int(w.plan.spawn_tick[i]).is_equal(0)
+	assert_str(w.state_hash()).is_not_equal(before)
+
+
+func test_carry_bound_counts_dropped_entries() -> void:
+	var w: SimWorld = _world(4, 0)
+	w.plan.begin(1)
+	WavePlanner.build(w)
+	var limit: int = w.plan.capacity() >> 1
+	w.plan.count = limit + 5
+	for i: int in w.plan.count:
+		w.plan.spawned[i] = 0
+	w.plan.cursor = 0
+	w.plan.begin(2, true)
+	assert_int(w.plan.carried).is_equal(limit)
+	assert_int(w.plan.dropped_carry).is_equal(5)
+
+
 func test_stepping_world_spawns_wave_1() -> void:
 	var w: SimWorld = _world()
 	for i: int in Ticks.WAVE_TICKS - 1:

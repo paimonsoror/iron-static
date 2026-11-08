@@ -26,13 +26,14 @@ const SKITTER_ID: String = "skitter"
 const DEG_PER_TURN: float = 360.0
 
 
+## Carried-over entries (`plan.carried`, tick 0) stay in front; the sort is stable so they spawn first.
 ## Fills `world.plan` for `world.plan.wave` and sets `built = true`. Returns how many entries were placed in
 ## flank groups (diagnostics and tests; callers may ignore it).
 static func build(world: SimWorld) -> int:
 	var plan: WavePlanState = world.plan
 	var t: SimTuning = world.config.tuning
 	var wave: int = plan.wave
-	plan.count = 0
+	plan.count = plan.carried  # carried-over entries (if any) lead the plan
 	plan.cursor = 0
 	var n_total: int = Curves.slots_for_wave(wave, t.n_base, t.n_coef, t.n_exp, t.n_cap)
 	var budget: int = n_total
@@ -47,6 +48,8 @@ static func build(world: SimWorld) -> int:
 		plan.spawn_tick[k] = Ticks.from_seconds(t.boss_spawn_s)
 		plan.spawned[k] = 0
 		plan.count = k + 1
+	elif boss_type >= 0:
+		plan.dropped_slots += 1
 	_sort_by_tick(plan)
 	var grouped: int = _assign_angles(world)
 	plan.built = true
@@ -108,6 +111,8 @@ static func _fill_normals(world: SimWorld, wave: int, budget: int) -> void:
 		var s: int = maxi(1, defs[chosen].slots)
 		remaining -= s
 		used += s
+	if remaining > 0:
+		plan.dropped_slots += remaining  # plan capacity exhausted (see WavePlanState header)
 
 
 static func _draw(rng: Rng, weights: PackedFloat64Array, total_w: float, fallback: int) -> int:
