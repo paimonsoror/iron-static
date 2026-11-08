@@ -3,6 +3,7 @@ extends RefCounted
 ## Pure kill-reward helper (GDD 03 section 3). Also used by WaveEnd tests and M2.
 ##   scrap = max(1, round(k * G_hp(l)^exp)) * scrap_mult * scrap_yield
 ##   data  = data_base * (1 + coef * l) * R(s)
+## `scrap` is a float here; EconomySystem floors it when adding to the BigNum balance.
 ## Stale enemies pay `stale_payout` (0.5) of both.
 
 

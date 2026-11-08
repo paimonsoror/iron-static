@@ -12,4 +12,5 @@ const CINDER_HIT: int = 6  ## a = damage (int), b = attacker type index
 const BAND_CHANGED: int = 7  ## a = old band, b = new band
 const BOSS_SPAWNED: int = 8  ## a = enemy index
 const RUN_ENDED: int = 9  ## a = wave, b = death cause (enemy type index, -1 none)
-const COUNT: int = 10
+const UPGRADE_BOUGHT: int = 10  ## a = upgrade row index, b = new level
+const COUNT: int = 11

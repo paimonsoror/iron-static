@@ -3,13 +3,16 @@ extends RefCounted
 ## End-of-wave resolution, MVP subset (GDD 02 section 9, 03 section 4.1). Runs with `world.wave` still the
 ## ending wave; the world increments the wave afterwards.
 ## Hooks not implemented in M1 (GDD 02 section 9 step numbers):
-##   TODO step 1-5 (wave bonuses, interest, draft check, conditions, adaptation) and step 8 (Intel refresh).
+##   TODO step 1 (wave bonuses, hook in EconomySystem) and 3-5 (draft check, conditions,
+##   adaptation) and step 8 (Intel refresh).
 ##   TODO M6 signal_lag: the level accumulator below adds a lag-skipped amount; M1 lag is 0.
 
 
 static func step(world: SimWorld) -> void:
 	var ending: int = world.wave
 	world.events.push(SimEventKind.WAVE_ENDED, ending, 0)
+	# Steps 1-2: wave bonuses (hook) and interest.
+	EconomySystem.wave_end(world)
 	# Step 6: enemy level increment, no skips (hook: lag 0).
 	var lag_skip: int = 0
 	world.level_hp += 1 - lag_skip

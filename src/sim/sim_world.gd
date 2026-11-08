@@ -12,6 +12,11 @@ extends RefCounted
 ##   next_wave_is_boss: bool: M1-13 writes (true when wave + 1 is a boss wave), UI reads; set at init.
 ##   query_buf: PackedInt32Array (size = enemy capacity): scratch for grid.query_radius, any system; not hashed.
 ##   type_is_boss: PackedByteArray, type_behavior: PackedByteArray (BEH_*): per enemy type index, any system.
+##   economy: EconomyState (scrap, data_run BigNum; wave_kill_scrap, scrap_frac floats): M2-05; hashed.
+##   tick_scrap, tick_data: float: per-tick kill reward accumulators (LaserSystem adds, EconomySystem stage 5b
+##       converts and zeroes them).
+##   run_levels: PackedInt32Array (per config.upgrades row), visible: PackedByteArray (UnlockRules from
+##       config.best_wave_s1): M2-06; hashed. Mutated only by UpgradeSystem via command_buy.
 ##   run.spawn_throttled: int: M1-08. run.ended: bool: set only by end_run().
 ##   alive_normal_count() / alive_boss_count(): helpers for the alive caps, M1-08.
 ## Helpers for systems: spawn_enemy (M1-08, debug), end_run (M1-14), bolt_ttl_ticks (M1-12),
@@ -38,6 +43,11 @@ var projectiles: ProjectileStore
 var grid: SpatialGrid
 var cinder: CinderState
 var stats: StatBlock
+var economy: EconomyState
+var run_levels: PackedInt32Array
+var visible: PackedByteArray
+var tick_scrap: float = 0.0
+var tick_data: float = 0.0
 var run: RunStats
 var events: SimEvents
 var plan: WavePlanState
@@ -64,7 +74,14 @@ func _init(cfg: SimConfig) -> void:
 	enemies = EnemyStore.new(cap)
 	projectiles = ProjectileStore.new()
 	grid = SpatialGrid.new(t.arena_radius, GRID_CELL_M)
-	stats = StatBlock.from_base(cfg)
+	run_levels = PackedInt32Array()
+	if run_levels.resize(cfg.upgrades.size()) != OK:
+		push_error("SimWorld: run_levels resize failed")
+	run_levels.fill(0)
+	visible = UnlockRules.visible(cfg.upgrades, cfg.best_wave_s1)
+	stats = StatBlock.from_resolver(cfg.upgrades, run_levels)
+	economy = EconomyState.new()
+	economy.scrap = BigNum.from_float(t.start_scrap)
 	cinder = CinderState.new()
 	cinder.setup(stats.hull_integrity, cfg.debug_invulnerable)
 	run = RunStats.new()
@@ -89,8 +106,9 @@ func _init(cfg: SimConfig) -> void:
 
 ## Advances the simulation by one tick. A finished run ignores further calls.
 ## Order (authoritative): 1 wave clock and plan start, 2 spawn, 3 movement, 4 grid rebuild, 5 laser,
-## 6 enemy attack, 7 projectiles, 8 regeneration and exposure, 9 end-of-wave resolution at wave_tick 720,
-## 10 death check (end_run), 11 tick += 1. ExposureSystem may also call end_run (idempotent).
+## 5b economy (BigNum conversion), 6 enemy attack, 7 projectiles, 8 regeneration and exposure,
+## 9 end-of-wave resolution at wave_tick 720, 10 death check (end_run), 11 tick += 1.
+## ExposureSystem may also call end_run (idempotent).
 func step() -> void:
 	if run.ended:
 		return
@@ -101,6 +119,7 @@ func step() -> void:
 	MovementSystem.step(self)
 	grid.rebuild(enemies)
 	LaserSystem.step(self)
+	EconomySystem.apply_tick(self)
 	EnemyAttackSystem.step(self)
 	ProjectileSystem.step(self)
 	ExposureSystem.step(self)
@@ -113,6 +132,14 @@ func step() -> void:
 	if not cinder.alive:
 		end_run()
 	tick += 1
+
+
+## Buys up to `count` levels (1, 10, 100, -1 = Max) of upgrade row `upgrade_index`; returns levels bought.
+## The single entry point for purchases: callers apply commands before `step()` (M2-07 logs them here).
+func command_buy(upgrade_index: int, count: int) -> int:
+	if run.ended:
+		return 0
+	return UpgradeSystem.buy(self, upgrade_index, count)
 
 
 func is_over() -> bool:

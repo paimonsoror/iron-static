@@ -3,7 +3,8 @@ extends RefCounted
 ## Cinder's Laser Cycle (GDD 02 sections 3, 4, 8; 03 section 3). Fixed-point accumulator:
 ## charge += roundi(cycle_rate * 1000) per tick; a shot costs tick_rate * 1000. Each shot re-targets with
 ## grid.nearest (smallest distance, lowest spawn_id on ties) within optic_range. With no target the charge is
-## capped at one shot. Kills release the enemy and pay RewardCalc (half if stale). The grid must be rebuilt
+## capped at one shot. Kills release the enemy and pay RewardCalc (half if stale)
+## into the tick accumulators. The grid must be rebuilt
 ## before this runs; killed entries are skipped by grid.nearest afterwards.
 
 const CHARGE_UNIT: int = 1000  ## fixed-point scale of the shot accumulator
@@ -48,6 +49,10 @@ static func _kill(world: SimWorld, i: int) -> void:
 	world.events.push(SimEventKind.ENEMY_KILLED, i, type_index)
 	world.run.kills += 1
 	world.run.kills_by_type[type_index] += 1
-	world.run.scrap_earned += RewardCalc.scrap_for_kill(t, def, level, world.stats.scrap_yield, stale)
-	world.run.data_earned += RewardCalc.data_for_kill(t, def, level, world.config.sector, stale)
+	var scrap: float = RewardCalc.scrap_for_kill(t, def, level, world.stats.scrap_yield, stale)
+	var data: float = RewardCalc.data_for_kill(t, def, level, world.config.sector, stale)
+	world.run.scrap_earned += scrap  # float shadow totals (tools and HUD read them)
+	world.run.data_earned += data
+	world.tick_scrap += scrap  # BigNum conversion happens once per tick in EconomySystem.apply_tick
+	world.tick_data += data
 	store.release(i)

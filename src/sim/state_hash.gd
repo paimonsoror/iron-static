@@ -14,6 +14,7 @@ static func compute(w: SimWorld) -> String:
 	_enemies(ctx, w.enemies)
 	_projectiles(ctx, w.projectiles)
 	_plan(ctx, w.plan)
+	_economy(ctx, w)
 	return ctx.finish().hex_encode()
 
 
@@ -105,3 +106,19 @@ static func _plan(ctx: HashingContext, p: WavePlanState) -> void:
 	_put(ctx, p.spawn_tick.slice(0, p.count).to_byte_array())
 	_put(ctx, p.angle_idx.slice(0, p.count).to_byte_array())
 	_put(ctx, p.spawned.slice(0, p.count))
+
+
+static func _economy(ctx: HashingContext, w: SimWorld) -> void:
+	var eco: EconomyState = w.economy
+	_put(ctx, PackedInt64Array([eco.scrap.e, eco.data_run.e]).to_byte_array())
+	_put(
+		ctx,
+		(
+			PackedFloat64Array(
+				[eco.scrap.m, eco.data_run.m, eco.wave_kill_scrap, eco.scrap_frac, w.tick_scrap, w.tick_data]
+			)
+			. to_byte_array()
+		)
+	)
+	_put(ctx, w.run_levels.to_byte_array())
+	_put(ctx, w.visible)

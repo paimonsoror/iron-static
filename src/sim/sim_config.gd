@@ -10,3 +10,5 @@ var enemies: Array[EnemyDef] = []
 var upgrades: Array[RunUpgradeDef] = []
 var ruleset: String = "standard"
 var debug_invulnerable: bool = false
+## Best wave reached in sector 1; gates which upgrade rows are visible (M2-04/06).
+var best_wave_s1: int = 0

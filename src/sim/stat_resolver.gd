@@ -28,6 +28,11 @@ static func resolve(
 	return s
 
 
+## Stat value of one row at `level` with no Foundry and neutral external multipliers (UI previews).
+static func value_at(def: RunUpgradeDef, level: int) -> float:
+	return _value(def, level, 0, 0.0, 1.0, 0.0)
+
+
 ## Distance to the next multiple of 25 (a level that is already a multiple gives 25).
 static func levels_to_next_milestone(level: int) -> int:
 	return MILESTONE_STEP - (maxi(level, 0) % MILESTONE_STEP)
