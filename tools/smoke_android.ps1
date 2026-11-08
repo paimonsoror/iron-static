@@ -57,7 +57,9 @@ if (-not $ImagePath) {
     if (-not $pidText -or $pidText -notmatch '^\d+') { Fail "process not running" }
     Write-Host "== Process running (pid $pidText)"
 
-    $CrashPattern = 'FATAL EXCEPTION|\sE\sAndroidRuntime|SCRIPT ERROR|Force quitting|ANR in ' + [regex]::Escape($Package)
+    # 'ArtSlots:' / 'Strings:' errors mean device-only data loading broke (e.g. the 2026-11-08 CSV BOM bug
+    # that turned all art magenta); they never show up on desktop runs, so the smoke test must catch them.
+    $CrashPattern = 'FATAL EXCEPTION|\sE\sAndroidRuntime|SCRIPT ERROR|Force quitting|ERROR: ArtSlots:|ERROR: Strings:|ANR in ' + [regex]::Escape($Package)
 
     if ($Soak -gt 0) {
         Write-Host "== Soak $Soak s (check every 15 s)"
