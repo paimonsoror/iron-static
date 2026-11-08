@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="StringTable" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/string_table.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+keys = PackedStringArray("upgrade.laser_output", "upgrade.cycle_rate", "upgrade.crit_chance", "upgrade.crit_mult", "upgrade.optic_range", "upgrade.hull_integrity", "upgrade.nano_repair", "upgrade.plating_pct", "upgrade.scrap_yield", "upgrade.reinvest", "tab.arms", "tab.chassis", "tab.systems", "tab.intel", "buy.label", "buy.x1", "buy.x10", "buy.x100", "buy.max", "panel.next_unlock", "panel.intel_stub", "row.max", "row.level", "row.value", "tooltip.d", "tooltip.c", "tooltip.none", "tooltip.foundry_none", "hud.wave", "hud.scrap", "hud.data", "hud.hp", "hud.pause", "hud.resume", "results.title", "results.wave", "results.time", "results.kills", "results.cause", "results.cause_unknown", "results.data", "results.scrap", "results.best", "results.redeploy")
+texts = PackedStringArray("LASER OUTPUT", "CYCLE RATE", "CRIT CHANCE", "CRIT MULT", "OPTIC RANGE", "HULL INTEGRITY", "NANO REPAIR", "PLATING", "SCRAP YIELD", "REINVEST", "ARMS", "CHASSIS", "SYSTEMS", "INTEL", "BUY", "x1", "x10", "x100", "MAX", "Next unlock at wave {n}", "INTEL: coming in a later update", "MAX", "L{n}", "{a} > {b}", "Base {base}. Each level adds {step} of base. Every 25 levels: x1.5. Level cap {cap}.\\nFoundry: {foundry}", "Base {base}, {step} per level. Level cap {cap}, limit {limit}.\\nFoundry: {foundry}", "none", "--", "WAVE {n}", "SCRAP {v}", "DATA {v}", "{a} / {b}", "PAUSE", "RESUME", "DEPLOYMENT ENDED", "WAVE REACHED  {n}", "TIME  {v}", "KILLS  {v}", "CAUSE  {v}", "UNKNOWN", "DATA  +{v}", "SCRAP  {v}", "BEST  --", "REDEPLOY")
