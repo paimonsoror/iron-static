@@ -1,6 +1,10 @@
 <#
 .SYNOPSIS  Emulator smoke test: deploy (optional), check process and logcat, take a screenshot and check it is not blank.
 .EXAMPLE   .\tools\smoke_android.ps1 -SkipDeploy
+.EXAMPLE   .\tools\smoke_android.ps1 -SkipDeploy -WaitSeconds 40 -Soak 180 -MinFps 30
+-MinFps parses "[PERF] fps=.. min=.. tick_ms=.. enemies=.." lines (needs --debug-perf / --debug-load in the build) after a
+PerfWarmup-second warm-up and fails if the lowest per-line fps average is below MinFps.
+-Soak keeps the app running that many seconds after the wait, re-checking pid and crash patterns every 15 s.
 Prints SMOKE OK or "SMOKE FAIL: <reason>"; exit 0 / 1.
 #>
 param(
@@ -11,9 +15,12 @@ param(
     [string]$Serial = "",
     [string]$ExpectColor = "#FFB000",
     [double]$MinFps = 0,
+    [int]$Soak = 0,
+    [int]$PerfWarmup = 40,
     [double]$BlankThreshold = 0.999
 )
 $ErrorActionPreference = "Continue"
+$colorFail = ""
 . "$PSScriptRoot\_common.ps1"
 
 function Fail([string]$why) {
@@ -45,9 +52,25 @@ $pidText = ((Run-Adb @('shell', 'pidof', $Package)) -join '').Trim()
 if (-not $pidText -or $pidText -notmatch '^\d+') { Fail "process not running" }
 Write-Host "== Process running (pid $pidText)"
 
+$CrashPattern = 'FATAL EXCEPTION|\sE\sAndroidRuntime|SCRIPT ERROR|Force quitting|ANR in ' + [regex]::Escape($Package)
+
+if ($Soak -gt 0) {
+    Write-Host "== Soak $Soak s (check every 15 s)"
+    $t0 = Get-Date
+    while (((Get-Date) - $t0).TotalSeconds -lt $Soak) {
+        Start-Sleep -Seconds ([Math]::Min(15, [Math]::Max(1, [int]($Soak - ((Get-Date) - $t0).TotalSeconds))))
+        $p2 = ((Run-Adb @('shell', 'pidof', $Package)) -join '').Trim()
+        if (-not $p2 -or $p2 -notmatch '^\d+') { Fail ("process died during soak after {0:N0} s" -f ((Get-Date) - $t0).TotalSeconds) }
+        if ($p2 -ne $pidText) { Fail "process restarted during soak (pid $pidText -> $p2)" }
+        $cb = @(Run-Adb @('logcat', '-d') | Where-Object { $_ -match $CrashPattern })
+        if ($cb.Count -gt 0) { Write-Host $cb[0]; Fail "crash pattern in log during soak: $($cb[0].Trim())" }
+        Write-Host ("   t={0,4:N0} s alive pid {1}" -f ((Get-Date) - $t0).TotalSeconds, $p2)
+    }
+}
+
 # Log scan
 $logLines = Run-Adb @('logcat', '-d')
-$bad = @($logLines | Where-Object { $_ -match 'FATAL EXCEPTION|\sE\sAndroidRuntime|SCRIPT ERROR|Force quitting' })
+$bad = @($logLines | Where-Object { $_ -match $CrashPattern })
 if ($bad.Count -gt 0) {
     $bad | Select-Object -First 5 | ForEach-Object { Write-Host $_ }
     Fail "log contains errors ($($bad.Count) lines, first: $($bad[0].Trim()))"
@@ -99,9 +122,34 @@ Write-Host ("== Dominant color share {0:P1} of {1} samples, {2} distinct colors"
 if ($frac -gt $BlankThreshold) { Fail ("screenshot is blank ({0:P1} of samples are one color)" -f $frac) }
 if ($er) {
     Write-Host "== Samples near $ExpectColor : $near"
-    if ($near -lt 20) { Fail "expected color $ExpectColor not found ($near samples within distance 60, need 20)" }
+    if ($near -lt 20) { $colorFail = "expected color $ExpectColor not found ($near samples within distance 60, need 20)" }
 }
-if ($MinFps -gt 0) { Write-Host "== -MinFps is reserved for M1-25 (no FPS probe yet); ignored" }
+if ($MinFps -gt 0) {
+    $ep = @(Run-Adb @('logcat', '-d', '-v', 'epoch'))
+    $perf = @()
+    foreach ($l in $ep) {
+        if ($l -match '^\s*(\d+\.\d+)\s.*\[PERF\] fps=([\d.]+) min=([\d.]+) tick_ms=([\d.]+) enemies=(\d+)') {
+            $perf += [pscustomobject]@{
+                T = [double]$Matches[1]; Fps = [double]$Matches[2]; Min = [double]$Matches[3]
+                TickMs = [double]$Matches[4]; Enemies = [int]$Matches[5]
+            }
+        }
+    }
+    if ($perf.Count -eq 0) { Fail "no [PERF] lines in logcat (build needs --debug-perf or --debug-load)" }
+    # Lines are 10 s apart; the first appears about 10 s after launch, so launch is about first.T - 10.
+    $cut = $perf[0].T - 10 + $PerfWarmup
+    $use = @($perf | Where-Object { $_.T -ge $cut })
+    if ($use.Count -eq 0) { Fail "no [PERF] lines after the $PerfWarmup s warm-up ($($perf.Count) lines total); wait longer" }
+    $i = 0
+    foreach ($u in $use) {
+        $i++
+        Write-Host ("   perf {0,2}: fps={1,6:N1} min={2,6:N1} tick_ms={3,6:N2} enemies={4}" -f $i, $u.Fps, $u.Min, $u.TickMs, $u.Enemies)
+    }
+    $lowest = ($use | Measure-Object -Property Fps -Minimum).Minimum
+    Write-Host ("== PERF samples after warm-up: {0}, lowest fps average {1:N1} (MinFps {2})" -f $use.Count, $lowest, $MinFps)
+    if ($lowest -lt $MinFps) { Fail ("fps {0:N1} below MinFps {1}" -f $lowest, $MinFps) }
+}
 
+if ($colorFail) { Fail $colorFail }  # reported after the fps check so both results are printed
 Write-Host "SMOKE OK"
 exit 0

@@ -1,6 +1,6 @@
 # Emulator smoke test (`tools/smoke_android.ps1`)
 
-Changelog: 2026-11-07 v1.0 (M0-08).
+Changelog: 2026-11-07 v1.1 (M1-25: -MinFps, -Soak). 2026-11-07 v1.0 (M0-08).
 
 One command that proves the installed app launched, logged no errors and drew something.
 
@@ -10,7 +10,7 @@ One command that proves the installed app launched, logged no errors and drew so
 ```
 
 Parameters: `-Package com.ironstatic.game -Preset IronStatic -WaitSeconds 35 -SkipDeploy -Serial "" -ExpectColor "#FFB000"`,
-plus `-BlankThreshold 0.999` and `-MinFps` (reserved for M1-25, currently ignored).
+plus `-BlankThreshold 0.999`, `-MinFps <n>` (fps gate, below), `-Soak <seconds>` and `-PerfWarmup 40`.
 
 ## Checks (in order)
 
@@ -36,3 +36,23 @@ Prints `SMOKE OK` (exit 0) or `SMOKE FAIL: <reason>` (exit 1).
 - Deploy is run as a child `powershell.exe`: `deploy_android.ps1` uses `ErrorActionPreference=Stop`, and adb's
   "daemon not running; starting now" stderr line aborts it inside some hosts (e.g. an agent shell with `2>&1`).
 - Wait times: 35 s default covers the first-launch shader compile; after an emulator cold boot wait 20-30 s before running.
+
+## Soak and fps gate (M1-25)
+
+```powershell
+# build with "-- --debug-perf" in export_presets.cfg command_line/extra_args (restore "" afterwards), deploy, then:
+.\tools\smoke_android.ps1 -SkipDeploy -WaitSeconds 30 -Soak 180 -MinFps 30
+```
+
+- `-Soak <seconds>`: after the wait and the first process check, the app keeps running for that long; every 15 s the script
+  re-checks `pidof` (same pid, else "process died/restarted during soak") and the crash patterns
+  (`FATAL EXCEPTION`, error-level `AndroidRuntime`, `SCRIPT ERROR`, `Force quitting`, `ANR in <package>`).
+- `-MinFps <n>`: parses `[PERF] fps=.. min=.. tick_ms=.. enemies=..` from `logcat -d -v epoch`, drops lines in the first
+  `-PerfWarmup` seconds (default 40, counted from the first `[PERF]` line minus 10 s), prints every parsed line and fails
+  if the lowest per-line `fps` average is below `n`. No `[PERF]` lines at all is a failure (the build needs `--debug-perf`
+  or `--debug-load`). `min` (lowest 1 s average inside a 10 s window) is printed but not gated.
+- The `-ExpectColor` result is reported last, so the fps lines still print when the colour check fails. On the battle
+  screen the amber HUD is small: `#FFB000` matched only 9 of the needed 20 samples (follow-up F1 in
+  `docs/playtests/m1_emulator.md`); pass `-ExpectColor ""` to skip it.
+- Safe to run in a cold-booted emulator only after the first launch has settled; the first launch after a cold boot can lose
+  its process once (relaunch) - relaunch with `adb shell monkey -p com.ironstatic.game -c android.intent.category.LAUNCHER 1`.

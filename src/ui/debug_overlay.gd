@@ -139,7 +139,7 @@ func _refresh_text(w: SimWorld) -> void:
 	_lines[1] = "SIM %.2f ms/tick" % _tick_ms.average()
 	_lines[2] = "ENEMIES %d  BOLTS %d" % [w.enemies.alive_count, w.projectiles.alive_count]
 	_lines[3] = "WAVE %d  LEVEL_HP %d" % [w.wave, w.level_hp]
-	_lines[4] = "G_HP %.3g  SKITTER HP %.3g" % [g_hp, skitter_hp]
+	_lines[4] = "G_HP %.3f  SKITTER HP %.3f" % [g_hp, skitter_hp]
 	_lines[5] = "N(W) %d" % n_w
 	_lines[6] = (
 		"TICKS/FRAME %d  THROTTLED %s" % [_controller.last_ticks, "YES" if _controller.driver.throttled else "no"]
