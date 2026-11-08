@@ -8,6 +8,8 @@ extends Node2D
 ## Cinder's aim angle follows the target of the latest SHOT_FIRED event (own EventCursor);
 ## it keeps the last angle between shots (initially straight up).
 
+## View-only override of the displayed exposure band (debug overlay, M1-24); -1 shows the sim's band.
+var band_override: int = -1
 var _world: SimWorld
 var _px_per_m: float = ViewMath.px_per_m(1080.0)
 var _viewport_size := Vector2(1080.0, 1920.0)
@@ -60,7 +62,8 @@ func render(alpha: float) -> void:
 	var hp_frac: float = 0.0
 	if cinder.max_hp > 0.0:
 		hp_frac = cinder.hp / cinder.max_hp
-	_cinder.set_state(hp_frac, cinder.band, _aim, now_s)
+	var band: int = cinder.band if band_override < 0 else band_override
+	_cinder.set_state(hp_frac, band, _aim, now_s)
 	_background.set_optic_range(_world.stats.optic_range)
 	_enemies.render(_world, alpha)
 	var emitter: Vector2 = Vector2.from_angle(_aim) * _cinder.radius_px

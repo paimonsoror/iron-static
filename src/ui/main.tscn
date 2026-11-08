@@ -1,6 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://src/ui/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://src/view/battle_view.tscn" id="2_battle"]
+[ext_resource type="PackedScene" path="res://src/ui/hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://src/ui/results_overlay.tscn" id="4_results"]
+[ext_resource type="PackedScene" path="res://src/ui/debug_overlay.tscn" id="5_debug"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -18,42 +22,20 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 color = Color(0.0275, 0.0353, 0.0471, 1)
 
-[node name="Title" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -400.0
-offset_top = -60.0
-offset_right = 400.0
-offset_bottom = 60.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.6902, 0, 1)
-theme_override_font_sizes/font_size = 96
-text = "IRON STATIC"
-horizontal_alignment = 1
-vertical_alignment = 1
+[node name="BattleView" parent="." instance=ExtResource("2_battle")]
+unique_name_in_owner = true
 
-[node name="BuildLine" type="Label" parent="."]
+[node name="Hud" parent="." instance=ExtResource("3_hud")]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -200.0
-offset_top = -120.0
-offset_right = 200.0
-offset_bottom = -70.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(1, 0.6902, 0, 0.45)
-theme_override_font_sizes/font_size = 32
-text = "build 0.0.1"
-horizontal_alignment = 1
-vertical_alignment = 1
+
+[node name="ResultsOverlay" parent="." instance=ExtResource("4_results")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="DebugOverlay" parent="." instance=ExtResource("5_debug")]
+unique_name_in_owner = true
+layout_mode = 1
