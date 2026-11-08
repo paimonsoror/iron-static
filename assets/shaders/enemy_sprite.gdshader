@@ -5,9 +5,13 @@ shader_type canvas_item;
 // Output is PREMULTIPLIED: rgb = body.rgb * body.a + glow.rgb * glow.a * glow_strength, a = body.a.
 // Imported SVG textures are straight alpha, hence the multiplications here.
 //
-// INSTANCE_CUSTOM (MultiMesh use_custom_data, written by MultiMeshBuffer):
-//   x = hit flash 0..1 (CPU decays it over 90 ms)   y = flipbook frame (float, floored in the shader)
-//   z = spawn-in 0..1 (1 = spawned; scale 0.6 -> 1.0 and alpha 0 -> 1)   w = phase seed for the glow pulse
+// V1-29: NO instance COLOR / CUSTOM (a packed-half attribute that changes every frame arrives as garbage on the
+// PowerVR C-Series GPU via ANGLE/Vulkan: white, green or invisible sprites). The MultiMesh carries only its float32
+// transform; the per-instance fields are float32 texels of the one-row RGBAF texture u_inst, read with texelFetch
+// at x = INSTANCE_ID (layout: src/view/multimesh_buffer.gd):
+//   r = hit flash 0..1 (CPU decays it over 90 ms)   g = flipbook frame (integer, rounded here)
+//   b = spawn-in 0..1 (1 = spawned; scale 0.6 -> 1.0 and alpha 0 -> 1)   a = phase seed for the glow pulse
+// Every field is clamped to its legal range, so a bad value can never turn a sprite white or invisible.
 render_mode blend_premul_alpha;
 
 // Glow sheet: same cell layout as the body sheet at half size (art bible 4.3).
@@ -27,13 +31,24 @@ uniform float pulse_hz : hint_range(0.0, 8.0) = 0.83;
 // Colorblind hook (art bible 3.2): multiplies the glow color. (1,1,1) = default palette.
 uniform vec3 tint_hostile : source_color = vec3(1.0, 1.0, 1.0);
 
-varying flat vec4 v_custom;
-varying vec4 v_mod;
+// Per-instance data, one row of RGBAF, never filtered.
+uniform highp sampler2D u_inst : filter_nearest, repeat_disable;
+
+// Largest legitimate flipbook frame index (sheets hold at most 8 frames) and phase seed (slot index * 0.137).
+const highp float FRAME_MAX = 15.0;
+const highp float PHASE_MAX = 4096.0;
+
+// x = flash 0..1, y = frame, z = spawn-in 0..1, w = phase seed (all clamped in vertex()).
+varying flat highp vec4 v_custom;
 
 void vertex() {
-	v_mod = COLOR;
-	v_custom = INSTANCE_CUSTOM;
-	VERTEX *= mix(0.6, 1.0, clamp(INSTANCE_CUSTOM.z, 0.0, 1.0));
+	highp vec4 d = texelFetch(u_inst, ivec2(INSTANCE_ID, 0), 0);
+	highp float flash = clamp(d.x, 0.0, 1.0);
+	highp float frame = clamp(floor(d.y + 0.5), 0.0, FRAME_MAX);
+	highp float spawn = clamp(d.z, 0.0, 1.0);
+	highp float phase = clamp(d.w, 0.0, PHASE_MAX);
+	v_custom = vec4(flash, frame, spawn, phase);
+	VERTEX *= mix(0.6, 1.0, spawn);
 }
 
 void fragment() {
@@ -55,12 +70,12 @@ void fragment() {
 	vec4 glow = texture(glow_tex, glow_uv);
 
 	float pulse = 1.0 + pulse_amount * sin((TIME + v_custom.w) * pulse_hz * 6.2831853);
-	float fl = clamp(v_custom.x, 0.0, 1.0) * flash_cap;
+	float fl = v_custom.x * flash_cap;
 	vec3 body_pm = mix(body.rgb * body.a, flash_color * body.a, fl);
 	vec3 glow_pm = glow.rgb * glow.a * tint_hostile * (glow_strength * pulse);
 	// the flash also lifts the glow a little so a flashing unit does not look dimmer
 	glow_pm *= 1.0 + 0.5 * fl;
 
-	float mod_a = v_mod.a * clamp(v_custom.z, 0.0, 1.0);
-	COLOR = vec4((body_pm * v_mod.rgb + glow_pm) * mod_a, body.a * mod_a);
+	float mod_a = clamp(v_custom.z, 0.0, 1.0);
+	COLOR = vec4((body_pm + glow_pm) * mod_a, body.a * mod_a);
 }

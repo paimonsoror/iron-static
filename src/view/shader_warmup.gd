@@ -53,6 +53,8 @@ func _add_enemy() -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = load(EnemyRenderer.SHADER_PATH) as Shader
 	mat.set_shader_parameter("glow_tex", ArtSlots.texture(glow_art.id) if glow_art.valid else ArtSlots.placeholder())
+	var data := PackedFloat32Array([0.0, 0.0, 1.0, 0.0])  # one texel: flash, frame, spawn-in, phase
+	mat.set_shader_parameter("u_inst", ImageTexture.create_from_image(MultiMeshBuffer.data_image(data)))
 	_add_instance(mat, ArtSlots.texture(slot_id), EnemyRenderer.quad_mesh(art, art.sprite_scale()))
 
 
@@ -66,7 +68,7 @@ func _add_particles() -> void:
 		var mat := ShaderMaterial.new()
 		mat.shader = shader
 		mat.set_shader_parameter("u_data", data_tex)
-		_add_instance(mat, tex, _quad(64.0), false)
+		_add_instance(mat, tex, _quad(64.0))
 
 
 func _add_arena() -> void:
@@ -98,19 +100,16 @@ func _add_additive_layer() -> void:
 	add_child(layer)
 
 
-## One-instance MultiMesh (instanced draw path). The enemy shader reads per-instance color and custom data; the
-## particle shader reads only the transform and a data texture (`with_instance_data` false), as in the game.
-func _add_instance(mat: ShaderMaterial, tex: Texture2D, mesh: Mesh, with_instance_data: bool = true) -> void:
+## One-instance, transform-only MultiMesh (instanced draw path), as in the game: the enemy and particle shaders read
+## their per-instance fields from a data texture, never from instance COLOR / CUSTOM (V1-26, V1-29).
+func _add_instance(mat: ShaderMaterial, tex: Texture2D, mesh: Mesh) -> void:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_2D
-	mm.use_colors = with_instance_data
-	mm.use_custom_data = with_instance_data  # before instance_count
+	mm.use_colors = false
+	mm.use_custom_data = false
 	mm.mesh = mesh
 	mm.instance_count = 1
 	mm.set_instance_transform_2d(0, Transform2D.IDENTITY)
-	if with_instance_data:
-		mm.set_instance_color(0, Color.WHITE)
-		mm.set_instance_custom_data(0, Color(0.0, 0.0, 1.0, 0.0))
 	var inst := MultiMeshInstance2D.new()
 	inst.multimesh = mm
 	inst.texture = tex

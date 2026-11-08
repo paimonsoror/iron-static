@@ -9,7 +9,9 @@ extends Node2D
 ## scaled per instance by `EnemyDrawSpec.scale_px` = sprite_ppm / 33.75 (V1-23: decoupled from the camera, see
 ## ViewMath.sprite_ppm), so a skitter is 54 px wide and a walker about 95 px at 1080 width and the base zoom
 ## whatever the sim radius is. `set_view_scale()` re-sizes everything for a new camera without touching the meshes.
-## Per instance custom data (see MultiMeshBuffer): flash, flipbook frame, spawn-in, phase seed.
+## V1-29: the MultiMeshes are transform-only. Per instance flash, flipbook frame, spawn-in and phase seed are float32
+## texels of a per-type one-row RGBAF data texture (texel x = INSTANCE_ID, see MultiMeshBuffer), uploaded once per
+## frame, because packed-half instance COLOR/CUSTOM data arrives as garbage on the Pixel's PowerVR GPU.
 
 const SHADER_PATH: String = "res://assets/shaders/enemy_sprite.gdshader"
 const ENEMY_SLOTS: Array[String] = ViewMath.ENEMY_SLOTS
@@ -35,6 +37,8 @@ var _cinder_radius_m: float = 2.0
 var _cull := Rect2()
 var _rids: Array[RID] = []  # index 0-4 enemy types, 5 bolts
 var _buffers: Array[PackedFloat32Array] = []
+var _data: Array[PackedFloat32Array] = []  # per type: DATA_FLOATS per instance (one RGBAF texel each)
+var _data_tex: Array[ImageTexture] = []
 var _instances: Array[MultiMeshInstance2D] = []
 var _mats: Array[ShaderMaterial] = []
 var _specs: Array[EnemyDrawSpec] = []
@@ -67,6 +71,8 @@ func setup(
 	_instances.clear()
 	_rids.clear()
 	_buffers.clear()
+	_data.clear()
+	_data_tex.clear()
 	_mats.clear()
 	_specs.clear()
 	var ok: bool = _radius_px.resize(ENEMY_SLOTS.size()) == OK
@@ -86,14 +92,19 @@ func setup(
 				spec.fire_gap_ticks = 60  # replaced by the tuning value at bind
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_2D
-		mm.use_colors = true
-		mm.use_custom_data = true  # before instance_count
+		mm.use_colors = false  # V1-29: transform only (per-frame instance COLOR/CUSTOM breaks on PowerVR)
+		mm.use_custom_data = false
 		mm.mesh = quad_mesh(art, art.sprite_scale())
-		var cap: int = bolt_capacity if is_bolt else enemy_capacity
+		var cap: int = MultiMeshBuffer.data_capacity(bolt_capacity if is_bolt else enemy_capacity)
 		mm.instance_count = cap
 		mm.visible_instance_count = 0
+		var data := PackedFloat32Array()
+		ok = ok and data.resize(cap * MultiMeshBuffer.DATA_FLOATS) == OK
+		data.fill(0.0)
+		var data_tex: ImageTexture = ImageTexture.create_from_image(MultiMeshBuffer.data_image(data))
 		var mat := ShaderMaterial.new()
 		mat.shader = shader
+		mat.set_shader_parameter("u_inst", data_tex)
 		mat.set_shader_parameter(
 			"glow_tex", ArtSlots.texture(glow_art.id) if glow_art.valid else ArtSlots.placeholder()
 		)
@@ -114,6 +125,8 @@ func setup(
 		ok = ok and buf.resize(cap * MultiMeshBuffer.FLOATS_PER_INSTANCE) == OK
 		resize_count += 1
 		_buffers.append(buf)
+		_data.append(data)
+		_data_tex.append(data_tex)
 	if not ok:
 		push_error("EnemyRenderer: buffer resize failed")
 	_glow_applied = -1.0
@@ -156,13 +169,13 @@ func render(world: SimWorld, alpha: float) -> void:
 		var spec: EnemyDrawSpec = _specs[t]
 		spec.time_s = sim_t
 		spec.tick_f = float(world.tick) + a
-		var n: int = MultiMeshBuffer.fill(store, t, a, _px_per_m, _buffers[t], 1.0, true, _cull, spec)
+		var n: int = MultiMeshBuffer.fill(store, t, a, _px_per_m, _buffers[t], _data[t], 1.0, true, _cull, spec)
 		_upload(t, n)
 	var last: int = ENEMY_SLOTS.size()
 	var bspec: EnemyDrawSpec = _specs[last]
 	bspec.time_s = sim_t
 	var nb: int = MultiMeshBuffer.fill_bolts(
-		world.projectiles, a, SimWorld.DT, _px_per_m, 0.0, _buffers[last], 1.0, true, _cull, bspec
+		world.projectiles, a, SimWorld.DT, _px_per_m, 0.0, _buffers[last], _data[last], 1.0, true, _cull, bspec
 	)
 	_upload(last, nb)
 
@@ -196,6 +209,7 @@ func _apply_glow(alive: int) -> void:
 func _upload(slot: int, count: int) -> void:
 	_instances[slot].multimesh.visible_instance_count = count
 	RenderingServer.multimesh_set_buffer(_rids[slot], _buffers[slot])
+	_data_tex[slot].update(MultiMeshBuffer.data_image(_data[slot]))
 
 
 ## Pixel-sized quad of one cell of `art`, the pivot texel at the origin, facing +x; `px_per_texel` on-screen px.

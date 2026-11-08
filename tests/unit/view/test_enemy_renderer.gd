@@ -40,8 +40,8 @@ func test_render_500_enemies_is_allocation_free_after_warmup() -> void:
 	for c: Node in r.get_children():
 		var inst: MultiMeshInstance2D = c as MultiMeshInstance2D
 		shown += inst.multimesh.visible_instance_count
-		assert_bool(inst.multimesh.use_custom_data).is_true()
-		assert_bool(inst.multimesh.use_colors).is_true()
+		assert_bool(inst.multimesh.use_custom_data).is_false()  # V1-29: transform only
+		assert_bool(inst.multimesh.use_colors).is_false()
 	assert_int(shown).is_greater(0)
 	assert_int(r.get_child_count()).is_equal(6)
 
@@ -83,3 +83,44 @@ func test_contact_standoff_differs_per_type_and_draw_pos_uses_it() -> void:
 	var p: Vector2 = r.draw_pos(world.enemies, i, 1.0)
 	var armor: float = 2.0 * 33.75 * 1.5 * ViewMath.CINDER_SCALE
 	assert_float(p.x - r.sprite_radius_px(2) - armor).is_equal_approx(ViewMath.CONTACT_GAP_PX, 0.01)
+
+
+func test_data_texture_carries_flash_frame_spawn_phase_per_instance() -> void:
+	var world := SimWorld.new(SimConfigLoader.load_default(1))
+	var r: EnemyRenderer = _renderer()
+	var slots: Array[int] = []
+	for k: int in 3:
+		var i: int = world.enemies.alloc(1)  # dart: type 1
+		slots.append(i)
+		world.enemies.pos_x[i] = 5.0 + float(k)
+		world.enemies.prev_x[i] = 5.0 + float(k)
+		world.enemies.radius[i] = 0.5
+	r.render(world, 1.0)  # binds the fx state
+	var fx: EnemyFxState = r._fx
+	fx.flash[slots[1]] = 0.6
+	fx.spawn_age[slots[2]] = 0.1  # spawn factor 0.5
+	r._last_now_s = Time.get_ticks_msec() / 1000.0  # dt ~ 0
+	r.render(world, 1.0)
+	var data: PackedFloat32Array = r._data[1]
+	var d: int = MultiMeshBuffer.DATA_FLOATS
+	var order: Array[int] = slots.duplicate()
+	order.sort()  # fill() walks the store in slot order; instance n = n-th alive slot
+	var n1: int = order.find(slots[1])
+	var n2: int = order.find(slots[2])
+	assert_float(data[n1 * d + MultiMeshBuffer.D_FLASH]).is_equal_approx(0.6, 0.05)
+	assert_float(data[(n1 + 1) % 3 * d + MultiMeshBuffer.D_FLASH]).is_equal(0.0)
+	assert_float(data[n2 * d + MultiMeshBuffer.D_SPAWN]).is_between(0.4, 0.6)
+	assert_float(data[(n2 + 1) % 3 * d + MultiMeshBuffer.D_SPAWN]).is_equal(1.0)
+	for k: int in 3:
+		assert_float(data[k * d + MultiMeshBuffer.D_PHASE]).is_equal_approx(
+			EnemyInstanceData.pulse_seed(order[k]), 1e-5
+		)
+		var f: float = data[k * d + MultiMeshBuffer.D_FRAME]
+		assert_float(f).is_equal(floorf(f))
+		assert_float(f).is_between(0.0, 3.0)
+	# the uploaded texture is a per-type RGBAF row sized to capacity, read by the shader as u_inst
+	var tex: ImageTexture = r._data_tex[1]
+	assert_int(tex.get_width()).is_equal(EnemyStore.DEFAULT_CAPACITY)
+	assert_int(tex.get_height()).is_equal(1)
+	assert_int(tex.get_format()).is_equal(Image.FORMAT_RGBAF)
+	assert_object(r._mats[1].get_shader_parameter("u_inst")).is_same(tex)

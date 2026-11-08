@@ -15,6 +15,9 @@ func test_builds_each_material_and_is_drawable() -> void:
 	for child: Node in w.get_children():
 		if child is MultiMeshInstance2D:
 			instanced += 1
+			var mm: MultiMesh = (child as MultiMeshInstance2D).multimesh
+			assert_bool(mm.use_colors).is_false()  # V1-29: transform only, data in a texture
+			assert_bool(mm.use_custom_data).is_false()
 			shaders.append(((child as MultiMeshInstance2D).material as ShaderMaterial).shader)
 		elif child is ColorRect:
 			rects += 1
