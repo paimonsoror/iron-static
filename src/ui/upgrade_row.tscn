@@ -68,19 +68,3 @@ unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_fx")
-
-[node name="Tooltip" type="PanelContainer" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-mouse_filter = 2
-
-[node name="TooltipLabel" type="Label" parent="Tooltip"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-autowrap_mode = 3
-
-[node name="TipTimer" type="Timer" parent="."]
-unique_name_in_owner = true
-one_shot = true

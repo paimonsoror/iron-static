@@ -2,8 +2,8 @@ class_name Hud
 extends Control
 ## Battle HUD (GDD 07 section 2.1: hud_wave, hud_timer_bar, hud_speed, hud_pause, hud_integrity_ring as a bar,
 ## hud_scrap amber, hud_data_run blue) plus the bottom `UpgradePanel` (M2-10), styled per art bible 7.2 (V1-16) and
-## compacted in V1-25: line 1 wave + time left + speed + 80 px speed/pause icons (126 px touch rects), line 2 thin
-## timer bar, line 3 integrity bar, line 4 currency chips (about 240 px tall). Base resolution 1080 wide.
+## compacted in V1-25: line 1 wave + time left + speed + 80 px speed/pause icons (126 px touch rects), line 2 24 px
+## timer bar, line 3 integrity bar, line 4 currency chips (about 250 px tall). Base resolution 1080 wide.
 ## `field_insets_changed(top_px, bottom_px)` reports the HUD bottom edge and the panel's cover so main can call
 ## `BattleView.set_field_insets`; it fires (deferred, coalesced) on ready, resize, safe-area and panel size changes.
 ## Signals only; the owner feeds values with refresh(world, now_s) at any rate. Counter text comes from `HudModel`
@@ -23,6 +23,8 @@ const COUNTER_ICON_POS: Vector2 = Vector2(20.0, 8.0)
 ## Upgrade panel height cap as a share of the viewport height.
 const PANEL_MAX_SHARE: float = 0.36
 ## Touch rect of the 80 px icon buttons: 80 + 2 x 23 = 126 px (48 dp).
+## Timer bar frame inset: 24 px bar leaves 16 px tall segments (V1-27).
+const TIMER_INSET: float = 4.0
 const TOUCH_PAD_PX: float = 23.0
 
 ## Set true to force reduce motion (it is also read from `Game.visual.reduce_motion`).
@@ -65,6 +67,7 @@ func _ready() -> void:
 	_style_counter(%ScrapPlate as Panel, "icon_cur_scrap")
 	_style_counter(%DataPlate as Panel, "icon_cur_data")
 	_timer_bar.color = Palette.AMBER
+	_timer_bar.inset = TIMER_INSET
 	_integrity_bar.animate = not _reduced()
 	UiKit.style_icon_button(_speed_button, "icon_ic_speed")
 	UiKit.style_icon_button(_pause_button, "icon_ic_pause")

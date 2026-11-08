@@ -15,7 +15,6 @@ signal buy_pressed(upgrade_index: int, count: int)
 
 enum CostState { AFFORDABLE, LOCKED, MAXED }
 
-const TOOLTIP_S: float = 3.0
 const MOVE_CANCEL_PX: float = 24.0
 const SCROLL_CANCEL_PX: float = 8.0
 ## Row height: 148 px cost button plus 18 px above and below (was 231 px; Q56 asks for more rows on screen).
@@ -31,7 +30,6 @@ var _level: String = ""
 var _level_n: int = -1
 var _value: String = ""
 var _cost: String = ""
-var _tooltip: String = ""
 var _icon_id: String = ""
 var _state: int = -1
 var _ring: bool = false
@@ -47,6 +45,7 @@ var _down_pos: Vector2 = Vector2.ZERO
 var _down_y: float = 0.0
 var _hazard: Panel = null
 var _scrap_icon: Texture2D = null
+var _tip: RowTooltip = RowTooltip.new()
 
 @onready var _icon: TextureRect = %Icon
 @onready var _name_label: Label = %NameLabel
@@ -54,9 +53,6 @@ var _scrap_icon: Texture2D = null
 @onready var _value_label: Label = %ValueLabel
 @onready var _buy_button: Button = %BuyButton
 @onready var _fx: RowFx = %Fx
-@onready var _tip: PanelContainer = %Tooltip
-@onready var _tip_label: Label = %TooltipLabel
-@onready var _tip_timer: Timer = %TipTimer
 
 
 func _ready() -> void:
@@ -64,16 +60,14 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", UiKit.inset(16, 8))
 	_style_labels()
 	_style_cost_button()
-	_tip.add_theme_stylebox_override("panel", UiKit.tooltip(20, 6))
+	_tip.setup(self)
 	_fx.button = _buy_button
-	_tip_timer.wait_time = TOOLTIP_S
-	_tip_timer.timeout.connect(_hide_tip)
 	_buy_button.button_down.connect(_on_button_down)
 	_buy_button.button_up.connect(_on_button_up)
 	_buy_button.gui_input.connect(_on_button_input)
-	visibility_changed.connect(_stop_hold)
+	visibility_changed.connect(_on_visibility_changed)
+	tree_exiting.connect(_tip.queue_free)
 	set_process(false)
-	_tip.hide()
 
 
 ## Copies the model into the nodes; unchanged fields are not touched.
@@ -100,9 +94,7 @@ func apply(model: UpgradeRowModel) -> void:
 	if model.cost_text != _cost:
 		_cost = model.cost_text
 		_buy_button.text = _cost
-	if model.tooltip_text != _tooltip:
-		_tooltip = model.tooltip_text
-		_tip_label.text = _tooltip
+	_tip.set_text(model.tooltip_text)
 	var state: int = (
 		CostState.MAXED if model.maxed else (CostState.AFFORDABLE if model.affordable else CostState.LOCKED)
 	)
@@ -215,13 +207,17 @@ func toggle_tooltip() -> void:
 	if _tip.visible:
 		_hide_tip()
 		return
-	_tip.show()
-	_tip_timer.start()
+	_tip.open()
 
 
 func _hide_tip() -> void:
-	_tip_timer.stop()
-	_tip.hide()
+	_tip.close()
+
+
+func _on_visibility_changed() -> void:
+	_stop_hold()
+	if not visible:
+		_hide_tip()
 
 
 func _on_button_input(event: InputEvent) -> void:

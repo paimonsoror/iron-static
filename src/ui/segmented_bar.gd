@@ -30,6 +30,8 @@ var head_bright: bool = false
 var ticks: bool = false
 ## Width of the dark number pocket at the right end (0 = none).
 var pocket_px: float = 0.0
+## Frame inset in px (thin bars use less so the segments stay tall).
+var inset: float = INSET
 ## Loss flash on/off (off under reduce motion).
 var animate: bool = true
 
@@ -117,9 +119,9 @@ func _draw() -> void:
 	if _frame == null:
 		return
 	draw_style_box(_frame, Rect2(Vector2.ZERO, size))
-	var inner: Rect2 = Rect2(INSET, INSET, size.x - 2.0 * INSET - pocket_px, size.y - 2.0 * INSET)
+	var inner: Rect2 = Rect2(inset, inset, size.x - 2.0 * inset - pocket_px, size.y - 2.0 * inset)
 	if pocket_px > 0.0:
-		var pocket := Rect2(size.x - INSET - pocket_px, INSET, pocket_px, inner.size.y)
+		var pocket := Rect2(size.x - inset - pocket_px, inset, pocket_px, inner.size.y)
 		draw_rect(pocket, Palette.PLATE_SHADOW)
 		draw_rect(Rect2(pocket.position.x, pocket.position.y, 2.0, pocket.size.y), Palette.AMBER_DIM)
 	var pitch: float = inner.size.x / float(segments)

@@ -142,3 +142,22 @@ func test_a_drag_on_the_row_body_shows_no_tooltip() -> void:
 	_motion(pos + Vector2(0, 70))
 	_mouse(pos + Vector2(0, 70), false)
 	assert_bool(row.is_tooltip_visible()).is_false()
+
+
+func test_tooltip_opens_below_the_row_and_both_stay_visible() -> void:
+	var panel: UpgradePanel = _panel()
+	await await_millis(100)
+	panel.max_height_px = 800.0  # the real panel is 864 px at 1080x2400
+	panel.reflow()
+	await await_millis(100)
+	var row: UpgradeRow = panel.row_at(1)
+	row.toggle_tooltip()
+	await await_millis(150)
+	assert_bool(row.is_tooltip_visible()).is_true()
+	var tip: Control = row.get_parent().get_child(row.get_index() + 1) as Control
+	assert_object(tip).is_instanceof(RowTooltip)
+	assert_float(tip.global_position.y).is_greater_equal(row.global_position.y + row.size.y - 1.0)
+	var sc: ScrollContainer = panel.find_children("*", "ScrollContainer", true, false)[0]
+	var view: Rect2 = sc.get_global_rect()
+	assert_bool(view.has_point(row.global_position + Vector2(10.0, 4.0))).is_true()
+	assert_bool(view.has_point(tip.global_position + Vector2(10.0, tip.size.y - 4.0))).is_true()

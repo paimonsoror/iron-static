@@ -5,7 +5,8 @@ extends GdUnitTestSuite
 ## >= 4.5:1 on its plate, banner behavior and the pause icon swap.
 
 const MIN_TOUCH: float = 126.0
-const MAX_HUD_H: float = 250.0
+const MAX_HUD_H: float = 252.0
+const MIN_TIMER_H: float = 24.0
 const MIN_TEXT: int = 38
 const MIN_CONTRAST: float = 4.5
 
@@ -55,6 +56,8 @@ func _check(height: float) -> void:
 		touch.append(Rect2(b.global_position + tr.position, tr.size))
 	assert_bool(touch[0].intersects(touch[1])).is_false()
 	assert_float(maxf(scrap.end.y, data.end.y) - top.position.y).is_less_equal(MAX_HUD_H)
+	# V1-27: the wave timer bar is a legible 24 px.
+	assert_float(timer.size.y).is_greater_equal(MIN_TIMER_H)
 	# Wave, time left and speed share one line.
 	assert_float(absf(wave.get_center().y - timer_text.get_center().y)).is_less(1.0)
 	assert_float(absf(wave.get_center().y - speed_text.get_center().y)).is_less(1.0)
