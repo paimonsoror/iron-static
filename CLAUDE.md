@@ -48,6 +48,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 | Tests (import, run, parse output) | `.\tools\test.ps1` (`-Canary` proves the wrapper detects failures) | M0-05 |
 | Lint (gdformat, gdlint, layer rules, BOM, warnings-as-errors compile) | `.\tools\lint.ps1` | M0-06 |
 | Start emulator (AVD `tower_phone`, wait 25 s after cold boot) | `.\tools\run_emulator.ps1` | done |
+| Install/repair Gradle build template (untracked; after clone or Godot upgrade) | `.\tools\setup_android_template.ps1` (`-Force` reinstalls) | M0-09 |
 | Export, install, launch on emulator | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic` | M0-07 |
 | Emulator smoke test (log scan + screenshot check) | `.\tools\smoke_android.ps1` (`-SkipDeploy`, `-MinFps`) | M0-08 / M1-25 |
 | CSV to `.tres` importer | `.\tools\import_data.ps1` | M1-02 |
@@ -84,3 +85,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - Run tests only via `.\tools\test.ps1` (GdUnit4 6.2.3 CLI needs `--ignoreHeadlessMode`; reports land in `build/test/report/report_N/results.xml`).
 - `--check-only --script` does not load autoloads; compile checks go through `tools/compile_check.gd` (run by `lint.ps1`).
 - Deliberately broken `.gd` files live in folders with `.gdignore` + `.lintignore`; `test.ps1 -Canary` runs them in a copy under `build/canary/`.
+- Nested `project.godot` files (Gradle template, `build/canary`) make Godot print a stderr warning that aborts `deploy_android.ps1` under PS 5.1: `build/` and `android/build/` must keep their `.gdignore` (tools create them).
+- Run PS tools as `powershell -NoProfile -File tools\<script>.ps1` from `C:\dev\tower`; never run two deploys at once (adb/log collisions).
+- Gradle: first build ~10 min, then ~4 min per deploy; debug APK ~155 MiB (57 MiB without Gradle). `org.gradle.daemon=false` is required (a daemon hangs the deploy script).
+- Smoke test: `D`/`I AndroidRuntime` lines from `monkey` are normal; only error-level lines fail.

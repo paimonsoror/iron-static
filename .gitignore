@@ -4,15 +4,16 @@
 *.tmp
 
 # Build outputs
-build/
+/build/
 *.apk
 *.aab
 *.idsig
 reports/
 
-# Android Gradle build: keep the template tracked, ignore outputs only
-android/build/build/
-android/build/.gradle/
+# Android Gradle build template: reinstalled by tools/setup_android_template.ps1
+# (contains >100 MB engine AARs; plugin config lives in addons/, not here)
+/android/build/
+/android/.build_version
 .gradle/
 
 # Secrets and signing (never commit)

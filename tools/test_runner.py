@@ -126,8 +126,16 @@ def write_summary(build_dir: Path, counts: dict[str, int], code: int) -> str:
     return line
 
 
+def ensure_build_root(project: Path) -> None:
+    """build/ holds nested projects (canary) and PNGs; .gdignore keeps Godot from scanning it."""
+    root = project / "build"
+    root.mkdir(parents=True, exist_ok=True)
+    (root / ".gdignore").touch(exist_ok=True)
+
+
 def run_pipeline(godot: str, project: Path, res_path: str, suite: str | None, timeout: int, quiet: bool = False) -> int:
     """Import, run GdUnit4, parse. Prints the summary line last. Returns the exit code."""
+    ensure_build_root(project)
     build_dir = project / "build" / "test"
     build_dir.mkdir(parents=True, exist_ok=True)
     zero = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
@@ -193,6 +201,7 @@ def remove_tree(path: Path) -> None:
 
 def run_canary(godot: str, timeout: int) -> int:
     """Run the canary suites inside a temp copy of the project; broken file only exists there."""
+    ensure_build_root(REPO_ROOT)
     copy = REPO_ROOT / "build" / "canary"
     remove_tree(copy)
     copy.mkdir(parents=True)

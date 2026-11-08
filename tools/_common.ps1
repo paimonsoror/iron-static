@@ -1,5 +1,5 @@
 # Dot-source from other scripts: . "$PSScriptRoot\_common.ps1"
-# Provides $RepoRoot, $Godot, $Adb, Invoke-Godot, Find-Python, Write-Utf8NoBom.
+# Provides $RepoRoot, $BuildRoot, $Godot, $Adb, Invoke-Godot, Find-Python, Write-Utf8NoBom.
 
 $RepoRoot = Split-Path $PSScriptRoot -Parent
 
@@ -11,6 +11,12 @@ $pinnedMajorMinor = ($pinned -split '\.')[0..1] -join '.'
 if ($Godot -notmatch "\\godot\\$([regex]::Escape($pinnedMajorMinor))(\.\d+)?\\") {
     throw "tools/GODOT_VERSION ($pinned) major.minor does not match Godot path: $Godot"
 }
+
+# build/ holds nested projects and PNGs; .gdignore keeps Godot from scanning it.
+$BuildRoot = Join-Path $RepoRoot "build"
+if (-not (Test-Path $BuildRoot)) { New-Item -ItemType Directory -Path $BuildRoot | Out-Null }
+$gdIgnore = Join-Path $BuildRoot ".gdignore"
+if (-not (Test-Path $gdIgnore)) { [System.IO.File]::WriteAllText($gdIgnore, "") }
 
 $AndroidSdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { "$env:LOCALAPPDATA\Android\Sdk" }
 $Adb = "$AndroidSdk\platform-tools\adb.exe"
