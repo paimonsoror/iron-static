@@ -1,6 +1,6 @@
 # 02 - Combat and In-Run Systems
 
-Changelog: 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
+Changelog: 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
 
 All numbers are first-pass and **tunable** unless marked HARD (a rule, not a balance number). Borrowed mechanics are cited to the research notes: `[CIS n]` = combat_and_in_run_systems.md section n. "Changed" notes say what we altered and why.
 
@@ -151,6 +151,14 @@ Notes. `reinvest` order: wave bonuses first, then interest on the total. [CIS 2 
 ### 7.4 Starting-run values (before any Foundry)
 `scrap` 20, laser_output 10, cycle_rate 1.0, range 24, integrity 100, repair 1.0/s, all others locked. This gives wave ~11-13 on the first deployments with greedy buying (first-pass headless estimate, see 03 section 6).
 
+### 7.5 Buying and recording rules (M2, **(impl)**)
+- Buy modes x1, x10, x100, Max. A partial multi-buy is allowed: with `scrap` for only 7 of 10 levels, x10 buys 7 (cost is the exact sequential sum `ceil(c0 * g^L)` level by level); it buys nothing only when not even one level is affordable. Max buys until the cap or the money runs out.
+- A buy that purchases zero levels (maxed row, gated row, nothing affordable) is rejected and is NOT written to the input log; the log (`tick,index,count`) records accepted buys only, with the requested count (1, 10, 100 or -1).
+- A buy issued while the game is paused is applied before the next simulated tick, so it is logged with the current `world.tick` and replays identically.
+- `hull_integrity` raises max integrity and current integrity by the same delta (buying armor mid-fight also heals that amount); `nano_repair` changes only the rate.
+- Policy bot (`greedy4` buys among the four starting rows, `all` among every visible row): picks the row with the best `ref_dmg * ref_ehp` gain per cost and skips rows with zero gain (`scrap_yield`, `reinvest`, `optic_range`, ...), so those rows are never bought and unspent `scrap` can pile up; if the best row is unaffordable it waits and saves.
+- Best wave (`best_wave_s1`, gates row visibility) is updated only by real runs that end by death; debug-loaded (`load`) runs never update it. A run copies the current best wave into its config at start.
+
 ## 8. Damage pipeline (exact order of operations) (HARD)
 
 For each Cinder weapon hit on an enemy `e`:
@@ -300,6 +308,7 @@ Overdrive numbers: meter 0-100; `charge += (hp_removed_from_enemies / reference_
 
 ## 14. Game speed
 - Settings 1x, 2x always; 3x unlocked by Lab `game_speed` level 5; 4x at level 15 (max). HARD: all game timers (waves, cooldowns, durations, regen) scale with speed; the simulation remains deterministic regardless of speed. [CIS 1 game speed; changed: cap 4x not 6.25x to bound battery/performance and tournament skew.]
+- (M2, **(impl)**) The HUD speed button cycles 1x and 2x only until the Lab unlocks more; the chosen speed is app-level, so it persists across REDEPLOY and is not part of the sim config (speed changes ticks per frame, never the tick).
 - Gauntlets run at the player's max speed but the score is wave-based, not time-based, so speed does not affect fairness.
 - Ads and drafts pause the game; backgrounding the app pauses the run (Standby Patrol is a separate simulated system, 04).
 

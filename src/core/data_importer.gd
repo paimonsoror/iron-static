@@ -3,14 +3,14 @@ extends RefCounted
 ## CSV to .tres importer core (M1-02). `run(data_dir, out_dir)` reads sim_constants.csv, enemies.csv and
 ## run_upgrades.csv, validates everything, and only when there are no errors writes the generated
 ## resources (byte-identical on every run, see TresWriter). `tools/import_data.gd` is the CLI wrapper.
-## Tables with zero rows are valid (enemies, run_upgrades); sim_constants must define every key.
+## Also writes strings_en.tres and number_suffixes.tres (DataTextTables). Tables with zero rows are valid
+## (enemies, run_upgrades); sim_constants must define every key.
 
 const TUNING_SCRIPT: String = "res://src/data_defs/sim_tuning.gd"
 const ENEMY_SCRIPT: String = "res://src/data_defs/enemy_def.gd"
 const ENEMY_TABLE_SCRIPT: String = "res://src/data_defs/enemy_table.gd"
 const UPGRADE_SCRIPT: String = "res://src/data_defs/run_upgrade_def.gd"
 const UPGRADE_TABLE_SCRIPT: String = "res://src/data_defs/upgrade_table.gd"
-const STRING_TABLE_SCRIPT: String = "res://src/data_defs/string_table.gd"
 const GEN_RES_DIR: String = "res://src/data_gen/"
 const CONSTANT_COLUMNS: PackedStringArray = ["key", "value", "source", "note"]
 const ENEMY_COLUMNS: PackedStringArray = [
@@ -55,7 +55,7 @@ func run(data_dir: String, out_dir: String) -> bool:
 	_build_constants(CsvTable.load_file(data_dir.path_join("sim_constants.csv")))
 	_build_enemies(CsvTable.load_file(data_dir.path_join("enemies.csv")))
 	_build_upgrades(CsvTable.load_file(data_dir.path_join("run_upgrades.csv")))
-	_build_strings(data_dir.path_join("strings_en.csv"))
+	_build_text_tables(data_dir)
 	if not errors.is_empty():
 		return false
 	return _write_all(out_dir)
@@ -231,44 +231,19 @@ func _build_upgrades(table: CsvTable) -> void:
 	)
 
 
-## strings_en.csv (optional) to strings_en.tres: the CSV is gdignored and not exported, the .tres is.
-func _build_strings(path: String) -> void:
-	if not FileAccess.file_exists(path):
-		return
-	var table: CsvTable = CsvTable.load_file(path)
-	if _load_error(table):
-		return
-	if table.column_index("key") < 0 or table.column_index("text") < 0:
-		errors.append_array(PackedStringArray(["strings_en.csv: header must be key,text"]))
-		return
-	var seen: Dictionary = {}
-	var keys: PackedStringArray = PackedStringArray()
-	var texts: PackedStringArray = PackedStringArray()
-	for r: int in table.rows.size():
-		var key: String = table.get_value(r, "key")
-		if key.is_empty() or seen.has(key):
-			errors.append_array(
-				PackedStringArray(["strings_en.csv row %d: empty or duplicate key '%s'" % [r + 1, key]])
-			)
-			continue
-		seen[key] = true
-		keys.append(key)
-		texts.append(table.get_value(r, "text"))
-	if not errors.is_empty():
-		return
-	var out: String = '[gd_resource type="Resource" script_class="StringTable" format=3]\n\n'
-	out += '[ext_resource type="Script" path="%s" id="1_script"]\n\n' % STRING_TABLE_SCRIPT
-	out += '[resource]\nscript = ExtResource("1_script")\n'
-	out += "keys = PackedStringArray(%s)\n" % _quoted_list(keys)
-	out += "texts = PackedStringArray(%s)\n" % _quoted_list(texts)
-	files["strings_en.tres"] = out
-
-
-func _quoted_list(values: PackedStringArray) -> String:
-	var parts: PackedStringArray = PackedStringArray()
-	for v: String in values:
-		parts.append(TresWriter.fmt_string(v))
-	return ", ".join(parts)
+## Text tables that must ship as resources (strings, number suffixes); each CSV is optional.
+func _build_text_tables(data_dir: String) -> void:
+	var built: Array[Dictionary] = [
+		DataTextTables.strings(data_dir.path_join("strings_en.csv")),
+		DataTextTables.suffixes(data_dir.path_join("number_suffixes.csv")),
+	]
+	var names: PackedStringArray = ["strings_en.tres", "number_suffixes.tres"]
+	for i: int in built.size():
+		var errs: PackedStringArray = built[i]["errors"]
+		errors.append_array(errs)
+		var text: String = built[i]["text"]
+		if not text.is_empty():
+			files[names[i]] = text
 
 
 func _write_all(out_dir: String) -> bool:
@@ -297,7 +272,11 @@ func _remove_stale(out_dir: String) -> void:
 		return
 	for n: String in dir.get_files():
 		var ours: bool = (
-			n == "sim_tuning.tres" or n == "strings_en.tres" or n.begins_with("enemy_") or n.begins_with("upgrade_")
+			n == "sim_tuning.tres"
+			or n == "strings_en.tres"
+			or n == "number_suffixes.tres"
+			or n.begins_with("enemy_")
+			or n.begins_with("upgrade_")
 		)
 		if ours and n.ends_with(".tres") and not files.has(n):
 			var rm: Error = dir.remove(n)

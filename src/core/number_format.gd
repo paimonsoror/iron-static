@@ -2,11 +2,13 @@ class_name NumberFormat
 extends RefCounted
 ## GDD 04_economy section 5 number display. Static only. Display always floors (never rounds up)
 ## BigNum values to 3 significant digits; stat values (format_float, format_percent) round.
-## Suffix ladder is read from res://data/number_suffixes.csv (const fallback if unreadable).
+## Suffix ladder: the generated res://src/data_gen/number_suffixes.tres (ships in the APK), else
+## res://data/number_suffixes.csv (tools and tests), else the const fallback.
 
 enum { SHORT, SCIENTIFIC, ENGINEERING }
 
 const SUFFIX_CSV: String = "res://data/number_suffixes.csv"
+const SUFFIX_GEN: String = "res://src/data_gen/number_suffixes.tres"
 const DEFAULT_SUFFIXES: Array[String] = ["K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc"]
 const SHORT_MAX_EXP: int = 35  # 1e36 and above print in scientific form
 const CACHE_LIMIT: int = 512
@@ -135,10 +137,16 @@ static func _cache_put(key: String, text: String) -> void:
 static func _ensure_suffixes() -> void:
 	if not _suffixes.is_empty():
 		return
-	var table: CsvTable = CsvTable.load_file(SUFFIX_CSV)
-	if table.error.is_empty():
-		for i: int in table.rows.size():
-			_suffixes.append(table.get_value(i, "suffix"))
+	if ResourceLoader.exists(SUFFIX_GEN):
+		var res: Resource = load(SUFFIX_GEN)
+		if res is NumberSuffixTable:
+			var gen: NumberSuffixTable = res
+			_suffixes.append_array(gen.suffixes)
+	if _suffixes.is_empty():
+		var table: CsvTable = CsvTable.load_file(SUFFIX_CSV)
+		if table.error.is_empty():
+			for i: int in table.rows.size():
+				_suffixes.append(table.get_value(i, "suffix"))
 	if _suffixes.size() != DEFAULT_SUFFIXES.size():
 		_suffixes.clear()
 		_suffixes.append_array(DEFAULT_SUFFIXES)

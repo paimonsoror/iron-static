@@ -7,7 +7,9 @@ const BAD_DIR: String = "res://tests/fixtures/data_bad"
 const EMPTY_DIR: String = "res://tests/fixtures/data_empty"
 const GEN_DIR: String = "res://src/data_gen"
 const SCRATCH: String = "user://import_test"
-const TABLES: PackedStringArray = ["sim_constants.csv", "enemies.csv", "run_upgrades.csv", "strings_en.csv"]
+const TABLES: PackedStringArray = [
+	"sim_constants.csv", "enemies.csv", "run_upgrades.csv", "strings_en.csv", "number_suffixes.csv"
+]
 
 
 func after_test() -> void:
@@ -89,7 +91,7 @@ func test_importer_is_idempotent() -> void:
 	var b: DataImporter = _import(data_dir, "out_b")
 	assert_str("\n".join(a.errors)).is_empty()
 	assert_str("\n".join(b.errors)).is_empty()
-	assert_int(a.files.size()).is_equal(1 + 5 + 1 + 10 + 1 + 1)
+	assert_int(a.files.size()).is_equal(1 + 5 + 1 + 10 + 1 + 1 + 1)
 	for n: String in a.files:
 		var ha: String = FileAccess.get_sha256(SCRATCH.path_join("out_a").path_join(n))
 		var hb: String = FileAccess.get_sha256(SCRATCH.path_join("out_b").path_join(n))

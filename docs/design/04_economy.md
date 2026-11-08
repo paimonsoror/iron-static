@@ -1,6 +1,6 @@
 # 04 - Economy
 
-Changelog: 2026-11-07 - Standby Patrol (section 4) approved by the user; number type (section 5) changed to BigNum for currency/cost values; Gauntlet-related sources are P1 (06 section 0).
+Changelog: 2026-11-08 - M2-16: (impl) rules from the M2 build folded in (section 2.1 scrap rounding and interest cap, section 5 BigNum text/parse/rounding). 2026-11-07 - Standby Patrol (section 4) approved by the user; number type (section 5) changed to BigNum for currency/cost values; Gauntlet-related sources are P1 (06 section 0).
 
 Citations: `[ECON n]` = economy_monetization_liveops.md section n; `[META]` = meta_progression_systems.md. Target: **5 currencies**. The Tower has about 10 (Cash, Coins, Gems, Power Stones, Medals, Elite Cells, Keys, Tokens, Bits, Shards) [ECON 1]; "too many currencies for too many purposes" is a repeated complaint [ECON 7]. All earn-rate targets are first-pass and tunable; the later headless simulation must reproduce the cumulative targets in section 3.
 
@@ -24,6 +24,7 @@ Merged-away currencies (mapping for the dev team): Elite Cells -> replaced by `f
 - Sources: enemy kills (03 section 3), wave-end bonus (`scrap_per_wave`), interest (`reinvest`), salvage caches (`cache_scrap` pays `10 x scrap_per_kill(l)` of a skitter), `patch_t_hoard`.
 - Sinks: in-run upgrade levels (02).
 - Rules: starts at 20 (+Lab `start_scrap` +2 per level, max +100); lost at run end; no cap; interest cap per 02 `reinvest`.
+- Implementation rules (M2, **(impl)**): every payout is floored to a whole `scrap` when added to the balance and the fraction is carried to the next payout (no value is lost or created); stale kills pay half before flooring. Interest at wave end = `min(floor(scrap * reinvest), floor(0.5 * that wave's kill scrap))`: the cap is floored and the 0.5 factor is a constant in code (not in `sim_constants.csv`), the Lab `reinvest_cap` will raise it later.
 
 ### 2.2 `data` (permanent soft currency) [CIS 3 coins]
 - Sources: kills (03 section 3), `data_per_wave`, sector milestones, Ops Board missions, Standby Patrol, convoy kills, tournament rewards (small), Incursion/Operation Pass rewards, data caches (IAP).
@@ -127,6 +128,7 @@ patrol_minutes = min(minutes_away, cap_minutes)
   4. Always 3 significant digits; trim trailing zeros (`1.5K`, `15.0K` -> `15K`).
   5. Percentages: 1 decimal below 10%, integer above; multipliers `x1.25`, `x12.4`, `x1.24K`.
   6. Time: `45s`, `12m 30s`, `3h 05m`, `1d 4h`.
+- BigNum implementation rules (M2, **(impl)**): a value is `m x 10^e` with `m` in [1,10) (zero is `m = 0`); it is immutable and invalid inputs (negative, NaN, INF, unparsable text) return zero and bump `BigNum.error_count` instead of throwing. Canonical text (`to_text`, used in saves and logs) is the mantissa with at most 12 decimals, trailing zeros trimmed, then `e<exp>` (`1.5e12`, `0`; a mantissa that rounds up to 10 carries into the exponent). `parse` accepts `123`, `1.5e12`, `12.5E-3` (at most 17 significant digits kept, exponent at most 15 digits) and nothing else. Arithmetic keeps double-precision mantissas; an addend more than 17 orders of magnitude smaller is ignored. `NumberFormat` floors for display (a relative nudge of 1e-12 keeps `12.4` stored as `12.399999999999999` at `12.4`); stat values and percentages round.
 - Setting: "Number format" (Short suffix / Scientific / Engineering) in Settings. Default Short.
 - Affordability coloring: cost text in amber when affordable, dim gray when not; never red (red means hostile).
 

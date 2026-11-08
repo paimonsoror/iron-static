@@ -112,3 +112,9 @@ The battlefield is a 3-concentric-ring dark grid with a tiny turret (about 150 p
 Preset: `command_line/extra_args=""` and `include_filter=""` (restored). Emulator running with the final non-perf debug build, app restarted so the best wave is 0.
 
 Plain smoke on the final non-perf build (`-SkipDeploy -WaitSeconds 40`): **SMOKE OK** (log clean, 2307 lines; amber share 96 of 65536 samples).
+
+## M2-16 follow-ups (2026-11-08)
+
+- `number_suffixes.csv` now ships as `src/data_gen/number_suffixes.tres` (`NumberSuffixTable`), `NumberFormat` loads it first; `docs/setup/android_export.md` has the `.gdignore` export rule and an APK-contents check; `tests/unit/ui/test_ui_string_keys.gd` guards missing UI keys (HUD, panel with 10 rows, results overlay, every `upgrade.<id>`).
+- Bug 2 (tooltip): headless test `tests/unit/ui/test_row_long_press.gd` (panel in a SubViewport, real ScrollContainer) shows the tooltip after a held mouse press, none on a short tap or after a drag. The row only handled mouse events; it now also handles raw touch/drag events. The adb injection is the likely cause of the miss; a human long-press is still needed (09 Q57).
+- The observations above are tracked as 09 Q48-Q56.

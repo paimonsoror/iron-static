@@ -137,3 +137,16 @@ func test_suffix_table_file_matches_code() -> void:
 		assert_str(table.get_value(i, "suffix")).is_equal(NumberFormat.DEFAULT_SUFFIXES[i])
 		assert_str(NumberFormat.suffix_for_group(i + 1)).is_equal(NumberFormat.DEFAULT_SUFFIXES[i])
 	assert_int(NumberFormat.suffix_count()).is_equal(11)
+
+
+func test_generated_suffix_table_ships_and_matches_csv() -> void:
+	# data/ is gdignored so only the generated .tres reaches the APK: it must exist and equal the CSV.
+	assert_bool(ResourceLoader.exists(NumberFormat.SUFFIX_GEN)).is_true()
+	var res: Resource = load(NumberFormat.SUFFIX_GEN)
+	assert_bool(res is NumberSuffixTable).is_true()
+	var gen: NumberSuffixTable = res
+	var csv: CsvTable = CsvTable.load_file(NumberFormat.SUFFIX_CSV)
+	assert_int(gen.suffixes.size()).is_equal(csv.rows.size())
+	for r: int in csv.rows.size():
+		assert_int(gen.exps[r]).is_equal(csv.get_value(r, "exp").to_int())
+		assert_str(gen.suffixes[r]).is_equal(csv.get_value(r, "suffix"))

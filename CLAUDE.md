@@ -27,7 +27,7 @@ IRON STATIC (code name `ironstatic`, provisional applicationId `com.ironstatic.g
 - `src/sim/` is pure `RefCounted` code: no Node, SceneTree, Input, OS/Time, autoloads, global `randf`/`randi`. Same for `src/meta/` and `src/save/` (injected interfaces only). Enforced by `tools\lint.ps1`.
 - Fixed 30 Hz tick; one wave = 24 s = 720 ticks; timers in integer ticks; game speed = more ticks per frame (cap 4x), never a scaled tick length. All randomness through `Rng` (PCG32, per-stream). Same `(seed, config, input log)` must give the same state hash.
 - Entities are packed-array stores with free lists; no Node per enemy or projectile; no allocation inside per-tick loops. Rendering is MultiMesh in `src/view/` and only reads the sim.
-- Number types: `BigNum` for currency and cost values (persist as strings); `float` for per-tick combat; `int` for `flux`/`cipher`/`merit`, levels, waves, ticks.
+- Number types: `BigNum` for currency and cost values (persist as strings); BigNum is immutable, text form `1.5e12` (`to_text`/`parse`), never use float math for balances, display only through `NumberFormat` (floors, 3 significant digits); `float` for per-tick combat; `int` for `flux`/`cipher`/`merit`, levels, waves, ticks.
 - Save-shape change = bump schema version + migration + fixture in `tests/fixtures/`. Services (ads, billing, analytics, backend) sit behind interfaces in `src/services/` and `src/net/` with desktop stubs.
 - No new plugin or dependency without a decision note in `docs/setup/plugin_matrix.md`. No secrets, keystores or real ad ids in git (`secrets.local.json` is ignored).
 
@@ -101,11 +101,12 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - GDScript: `int / int` is an error (integer_division): use `floori(float(a) / float(b))` or shifts. Hex literals above 0x7FFFFFFFFFFFFFFF overflow: write signed decimals.
 - gdlint rejects underscore-prefixed locals/params (`var _i`, `exp_`); `PackedXArray[-1]` silently reads the last element, so check `alloc()` results for -1 before indexing.
 - Parallel test runs can collide on Sentry's GDExtension DLL copy at import; `test_runner.py` retries that transient error twice. Write large `.gd` files with the Write tool, not shell heredocs.
-- Godot imports every `.csv` as a translation (fails with Invalid locale): every data CSV folder needs a `.gdignore` (`data/` has one); `FileAccess` still reads `res://data/...`.
+- Godot imports every `.csv` as a translation (fails with Invalid locale): every data CSV folder needs a `.gdignore` (`data/` has one); `FileAccess` reads `res://data/...` only in the editor and headless tools, never on a device.
 - Passing a Variant (`dict[k]`, `arr[i]`) to a typed param or `float()`/`int()` fails compile: assign to a typed local first. `Resource.duplicate()` skipped non-exported vars before M1-26 (all def vars are `@export` now).
 - `HashingContext.update()` errors on an empty `PackedByteArray` (skip empty slices). A param named like a method (e.g. `capacity`) shadows it (error). Unused args: `@warning_ignore("unused_parameter")` + `# gdlint: ignore=unused-argument` (underscore prefix is not enough).
 - PS tools: use `Invoke-GodotRetry` (`_common.ps1`) for Godot runs that may overlap other agents; it retries the transient Sentry DLL copy collision.
 - Export converts text `.tres` to binary and drops every non-`@export` script var (all sim data loaded as 0 on Android). Def vars in `src/data_defs/` must be `@export`; `project.godot` keeps `export/convert_text_resources_to_binary=false`; `test_resource_roundtrip.gd` guards it.
+- `data/` is `.gdignore`d: its CSVs are never exported and `include_filter` cannot fix it; runtime data must be generated `.tres` under `src/data_gen/` (`docs/setup/android_export.md`).
 - `deploy_android.ps1` output piped to a tool wrapper can hang (the adb server inherits the pipe): run via `Start-Process` with stdout/stderr redirected to files and poll for `== RUNNING`.
 - GDScript `%` formatting has no `%g` (use `%.3f`); an unsupported format logs `String formatting error` on every call.
 - The emulator's qemu can hang under heavy GL load (host GPU driver suspected): `adb emu kill`, then `run_emulator.ps1 -ColdBoot`; the first launch after a cold boot may lose its process once.

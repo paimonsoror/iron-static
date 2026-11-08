@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="NumberSuffixTable" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/number_suffix_table.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+exps = PackedInt32Array(3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33)
+suffixes = PackedStringArray("K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc")

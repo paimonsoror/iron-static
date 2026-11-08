@@ -94,20 +94,40 @@ func is_tooltip_visible() -> bool:
 
 
 func _gui_input(event: InputEvent) -> void:
+	# (impl) Presses are read from both the emulated mouse events and the raw touch events (a device may deliver
+	# only one of them to a row inside a ScrollContainer); starting the timer twice is harmless.
 	var mb: InputEventMouseButton = event as InputEventMouseButton
 	if mb != null and mb.button_index == MOUSE_BUTTON_LEFT:
-		if mb.pressed:
-			_hide_tip()
-			_press_pos = mb.position
-			_press_y = global_position.y
-			_press_timer.start()
-		else:
-			_press_timer.stop()
+		_press_changed(mb.pressed, mb.position)
+		return
+	var st: InputEventScreenTouch = event as InputEventScreenTouch
+	if st != null:
+		_press_changed(st.pressed, st.position)
 		return
 	var mm: InputEventMouseMotion = event as InputEventMouseMotion
-	if mm != null and not _press_timer.is_stopped():
-		if mm.position.distance_to(_press_pos) > MOVE_CANCEL_PX:
-			_press_timer.stop()
+	if mm != null:
+		_press_moved(mm.position)
+		return
+	var sd: InputEventScreenDrag = event as InputEventScreenDrag
+	if sd != null:
+		_press_moved(sd.position)
+
+
+func _press_changed(pressed: bool, pos: Vector2) -> void:
+	if not pressed:
+		_press_timer.stop()
+		return
+	if not _press_timer.is_stopped():
+		return  # second source (mouse and touch) of the same press
+	_hide_tip()
+	_press_pos = pos
+	_press_y = global_position.y
+	_press_timer.start()
+
+
+func _press_moved(pos: Vector2) -> void:
+	if not _press_timer.is_stopped() and pos.distance_to(_press_pos) > MOVE_CANCEL_PX:
+		_press_timer.stop()
 
 
 func _on_long_press() -> void:

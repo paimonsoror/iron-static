@@ -1,6 +1,6 @@
 # 07 - UX, UI, Art and Audio
 
-Changelog: 2026-11-08 - V1 visual pass: `10_art_bible.md` is now the authority for all visuals (style, sizes, sprite slots, VFX looks and budgets, HUD styling); sections 5.1, 5.3 and 5.6 below are reconciled with it (illustrated SVG sprites replace procedural-only enemies and Cinder; glow is baked additive; VFX/skin-burn polish and battle HUD styling moved from M4 to V1). Palette hex values (5.2), VFX ids (6), damage numbers (5.5), accessibility (4, 5.4) and layout/wireframes (1-3) are unchanged. 2026-11-07 - Gauntlet screen and shop Pass tab tagged P1 (not in the Launch build); title IRON STATIC (icon and splash use the title text only on the splash).
+Changelog: 2026-11-08 (M2-16: unaffordable-text contrast note, see 09 Q48) - 2026-11-08 - V1 visual pass: `10_art_bible.md` is now the authority for all visuals (style, sizes, sprite slots, VFX looks and budgets, HUD styling); sections 5.1, 5.3 and 5.6 below are reconciled with it (illustrated SVG sprites replace procedural-only enemies and Cinder; glow is baked additive; VFX/skin-burn polish and battle HUD styling moved from M4 to V1). Palette hex values (5.2), VFX ids (6), damage numbers (5.5), accessibility (4, 5.4) and layout/wireframes (1-3) are unchanged. 2026-11-07 - Gauntlet screen and shop Pass tab tagged P1 (not in the Launch build); title IRON STATIC (icon and splash use the title text only on the splash).
 
 **Visual authority:** `docs/design/10_art_bible.md` (V1 visual pass). Where this chapter and the art bible differ on look, sizes, sprites, effects or budgets, the art bible wins; this chapter keeps layout, UX flows, the palette values, ids, damage-number rules, accessibility and audio.
 
@@ -196,6 +196,8 @@ Dark void background and a world seen through Cinder's targeting optics: an anim
 | UI text | Text | `#F2E6C9` | primary text |
 | UI text | Text dim | `#9A8F78` | secondary text |
 | UI | Unaffordable | `#5C5546` | disabled costs |
+
+(M2 note, **(impl)**) Unaffordable cost text on the dark button measures 2.56:1 on the button fill `#0D1117` (below the 3:1 large-text floor) and is hard to read at a glance on the emulator; the UI kit suggests lifting it toward `#7A7060` (3.89:1). Not changed yet: see 09 Q48 (decide with the V1 palette pass).
 | Player | Core | `#FFE3A3` | chest core, beam core |
 | Player | Frame | `#8FA3B0` | frame lines |
 | Player | Skin | `#D9A383` | skin wedges |

@@ -45,3 +45,25 @@ Changelog: 2026-11-07 v1.0 (M0-07). Gradle switched on in M0-09, see `gradle_bui
   `powershell -NoProfile -File tools\deploy_android.ps1 ...` from a local drive path; `smoke_android.ps1` does so itself.
 - Gradle build: see `gradle_build.md` (sets `gradle_build/min_sdk="24"`).
 - Release keystore: see `export/README.md`.
+
+## Files in `.gdignore`d folders are never exported (M2-16)
+
+Changelog: 2026-11-08 added after the M2 emulator bug where every label showed its string key.
+
+`data/` contains a `.gdignore`, so Godot does not see its files at all and never packs them into the APK or PCK. An
+`include_filter="data/strings_en.csv"` does NOT help (verified on the emulator; keep `include_filter` empty). Anything
+the game reads at runtime from `res://data/` silently fails on a device (`FileAccess` says file not found) while
+working in the editor and in headless tests.
+
+Rule: runtime data must be a generated resource under `src/data_gen/` (written by the importer, loaded with `load()`),
+never a raw CSV. Current examples: `strings_en.tres` (`StringTable`), `number_suffixes.tres` (`NumberSuffixTable`), the
+sim tables. The CSV stays the source and the loader may fall back to it for tools and tests. Each such table has a test
+that the generated resource exists and equals its CSV.
+
+Check what an APK really contains (after `deploy_android.ps1`, or any export):
+
+```powershell
+py -3.12 -I -c "import zipfile; z = zipfile.ZipFile(r'C:\dev\tower\build\com.ironstatic.game.debug.apk'); print([n for n in z.namelist() if 'data_gen' in n or n.endswith('.csv')])"
+```
+
+Expect `assets/src/data_gen/*.tres` (and `.gdc` scripts) and no `data/*.csv`.

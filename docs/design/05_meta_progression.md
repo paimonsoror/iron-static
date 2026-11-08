@@ -1,6 +1,6 @@
 # 05 - Meta Progression
 
-Changelog: 2026-11-07 - Gauntlet and Incursion unlocks tagged P1, Cells P2 (online staging); N1-N4 approved (Lab/firmware rows tagged Launch stay as written).
+Changelog: 2026-11-08 (M2-16: 1.3 implementation note on the Type C cap) - 2026-11-07 - Gauntlet and Incursion unlocks tagged P1, Cells P2 (online staging); N1-N4 approved (Lab/firmware rows tagged Launch stay as written).
 
 Citations: `[META]` = meta_progression_systems.md, `[CIS]` = combat_and_in_run_systems.md. The research could not retrieve most per-level cost tables [META gaps], so every cost here is original. All numbers tunable. Each system is tagged **MVP / Launch / Post-launch**.
 
@@ -29,6 +29,7 @@ Cumulative cost to reach F: `fc0 * (1.1^F - 1) / 0.1` -> for fc0 = 20: F=10: 319
 
 ### 1.3 Type C (capped) rows - generic rule
 For every Type C stat in 02 section 7 (all other ids): `f_inc = r_inc` (same per-level step as the run row), `F_cap = floor(L_cap / 2)` (minimum 1, e.g. `razor_count` F_cap 2, `split_targets` F_cap 3), `fc0 = 2 * c0_run`, `fg = g_run`. Meaning: a Foundry level is a free starting run level, up to half of the run cap; the run cap is not increased. Resolved value: `clamp(base + r_inc*L + f_inc*F, hard_floor, hard_cap)`. Foundry levels do not count toward the run level cap `L_cap`. Cost examples: `crit_chance` F level 1 = 120 `data`, F=49 = 120 * 1.1^48 = 1.16e4; `scrap_yield` F=50 = 100 * 1.1^49 = 1.07e4.
+(M2, **(impl)**) In code the cap is `max(1, floor(l_cap / 2))` and the Foundry step `f_inc` is the CSV `step` of the run row (no separate column); the Foundry ships in M3, so M2 only resolves F = 0.
 
 ### 1.4 Foundry UI rules
 Each row shows: current value, next-level value, delta, cost, max, and time/`data` to afford at current farm rate (information is cheap and addresses "opaque systems"). Buy x1/x10/x100/Max. A "Recommended" glow marks the cheapest stat whose next level is a milestone (every 10 levels = x1.25 for D stats).
