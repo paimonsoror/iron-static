@@ -67,3 +67,4 @@ environment/defaults/default_clear_color=Color(0.0275, 0.0353, 0.0471, 1)
 [sentry]
 
 schema_version=5
+options/attach_log=false

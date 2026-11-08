@@ -1,10 +1,13 @@
 <#
 .SYNOPSIS  Boot the tower_phone emulator (WHPX, host GPU) and wait until Android finished booting.
-.PARAMETER ColdBoot  Skip the quickboot snapshot (use after a crash or config change).
+.PARAMETER ColdBoot  Skip the quickboot snapshot (use after a crash, a config change, or when adb shows the device "offline").
+.PARAMETER PublicDns  Opt-in: start with -dns-server 8.8.8.8,1.1.1.1. Needed when the host DNS blocks ad domains
+                      (resolves them to 127.0.0.1) and you want AdMob test ads to load. Off by default on purpose.
 #>
 param(
     [string]$Avd = "tower_phone",
     [switch]$ColdBoot,
+    [switch]$PublicDns,
     [int]$TimeoutSec = 300
 )
 $ErrorActionPreference = "Stop"
@@ -20,7 +23,8 @@ if ((& $adb devices) -match 'emulator-\d+\s+device') {
 } else {
     $args = @('-avd', $Avd, '-gpu', 'host', '-no-boot-anim', '-no-audio')
     if ($ColdBoot) { $args += '-no-snapshot-load' }
-    Write-Host "Starting $Avd $(if($ColdBoot){'(cold boot)'})..."
+    if ($PublicDns) { $args += @('-dns-server', '8.8.8.8,1.1.1.1') }
+    Write-Host "Starting $Avd $(if($ColdBoot){'(cold boot)'})$(if($PublicDns){' (public DNS)'})..."
     Start-Process -FilePath $emu -ArgumentList $args -WindowStyle Minimized
 }
 $sw = [Diagnostics.Stopwatch]::StartNew()

@@ -1,6 +1,7 @@
 # IRON STATIC - Technical Architecture and Phased Development Plan
 
 Changelog: 2026-11-07 v1.1 - Reconciled with the GDD (`docs/design/`): The Tower vocabulary replaced by GDD terms and ids; wave timing (24 s = 18 s spawn + 6 s lull), 4x speed cap, entity caps and performance budgets aligned to GDD 02/03/08; number-type conflict resolved (BigNum for currency and cost values from M2, float64 in per-tick combat; GDD 04/08/09 updated to agree); user decisions applied (title IRON STATIC with provisional applicationId `com.ironstatic.game`, novel mechanics N1-N4 approved and N5 deferred, Standby Patrol offline earnings approved, staged online rollout); milestones are now defined in `docs/ROADMAP.md` (section 12 here is the technical summary); open questions moved to `docs/design/09_open_questions.md`. Files normalized to LF line endings.
+Changelog: 2026-11-07 v1.2 - AdMob source corrected to `poingstudios/godot-admob-plugin` v5.1.0 (Next-Gen SDK; `godot-admob-android` is archived), verified on 4.7.2 in M0 (section 7.2 table, references).
 
 Status: v1.1, 2026-11-07. Owner: user (design/playtest). Primary implementers: Claude and AI subagents.
 Scope: Android-first, portrait, free-to-play idle/roguelite defense game, Godot 4, statically typed GDScript. Working title **IRON STATIC**, code name `ironstatic`, provisional applicationId `com.ironstatic.game` (permanent once uploaded to Play Console; confirm first, see open question Q30).
@@ -391,7 +392,7 @@ Assumptions: ~20 backend calls/DAU/day, saves < 100 KB, leaderboard writes once 
 | Concern | Choice | Status of claim |
 |---|---|---|
 | In-app purchases | `godot-sdk-integrations/godot-google-play-billing`, master branch supports Godot 4.2+ [V: https://github.com/godot-sdk-integrations/godot-google-play-billing]; listed in Godot docs as the first-party route [V: https://docs.godotengine.org/en/4.x/tutorials/platform/android/android_in_app_purchases.html]. Exact tag/Billing library version for 4.7 not verified [A] | Partly verified |
-| Ads (launch) | AdMob via `poingstudios/godot-admob-android` (+ editor addon `godot-admob-plugin`), claims Godot 4.1+/4.2+, built-in UMP support, mediation adapters via extra folders (adcolony/meta/vungle) [V: https://github.com/poingstudios/godot-admob-android, https://store.godotengine.org/asset/poingstudios/admob/]; compatibility with 4.7 and the current Gradle toolchain unverified; a community fork lists a 4.7 Gradle crash fix for play-services-ads [V: https://godotengine.org/asset-library/asset/edit/24042, single listing] | Partly verified. **Spike in M0 (tasks M0-09 to M0-12)**, re-verified in M7: a gate before committing |
+| Ads (launch) | AdMob via `poingstudios/godot-admob-plugin` v5.1.0 (monorepo; the former `godot-admob-android` repo is archived), uses the Google Next-Gen Mobile Ads SDK 1.4.0 (not `play-services-ads`, so the community-fork Gradle crash does not apply), built-in UMP support, lists Godot 4.7.2 as tested [V: https://github.com/poingstudios/godot-admob-plugin/releases/tag/v5.1.0, https://store.godotengine.org/asset/poingstudios/admob/]; verified on 4.7.2 in M0-11 (`docs/setup/plugin_matrix.md`) | Verified in the M0 spike (SDK init and test rewarded ad loaded on 4.7.2), re-verified in M7: a gate before committing |
 | Mediation (post-launch) | AppLovin MAX or LevelPlay with their native Android SDK wrapped by our own thin plugin; no maintained Godot 4 plugin verified | **Assumed**; fallback: AdMob mediation adapters, which is what the Poing plugin exposes |
 | Consent | Google UMP (via the AdMob plugin) [V: same README] | Partly verified |
 | Sign-in | PGS v2 community plugin (godot-play-game-services); fallback: our own ~150-line Kotlin plugin (we are in Gradle anyway) | [A] |
@@ -597,7 +598,7 @@ All open questions (design and technical) now live in one list: `docs/design/09_
 - Nakama Godot client: https://github.com/heroiclabs/nakama-godot ; releases https://github.com/heroiclabs/nakama-godot/releases ; https://heroiclabs.com/blog/nakama-godot-4/
 - Heroic pricing: https://heroiclabs.com/pricing ; third-party: https://toolradar.com/tools/nakama/pricing
 - Play Billing plugin: https://github.com/godot-sdk-integrations/godot-google-play-billing ; Godot docs https://docs.godotengine.org/en/4.x/tutorials/platform/android/android_in_app_purchases.html
-- AdMob plugin: https://github.com/poingstudios/godot-admob-android ; https://store.godotengine.org/asset/poingstudios/admob/ ; fork listing https://godotengine.org/asset-library/asset/edit/24042
+- AdMob plugin: https://github.com/poingstudios/godot-admob-plugin (live; `godot-admob-android` is archived) ; https://store.godotengine.org/asset/poingstudios/admob/
 - PGS plugins: https://github.com/finepointcgi/PGSGP ; https://store.godotengine.org/asset/jacob-ibanez-sanchez/google-play-games-services-for-godot/
 - Firebase plugin: https://github.com/godot-x/firebase ; Sentry Godot: https://docs.sentry.io/platforms/godot/
 - GdUnit4/headless exit codes: https://forum.godotengine.org/t/things-that-exit-0-in-godot-4-headless-even-though-they-failed-measured-reproducible/145990

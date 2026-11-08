@@ -1,6 +1,11 @@
 extends Node
 ## Autoload `Services`: picks the billing and ads implementation at runtime (Android plugin when its
-## singleton exists, desktop stub otherwise) and runs the M0 plugin probes on Android.
+## singleton exists, desktop stub otherwise). The M0 plugin probe (connect store, init ads, load one
+## rewarded test ad) runs only in a debug build on Android when the user arg `--probe-services` is given:
+## Android strips intent extras sent to the exported launcher, so bake the arg into the build: set the
+## export preset option `command_line/extra_args` to `-- --probe-services`, deploy, then revert it (never commit).
+
+const PROBE_ARG: String = "--probe-services"
 
 var billing: BillingService
 var ads: AdsService
@@ -10,9 +15,14 @@ func _ready() -> void:
 	billing = _make_billing()
 	ads = _make_ads()
 	Log.info("services: billing=" + billing.backend_name() + " ads=" + ads.backend_name())
-	if OS.get_name() == "Android":
+	if _probe_requested():
+		Log.info("services: boot probe requested")
 		_probe_billing()
 		_probe_ads()
+
+
+func _probe_requested() -> bool:
+	return OS.get_name() == "Android" and OS.is_debug_build() and PROBE_ARG in OS.get_cmdline_user_args()
 
 
 func _make_billing() -> BillingService:

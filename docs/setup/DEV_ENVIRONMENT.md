@@ -133,3 +133,15 @@ better than the emulator on this laptop.
   prefer a physical phone for performance-sensitive testing, and kill it (`adb emu kill`) when done.
   Quickboot snapshots occupy ~2 GB of disk under the AVD folder.
 - **`adb exec-out screencap -p > file` from a `\\wsl.localhost` working directory**: cmd.exe refuses UNC paths; run it from `C:\`.
+- **Ads never load (code 2, `ERR_CONNECTION_REFUSED`) or consent update fails**: the host DNS can resolve ad domains
+  (e.g. `googleads.g.doubleclick.net`) to 127.0.0.1. Start the emulator with `.\tools\run_emulator.ps1 -PublicDns`
+  (passes `-dns-server 8.8.8.8,1.1.1.1`). Opt-in only: the DNS filtering may be deliberate. It takes effect only on a
+  fresh emulator start (`adb emu kill` first).
+- **adb shows the emulator "offline" after a warm boot**: `adb emu kill`, then `.\tools\run_emulator.ps1 -ColdBoot`.
+
+## Project-specific (IRON STATIC)
+
+- Package id `com.ironstatic.game` (provisional), export preset name `IronStatic`, AVD `tower_phone`, Godot 4.7.2 (`docs/setup/godot_pin_decision.md`).
+- Gradle build template is untracked: run `.\tools\setup_android_template.ps1` after a clone or Godot upgrade.
+- Setup docs: `android_export.md`, `gradle_build.md` (export, timings), `smoke_test.md`, `gdunit4.md` (tests), `lint.md`, `ci.md`, `plugin_matrix.md` (plugins and integration checklist).
+- Services boot probe (billing + ads; debug builds on Android only, off by default): temporarily set the export preset option `command_line/extra_args` to `-- --probe-services` (Godot bakes it into the APK; `adb am start --esa command_line_params` does not work because Android strips extras sent to the exported launcher), deploy, look for `probe billing` / `probe ads` lines in logcat, then revert the preset (do not commit it). See `src/services/services.gd`.

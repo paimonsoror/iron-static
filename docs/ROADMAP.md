@@ -30,6 +30,7 @@ Totals: MVP (M0-M5) about 110 tasks; Launch (M0-M7) about 230 tasks. About 9-12 
 ## 3. Milestones in detail
 
 ### M0 Foundation (about 14 tasks, 1-2 weeks)
+- **Status:** [x] DONE 2026-11-07 (M0-01 to M0-14; exit check results in the M0-14 commit; gate G0 passed: `docs/setup/godot_pin_decision.md` says `Godot 4.7.2 confirmed`).
 - **Goal:** every later task can be verified by scripts: git, project skeleton, GdUnit4 through an output-parsing wrapper, lint, export preset, emulator smoke test, and a verdict on plugin compatibility with Godot 4.7.2.
 - **Scope:** no GDD features. Git init and ignore rules; project skeleton with the exact settings (TECH_ARCHITECTURE 1.1-1.2); GdUnit4; `tools/test.ps1`; `tools/lint.ps1`; export preset `IronStatic` (applicationId `com.ironstatic.game`); `tools/smoke_android.ps1`; plugin spike for Gradle, Play Billing, AdMob, Sentry, Firebase, Nakama client and Play Games sign-in; CI skeleton; CLAUDE.md finalization.
 - **Exit criteria:** `deploy_android.ps1 -Preset IronStatic` shows the skeleton on `tower_phone`; one trivial test passes through the wrapper and a canary failure makes it fail; lint passes on the skeleton; `docs/setup/plugin_matrix.md` says per plugin: works on 4.7.2 / needs 4.6 pin / needs own plugin, and the Godot version is pinned; Gradle debug build installs and runs; CI green (needs Q25).

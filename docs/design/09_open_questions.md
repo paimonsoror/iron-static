@@ -1,6 +1,6 @@
 # 09 - Open Questions (need user input)
 
-Changelog: 2026-11-07 - Q1-Q5 resolved by user decisions (title IRON STATIC, novel mechanics N1-N4 approved and N5 deferred, Standby Patrol approved, staged online rollout, BigNum). Q23-Q36 added: the unresolved questions from `docs/TECH_ARCHITECTURE.md` section 14 and new questions found while reconciling the documents. This is now the ONE open-questions list for the project.
+Changelog: 2026-11-07 (M0-14: added Q37 Firebase/Play Console) - Q1-Q5 resolved by user decisions (title IRON STATIC, novel mechanics N1-N4 approved and N5 deferred, Standby Patrol approved, staged online rollout, BigNum). Q23-Q36 added: the unresolved questions from `docs/TECH_ARCHITECTURE.md` section 14 and new questions found while reconciling the documents. This is now the ONE open-questions list for the project.
 
 Each item lists the question, why it matters, and a recommendation. Priority: **P1** blocks MVP, a milestone or shapes architecture; **P2** needed before Launch scope lock; **P3** can wait. Status: OPEN, RESOLVED (decision recorded), PARTIAL (decided with a follow-up).
 
@@ -49,6 +49,7 @@ Each item lists the question, why it matters, and a recommendation. Priority: **
 | Q34 | P1 | OPEN | Where is the privacy policy and account-deletion web page hosted (Play requires a URL; also `app-ads.txt` for AdMob)? | A small static site on the domain from Q30 (GitHub Pages is enough). Needed before the first closed-test upload (end of M5). | Blocks closed testing and the Data safety form |
 | Q35 | P3 | OPEN | Ship 32-bit `armeabi-v7a` as well as `arm64-v8a`? Play requires 64-bit; 32-bit enlarges the AAB and plugin matrix. | arm64-v8a only unless the M5 real-device or soft-launch data shows a material 32-bit-only audience. Revisit at M7. | Excludes a few very old devices |
 | Q36 | P1 | OPEN | Closed-test tester recruitment (12 minimum, 20+ recommended): who are they and how do you recruit (friends, Discord, testing communities)? | Start collecting Google accounts during M4; the user owns this task (agents cannot recruit). | The 14-day clock cannot start without testers |
+| Q37 | P1 | OPEN | **Firebase project and Play Console app.** Create a Firebase project with an Android app `com.ironstatic.game` (download `google-services.json`, keep it untracked) and a Play Console app/game entry with Play Games Services configured (Game ID, OAuth client with package name and the SHA-1 of the signing key). Needed before M7 analytics and Play Games sign-in; the Firebase Analytics and Play Games plugins are `blocked on user` in `docs/setup/plugin_matrix.md`. Depends on Q24 (account type) and Q30 (final package ID: the Firebase and OAuth entries are tied to it). | Create both when Q30 is settled, before M6 ends; agents then run the compile-only plans in the plugin matrix. | No analytics or sign-in at Launch; Play Games fallback is an own Kotlin plugin |
 
 ## Items that most need the user's input (top 8)
 1. Q24 - Play account type (drives the whole release timeline); Q36 - recruit testers.

@@ -1,6 +1,8 @@
 # CI (GitHub Actions)
 
-Workflow: `.github/workflows/ci.yml`, one job `check` on `ubuntu-latest`. Triggers: push to `main` and every pull request. No export, signing or secrets (`permissions: contents: read`). Export and release workflows come later (TECH_ARCHITECTURE 10.5 items 2-3).
+Changelog: 2026-11-07 (M0-14): recorded the real first-run time (41 s); pinned the runner to `ubuntu-24.04`.
+
+Workflow: `.github/workflows/ci.yml`, one job `check` on `ubuntu-24.04` (pinned, see Runner image). Triggers: push to `main` and every pull request. No export, signing or secrets (`permissions: contents: read`). Export and release workflows come later (TECH_ARCHITECTURE 10.5 items 2-3).
 
 ## What runs (in order, any failure fails the job)
 
@@ -25,9 +27,13 @@ Pinned actions: `actions/checkout@v7`, `actions/setup-python@v7` (Python 3.12, p
 - Upgrading Godot: change `tools/GODOT_VERSION`, the URL version and `SHA512` in `tools/ci_setup.sh` together (the script refuses a mismatched version), and `$Godot` in `tools/_common.ps1`.
 - The cache key depends only on `GODOT_VERSION`; the script re-downloads and re-verifies on a cache miss.
 
-## Expected timing (target < 8 min)
+## Timing
 
-Estimates, to be confirmed on the first real run: cold run about 3-5 min (Godot download about 150 MB 10-20 s, pip 15 s, import 30-60 s, compile gate 30 s, tests 30-60 s, canary 60-90 s because it imports a project copy twice); warm run 2-4 min. Job `timeout-minutes: 15` is a safety net, not the target. Record the real number here after the first run.
+First real run (private repo `paimonsoror/iron-static`): **41 s** total, green, tests=6, canaries OK. Much faster than the pre-run estimate of 3-5 min (the GitHub runner has fast network and the project is small). Target stays < 8 min; job `timeout-minutes: 15` is a safety net.
+
+## Runner image
+
+Pinned to `ubuntu-24.04` instead of `ubuntu-latest` (2026-11-07, **(impl)**): GitHub announced that `ubuntu-latest` migrates to Ubuntu 26 from 2026-10-19, which would change the toolchain under us without a commit. Pinning keeps runs reproducible; moving to a newer image is a deliberate change (check `ci_setup.sh`, the Godot Linux binary and gdtoolkit still work, then edit `runs-on`).
 
 ## Reproduce locally
 

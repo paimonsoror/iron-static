@@ -43,19 +43,19 @@ IRON STATIC (code name `ironstatic`, provisional applicationId `com.ironstatic.g
 Godot CLI: `C:\dev\tools\godot\4.7.2\Godot_v4.7.2-stable_win64_console.exe` (version pinned in `tools/GODOT_VERSION`).
 Headless Godot can exit 0 on failure: never judge by exit code alone and never call Godot test runs directly.
 
-| Task | Command | Exists after |
+| Task | Command | Exists |
 |---|---|---|
-| Tests (import, run, parse output) | `.\tools\test.ps1` (`-Canary` proves the wrapper detects failures) | M0-05 |
-| Lint (gdformat, gdlint, layer rules, BOM, warnings-as-errors compile) | `.\tools\lint.ps1` | M0-06 |
-| Start emulator (AVD `tower_phone`, wait 25 s after cold boot) | `.\tools\run_emulator.ps1` | done |
-| Install/repair Gradle build template (untracked; after clone or Godot upgrade) | `.\tools\setup_android_template.ps1` (`-Force` reinstalls) | M0-09 |
-| Export, install, launch on emulator | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic` | M0-07 |
-| Emulator smoke test (log scan + screenshot check) | `.\tools\smoke_android.ps1` (`-SkipDeploy`, `-MinFps`) | M0-08 / M1-25 |
-| CSV to `.tres` importer | `.\tools\import_data.ps1` | M1-02 |
-| Headless sim runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | M1-16 |
-| Sim perf bench | `.\tools\perf_bench.ps1 [-Check]` | M1-17 |
-| Balance run vs targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` | M2-14 |
-| CI compile gate (portable twin of lint's compile step; CI: `docs/setup/ci.md`) | `.venv\Scripts\python.exe tools\compile_gate.py --godot <godot> --project .` | M0-13 |
+| Tests (import, run, parse output) | `.\tools\test.ps1` (`-Canary` proves the wrapper detects failures) | done (M0-05) |
+| Lint (gdformat, gdlint, layer rules, BOM, warnings-as-errors compile) | `.\tools\lint.ps1` | done (M0-06) |
+| Start emulator (AVD `tower_phone`, wait 25 s after cold boot; `-ColdBoot`, `-PublicDns`) | `.\tools\run_emulator.ps1` | done |
+| Install/repair Gradle build template (untracked; after clone or Godot upgrade) | `.\tools\setup_android_template.ps1` (`-Force` reinstalls) | done (M0-09) |
+| Export, install, launch on emulator | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic` | done (M0-07) |
+| Emulator smoke test (log scan + screenshot check) | `.\tools\smoke_android.ps1` (`-SkipDeploy`; `-MinFps`) | done (M0-08) |
+| CSV to `.tres` importer | `.\tools\import_data.ps1` | created in M1-02 |
+| Headless sim runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | created in M1-16 |
+| Sim perf bench | `.\tools\perf_bench.ps1 [-Check]` | created in M1-17 |
+| Balance run vs targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` | created in M2-14 |
+| CI compile gate (portable twin of lint's compile step; CI: `docs/setup/ci.md`) | `.venv\Scripts\python.exe tools\compile_gate.py --godot <godot> --project .` | done (M0-13) |
 | Screenshot from emulator | `cmd /c "cd /d C:\ && adb exec-out screencap -p > C:\dev\tower\build\shot.png"` | done |
 
 ## Definition of done (every task)
@@ -76,7 +76,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 ## Gotchas log (append findings; keep entries one line)
 
 - GDScript `int` is signed 64-bit and `>>` is arithmetic: mask after shifts in the RNG and hashes.
-- Godot 4.7 export targets SDK 36: Build-Tools 36.0.0 must be installed. Project icon is required for export. Gradle build untested until M0-09.
+- Godot 4.7 export targets SDK 36: Build-Tools 36.0.0 must be installed. Project icon is required for export.
 - `adb exec-out screencap` fails from a UNC working directory; use `C:\`. After export Godot restarts adb: `adb start-server`.
 - Emulator needs `hw.gpu.mode=host`; the one-time "Viewing full screen" dialog needs a tap on first launch.
 - Warnings-as-errors print as `Parse Error: <description> (Warning treated as error.)` without the warning's name; Godot output has ANSI escapes (strip before matching).
@@ -87,7 +87,11 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - Deliberately broken `.gd` files live in folders with `.gdignore` + `.lintignore`; `test.ps1 -Canary` runs them in a copy under `build/canary/`.
 - Nested `project.godot` files (Gradle template, `build/canary`) make Godot print a stderr warning that aborts `deploy_android.ps1` under PS 5.1: `build/` and `android/build/` must keep their `.gdignore` (tools create them).
 - Run PS tools as `powershell -NoProfile -File tools\<script>.ps1` from `C:\dev\tower`; never run two deploys at once (adb/log collisions).
-- Gradle: first build ~10 min, then ~4 min per deploy; debug APK ~155 MiB (57 MiB without Gradle). `org.gradle.daemon=false` is required (a daemon hangs the deploy script).
+- Gradle: first build ~10 min, then ~4 min per deploy; combined debug APK (Billing, AdMob, Sentry) ~179.5 MB. `org.gradle.daemon=false` is required (a daemon hangs the deploy script).
 - Smoke test: `D`/`I AndroidRuntime` lines from `monkey` are normal; only error-level lines fail.
-- Sentry (GDExtension, auto-loads, inert without DSN) prints `ERROR: Sentry: Failed to initialize engine lifecycle tracking - SceneTree is unavailable.` on every `--script` run; benign, allowlist it if a gate ever scans `--script` output.
+- Sentry (GDExtension, auto-loads, inert without DSN): prints a benign `ERROR: Sentry: Failed to initialize engine lifecycle tracking - SceneTree is unavailable.` on every `--script` run (allowlist it if a gate scans that output). On Android `[sentry] options/attach_log=false` in `project.godot` silences its "enable File Logging" boot errors; revisit when a DSN is set (M7).
+- Emulator: host DNS may resolve ad domains to 127.0.0.1 so test ads fail; start with `run_emulator.ps1 -PublicDns` (opt-in). adb "offline" after a warm boot: `adb emu kill`, then `run_emulator.ps1 -ColdBoot`.
+- Signals declared on an interface and emitted only by subclasses need `@warning_ignore("unused_signal")` (warnings are errors).
+- The AdMob rewarded unit id in `ads_android.gd` is Google's test id; real ad ids must come from an ignored config before release (M7). The billing/ads boot probe in `services.gd` runs only with `--probe-services` in a debug build (how: `docs/setup/DEV_ENVIRONMENT.md`).
+- Plugin verdict (M0): Billing 3.3.0, AdMob 5.1.0 + UMP, Nakama 3.4.0, Sentry 2.4.0 work on 4.7.2 (`docs/setup/plugin_matrix.md`, `godot_pin_decision.md`); Firebase and Play Games wait on the user's Firebase/Play Console project (Q37).
 - `x.call(...) as SomeClass` trips `unsafe_cast`; assign to a `Variant` var first, then to a typed var.
