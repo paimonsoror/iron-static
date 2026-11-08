@@ -81,5 +81,5 @@ func test_contact_standoff_differs_per_type_and_draw_pos_uses_it() -> void:
 	world.enemies.pos_x[i] = 2.0
 	world.enemies.prev_x[i] = 2.0
 	var p: Vector2 = r.draw_pos(world.enemies, i, 1.0)
-	var armor: float = 2.0 * 33.75 * 1.5
+	var armor: float = 2.0 * 33.75 * 1.5 * ViewMath.CINDER_SCALE
 	assert_float(p.x - r.sprite_radius_px(2) - armor).is_equal_approx(ViewMath.CONTACT_GAP_PX, 0.01)

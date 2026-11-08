@@ -20,6 +20,8 @@ const FADE_S: float = BeamMath.FADE_S
 const BEAM_PULLBACK: float = 0.6
 const RATE_RING: int = 16
 
+## Width/size multiplier of every beam layer, flare and cone (V1-23: the sprite factor, 1.0 = pre-V1-23 pixels).
+var px_scale: float = 1.0
 ## Optional: reduce motion switches off jitter, wobble and the flare scale animation.
 var visual: VisualSettings
 
@@ -92,6 +94,8 @@ func update(world: SimWorld, now_s: float, px_per_m: float, emitter_px: Vector2,
 				continue
 			var type: int = store.type_id[idx]
 			var vis_r: float = ViewMath.visual_radius_px(store.radius[idx], type, px_per_m)
+			if enemies != null:
+				vis_r = enemies.sprite_radius_px(type)
 			var standoff: float = ViewMath.STANDOFF_PX if enemies == null else enemies.standoff_px(type)
 			var target: Vector2 = beam_end(Vector2(store.pos_x[idx], store.pos_y[idx]), vis_r, px_per_m, standoff)
 			shoot(emitter_px, target, now_s, _events.b_at(i) != 0)
@@ -190,7 +194,7 @@ func _draw() -> void:
 func _draw_beam(i: int, f: float) -> void:
 	var crit: bool = _crit[i] != 0
 	var la: Vector2 = BeamMath.length_angle(_start[i], _end[i])
-	var w: Vector3 = BeamMath.widths(crit, _width_mul[i])
+	var w: Vector3 = BeamMath.widths(crit, _width_mul[i] * px_scale)
 	var glow: Color = Palette.LASER_GLOW
 	glow.a = BeamMath.GLOW_ALPHA * f
 	var core: Color = BeamMath.core_color(crit)
@@ -209,7 +213,7 @@ func _draw_beam(i: int, f: float) -> void:
 	draw_texture_rect_region(_sheet, BeamMath.cap_rect(w.y), _cap, core)
 	draw_texture_rect_region(_sheet, BeamMath.cap_rect(w.z), _cap, hot)
 	if crit:
-		var s: float = BeamMath.CRIT_FLARE_PX * lerpf(1.2, 0.8, 1.0 - f)
+		var s: float = BeamMath.CRIT_FLARE_PX * px_scale * lerpf(1.2, 0.8, 1.0 - f)
 		draw_set_transform(_end[i], 0.0)
 		draw_texture_rect_region(_sheet, Rect2(-s * 0.5, -s * 0.5, s, s), _flare8, Color(1.0, 1.0, 1.0, f))
 
@@ -223,11 +227,11 @@ func _draw_muzzle(i: int, calm: bool) -> void:
 	var angle: float = (_end[i] - _start[i]).angle()
 	draw_set_transform(_start[i], angle)
 	if ca > 0.0:
-		var cone: float = BeamMath.CONE_PX
+		var cone: float = BeamMath.CONE_PX * px_scale
 		var col := Color(1.0, 0.89, 0.64, 0.55 * ca)
 		draw_texture_rect_region(_sheet, Rect2(-cone * _cone_pivot_x, -cone * 0.5, cone, cone), _cone, col)
 	if fa > 0.0:
-		var s: float = BeamMath.FLASH_PX * (1.0 if calm else BeamMath.flash_scale(age))
+		var s: float = BeamMath.FLASH_PX * px_scale * (1.0 if calm else BeamMath.flash_scale(age))
 		draw_texture_rect_region(_sheet, Rect2(-s * 0.5, -s * 0.5, s, s), _flare4, Color(1.0, 0.89, 0.64, fa))
 
 

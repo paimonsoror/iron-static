@@ -14,6 +14,7 @@ const FX_SHADER: Shader = preload("res://assets/shaders/arena_fx.gdshader")
 const OVERLAY_SHADER: Shader = preload("res://assets/shaders/arena_overlay.gdshader")
 
 var _px_per_m: float = ViewMath.px_per_m(1080.0)
+var _sprite_ppm: float = ViewMath.px_per_m(1080.0)
 var _arena_radius_m: float = 52.0
 var _optic_range_m: float = 0.0
 var _rect := Rect2(-540.0, -538.0, 1080.0, 1076.0)
@@ -50,13 +51,26 @@ func _ready() -> void:
 
 
 ## `rect` is the battle area in this node's local pixels.
-func setup(px_per_m: float, arena_radius_m: float, rect: Rect2) -> void:
+## `sprite_ppm` (< 0: same as `px_per_m`) scales the floor art like the sprites (V1-23).
+func setup(px_per_m: float, arena_radius_m: float, rect: Rect2, sprite_ppm: float = -1.0) -> void:
 	_px_per_m = px_per_m
+	_sprite_ppm = sprite_ppm if sprite_ppm > 0.0 else px_per_m
 	_arena_radius_m = arena_radius_m
 	_rect = rect
 	if _fx_mat != null:
 		_apply_layout()
 		apply_state(0.0, 0, 0)
+
+
+## Camera zoom changed (V1-23): re-feeds only the scale uniforms; the haze and sweep state are left alone.
+func set_camera(px_per_m: float, sprite_ppm: float) -> void:
+	_px_per_m = px_per_m
+	_sprite_ppm = sprite_ppm
+	if _fx_mat != null:
+		_set_fx(&"px_per_m", _px_per_m)
+		_set_fx(&"art_scale", ArenaFxParams.art_scale(_sprite_ppm))
+		_set_fx(&"arena_radius_px", ViewMath.map_dist(_arena_radius_m, _px_per_m))
+		_set_fx(&"optic_range_px", ArenaFxParams.optic_px(_optic_range_m, _px_per_m))
 
 
 ## Injects the visual settings (tier toggles, reduce motion, scanline intensity). Read every frame, no signals.
@@ -109,7 +123,7 @@ func _apply_layout() -> void:
 	_set_fx(&"rect_px", _rect.size)
 	_set_fx(&"rect_origin_px", _rect.position)
 	_set_fx(&"px_per_m", _px_per_m)
-	_set_fx(&"art_scale", ArenaFxParams.art_scale(_px_per_m))
+	_set_fx(&"art_scale", ArenaFxParams.art_scale(_sprite_ppm))
 	_set_fx(&"arena_radius_px", ViewMath.map_dist(_arena_radius_m, _px_per_m))
 	_set_fx(&"optic_range_px", ArenaFxParams.optic_px(_optic_range_m, _px_per_m))
 	_set_ov(&"rect_px", _rect.size)

@@ -9,7 +9,23 @@ extends RefCounted
 ## VIEW_CAMERA_WIDTH_M. 38 m stays selectable (BattleView.camera_width_m) for comparison.
 const CAMERA_WIDTH_M: float = 38.0
 ## V1 view camera width in meters (art bible 4.1, decided at the V1 style-frame gate).
+## (V1-23: superseded by the auto-fit; kept as the manual 32 m framing for comparison and tests.)
 const VIEW_CAMERA_WIDTH_M: float = 32.0
+## V1-23 auto-fit: the camera shows Cinder's optic range plus this margin in meters on every side (about the radius
+## of a skitter sprite at base zoom plus slack, so an enemy at the range edge is fully visible).
+const FIT_MARGIN_M: float = 2.0
+## Auto-fit camera width at the base optic range (24 m): 2 x (24 + 2) = 52 m. Sprite sizes are referenced to it.
+const BASE_FIT_WIDTH_M: float = 52.0
+## Never zoom in tighter than this (a future effect could lower the range).
+const MIN_FIT_WIDTH_M: float = 38.0
+## Sprites are drawn at this fraction of the pre-V1-23 pixel size at the base zoom ...
+const SPRITE_BASE_FACTOR: float = 0.85
+## ... shrinking by the square root of the extra zoom, never below this fraction (readable at huge ranges).
+const SPRITE_MIN_FACTOR: float = 0.70
+## Cinder's rig and rings are drawn at this fraction of the sprite scale (V1-23 feedback: about 75 percent).
+const CINDER_SCALE: float = 0.75
+## Wall-clock seconds the camera takes to ease to a new fit width (optic range purchase).
+const ZOOM_EASE_S: float = 0.65
 const BATTLE_FRACTION: float = 0.56
 ## Sprites are drawn at this multiple of the hit radius (art bible 4.1).
 const VISUAL_SCALE: float = 1.5
@@ -93,15 +109,50 @@ static func visual_radius_px(r_m: float, type_index: int, ppm: float) -> float:
 
 ## Stand-off (px, for map_dist) that puts the sprite edge of an enemy standing at `contact_m` just outside
 ## Cinder's armor ring: center distance = armor radius + sprite radius + CONTACT_GAP_PX.
-## Armor ring radius = `cinder_radius_m` x ppm x VISUAL_SCALE (art bible 4.1). Capped below the span that
-## would break monotonicity (standoff < SPAN x ppm).
+## Armor ring radius = `cinder_radius_m` x sprite_ppm x VISUAL_SCALE (art bible 4.1; `sprite_ppm` < 0 uses `ppm`).
+## `ppm` is the real distance scale. Capped below the span that would break monotonicity (standoff < SPAN x ppm).
 static func contact_standoff_px(
-	sprite_radius_px: float, cinder_radius_m: float, ppm: float, contact_m: float = STANDOFF_NEAR_M
+	sprite_radius_px: float,
+	cinder_radius_m: float,
+	ppm: float,
+	contact_m: float = STANDOFF_NEAR_M,
+	sprite_ppm_v: float = -1.0,
+	armor_scale: float = 1.0
 ) -> float:
-	var armor: float = cinder_radius_m * ppm * VISUAL_SCALE
+	var armor: float = cinder_radius_m * (sprite_ppm_v if sprite_ppm_v > 0.0 else ppm) * VISUAL_SCALE * armor_scale
 	var t: float = clampf(1.0 - (contact_m - STANDOFF_NEAR_M) / STANDOFF_SPAN_M, 0.0, 1.0)
 	var want: float = armor + sprite_radius_px + CONTACT_GAP_PX - contact_m * ppm
 	return clampf(want / maxf(t, 0.05), 0.0, STANDOFF_SPAN_M * ppm * 0.95)
+
+
+## Auto-fit camera width in meters: the circle of radius `optic_range_m + FIT_MARGIN_M` must fit entirely in the
+## battle area, so the limiting dimension is the smaller of the viewport width and the battle height (portrait: the
+## width on tall phones, nearly equal at 1080x1920). The radius fit is clamped to [MIN_FIT_WIDTH_M, spawn ring
+## diameter 2 x (arena_radius_m + margin)] before the aspect adjustment.
+## `field_size` is the unobstructed field (between the HUD and the panel); Vector2.ZERO = the whole battle rect.
+static func fit_width_m(
+	optic_range_m: float, arena_radius_m: float, viewport_size: Vector2, field_size: Vector2 = Vector2.ZERO
+) -> float:
+	var w: float = 2.0 * (maxf(optic_range_m, 0.0) + FIT_MARGIN_M)
+	w = clampf(w, MIN_FIT_WIDTH_M, maxf(2.0 * (arena_radius_m + FIT_MARGIN_M), MIN_FIT_WIDTH_M))
+	var fh: float = field_size.y if field_size.y > 0.0 else battle_height(viewport_size.y)
+	var limit: float = minf(viewport_size.x, fh)
+	if limit <= 0.0 or viewport_size.x <= 0.0:
+		return w
+	return w * viewport_size.x / limit
+
+
+## Sprite size factor relative to the pre-V1-23 pixel size for a camera of `camera_m` meters:
+## 0.85 at the base fit width (52 m), x sqrt(52 / camera) when zoomed further out, within [0.70, 0.85].
+static func sprite_factor(camera_m: float) -> float:
+	var cam: float = camera_m if camera_m > 0.0 else BASE_FIT_WIDTH_M
+	return clampf(SPRITE_BASE_FACTOR * sqrt(BASE_FIT_WIDTH_M / cam), SPRITE_MIN_FACTOR, SPRITE_BASE_FACTOR)
+
+
+## "Sprite pixels per meter": what `ppm` was before V1-23 for sizing sprites, Cinder's rings and the art.
+## Use it for body_radius_px / visual_radius_px / armor radius; real distances still use px_per_m.
+static func sprite_ppm(viewport_width: float, camera_m: float) -> float:
+	return REF_PPM * viewport_width / 1080.0 * sprite_factor(camera_m)
 
 
 static func battle_height(viewport_height: float) -> float:
@@ -111,6 +162,16 @@ static func battle_height(viewport_height: float) -> float:
 ## Screen rectangle of the battlefield (top 56%).
 static func battle_rect(viewport_size: Vector2) -> Rect2:
 	return Rect2(0.0, 0.0, viewport_size.x, battle_height(viewport_size.y))
+
+
+## The unobstructed field (V1-23): x spans the viewport, y runs from `top_px` (bottom edge of the HUD, viewport px)
+## to `viewport_height - bottom_inset_px` (top edge of the upgrade panel). Negative arguments fall back to the old
+## battle rect (top 0, bottom BATTLE_FRACTION).
+static func field_rect(viewport_size: Vector2, top_px: float = -1.0, bottom_inset_px: float = -1.0) -> Rect2:
+	var top: float = maxf(top_px, 0.0)
+	var bottom: float = viewport_size.y - bottom_inset_px if bottom_inset_px >= 0.0 else battle_height(viewport_size.y)
+	bottom = maxf(bottom, top + 1.0)
+	return Rect2(0.0, top, viewport_size.x, bottom - top)
 
 
 ## Cinder's screen position: center of the battle area.

@@ -5,8 +5,10 @@ extends Node2D
 ## Pure observer: reads the sim stores and events in render(). Local space: origin = Cinder, sim axes scaled by
 ## px_per_m (place this node at Cinder's screen position; any axis flip is the parent's job).
 ## Buffers are preallocated at setup(); render() only fills them and uploads once per type.
-## Sprite size: quads are baked at pixel size from the slot table (`ArtSlot.sprite_scale()` x px_per_m / 33.75),
-## so a skitter is 64 px wide and a walker about 112 px at 1080 width whatever the sim radius is.
+## Sprite size: quads are baked once at the reference pixel size from the slot table (`ArtSlot.sprite_scale()`) and
+## scaled per instance by `EnemyDrawSpec.scale_px` = sprite_ppm / 33.75 (V1-23: decoupled from the camera, see
+## ViewMath.sprite_ppm), so a skitter is 54 px wide and a walker about 95 px at 1080 width and the base zoom
+## whatever the sim radius is. `set_view_scale()` re-sizes everything for a new camera without touching the meshes.
 ## Per instance custom data (see MultiMeshBuffer): flash, flipbook frame, spawn-in, phase seed.
 
 const SHADER_PATH: String = "res://assets/shaders/enemy_sprite.gdshader"
@@ -26,6 +28,9 @@ var visual: VisualSettings = null
 var resize_count: int = 0
 
 var _px_per_m: float = ViewMath.REF_PPM
+var _sprite_ppm: float = ViewMath.REF_PPM
+var _radii := PackedFloat32Array()
+var _cinder_radius_m: float = 2.0
 ## Local-pixel rectangle outside which instance centers are skipped (empty = no culling).
 var _cull := Rect2()
 var _rids: Array[RID] = []  # index 0-4 enemy types, 5 bolts
@@ -44,15 +49,19 @@ var _last_now_s: float = -1.0
 
 ## `radii_m` (sim radius per type) is only the fallback size of a type whose slot has no body radius.
 ## `cinder_radius_m` sizes the per-type contact stand-off (sprite edge just outside Cinder's armor ring).
-## The capacities size the preallocated buffers.
+## The capacities size the preallocated buffers. `sprite_ppm` (< 0: same as `px_per_m`) sizes sprites, see ViewMath.
 func setup(
 	px_per_m: float,
 	radii_m: PackedFloat32Array,
 	enemy_capacity: int = EnemyStore.DEFAULT_CAPACITY,
 	bolt_capacity: int = ProjectileStore.DEFAULT_CAPACITY,
-	cinder_radius_m: float = 2.0
+	cinder_radius_m: float = 2.0,
+	sprite_ppm: float = -1.0
 ) -> void:
 	_px_per_m = px_per_m
+	_sprite_ppm = sprite_ppm if sprite_ppm > 0.0 else px_per_m
+	_radii = radii_m
+	_cinder_radius_m = cinder_radius_m
 	for inst: MultiMeshInstance2D in _instances:
 		inst.queue_free()
 	_instances.clear()
@@ -62,19 +71,16 @@ func setup(
 	_specs.clear()
 	var ok: bool = _radius_px.resize(ENEMY_SLOTS.size()) == OK
 	var shader: Shader = load(SHADER_PATH) as Shader
-	var kscale: float = px_per_m / ViewMath.REF_PPM
 	for t: int in ENEMY_SLOTS.size() + 1:
 		var is_bolt: bool = t == ENEMY_SLOTS.size()
 		var slot_id: String = BOLT_SLOT if is_bolt else ENEMY_SLOTS[t]
 		var art: ArtSlot = ArtSlots.slot(slot_id)
 		var glow_art: ArtSlot = ArtSlots.glow_of(slot_id)
 		var spec := EnemyDrawSpec.new()
-		spec.scale_px = 1.0
+		spec.scale_px = 1.0  # set by _apply_scale
 		spec.frames = maxi(art.frames, glow_art.frames)
 		spec.fps = art.fps
 		if not is_bolt:
-			_radius_px[t] = ViewMath.visual_radius_px(_radius_for(radii_m, t), t, px_per_m)
-			spec.standoff_px = ViewMath.contact_standoff_px(_radius_px[t], cinder_radius_m, px_per_m)
 			spec.fx = _fx
 			if t == LANCER_TYPE:
 				spec.fire_gap_ticks = 60  # replaced by the tuning value at bind
@@ -82,7 +88,7 @@ func setup(
 		mm.transform_format = MultiMesh.TRANSFORM_2D
 		mm.use_colors = true
 		mm.use_custom_data = true  # before instance_count
-		mm.mesh = quad_mesh(art, art.sprite_scale() * kscale)
+		mm.mesh = quad_mesh(art, art.sprite_scale())
 		var cap: int = bolt_capacity if is_bolt else enemy_capacity
 		mm.instance_count = cap
 		mm.visible_instance_count = 0
@@ -112,6 +118,29 @@ func setup(
 		push_error("EnemyRenderer: buffer resize failed")
 	_glow_applied = -1.0
 	_bound_world_id = 0
+	_apply_scale()
+
+
+## Re-sizes sprites, hit radii and contact stand-offs for a new camera (per-frame safe while zooming: no
+## allocation, no mesh rebuild). `px_per_m` is the real distance scale, `sprite_ppm` the sprite sizing scale.
+func set_view_scale(px_per_m: float, sprite_ppm: float, cinder_radius_m: float) -> void:
+	_px_per_m = px_per_m
+	_sprite_ppm = sprite_ppm
+	_cinder_radius_m = cinder_radius_m
+	_apply_scale()
+
+
+func _apply_scale() -> void:
+	if _specs.size() != ENEMY_SLOTS.size() + 1:
+		return
+	var k: float = _sprite_ppm / ViewMath.REF_PPM
+	for t: int in ENEMY_SLOTS.size():
+		_radius_px[t] = ViewMath.visual_radius_px(_radius_for(_radii, t), t, _sprite_ppm)
+		_specs[t].standoff_px = ViewMath.contact_standoff_px(
+			_radius_px[t], _cinder_radius_m, _px_per_m, ViewMath.STANDOFF_NEAR_M, _sprite_ppm, ViewMath.CINDER_SCALE
+		)
+		_specs[t].scale_px = k
+	_specs[ENEMY_SLOTS.size()].scale_px = k
 
 
 ## Fills and uploads every buffer. `alpha` = accumulator / SimWorld.DT in [0, 1].
@@ -196,9 +225,18 @@ func set_cull(rect: Rect2) -> void:
 
 
 ## Battle rect (local px) grown by the largest sprite radius so nothing pops at the edge.
-static func cull_rect_for(battle_rect_local: Rect2, px_per_m: float) -> Rect2:
-	var margin: float = 4.0 * px_per_m * ViewMath.VISUAL_SCALE
+## The margin is 6 m, or `min_margin_px` when larger (the boss radius at a far zoom).
+static func cull_rect_for(battle_rect_local: Rect2, px_per_m: float, min_margin_px: float = 0.0) -> Rect2:
+	var margin: float = maxf(4.0 * px_per_m * ViewMath.VISUAL_SCALE, min_margin_px)
 	return battle_rect_local.grow(margin)
+
+
+## Largest sprite radius in px (the boss), for the culling margin.
+func max_sprite_radius_px() -> float:
+	var m: float = 0.0
+	for r: float in _radius_px:
+		m = maxf(m, r)
+	return m
 
 
 ## Contact stand-off (px) used for enemies of `type_index` (feed it to ViewMath.map_dist / BeamRenderer).

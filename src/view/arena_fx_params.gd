@@ -65,9 +65,10 @@ static func optic_px(range_m: float, ppm: float) -> float:
 	return ViewMath.map_dist(range_m, ppm)
 
 
-## Floor art scale: art pixels to local pixels.
-static func art_scale(ppm: float) -> float:
-	return ppm / ART_PX_PER_M
+## Floor art scale: art pixels to local pixels. `sprite_ppm` (ViewMath.sprite_ppm) so the pad keeps its size next
+## to Cinder; the shader continues the floor procedurally beyond the art (V1-23).
+static func art_scale(sprite_ppm: float) -> float:
+	return sprite_ppm / ART_PX_PER_M
 
 
 ## 1.0 or 0.0 for shader float switches.

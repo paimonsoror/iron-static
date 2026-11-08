@@ -44,6 +44,38 @@ uniform float pulse_max_m = 30.0;
 uniform vec4 pulse_color : source_color = vec4(1.0, 0.6902, 0.0, 1.0); // AMBER #FFB000
 uniform float optic_alpha : hint_range(0.0, 1.0) = 0.35;
 
+// V1-23: the floor art is drawn at the sprite scale and does not cover the battle rect at every zoom, so the
+// floor continues procedurally beyond the art edge: same concentric plate rings and radial seams as
+// tools/gen_floor.py (band radii and spoke counts continued past 960), faded in over FLOOR_FADE_ART_PX.
+const float FLOOR_FADE_ART_PX = 90.0;
+const float SEAM_PX = 3.5;
+const float BAND_R[11] = float[11](170.0, 250.0, 312.0, 440.0, 540.0, 640.0, 800.0, 960.0, 1120.0, 1280.0, 1440.0);
+const float BAND_N[12] = float[12](1.0, 12.0, 16.0, 20.0, 24.0, 28.0, 32.0, 36.0, 40.0, 44.0, 48.0, 48.0);
+const vec3 BAND_TONE[12] = vec3[12](
+	vec3(0.0235, 0.0314, 0.0471), vec3(0.0510, 0.0667, 0.0902), vec3(0.0392, 0.0510, 0.0706),
+	vec3(0.0471, 0.0627, 0.0863), vec3(0.0353, 0.0471, 0.0627), vec3(0.0431, 0.0588, 0.0784),
+	vec3(0.0314, 0.0431, 0.0588), vec3(0.0353, 0.0471, 0.0627), vec3(0.0314, 0.0431, 0.0588),
+	vec3(0.0353, 0.0471, 0.0627), vec3(0.0314, 0.0431, 0.0588), vec3(0.0353, 0.0471, 0.0627));
+const vec3 SEAM_COLOR = vec3(0.0157, 0.0235, 0.0314);
+
+vec3 proc_floor(float ra, float ang) {
+	int bi = 0;
+	float ring_d = 100000.0;
+	for (int i = 0; i < 11; i++) {
+		if (ra >= BAND_R[i]) {
+			bi = i + 1;
+		}
+		if (i > 0) {
+			ring_d = min(ring_d, abs(ra - BAND_R[i]));
+		}
+	}
+	float step_rad = 6.2831853 / BAND_N[bi];
+	float sd = abs(fract(ang / step_rad + 0.5) - 0.5) * step_rad * ra;
+	float seam = max(1.0 - smoothstep(SEAM_PX * 0.5, SEAM_PX * 0.5 + 1.5, ring_d),
+		(1.0 - smoothstep(SEAM_PX * 0.5, SEAM_PX * 0.5 + 1.5, sd)) * step(1.0, float(bi)));
+	return mix(BAND_TONE[bi], SEAM_COLOR, seam * 0.9);
+}
+
 float aa_line(float d_px, float width_px) {
 	return 1.0 - smoothstep(width_px * 0.5, width_px * 0.5 + 1.0, d_px);
 }
@@ -60,6 +92,12 @@ void fragment() {
 
 	vec2 art_uv = (d / art_scale + art_center) / art_size;
 	vec3 base = texture(floor_tex, art_uv).rgb;
+	vec2 art_px = art_uv * art_size;
+	float edge_art = min(min(art_px.x, art_size.x - art_px.x), min(art_px.y, art_size.y - art_px.y));
+	float art_w = smoothstep(0.0, FLOOR_FADE_ART_PX, edge_art);
+	if (art_w < 1.0) {
+		base = mix(proc_floor(length(d) / art_scale, ang), base, art_w);
+	}
 
 	// polar grid; ring radii >= 10 m are unaffected by the stand-off remap
 	float ring_px = ring_spacing_m * px_per_m;

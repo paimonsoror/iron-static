@@ -10,10 +10,20 @@ extends Node2D
 
 ## View-only override of the displayed exposure band (debug overlay, M1-24); -1 shows the sim's band.
 var band_override: int = -1
-## View camera width in meters; 38.0 selects the old framing for comparison (call set_camera_width_m).
-var camera_width_m: float = ViewMath.VIEW_CAMERA_WIDTH_M
+## Camera width in meters. With `auto_fit` (default, V1-23) it follows Cinder's optic range: ViewMath.fit_width_m,
+## eased by CameraFit. `set_camera_width_m` switches auto-fit off and pins a manual width (32 / 38 m comparisons).
+var camera_width_m: float = ViewMath.BASE_FIT_WIDTH_M
+var auto_fit: bool = true
 var _world: SimWorld
-var _px_per_m: float = ViewMath.px_per_m(1080.0)
+var _zoom := CameraFit.new()
+var _px_per_m: float = ViewMath.px_per_m(1080.0, ViewMath.BASE_FIT_WIDTH_M)
+var _sprite_ppm: float = ViewMath.sprite_ppm(1080.0, ViewMath.BASE_FIT_WIDTH_M)
+var _sprite_factor: float = ViewMath.SPRITE_BASE_FACTOR
+var _battle_local := Rect2()
+var _sprite_cam_m: float = ViewMath.BASE_FIT_WIDTH_M
+## Unobstructed field edges in viewport px (HUD bottom, panel height); negative = old battle rect fallback.
+var _inset_top: float = -1.0
+var _inset_bottom: float = -1.0
 var _viewport_size := Vector2(1080.0, 1920.0)
 var _aim: float = -PI * 0.5
 var _events := EventCursor.new()
@@ -45,19 +55,36 @@ func _ready() -> void:
 ## Recomputes scale and positions for a viewport size (also called on resize).
 func layout(viewport_size: Vector2) -> void:
 	_viewport_size = viewport_size
-	_px_per_m = ViewMath.px_per_m(viewport_size.x, camera_width_m)
-	_base_position = ViewMath.cinder_center(viewport_size)
+	var field: Rect2 = field_rect()
+	_base_position = field.get_center()
 	position = _base_position
 	var rect: Rect2 = ViewMath.battle_rect(viewport_size)
+	rect.size.y = field.end.y
 	rect.position -= position
-	var arena_m: float = 52.0
-	if _world != null:
-		arena_m = _world.config.tuning.arena_radius
-	_background.setup(_px_per_m, arena_m, rect)
-	_cinder.radius_px = cinder_radius_px()
-	_fx.emitter.cinder_radius_px = cinder_radius_px()
+	_battle_local = rect
+	if auto_fit and _world != null:
+		camera_width_m = _fit_target()
+		_zoom.snap(camera_width_m)
+	_update_scales()
+	_background.setup(_px_per_m, _arena_radius_m(), rect, _sprite_ppm)
+	_apply_scale_to_children()
 	if _world != null:
 		_setup_enemy_renderer()
+
+
+## Tells the view which part of the viewport the HUD and the upgrade panel leave open (V1-23): `top_px` = bottom edge
+## of the HUD in viewport px, `bottom_px` = height of the upgrade panel. Cinder is centered in that field and the
+## camera fits the optic range into it. Call whenever either changes (resize, safe-area, HUD layout); the floor still
+## fills the whole area behind the HUD. Negative values restore the fallback (top 0, bottom 56 percent).
+func set_field_insets(top_px: float, bottom_px: float) -> void:
+	_inset_top = top_px
+	_inset_bottom = bottom_px
+	layout(_viewport_size)
+
+
+## The unobstructed field in viewport px.
+func field_rect() -> Rect2:
+	return ViewMath.field_rect(_viewport_size, _inset_top, _inset_bottom)
 
 
 ## Events lost by this view's cursors (aim + beams) since start; 0 unless the view fell behind the ring.
@@ -73,6 +100,7 @@ func bind(world: SimWorld) -> void:
 	_impact.bind(world)
 	apply_shake(Vector2.ZERO)
 	_aim = -PI * 0.5
+	_zoom = CameraFit.new()
 	layout(_viewport_size)
 
 
@@ -86,6 +114,7 @@ func render(alpha: float) -> void:
 	var hp_frac: float = 0.0
 	if cinder.max_hp > 0.0:
 		hp_frac = cinder.hp / cinder.max_hp
+	_update_zoom(now_s)
 	var band: int = displayed_band(cinder.band, band_override)
 	var clock_s: float = (float(_world.tick) + alpha) * SimWorld.DT
 	_cinder.heart_clock_s = clock_s
@@ -128,7 +157,7 @@ func _setup_particles(settings: VisualSettings) -> void:
 	add_child(_particles)
 	_particles.setup(settings.quality.particle_cap if settings != null else 400)
 	_fx.setup(_particles, _enemies)
-	_fx.emitter.cinder_radius_px = cinder_radius_px()
+	_apply_scale_to_children()
 	if settings != null:
 		settings.quality_changed.connect(_on_quality_changed)
 
@@ -139,7 +168,7 @@ func _on_quality_changed(tier: int) -> void:  # gdlint: ignore=unused-argument
 	if settings != null:
 		_particles.setup(settings.quality.particle_cap)
 		_fx.setup(_particles, _enemies)
-		_fx.emitter.cinder_radius_px = cinder_radius_px()
+		_apply_scale_to_children()
 
 
 ## Exposed for the debug overlay (M1-24) to override the displayed band.
@@ -172,10 +201,61 @@ func _setup_enemy_renderer() -> void:
 	for def: EnemyDef in defs:
 		radii.append(def.radius)
 	_enemies.visual = _game_visual()
-	_enemies.setup(_px_per_m, radii, EnemyStore.DEFAULT_CAPACITY, ProjectileStore.DEFAULT_CAPACITY, _cinder_radius_m())
-	var local: Rect2 = ViewMath.battle_rect(_viewport_size)
-	local.position -= ViewMath.cinder_center(_viewport_size)
-	_enemies.set_cull(EnemyRenderer.cull_rect_for(local, _px_per_m))
+	_enemies.setup(
+		_px_per_m, radii, EnemyStore.DEFAULT_CAPACITY, ProjectileStore.DEFAULT_CAPACITY, _cinder_radius_m(), _sprite_ppm
+	)
+	_set_cull()
+
+
+func _set_cull() -> void:
+	_enemies.set_cull(EnemyRenderer.cull_rect_for(_battle_local, _px_per_m, _enemies.max_sprite_radius_px() * 1.15))
+
+
+func _arena_radius_m() -> float:
+	if _world != null:
+		return _world.config.tuning.arena_radius
+	return 52.0
+
+
+func _fit_target() -> float:
+	return ViewMath.fit_width_m(_world.stats.optic_range, _arena_radius_m(), _viewport_size, field_rect().size)
+
+
+## Eases the camera toward the auto-fit width and re-scales the view when it moved (a purchase of Optic Range).
+func _update_zoom(now_s: float) -> void:
+	if not auto_fit:
+		return
+	var reduce: bool = false
+	var settings: VisualSettings = _game_visual()
+	if settings != null:
+		reduce = settings.reduce_motion
+	var w: float = _zoom.step(_fit_target(), now_s, reduce)
+	if w == camera_width_m:
+		return
+	camera_width_m = w
+	_update_scales()
+	_background.set_camera(_px_per_m, _sprite_ppm)
+	_apply_scale_to_children()
+	_enemies.set_view_scale(_px_per_m, _sprite_ppm, _cinder_radius_m())
+	_set_cull()
+
+
+func _update_scales() -> void:
+	_px_per_m = ViewMath.px_per_m(_viewport_size.x, camera_width_m)
+	# sprite size follows the zoom, not the aspect: normalize by the field's limiting dimension
+	_sprite_cam_m = camera_width_m
+	if auto_fit:
+		_sprite_cam_m = camera_width_m * minf(_viewport_size.x, field_rect().size.y) / _viewport_size.x
+	_sprite_ppm = ViewMath.sprite_ppm(_viewport_size.x, _sprite_cam_m)
+	_sprite_factor = ViewMath.sprite_factor(_sprite_cam_m)
+
+
+## Pushes the sprite-sized values to Cinder, the beams and the particle emitter.
+func _apply_scale_to_children() -> void:
+	_cinder.radius_px = cinder_radius_px()
+	_beams.px_scale = _sprite_factor
+	_fx.emitter.cinder_radius_px = cinder_radius_px()
+	_fx.emitter.fx_scale = _sprite_factor
 
 
 func _cinder_radius_m() -> float:
@@ -188,16 +268,31 @@ func _on_viewport_resized() -> void:
 	layout(get_viewport_rect().size)
 
 
-## Switches the camera width (32 m default, 38 m for comparison) and relayouts.
+## Pins a manual camera width (comparisons, captures): switches auto-fit off and relayouts.
 func set_camera_width_m(width_m: float) -> void:
+	auto_fit = false
 	camera_width_m = width_m
 	layout(_viewport_size)
 
 
+## Current eased auto-fit camera width in meters.
+func camera_m() -> float:
+	return camera_width_m
+
+
+## Sprite size factor (relative to pre-V1-23 pixels) of the current camera.
+func sprite_factor() -> float:
+	return _sprite_factor
+
+
+func sprite_ppm() -> float:
+	return _sprite_ppm
+
+
 ## Outer radius of Cinder's emitter ring in px: the armor ring (0.92 of it) is Cinder's hit radius
-## times VISUAL_SCALE (about 100 px at 1080 width and 32 m), art bible 4.1.
+## times VISUAL_SCALE at the sprite scale and CINDER_SCALE 0.75 (about 65 px at 1080 width and the base zoom).
 func cinder_radius_px() -> float:
-	return _cinder_radius_m() * _px_per_m * ViewMath.VISUAL_SCALE / 0.92
+	return _cinder_radius_m() * _sprite_ppm * ViewMath.VISUAL_SCALE * ViewMath.CINDER_SCALE / 0.92
 
 
 ## The `Game` autoload's visual settings, looked up by path so capture tools without autoloads still load.

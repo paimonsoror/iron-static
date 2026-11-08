@@ -15,11 +15,19 @@ func test_battle_view_binds_steps_and_renders() -> void:
 		if i % 10 == 0:
 			view.render(0.5)
 	view.render(1.0)
-	assert_float(view.px_per_m()).is_equal_approx(1080.0 / 32.0, 0.001)
+	# V1-23: auto-fit shows optic range + margin: 1080x1920 is limited by the 1075 px battle height
+	var fit: float = ViewMath.fit_width_m(
+		world.stats.optic_range, world.config.tuning.arena_radius, Vector2(1080.0, 1920.0)
+	)
+	assert_float(view.camera_m()).is_equal_approx(fit, 0.001)
+	assert_float(view.px_per_m()).is_equal_approx(1080.0 / fit, 0.001)
+	assert_float(view.px_per_m() * (world.stats.optic_range + ViewMath.FIT_MARGIN_M)).is_less_equal(1075.2 * 0.5 + 0.01)
+	var sf: float = ViewMath.sprite_factor(fit)
+	assert_float(view.cinder_view().radius_px * 0.92).is_equal_approx(
+		2.0 * 33.75 * sf * 1.5 * ViewMath.CINDER_SCALE, 0.5
+	)
 	view.set_camera_width_m(38.0)
 	assert_float(view.px_per_m()).is_equal_approx(1080.0 / 38.0, 0.001)
-	view.set_camera_width_m(32.0)
-	assert_float(view.cinder_view().radius_px * 0.92).is_equal_approx(2.0 * 33.75 * 1.5, 0.5)
 	assert_vector(view.position).is_equal(Vector2(540.0, 537.6))
 	view.layout(Vector2(1080.0, 2400.0))
 	view.render(0.0)

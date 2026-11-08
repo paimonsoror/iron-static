@@ -20,6 +20,8 @@ const TEAL := Color("#2EE6D6")
 var now: float = 0.0
 ## Cinder's armor ring radius in px (ember and band-change origin).
 var cinder_radius_px: float = 100.0
+## Particle size multiplier (V1-23: the sprite factor, 1.0 = pre-V1-23 pixels). Applied to every particle size.
+var fx_scale: float = 1.0
 var reduce_motion: bool = false
 var rings_enabled: bool = true
 var sparks_per_hit: int = 6
@@ -63,6 +65,7 @@ func muzzle(pos: Vector2) -> void:
 
 ## Kill burst of enemy type `type_index` at `pos`; `radius_px` = its sprite radius, `alive` the density for LOD.
 func kill(type_index: int, pos: Vector2, radius_px: float, alive: int) -> void:
+	var size_r: float = radius_px / fx_scale  # radius_px already carries the sprite factor that _add applies
 	var t: int = clampi(type_index, 0, FxRecipes.ACCENTS.size() - 1)
 	if t == FxRecipes.BOSS_TYPE:
 		boss_death(pos, radius_px)
@@ -71,13 +74,13 @@ func kill(type_index: int, pos: Vector2, radius_px: float, alive: int) -> void:
 	var rings_ok: bool = FxRecipes.rings_allowed(alive, rings_enabled, reduce_motion)
 	var flash_col: Color = accent.lerp(HOT_WHITE, 0.6)
 	flash_col.a = 1.0
-	_add(pos, Vector2.ZERO, 0.0, 0.07, Vector2(radius_px * 2.0, radius_px * 2.6), flash_col, ParticlePack.KIND_FLASH)
+	_add(pos, Vector2.ZERO, 0.0, 0.07, Vector2(size_r * 2.0, radius_px * 2.6), flash_col, ParticlePack.KIND_FLASH)
 	if rings_ok:
 		var thick: bool = t == FxRecipes.WALKER_TYPE
 		var rk: int = ParticlePack.KIND_RING_THICK if thick else ParticlePack.KIND_RING_THIN
 		var rcol: Color = Color(accent, 0.8 if thick else 0.6)
 		var reach: float = 3.6 if thick else 2.6
-		_add(pos, Vector2.ZERO, 0.0, 0.3 if thick else 0.22, Vector2(radius_px * 1.2, radius_px * reach), rcol, rk)
+		_add(pos, Vector2.ZERO, 0.0, 0.3 if thick else 0.22, Vector2(size_r * 1.2, radius_px * reach), rcol, rk)
 	_shards(pos, FxRecipes.KILL_SHARDS[t], accent, 1.0, 0.0)
 	_sparks(pos, FxRecipes.lod_sparks(FxRecipes.KILL_SPARKS[t], alive), accent, 1.0, 0.0)
 	if FxRecipes.smoke_allowed(alive):
@@ -87,13 +90,14 @@ func kill(type_index: int, pos: Vector2, radius_px: float, alive: int) -> void:
 
 ## Boss death (6.4): white-hot flash, three staggered thick rings, shards, sparks, smoke and three mini bursts.
 func boss_death(pos: Vector2, radius_px: float) -> void:
+	var size_r: float = radius_px / fx_scale
 	var accent: Color = FxRecipes.accent(FxRecipes.BOSS_TYPE)
 	_add(
 		pos,
 		Vector2.ZERO,
 		0.0,
 		0.25,
-		Vector2(radius_px * 4.0, radius_px * 5.0),
+		Vector2(size_r * 4.0, radius_px * 5.0),
 		Color(HOT_WHITE, 0.95),
 		ParticlePack.KIND_FLASH
 	)
@@ -102,7 +106,7 @@ func boss_death(pos: Vector2, radius_px: float) -> void:
 		Vector2.ZERO,
 		0.0,
 		0.35,
-		Vector2(radius_px * 2.5, radius_px * 6.0),
+		Vector2(size_r * 2.5, radius_px * 6.0),
 		Color(HOT_WHITE, 0.8),
 		ParticlePack.KIND_FLARE8
 	)
@@ -115,7 +119,7 @@ func boss_death(pos: Vector2, radius_px: float) -> void:
 				Vector2.ZERO,
 				0.09 * float(k),
 				0.5,
-				Vector2(radius_px * 1.5, radius_px * 5.5),
+				Vector2(size_r * 1.5, radius_px * 5.5),
 				col,
 				ParticlePack.KIND_RING_THICK
 			)
@@ -131,7 +135,7 @@ func boss_death(pos: Vector2, radius_px: float) -> void:
 			Vector2.ZERO,
 			delay,
 			0.12,
-			Vector2(radius_px * 0.9, radius_px * 1.3),
+			Vector2(size_r * 0.9, radius_px * 1.3),
 			Color(accent.lerp(HOT_WHITE, 0.5), 0.9),
 			ParticlePack.KIND_FLASH
 		)
@@ -178,7 +182,7 @@ func band_worse(new_band: int) -> void:
 		Vector2.ZERO,
 		0.0,
 		0.3,
-		Vector2(cinder_radius_px * 2.2, cinder_radius_px * 2.6),
+		Vector2(cinder_radius_px * 2.2, cinder_radius_px * 2.6) / fx_scale,
 		Color(col, 0.4),
 		ParticlePack.KIND_FLASH
 	)
@@ -258,11 +262,11 @@ func _sparks(pos: Vector2, count: int, accent: Color, scale: float, delay: float
 func _smoke_puff(pos: Vector2, s0: float, s1: float, life: float, delay: float) -> void:
 	var v: Vector2 = Vector2.from_angle(_rng.randf() * TAU) * _rng.randf_range(10.0, 30.0)
 	var k: int = ParticlePack.KIND_SMOKE_A + _rng.randi_range(0, 1)
-	smoke.emit(pos, v, now + delay, life, Vector2(s0, s1), SMOKE_COLOR, k)
+	smoke.emit(pos, v, now + delay, life, Vector2(s0, s1) * fx_scale, SMOKE_COLOR, k)
 
 
 func _add(pos: Vector2, vel: Vector2, delay: float, life: float, size: Vector2, color: Color, kind: int) -> void:
-	additive.emit(pos, vel, now + delay, life, size, color, kind)
+	additive.emit(pos, vel, now + delay, life, size * fx_scale, color, kind)
 
 
 func _spark_kind() -> int:
