@@ -1,6 +1,6 @@
 # IRON STATIC - Roadmap
 
-Changelog: 2026-11-07 v1.0 - first version. Merges the technical plan (`docs/TECH_ARCHITECTURE.md` section 12) with the GDD MVP scope (`docs/design/08_mvp_scope.md`) and applies the user decisions of 2026-11-07 (title, novel mechanics N1-N4 approved and N5 deferred, Standby Patrol approved, staged online rollout, BigNum). This file is the single source for milestone scope, order, exit criteria and sizing. Agent-ready task files: `docs/tasks/M0.md`, `M1.md`, `M2.md`; later milestones get their task files when the previous milestone closes.
+Changelog: 2026-11-07 v1.1 - M1 status line ticked (M1-26). 2026-11-07 v1.0 - first version. Merges the technical plan (`docs/TECH_ARCHITECTURE.md` section 12) with the GDD MVP scope (`docs/design/08_mvp_scope.md`) and applies the user decisions of 2026-11-07 (title, novel mechanics N1-N4 approved and N5 deferred, Standby Patrol approved, staged online rollout, BigNum). This file is the single source for milestone scope, order, exit criteria and sizing. Agent-ready task files: `docs/tasks/M0.md`, `M1.md`, `M2.md`; later milestones get their task files when the previous milestone closes.
 
 ## 1. How to read this
 
@@ -39,6 +39,7 @@ Totals: MVP (M0-M5) about 110 tasks; Launch (M0-M7) about 230 tasks. About 9-12 
 - **Decision gate G0:** if a required plugin fails on 4.7.2, pin the project to Godot 4.6 (rule in TECH_ARCHITECTURE 7.2) before M1 starts.
 
 ### M1 Core combat prototype (26 tasks, 3-4 weeks)
+- **Status:** [x] DONE 2026-11-07 (M1-01 to M1-26; exit check in the M1-26 commit; emulator soak in `docs/playtests/m1_emulator.md`). Open after M1: emulator fps below 30 at about 165 enemies (needs a real device, Q23/Q40), user playtest pending (Q38).
 - **Goal:** a deterministic simulation in pure `RefCounted` classes, playable headless and rendered with MultiMesh on the emulator, that already behaves like the GDD combat.
 - **Scope:** 02 s1 (loop without spend), s2 (arena, caps), s3 (nearest targeting), s4 (Laser Cycle, base stats), s6 (24 s wave = 720 ticks, `N(w)`, spawn times and angles, boss wave rule), s8 steps 1-3, 5, 9 (global multiplier step = 1), s9 steps 6-7 and stale marking, s11 (death only), s12 steps 2-4 and 6, s12.1 exposure bands with hysteresis (N2 logic); 03 s1.1 `skitter`, `dart`, `walker`, `lancer`, s1.3 `boss_hulk` without plates, s2-s5 (HP/damage/reward formulas, `G(l)` phases 1-3, type weights and slot filling), s7 boss cadence; 07 s5.1-5.2 palette, s5.6 Cinder rendering (wedges and bands, simple), minimal HUD (wave, timer bar, integrity ring, speed button, pause), debug overlay; importer v1 for `sim_constants`, `enemies`, `run_upgrades`.
 - **Exit criteria:** same seed gives the same state hash; 1x/2x/4x tick driver gives identical outcomes; GDD 03 s4.5 sample values (HP, atk, `N(w)`, scrap per kill) reproduced within 0.5%; perf bench 600 enemies + 600 projectiles at most 4 ms per tick on the dev machine; a no-upgrade headless run dies between waves 3 and 12; emulator runs 3+ minutes without crash at 30+ fps with 160 enemies; screenshots of band 0-3 Cinder saved.

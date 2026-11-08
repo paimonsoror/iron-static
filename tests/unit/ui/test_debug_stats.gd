@@ -67,4 +67,8 @@ func test_clear_and_window_floor() -> void:
 
 func test_perf_line_format() -> void:
 	var line: String = DebugOverlay.perf_line(59.96, 41.2, 0.4567, 160)
-	assert_str(line).is_equal("[PERF] fps=60.0 min=41.2 tick_ms=0.46 enemies=160")
+	assert_str(line).is_equal("[PERF] fps=60.0 min=41.2 tick_ms=0.46 enemies=160 thr=0 lost=0")
+	# The smoke parser (tools/smoke_android.ps1) matches this prefix; extra fields may only be appended.
+	assert_str(DebugOverlay.perf_line(30.0, 20.0, 1.0, 5, 3, 7)).is_equal(
+		"[PERF] fps=30.0 min=20.0 tick_ms=1.00 enemies=5 thr=3 lost=7"
+	)

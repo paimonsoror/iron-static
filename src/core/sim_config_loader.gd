@@ -27,8 +27,8 @@ static func load_default(seed_value: int) -> SimConfig:
 	return cfg
 
 
-## Field-by-field copy of a data resource. Resource.duplicate() only copies stored (exported)
-## properties, and the def classes deliberately have plain script vars.
+## Field-by-field copy of a data resource. kept from before the def vars became `@export`
+## (M1-26); Resource.duplicate() would now work too, but this is cheap and behavior-proven.
 static func _clone(source: Resource) -> Resource:
 	var script: GDScript = source.get_script()
 	var copy: Resource = script.new()

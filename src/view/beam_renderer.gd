@@ -38,6 +38,11 @@ func _init() -> void:
 	material = mat
 
 
+## Events skipped because the ring wrapped past this reader (debug overlay).
+func events_lost_total() -> int:
+	return _events.lost_total
+
+
 ## Call when binding to a world mid-run so old events are not drawn.
 func bind(world: SimWorld) -> void:
 	_events.sync_to(world.events)

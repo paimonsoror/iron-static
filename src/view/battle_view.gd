@@ -43,6 +43,11 @@ func layout(viewport_size: Vector2) -> void:
 		_setup_enemy_renderer()
 
 
+## Events lost by this view's cursors (aim + beams) since start; 0 unless the view fell behind the ring.
+func events_lost_total() -> int:
+	return _events.lost_total + _beams.events_lost_total()
+
+
 ## Starts observing `world` (skips events already pushed).
 func bind(world: SimWorld) -> void:
 	_world = world

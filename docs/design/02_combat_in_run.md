@@ -1,6 +1,6 @@
 # 02 - Combat and In-Run Systems
 
-Changelog: 2026-11-07 - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
+Changelog: 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
 
 All numbers are first-pass and **tunable** unless marked HARD (a rule, not a balance number). Borrowed mechanics are cited to the research notes: `[CIS n]` = combat_and_in_run_systems.md section n. "Changed" notes say what we altered and why.
 
@@ -68,6 +68,9 @@ Chance stats are additive across sources and clamped at their `hard_cap`. Multip
 - Each enemy type costs `slots` (03). Fill N slots by drawing from the available type weights (03 section 5) until slots are used. Slot overflow of at most 2 is allowed.
 - Spawn times: for slot index i (0-based) `t_i = 18 * (i + u_i) / N`, `u_i` uniform [0,1) seeded.
 - Spawn angle: 60% uniform random; 40% in "flank groups" of 3-6 enemies within +-10 degrees to make clumps readable.
+- **(impl, M1)** Flank groups: a slot starts a flank group with probability `p = f / (f + (1 - f) * mean_group)` (`f` = `flank_fraction` 0.4, `mean_group` = (3+6)/2) so that about 40% of enemies, not 40% of groups, end up in groups.
+- **(impl, M1)** Spawn carry-over: entries held back by the alive caps at the end of a wave are carried into the next wave's plan and spawn first at tick 0. Bound: at most `plan capacity / 2` carried entries (the oldest win); the rest are dropped and counted in `plan.dropped_carry` (planner overflow in `plan.dropped_slots`). With default caps neither counter is nonzero in a normal run; both are in the state hash and the debug overlay.
+- **(impl, M1)** `next_wave_is_boss` is true while the wave AFTER the current one is a boss wave (it is recomputed at each wave end as `is_boss_wave(ending + 2)`), so the UI can show the chevron one wave ahead. `run.damage_dealt` counts the full damage of each laser shot, including overkill. The `CINDER_HIT` event carries the intake damage rounded to an integer (display only; Cinder's hp is tracked as a float).
 - Boss waves: boss spawns at t=2 s (S1-S6) or random in [1, 12] s (S7+), plus the normal N(w) slots at 60% count.
 - Lull: no spawns. A "SKIP LULL" button (Launch) ends the lull early; it also grants +0 rewards (no exploit).
 - Enemy "stale" rule: enemies alive 3 or more wave-ends after they spawned pay 50% `scrap` and `data` (HARD). [CIS 1 coin decay; kept to discourage stalling.]

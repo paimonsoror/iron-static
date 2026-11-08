@@ -22,6 +22,7 @@ func _ready() -> void:
 	_controller.run_started.connect(_on_run_started)
 	_controller.run_ended.connect(_on_run_ended)
 	_debug.setup(_controller)
+	_debug.battle_view = _battle
 	_debug.force_perf = Game.perf_logging_forced()
 	if Game.debug_load:
 		Game.start_debug_load()

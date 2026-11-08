@@ -4,15 +4,15 @@ extends Resource
 ## `kind` "D" = doubling-style row (`step` is the factor p of the D formula), "C" = linear row
 ## (`step` is the per-level increment). `has_hard_cap` is false when the CSV hard_cap is empty.
 
-var id: String = ""
-var tab: String = ""  ## arms, chassis, systems
-var kind: String = ""
-var base: float = 0.0
-var step: float = 0.0
-var l_cap: int = 0
-var has_hard_cap: bool = false
-var hard_cap: float = 0.0
-var c0: float = 0.0
-var g: float = 0.0
-var gate_best_wave: int = 0
-var tag: String = ""
+@export var id: String = ""
+@export var tab: String = ""  ## arms, chassis, systems
+@export var kind: String = ""
+@export var base: float = 0.0
+@export var step: float = 0.0
+@export var l_cap: int = 0
+@export var has_hard_cap: bool = false
+@export var hard_cap: float = 0.0
+@export var c0: float = 0.0
+@export var g: float = 0.0
+@export var gate_best_wave: int = 0
+@export var tag: String = ""

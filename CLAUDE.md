@@ -51,10 +51,11 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 | Start emulator (AVD `tower_phone`, wait 25 s after cold boot; `-ColdBoot`, `-PublicDns`) | `.\tools\run_emulator.ps1` | done |
 | Install/repair Gradle build template (untracked; after clone or Godot upgrade) | `.\tools\setup_android_template.ps1` (`-Force` reinstalls) | done (M0-09) |
 | Export, install, launch on emulator | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic` | done (M0-07) |
-| Emulator smoke test (log scan + screenshot check) | `.\tools\smoke_android.ps1` (`-SkipDeploy`; `-MinFps`) | done (M0-08) |
+| Emulator smoke test (log scan + screenshot check) | `.\tools\smoke_android.ps1` (`-SkipDeploy`; `-Soak <s>`, `-MinFps <n>` need `--debug-perf`; `-ImagePath <png>` checks a screenshot offline) | done (M0-08, M1-25/26) |
 | CSV to `.tres` importer | `.\tools\import_data.ps1` | done (M1-02; flags -DataDir -OutDir -SkipImport) |
-| Headless sim runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | done (M1-16; TIMING on stderr) |
+| Headless sim runs (M1 exit: p50 death wave 3-12) | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | done (M1-16; TIMING on stderr) |
 | Sim perf bench | `.\tools\perf_bench.ps1 [-Check]` | done (M1-17; -UpdateBaseline, baseline tests/perf_baseline.json) |
+| Playtest and soak (agent skills) | `.claude/skills/playtest-report/`, `.claude/skills/soak-test/` | done (M1) |
 | Balance run vs targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` | created in M2-14 |
 | CI compile gate (portable twin of lint's compile step; CI: `docs/setup/ci.md`) | `.venv\Scripts\python.exe tools\compile_gate.py --godot <godot> --project .` | done (M0-13) |
 | Screenshot from emulator | `cmd /c "cd /d C:\ && adb exec-out screencap -p > C:\dev\tower\build\shot.png"` | done |
@@ -100,6 +101,11 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - gdlint rejects underscore-prefixed locals/params (`var _i`, `exp_`); `PackedXArray[-1]` silently reads the last element, so check `alloc()` results for -1 before indexing.
 - Parallel test runs can collide on Sentry's GDExtension DLL copy at import; `test_runner.py` retries that transient error twice. Write large `.gd` files with the Write tool, not shell heredocs.
 - Godot imports every `.csv` as a translation (fails with Invalid locale): every data CSV folder needs a `.gdignore` (`data/` has one); `FileAccess` still reads `res://data/...`.
-- Passing a Variant (`dict[k]`, `arr[i]`) to a typed param or `float()`/`int()` fails compile: assign to a typed local first. `Resource.duplicate()` skips non-exported vars (clone field by field).
+- Passing a Variant (`dict[k]`, `arr[i]`) to a typed param or `float()`/`int()` fails compile: assign to a typed local first. `Resource.duplicate()` skipped non-exported vars before M1-26 (all def vars are `@export` now).
 - `HashingContext.update()` errors on an empty `PackedByteArray` (skip empty slices). A param named like a method (e.g. `capacity`) shadows it (error). Unused args: `@warning_ignore("unused_parameter")` + `# gdlint: ignore=unused-argument` (underscore prefix is not enough).
 - PS tools: use `Invoke-GodotRetry` (`_common.ps1`) for Godot runs that may overlap other agents; it retries the transient Sentry DLL copy collision.
+- Export converts text `.tres` to binary and drops every non-`@export` script var (all sim data loaded as 0 on Android). Def vars in `src/data_defs/` must be `@export`; `project.godot` keeps `export/convert_text_resources_to_binary=false`; `test_resource_roundtrip.gd` guards it.
+- `deploy_android.ps1` output piped to a tool wrapper can hang (the adb server inherits the pipe): run via `Start-Process` with stdout/stderr redirected to files and poll for `== RUNNING`.
+- GDScript `%` formatting has no `%g` (use `%.3f`); an unsupported format logs `String formatting error` on every call.
+- The emulator's qemu can hang under heavy GL load (host GPU driver suspected): `adb emu kill`, then `run_emulator.ps1 -ColdBoot`; the first launch after a cold boot may lose its process once.
+- Run `perf_bench` with the emulator idle or stopped: a running emulator inflates avg_ms by about 45-60% (2.65 vs 1.7 ms) and fails `-Check` against the baseline.

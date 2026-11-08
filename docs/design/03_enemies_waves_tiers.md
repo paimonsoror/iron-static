@@ -1,6 +1,6 @@
 # 03 - Enemies, Waves, Scaling and Sectors
 
-Changelog: 2026-11-07 - number-type note in section 4.6 updated: BigNum for currency/cost values (09 Q5 resolved); enemy HP and damage stay double.
+Changelog: 2026-11-07 (M1-26: section 3 and 1.1 implementation notes: scrap_yield at kill time, lancer bolt speed) - number-type note in section 4.6 updated: BigNum for currency/cost values (09 Q5 resolved); enemy HP and damage stay double.
 
 Citations: `[CIS n]` = combat_and_in_run_systems.md. All numbers are first-pass and tunable; formulas (shape) are HARD unless said otherwise. The research found **no published enemy HP/damage formula** [CIS 5 gaps], so everything in section 4 is original design intended to reproduce the feel (exponential growth, partial skips, per-sector rewards) described in [CIS 5 inferences].
 
@@ -85,7 +85,7 @@ enemy_dmg(type, l_atk)  = D0  * G_atk(l_atk) * dmg_mult(type)      D0  = 2      
 scrap_per_kill(type, l) = max(1, round(2 * G_hp(l) ^ 0.55)) * scrap_mult(type) * scrap_yield_total
 data_per_kill(type, l, s) = data_base(type) * (1 + 0.04 * l) * R(s) * data_yield_total
 ```
-`l` = enemy health level incl. sector offset (section 4). `R(s)` = sector reward multiplier. Stale enemies pay 50%. `scrap` follows `G_hp^0.55` so purchasing power tracks enemy toughness at a slightly lower exponent (intentional: the run is a race that the player eventually loses). [CIS 3: base cash $1 for waves 1-9 then linear steps; ours is smooth to avoid cliffs and to keep costs meaningful at all depths.]
+**(impl, M1)** `scrap_yield_total` is read from Cinder's stat block at the moment of the kill (a purchase affects only later kills); the stale 50% multiplier is applied last. `l` = enemy health level incl. sector offset (section 4). `R(s)` = sector reward multiplier. Stale enemies pay 50%. `scrap` follows `G_hp^0.55` so purchasing power tracks enemy toughness at a slightly lower exponent (intentional: the run is a race that the player eventually loses). [CIS 3: base cash $1 for waves 1-9 then linear steps; ours is smooth to avoid cliffs and to keep costs meaningful at all depths.]
 
 ## 4. Scaling formulas (original design)
 
@@ -144,6 +144,8 @@ def G(l, k1, k2, k3):
 def N(w): return min(200, int(6 + 2.4 * w**0.6))
 ```
 Enemy HP and damage use double precision (`G_hp(3000)` is about 1e44 times scaling, far below 1e308). Currency and cost values use the BigNum type from ROADMAP M2 (09 Q5 resolved; TECH_ARCHITECTURE section 3); display via the big-number format in 04.
+
+**(impl, M1)** `lancer_bolt_speed` = 18 m/s (`data/sim_constants.csv`; the GDD gave no bolt speed). It is a first-pass number: a bolt crosses the 48 m maximum range in about 2.7 s. Revisit with the first playtest.
 
 ## 5. Type weights and slot filling
 

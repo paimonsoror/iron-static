@@ -21,10 +21,12 @@ const PERF_PERIOD_S: float = 10.0
 const TEXT_REFRESH_S: float = 0.25
 const FPS_WINDOW: int = 60
 const TICK_WINDOW: int = 120
-const LINE_COUNT: int = 10
+const LINE_COUNT: int = 12
 
 ## Set by the owner when the [PERF] log must run even with the overlay hidden (--debug-perf, load mode).
 var force_perf: bool = false
+## Set by the owner (main.gd) so the overlay can show the view's event-ring loss counter.
+var battle_view: BattleView
 
 var _controller: RunController
 var _fps := DebugStats.new(FPS_WINDOW)
@@ -60,8 +62,14 @@ func setup(controller: RunController) -> void:
 
 
 ## Formats the periodic perf line (parsed by M1-25: keep the exact shape).
-static func perf_line(fps_avg: float, fps_min: float, tick_ms: float, enemies: int) -> String:
-	return "[PERF] fps=%.1f min=%.1f tick_ms=%.2f enemies=%d" % [fps_avg, fps_min, tick_ms, enemies]
+## Optional fields are appended after `enemies=` only (the smoke parser ignores trailing text).
+static func perf_line(
+	fps_avg: float, fps_min: float, tick_ms: float, enemies: int, spawn_throttled: int = 0, events_lost: int = 0
+) -> String:
+	return (
+		"[PERF] fps=%.1f min=%.1f tick_ms=%.2f enemies=%d thr=%d lost=%d"
+		% [fps_avg, fps_min, tick_ms, enemies, spawn_throttled, events_lost]
+	)
 
 
 func is_shown() -> bool:
@@ -118,7 +126,9 @@ func _process(delta: float) -> void:
 				_fps.period_average(),
 				_fps.period_min(),
 				_tick_ms.period_average(),
-				_controller.world.enemies.alive_count
+				_controller.world.enemies.alive_count,
+				_controller.world.run.spawn_throttled,
+				_events_lost()
 			)
 		)
 		_fps.reset_period()
@@ -148,12 +158,20 @@ func _refresh_text(w: SimWorld) -> void:
 		"SPEED %dx%s  SEED %d" % [_controller.speed, " PAUSED" if _controller.paused else "", _controller.seed_value]
 	)
 	_lines[8] = "BAND %d  VIEW %s" % [w.cinder.band, band_text]
-	_lines[9] = (
+	_lines[9] = "SPAWN_THROTTLED %d  EVENTS_LOST %d" % [w.run.spawn_throttled, _events_lost()]
+	_lines[10] = (
+		"CARRIED %d  DROP_CARRY %d  DROP_SLOTS %d" % [w.plan.carried, w.plan.dropped_carry, w.plan.dropped_slots]
+	)
+	_lines[11] = (
 		"LOADING %d%%" % roundi(_controller.load_progress() * 100.0)
 		if _controller.load_wave > 0
 		else "v" + Game.VERSION
 	)
 	_stats_label.text = "\n".join(_lines)
+
+
+func _events_lost() -> int:
+	return battle_view.events_lost_total() if battle_view != null else 0
 
 
 func _on_band_pressed(band: int) -> void:
