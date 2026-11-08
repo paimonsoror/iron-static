@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="FrameDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/frame_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "salvager"
+name_key = "frame.name.salvager"
+role_key = "frame.role.salvager"
+passive_key = "frame.passive.salvager"
+unlock_best_wave = 25
+implemented = false
+hull_mult = 1.0
+plating_add = 0.0
+nano_mult = 1.0
+cycle_mult = 1.0
+optic_mult = 1.0
+laser_mult = 0.85
+crit_add = 0.0
+crit_mult_mult = 1.0
+scrap_mult = 1.25
+data_mult = 1.1
+passive = "scrap_tithe"
+tag = "M6"

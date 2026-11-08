@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FoundryDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/foundry_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "nano_repair"
+kind = "D"
+f = 0.05
+f_cap = 200
+fc0 = 25.0
+fg = 1.1
+tag = "MVP"

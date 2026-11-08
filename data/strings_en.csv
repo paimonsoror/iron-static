@@ -46,3 +46,115 @@ results.redeploy,REDEPLOY
 pause.title,PAUSED
 pause.resume_hint,TAP TO RESUME
 pause.exit_hint,BACK AGAIN TO EXIT
+home.header,CINDER  ASH-07
+home.pr,PR {v}
+home.data,DATA {v}
+home.sector,SECTOR {n}
+home.best,BEST  W{n}
+home.best_none,NO DEPLOYMENT YET
+home.deploy,DEPLOY
+home.next_unlock,NEXT UNLOCK  WAVE {w}  {name}
+home.all_unlocked,ALL ROWS UNLOCKED
+home.foundry_hint,{n} FOUNDRY UPGRADES AFFORDABLE
+nav.home,HOME
+nav.foundry,FOUNDRY
+nav.settings,SETTINGS
+foundry.title,FOUNDRY
+foundry.data,DATA {v}
+foundry.level,F{n}
+foundry.value,{a} -> {b}
+foundry.value_start,STARTS AT {v}
+foundry.milestone,NEXT MILESTONE F{n}  x1.25
+foundry.max,MAX
+foundry.recommended,RECOMMENDED
+foundry.afford_now,AFFORDABLE
+foundry.afford_in,~{v} TO AFFORD
+foundry.preview,NEXT RUN  PR {a} -> {b}
+foundry.deploy,DEPLOY
+foundry.back,BACK
+foundry.tooltip_d,"Permanent. Every deployment starts with this stat boosted by your Foundry level, plus x1.25 for every 10 levels. Level F{f}. Next level costs {cost} data. Cap F{cap}."
+foundry.tooltip_c,"Permanent. Every deployment starts with free levels of this stat. Level F{f}. Next level costs {cost} data. Cap F{cap}."
+foundry.locked,COMPLETE A DEPLOYMENT TO UNLOCK
+results.best_delta,BEST {b}  (+{d})
+results.best_same,BEST {b}
+results.new_best,NEW BEST
+results.data_banked,DATA +{v}  TOTAL {t}
+results.foundry,FOUNDRY
+results.foundry_n,FOUNDRY  {n} AFFORDABLE
+results.home,HOME
+settings.title,SETTINGS
+settings.sound,SOUND
+settings.music,MUSIC
+settings.mute,MUTE
+settings.reduce_motion,REDUCE MOTION
+settings.shake,SCREEN SHAKE
+settings.scanlines,SCANLINES
+settings.number_format,NUMBER FORMAT
+settings.fps_cap,FPS CAP
+settings.back,BACK
+settings.opt.off,OFF
+settings.opt.low,LOW
+settings.opt.normal,NORMAL
+settings.opt.short,SHORT
+settings.opt.scientific,SCIENTIFIC
+settings.opt.engineering,ENGINEERING
+settings.opt.fps30,30
+settings.opt.fps60,60
+settings.version,VERSION {v}
+settings.note_session,OVERRIDDEN THIS SESSION
+save.problem_title,SAVE PROBLEM
+save.corrupt_body,"YOUR SAVE FILE IS DAMAGED AND NO BACKUP COULD BE READ. THE DAMAGED FILES ARE KEPT."
+save.start_new,START NEW PROFILE
+save.too_new_body,THIS SAVE IS FROM A NEWER VERSION. UPDATE THE APP.
+save.recovered,SAVE RESTORED FROM BACKUP
+save.resumed,RUN RESTORED
+save.run_ended_by_update,"RUN ENDED BY UPDATE, DATA BANKED"
+exit.back_again,BACK AGAIN TO EXIT
+title.continue,CONTINUE
+title.new_game,NEW GAME
+title.settings,SETTINGS
+title.quit_title,QUIT?
+title.quit_yes,YES
+title.quit_no,NO
+title.newgame_confirm_title,NEW GAME
+title.newgame_confirm_body,START OVER? THIS ERASES YOUR PROGRESS.
+title.version,v{v}
+frame.name.vanguard,VANGUARD
+frame.name.bulwark,BULWARK
+frame.name.striker,STRIKER
+frame.name.salvager,SALVAGER
+frame.name.longshot,LONGSHOT
+frame.role.vanguard,BALANCED
+frame.role.bulwark,TANK
+frame.role.striker,GLASS CANNON
+frame.role.salvager,ECONOMY
+frame.role.longshot,SNIPER
+frame.passive.vanguard,NONE
+frame.passive.bulwark,BASTION
+frame.passive.striker,OVERCLOCK
+frame.passive.salvager,SCRAP TITHE
+frame.passive.longshot,FIRST SIGHT
+frame.passive_desc.vanguard,No passive. The reference frame.
+frame.passive_desc.bulwark,No single hit deals more than 20% of max hull.
+frame.passive_desc.striker,Each kill adds 1% fire rate until the wave ends (max 20%).
+frame.passive_desc.salvager,Heavy kills drop bonus scrap.
+frame.passive_desc.longshot,The first shot at a new target always crits.
+frame.bay_title,FRAME BAY
+frame.select,SELECT
+frame.selected,SELECTED
+frame.locked_wave,REACH WAVE {n}
+frame.progress,BEST W{n}
+frame.unlocked_chip,FRAME UNLOCKED: {name}
+frame.pr,PR {v}
+frame.stat.hull,HULL
+frame.stat.rate,FIRE RATE
+frame.stat.damage,DAMAGE
+frame.stat.range,RANGE
+frame.stat.crit,CRIT
+frame.stat.repair,REPAIR
+frame.chip,FRAME {name}
+settings.data,DATA
+settings.reset,RESET PROFILE
+settings.reset_confirm1,RESET YOUR PROFILE? ALL PROGRESS IS LOST.
+settings.reset_confirm2,"LAST CHANCE: {data} DATA AND BEST WAVE {wave} WILL BE LOST."
+settings.reset_done,PROFILE RESET

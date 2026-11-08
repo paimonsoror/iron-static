@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FoundryDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/foundry_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "cycle_rate"
+kind = "C"
+f = 0.0
+f_cap = 50
+fc0 = 50.0
+fg = 1.12
+tag = "MVP"

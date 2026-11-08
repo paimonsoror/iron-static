@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="FrameDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/frame_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "striker"
+name_key = "frame.name.striker"
+role_key = "frame.role.striker"
+passive_key = "frame.passive.striker"
+unlock_best_wave = 15
+implemented = true
+hull_mult = 0.65
+plating_add = 0.0
+nano_mult = 0.7
+cycle_mult = 1.4
+optic_mult = 1.0
+laser_mult = 0.9
+crit_add = 0.03
+crit_mult_mult = 1.0
+scrap_mult = 1.0
+data_mult = 1.0
+passive = "overclock"
+tag = "MVP"

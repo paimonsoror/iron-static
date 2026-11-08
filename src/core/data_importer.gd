@@ -3,7 +3,8 @@ extends RefCounted
 ## CSV to .tres importer core (M1-02). `run(data_dir, out_dir)` reads sim_constants.csv, enemies.csv and
 ## run_upgrades.csv, validates everything, and only when there are no errors writes the generated
 ## resources (byte-identical on every run, see TresWriter). `tools/import_data.gd` is the CLI wrapper.
-## Also writes strings_en.tres and number_suffixes.tres (DataTextTables). Tables with zero rows are valid
+## Also writes foundry_*.tres and frame_*.tres (DataMetaTables, optional CSVs), strings_en.tres and
+## number_suffixes.tres (DataTextTables). Tables with zero rows are valid
 ## (enemies, run_upgrades); sim_constants must define every key.
 
 const TUNING_SCRIPT: String = "res://src/data_defs/sim_tuning.gd"
@@ -54,7 +55,9 @@ func run(data_dir: String, out_dir: String) -> bool:
 	files = {}
 	_build_constants(CsvTable.load_file(data_dir.path_join("sim_constants.csv")))
 	_build_enemies(CsvTable.load_file(data_dir.path_join("enemies.csv")))
-	_build_upgrades(CsvTable.load_file(data_dir.path_join("run_upgrades.csv")))
+	var upgrades_csv: CsvTable = CsvTable.load_file(data_dir.path_join("run_upgrades.csv"))
+	_build_upgrades(upgrades_csv)
+	_build_meta_tables(data_dir, upgrades_csv)
 	_build_text_tables(data_dir)
 	if not errors.is_empty():
 		return false
@@ -231,6 +234,22 @@ func _build_upgrades(table: CsvTable) -> void:
 	)
 
 
+## foundry.csv and frames.csv (M3-05, M3-21; each optional). Foundry ids are checked against run_upgrades.
+func _build_meta_tables(data_dir: String, upgrades_csv: CsvTable) -> void:
+	var kinds: Dictionary = {}
+	for r: int in upgrades_csv.rows.size():
+		kinds[upgrades_csv.get_value(r, "id")] = upgrades_csv.get_value(r, "kind")
+	var built: Array[Dictionary] = [
+		DataMetaTables.foundry(data_dir.path_join("foundry.csv"), kinds),
+		DataMetaTables.frames(data_dir.path_join("frames.csv")),
+	]
+	for b: Dictionary in built:
+		var errs: PackedStringArray = b["errors"]
+		errors.append_array(errs)
+		var part: Dictionary = b["files"]
+		files.merge(part)
+
+
 ## Text tables that must ship as resources (strings, number suffixes); each CSV is optional.
 func _build_text_tables(data_dir: String) -> void:
 	var built: Array[Dictionary] = [
@@ -277,6 +296,8 @@ func _remove_stale(out_dir: String) -> void:
 			or n == "number_suffixes.tres"
 			or n.begins_with("enemy_")
 			or n.begins_with("upgrade_")
+			or n.begins_with("foundry_")
+			or n.begins_with("frame_")
 		)
 		if ours and n.ends_with(".tres") and not files.has(n):
 			var rm: Error = dir.remove(n)

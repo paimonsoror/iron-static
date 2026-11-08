@@ -1,0 +1,3 @@
+id,name_key,role_key,passive_key,unlock_best_wave,implemented,hull_mult,plating_add,nano_mult,cycle_mult,optic_mult,laser_mult,crit_add,crit_mult_mult,scrap_mult,data_mult,passive,tag
+vanguard,frame.name.vanguard,frame.role.vanguard,frame.passive.vanguard,0,true,1.0,0,1.0,1.0,1.0,1.0,0,1.0,1.0,1.0,none,MVP
+bulwark,frame.name.bulwark,frame.role.bulwark,frame.passive.bulwark,8,true,1.6,0.10,1.3,0.75,0.92,1.0,0,1.0,1.0,1.0,bogus,MVP

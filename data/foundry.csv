@@ -1,0 +1,7 @@
+# Foundry rows (GDD 05 s1.1-1.3, MVP 4 rows). Row order is the Foundry display order. Every id must exist in run_upgrades.csv with the same kind.
+# kind D: f is the per-level factor of foundry_mult. kind C: f is empty (the step is the run row's step); f_cap, fc0, fg follow the generic rule (f_cap = max(1, floor(l_cap/2)), fc0 = 2*c0, fg = g).
+id,kind,f,f_cap,fc0,fg,tag
+laser_output,D,0.06,200,20,1.10,MVP
+cycle_rate,C,,50,50,1.12,MVP
+hull_integrity,D,0.06,200,20,1.10,MVP
+nano_repair,D,0.05,200,25,1.10,MVP

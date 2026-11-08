@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="FrameDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/frame_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "vanguard"
+name_key = "frame.name.vanguard"
+role_key = "frame.role.vanguard"
+passive_key = "frame.passive.vanguard"
+unlock_best_wave = 0
+implemented = true
+hull_mult = 1.0
+plating_add = 0.0
+nano_mult = 1.0
+cycle_mult = 1.0
+optic_mult = 1.0
+laser_mult = 1.0
+crit_add = 0.0
+crit_mult_mult = 1.0
+scrap_mult = 1.0
+data_mult = 1.0
+passive = "none"
+tag = "MVP"
