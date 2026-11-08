@@ -34,6 +34,10 @@ hud.data,DATA {v}
 hud.hp,{a} / {b}
 hud.pause,PAUSE
 hud.resume,RESUME
+hud.wave_banner,WAVE {n}
+hud.warning,WARNING
+hud.boss_wave,BOSS WAVE {n}
+hud.timer,{n}s
 results.title,DEPLOYMENT ENDED
 results.wave,WAVE REACHED  {n}
 results.time,TIME  {v}

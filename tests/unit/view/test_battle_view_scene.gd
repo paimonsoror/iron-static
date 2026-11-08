@@ -39,7 +39,7 @@ func test_hud_shows_values_and_emits_signals() -> void:
 	var hp_label: Label = hud.get_node("%HpLabel")
 	var scrap_label: Label = hud.get_node("%ScrapLabel")
 	var data_label: Label = hud.get_node("%DataLabel")
-	var timer_bar: ProgressBar = hud.get_node("%TimerBar")
+	var timer_bar: SegmentedBar = hud.get_node("%TimerBar")
 	assert_str(wave_label.text).is_equal("WAVE 7")
 	assert_str(hp_label.text).is_equal("50 / 100")
 	assert_str(scrap_label.text).is_equal("SCRAP 12.4K")

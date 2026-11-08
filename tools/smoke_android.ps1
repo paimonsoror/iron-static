@@ -148,8 +148,11 @@ if ($MinFps -gt 0) {
         if ($l -match '^\s*(\d+\.\d+)\s.*\[PERF\] fps=([\d.]+) min=([\d.]+) tick_ms=([\d.]+) enemies=(\d+)') {
             $perf += [pscustomobject]@{
                 T = [double]$Matches[1]; Fps = [double]$Matches[2]; Min = [double]$Matches[3]
-                TickMs = [double]$Matches[4]; Enemies = [int]$Matches[5]
+                TickMs = [double]$Matches[4]; Enemies = [int]$Matches[5]; Draws = 0; VidMb = 0.0
             }
+            # V1-03 render fields are appended at the end of the line; optional (older builds lack them).
+            if ($l -match 'draws=(\d+)') { $perf[-1].Draws = [int]$Matches[1] }
+            if ($l -match 'vid_mb=([\d.]+)') { $perf[-1].VidMb = [double]$Matches[1] }
         }
     }
     if ($perf.Count -eq 0) { Fail "no [PERF] lines in logcat (build needs --debug-perf or --debug-load)" }
@@ -160,7 +163,7 @@ if ($MinFps -gt 0) {
     $i = 0
     foreach ($u in $use) {
         $i++
-        Write-Host ("   perf {0,2}: fps={1,6:N1} min={2,6:N1} tick_ms={3,6:N2} enemies={4}" -f $i, $u.Fps, $u.Min, $u.TickMs, $u.Enemies)
+        Write-Host ("   perf {0,2}: fps={1,6:N1} min={2,6:N1} tick_ms={3,6:N2} enemies={4} draws={5} vid_mb={6:N1}" -f $i, $u.Fps, $u.Min, $u.TickMs, $u.Enemies, $u.Draws, $u.VidMb)
     }
     $lowest = ($use | Measure-Object -Property Fps -Minimum).Minimum
     Write-Host ("== PERF samples after warm-up: {0}, lowest fps average {1:N1} (MinFps {2})" -f $use.Count, $lowest, $MinFps)

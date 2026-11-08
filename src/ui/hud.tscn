@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://src/ui/hud.gd" id="1_hud"]
 [ext_resource type="PackedScene" path="res://src/ui/upgrade_panel.tscn" id="2_panel"]
+[ext_resource type="Script" path="res://src/ui/segmented_bar.gd" id="3_bar"]
+[ext_resource type="Script" path="res://src/ui/wave_banner.gd" id="4_banner"]
 
 [node name="Hud" type="Control"]
 layout_mode = 3
@@ -18,109 +20,190 @@ unique_name_in_owner = true
 layout_mode = 1
 anchor_top = 0.56
 
-[node name="WaveLabel" type="Label" parent="."]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 24.0
-offset_top = 12.0
-offset_right = 600.0
-offset_bottom = 92.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 60
-text = "WAVE 1"
-vertical_alignment = 1
-
-[node name="TimerBar" type="ProgressBar" parent="."]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 24.0
-offset_top = 104.0
-offset_right = 620.0
-offset_bottom = 128.0
-mouse_filter = 2
-max_value = 720.0
-show_percentage = false
-
-[node name="SpeedButton" type="Button" parent="."]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -380.0
-offset_top = 12.0
-offset_right = -230.0
-offset_bottom = 162.0
-grow_horizontal = 0
-theme_override_font_sizes/font_size = 48
-text = "1x"
-
-[node name="PauseButton" type="Button" parent="."]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -214.0
-offset_top = 12.0
-offset_right = -24.0
-offset_bottom = 162.0
-grow_horizontal = 0
-theme_override_font_sizes/font_size = 38
-text = "PAUSE"
-
-[node name="IntegrityBar" type="ProgressBar" parent="."]
+[node name="TopPlate" type="Panel" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 24.0
-offset_top = 180.0
-offset_right = -24.0
-offset_bottom = 232.0
+offset_left = 14.0
+offset_top = 10.0
+offset_right = -14.0
+offset_bottom = 190.0
 grow_horizontal = 2
 mouse_filter = 2
-max_value = 100.0
-value = 100.0
-show_percentage = false
 
-[node name="HpLabel" type="Label" parent="IntegrityBar"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_font_sizes/font_size = 40
-text = "0 / 0"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ScrapLabel" type="Label" parent="."]
+[node name="WaveLabel" type="Label" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 24.0
-offset_top = 244.0
-offset_right = 540.0
-offset_bottom = 304.0
+offset_left = 46.0
+offset_top = 22.0
+offset_right = 560.0
+offset_bottom = 98.0
 mouse_filter = 2
-theme_override_font_sizes/font_size = 44
-text = "SCRAP 0"
+theme_type_variation = &"LabelHeading"
+theme_override_font_sizes/font_size = 64
+text = "WAVE 1"
+vertical_alignment = 1
 
-[node name="DataLabel" type="Label" parent="."]
+[node name="SpeedLabel" type="Label" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -540.0
-offset_top = 244.0
-offset_right = -24.0
-offset_bottom = 304.0
+offset_left = -480.0
+offset_top = 30.0
+offset_right = -352.0
+offset_bottom = 98.0
 grow_horizontal = 0
 mouse_filter = 2
-theme_override_font_sizes/font_size = 44
-text = "DATA 0"
+theme_type_variation = &"LabelNumber"
+theme_override_font_sizes/font_size = 56
+text = "1x"
 horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="TimerBar" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 46.0
+offset_top = 112.0
+offset_right = 466.0
+offset_bottom = 156.0
+mouse_filter = 2
+script = ExtResource("3_bar")
+segments = 24
+max_value = 720.0
+ceil_fill = false
+head_bright = true
+ticks = true
+
+[node name="TimerLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 482.0
+offset_top = 108.0
+offset_right = 640.0
+offset_bottom = 160.0
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+text = "24s"
+vertical_alignment = 1
+
+[node name="SpeedButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(148, 148)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -336.0
+offset_top = 26.0
+offset_right = -188.0
+offset_bottom = 174.0
+grow_horizontal = 0
+
+[node name="PauseButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(148, 148)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -180.0
+offset_top = 26.0
+offset_right = -32.0
+offset_bottom = 174.0
+grow_horizontal = 0
+
+[node name="IntegrityBar" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_top = 200.0
+offset_right = -16.0
+offset_bottom = 260.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("3_bar")
+max_value = 100.0
+value = 100.0
+ramp = true
+pocket_px = 270.0
+
+[node name="HpLabel" type="Label" parent="IntegrityBar"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -276.0
+offset_right = -14.0
+grow_horizontal = 0
+grow_vertical = 2
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+theme_override_font_sizes/font_size = 40
+text = "0 / 0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ScrapPlate" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 272.0
+offset_right = 520.0
+offset_bottom = 364.0
+mouse_filter = 2
+
+[node name="ScrapLabel" type="Label" parent="ScrapPlate"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 100.0
+offset_top = 8.0
+offset_right = 486.0
+offset_bottom = 84.0
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+text = "SCRAP 0"
+vertical_alignment = 1
+
+[node name="DataPlate" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -520.0
+offset_top = 272.0
+offset_right = -16.0
+offset_bottom = 364.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="DataLabel" type="Label" parent="DataPlate"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 100.0
+offset_top = 8.0
+offset_right = 486.0
+offset_bottom = 84.0
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+text = "DATA 0"
+vertical_alignment = 1
+
+[node name="WaveBanner" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 420.0
+offset_bottom = 632.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("4_banner")

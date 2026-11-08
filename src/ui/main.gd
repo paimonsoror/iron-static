@@ -4,6 +4,8 @@ extends Control
 ## runs before this node's _process each frame), this node renders and routes signals.
 
 var _controller: RunController
+## Pause the sim when the debug load wave is reached (static-crowd render bench, V1-03).
+var _hold: bool = false
 
 @onready var _battle: BattleView = %BattleView
 @onready var _hud: Hud = %Hud
@@ -24,10 +26,16 @@ func _ready() -> void:
 	_debug.band_forced.connect(_on_band_forced)
 	_debug.load_requested.connect(_on_load_requested)
 	_debug.best_wave_requested.connect(_on_best_wave_requested)
+	_debug.scenario_requested.connect(_on_scenario_requested)
+	_debug.run_requested.connect(_on_run_requested)
+	_debug.layer_toggled.connect(_on_layer_toggled)
+	_controller.load_finished.connect(_on_load_finished)
 	_controller.run_started.connect(_on_run_started)
 	_controller.run_ended.connect(_on_run_ended)
 	_debug.setup(_controller)
 	_debug.battle_view = _battle
+	_debug.visual = Game.visual
+	_hold = Game.debug_hold
 	_debug.force_perf = Game.perf_logging_forced()
 	if Game.debug_load:
 		Game.start_debug_load()
@@ -71,7 +79,32 @@ func _on_band_forced(band: int) -> void:
 
 func _on_load_requested() -> void:
 	_debug.force_perf = true
-	Game.start_debug_load()
+	_hold = false
+	Game.start_debug_load(RunController.LOAD_WAVE)
+
+
+func _on_scenario_requested(wave: int, hold: bool) -> void:
+	_debug.force_perf = true
+	_hold = hold
+	Log.info("[BENCH] scenario start wave=%d hold=%d tier=%s" % [wave, int(hold), Game.visual.quality.tier_name()])
+	Game.start_debug_load(wave)
+
+
+func _on_layer_toggled(layer: int) -> void:
+	var node: CanvasItem = _battle if layer == DebugOverlay.LAYER_BATTLEFIELD else _hud
+	node.visible = not node.visible
+	Log.info("[BENCH] layer=%d visible=%d" % [layer, int(node.visible)])
+
+
+func _on_run_requested() -> void:
+	_hold = false
+	_controller.paused = false
+
+
+func _on_load_finished(world: SimWorld) -> void:
+	if _hold:
+		_controller.paused = true
+	Log.info("[BENCH] load finished wave=%d enemies=%d hold=%d" % [world.wave, world.enemies.alive_count, int(_hold)])
 
 
 func _on_best_wave_requested(wave: int) -> void:

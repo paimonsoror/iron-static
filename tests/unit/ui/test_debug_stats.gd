@@ -72,3 +72,9 @@ func test_perf_line_format() -> void:
 	assert_str(DebugOverlay.perf_line(30.0, 20.0, 1.0, 5, 3, 7)).is_equal(
 		"[PERF] fps=30.0 min=20.0 tick_ms=1.00 enemies=5 thr=3 lost=7"
 	)
+
+
+func test_perf_line_appends_render_fields_after_existing_ones() -> void:
+	var line: String = DebugOverlay.perf_line(30.0, 20.0, 1.0, 5, 3, 7, " draws=12 tier=high")
+	assert_str(line).is_equal("[PERF] fps=30.0 min=20.0 tick_ms=1.00 enemies=5 thr=3 lost=7 draws=12 tier=high")
+	assert_str(line).starts_with("[PERF] fps=30.0 min=20.0 tick_ms=1.00 enemies=5")

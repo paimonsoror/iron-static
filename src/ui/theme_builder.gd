@@ -26,8 +26,22 @@ const VAR_LABEL_DIM: StringName = &"LabelDim"
 const VAR_LABEL_NUMBER: StringName = &"LabelNumber"
 const VAR_LABEL_HEADING: StringName = &"LabelHeading"
 const VAR_BUTTON_UNAFFORDABLE: StringName = &"ButtonUnaffordable"
+## V1-16 textured variations (built from `UiKit`; the defaults above stay flat until V1-17 switches the panel over):
+##   PanelContainer/Panel: PanelPlate, PanelPlateActive, PanelInset; Button: ButtonPlate, ButtonAffordable,
+##   ButtonChipActive (selected buy mode); TabBar/TabContainer: TabPlate.
+const VAR_PANEL_PLATE: StringName = &"PanelPlate"
+const VAR_PANEL_PLATE_ACTIVE: StringName = &"PanelPlateActive"
+const VAR_PANEL_INSET: StringName = &"PanelInset"
+const VAR_BUTTON_PLATE: StringName = &"ButtonPlate"
+const VAR_BUTTON_AFFORDABLE: StringName = &"ButtonAffordable"
+const VAR_BUTTON_CHIP_ACTIVE: StringName = &"ButtonChipActive"
+const VAR_TAB_PLATE: StringName = &"TabPlate"
+## V1-17: maxed cost button (plain plate, dim text).
+const VAR_BUTTON_MAXED: StringName = &"ButtonMaxed"
 
 const HEADING_WEIGHT: int = 600
+## OpenType "wght" axis tag as an int (a StringName key is ignored by FontVariation: headings rendered light).
+const WGHT_TAG: int = 0x77676874
 const CORNER: int = 8
 
 static var _shared: Theme = null
@@ -46,7 +60,7 @@ static func build() -> Theme:
 	var number: Font = load(FONT_NUMBER_PATH)
 	var heading := FontVariation.new()
 	heading.base_font = body
-	heading.variation_opentype = {&"wght": HEADING_WEIGHT}
+	heading.variation_opentype = {WGHT_TAG: HEADING_WEIGHT}
 	theme.default_font = body
 	theme.default_font_size = FONT_SIZE_BODY
 
@@ -55,6 +69,7 @@ static func build() -> Theme:
 	_build_panels(theme)
 	_build_tabs(theme, body)
 	_build_progress(theme)
+	_build_plates(theme)
 	return theme
 
 
@@ -171,3 +186,38 @@ static func _build_progress(theme: Theme) -> void:
 	theme.set_stylebox("fill", "ProgressBar", fill)
 	theme.set_color("font_color", "ProgressBar", Palette.TEXT)
 	theme.set_font_size("font_size", "ProgressBar", FONT_SIZE_BODY)
+
+
+## Textured variations from the ui_kit 9-slices (V1-16). Content margins follow the old flat boxes so sizes match.
+static func _build_plates(theme: Theme) -> void:
+	for pair: Array in [
+		[VAR_PANEL_PLATE, UiKit.plate(24, 24)],
+		[VAR_PANEL_PLATE_ACTIVE, UiKit.plate_active(24, 24)],
+		[VAR_PANEL_INSET, UiKit.inset(24, 24)],
+	]:
+		var var_name: StringName = pair[0]
+		var sb: StyleBoxTexture = pair[1]
+		theme.set_type_variation(var_name, "PanelContainer")
+		theme.set_stylebox("panel", var_name, sb)
+	var m: int = MARGIN_V
+	theme.set_type_variation(VAR_BUTTON_PLATE, "Button")
+	theme.set_stylebox("normal", VAR_BUTTON_PLATE, UiKit.button(28, m))
+	theme.set_stylebox("hover", VAR_BUTTON_PLATE, UiKit.button(28, m))
+	theme.set_stylebox("pressed", VAR_BUTTON_PLATE, UiKit.button_pressed(28, m))
+	theme.set_stylebox("disabled", VAR_BUTTON_PLATE, UiKit.button_disabled(28, m))
+	theme.set_type_variation(VAR_BUTTON_AFFORDABLE, VAR_BUTTON_PLATE)
+	theme.set_stylebox("normal", VAR_BUTTON_AFFORDABLE, UiKit.button_affordable(28, m))
+	theme.set_stylebox("hover", VAR_BUTTON_AFFORDABLE, UiKit.button_affordable(28, m))
+	theme.set_type_variation(VAR_BUTTON_CHIP_ACTIVE, VAR_BUTTON_PLATE)
+	theme.set_stylebox("normal", VAR_BUTTON_CHIP_ACTIVE, UiKit.button_active(28, m))
+	theme.set_stylebox("hover", VAR_BUTTON_CHIP_ACTIVE, UiKit.button_active(28, m))
+	theme.set_type_variation(VAR_TAB_PLATE, "TabBar")
+	theme.set_stylebox("tab_selected", VAR_TAB_PLATE, UiKit.tab_active(24, m))
+	theme.set_stylebox("tab_unselected", VAR_TAB_PLATE, UiKit.tab(24, m))
+	theme.set_stylebox("tab_hovered", VAR_TAB_PLATE, UiKit.tab(24, m))
+	# V1-17: the unaffordable cost button wears the dim plate (same text color, never red); MAX wears the plain plate.
+	for state: String in ["normal", "hover", "pressed"]:
+		theme.set_stylebox(state, VAR_BUTTON_UNAFFORDABLE, UiKit.button_disabled(28, m))
+	theme.set_type_variation(VAR_BUTTON_MAXED, VAR_BUTTON_PLATE)
+	theme.set_stylebox("disabled", VAR_BUTTON_MAXED, UiKit.button(28, m))
+	theme.set_color("font_disabled_color", VAR_BUTTON_MAXED, Palette.TEXT_DIM)

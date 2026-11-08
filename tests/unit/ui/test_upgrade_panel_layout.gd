@@ -52,12 +52,12 @@ func _check(height: float) -> void:
 	for i: int in tabs.size() - 1:
 		assert_bool(tabs[i].intersects(tabs[i + 1])).is_false()
 	assert_bool(pr.encloses(scroll)).is_true()
-	# Rows: 88 dp = 231 px tall, buy button >= 148 px, inside the row, rows do not overlap.
+	# Rows: UpgradeRow.ROW_MIN_H tall, buy button >= 148 px, inside the row, rows do not overlap.
 	var rows: Array[Rect2] = []
 	for i: int in 5:
 		var row: UpgradeRow = panel.row_at(i)
 		assert_bool(row.visible).is_true()
-		assert_float(row.size.y).is_greater_equal(231.0)
+		assert_float(row.size.y).is_greater_equal(UpgradeRow.ROW_MIN_H)
 		var cost: Button = row.get_node("%BuyButton")
 		assert_float(cost.size.y).is_greater_equal(MIN_TOUCH)
 		assert_float(cost.size.x).is_greater_equal(120.0 * ThemeBuilder.PX_PER_DP)
@@ -66,11 +66,14 @@ func _check(height: float) -> void:
 	for i: int in rows.size() - 1:
 		assert_bool(rows[i].intersects(rows[i + 1])).is_false()
 	# At least two full rows are visible without scrolling; ARMS needs the scroll for the rest.
-	assert_float(scroll.size.y).is_greater_equal(2.0 * 231.0)
+	assert_float(scroll.size.y).is_greater_equal(2.0 * UpgradeRow.ROW_MIN_H)
 	var content: Control = panel.get_node("%RowsBox")
 	assert_float(content.size.y).is_greater(scroll.size.y)
 	print(
-		"[layout %d] panel %s scroll h %.0f visible rows %.1f" % [int(height), pr, scroll.size.y, scroll.size.y / 241.0]
+		(
+			"[layout %d] panel %s scroll h %.0f visible rows %.1f"
+			% [int(height), pr, scroll.size.y, scroll.size.y / (UpgradeRow.ROW_MIN_H + 8.0)]
+		)
 	)
 
 

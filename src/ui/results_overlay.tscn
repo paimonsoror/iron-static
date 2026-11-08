@@ -20,77 +20,162 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.0275, 0.0353, 0.0471, 0.82)
+color = Color(0.0275, 0.0353, 0.0471, 0.86)
 
-[node name="Column" type="VBoxContainer" parent="."]
+[node name="Holder" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="Holder"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(940, 0)
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -440.0
-offset_top = -520.0
-offset_right = 440.0
-offset_bottom = 520.0
+offset_left = -470.0
+offset_top = -1.0
+offset_right = 470.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 28
+theme_type_variation = &"PanelPlate"
 
-[node name="TitleLabel" type="Label" parent="Column"]
+[node name="Column" type="VBoxContainer" parent="Holder/Card"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 24
+
+[node name="TitleLabel" type="Label" parent="Holder/Card/Column"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 76
+theme_type_variation = &"LabelHeading"
+theme_override_font_sizes/font_size = 64
 text = "DEPLOYMENT ENDED"
 horizontal_alignment = 1
+autowrap_mode = 3
 
-[node name="WaveLabel" type="Label" parent="Column"]
+[node name="Stripe" type="Panel" parent="Holder/Card/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Stats" type="PanelContainer" parent="Holder/Card/Column"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 56
-horizontal_alignment = 1
+mouse_filter = 2
+theme_type_variation = &"PanelInset"
 
-[node name="TimeLabel" type="Label" parent="Column"]
+[node name="Rows" type="VBoxContainer" parent="Holder/Card/Column/Stats"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 56
-horizontal_alignment = 1
+mouse_filter = 2
+theme_override_constants/separation = 14
 
-[node name="KillsLabel" type="Label" parent="Column"]
+[node name="WaveRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 56
-horizontal_alignment = 1
+mouse_filter = 2
+theme_override_constants/separation = 18
 
-[node name="CauseLabel" type="Label" parent="Column"]
+[node name="WaveLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/WaveRow"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 56
-horizontal_alignment = 1
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 46
+vertical_alignment = 1
 
-[node name="DataLabel" type="Label" parent="Column"]
+[node name="TimeRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 56
-horizontal_alignment = 1
+mouse_filter = 2
+theme_override_constants/separation = 18
 
-[node name="ScrapLabel" type="Label" parent="Column"]
+[node name="TimeLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/TimeRow"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 56
-horizontal_alignment = 1
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 46
+vertical_alignment = 1
 
-[node name="BestLabel" type="Label" parent="Column"]
+[node name="KillsRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"LabelDim"
-theme_override_font_sizes/font_size = 56
-horizontal_alignment = 1
+mouse_filter = 2
+theme_override_constants/separation = 18
 
-[node name="RedeployButton" type="Button" parent="Column"]
+[node name="KillsLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/KillsRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 46
+vertical_alignment = 1
+
+[node name="CauseRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="CauseLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/CauseRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 46
+vertical_alignment = 1
+
+[node name="DataRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="DataLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/DataRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 46
+vertical_alignment = 1
+
+[node name="ScrapRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="ScrapLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/ScrapRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 46
+vertical_alignment = 1
+
+[node name="BestRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="BestLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/BestRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 46
+vertical_alignment = 1
+
+[node name="RedeployButton" type="Button" parent="Holder/Card/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 2
+theme_type_variation = &"ButtonAffordable"
 theme_override_font_sizes/font_size = 64
 text = "REDEPLOY"

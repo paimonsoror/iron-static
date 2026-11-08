@@ -18,6 +18,7 @@ var index: int = -1
 var upgrade_id: String = ""
 var tab: String = ""
 var name_text: String = ""
+var level: int = 0
 var level_text: String = ""
 var value_text: String = ""
 var cost_text: String = ""
@@ -28,13 +29,14 @@ var tooltip_text: String = ""
 var icon_color: Color = Palette.TEXT_DIM
 
 
-static func from_preview(preview: UpgradePreview, can_afford: bool, level: int, def: RunUpgradeDef) -> UpgradeRowModel:
+static func from_preview(preview: UpgradePreview, can_afford: bool, lvl: int, def: RunUpgradeDef) -> UpgradeRowModel:
 	var m: UpgradeRowModel = UpgradeRowModel.new()
 	m.index = preview.index
 	m.upgrade_id = def.id
 	m.tab = def.tab
 	m.name_text = Strings.get_text("upgrade." + def.id)
-	m.level_text = Strings.fill1("row.level", "n", str(level))
+	m.level = lvl
+	m.level_text = Strings.fill1("row.level", "n", str(lvl))
 	m.maxed = preview.maxed
 	m.affordable = can_afford and not preview.maxed
 	m.milestone_glow = not preview.maxed and preview.levels_to_milestone <= MILESTONE_GLOW_LEVELS
@@ -47,7 +49,8 @@ static func from_preview(preview: UpgradePreview, can_afford: bool, level: int, 
 		var nxt: String = format_value(def.id, preview.next_value)
 		m.value_text = Strings.fill("row.value", {"a": cur, "b": nxt})
 		m.cost_text = NumberFormat.format(preview.cost)
-	m.tooltip_text = tooltip_for(def)
+	# The strings CSV holds a literal backslash-n; make it a real line break.
+	m.tooltip_text = tooltip_for(def).replace("\\n", "\n")
 	return m
 
 

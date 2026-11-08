@@ -18,7 +18,7 @@ layout_mode = 0
 offset_left = 8.0
 offset_top = 312.0
 offset_right = 860.0
-offset_bottom = 1000.0
+offset_bottom = 1320.0
 mouse_filter = 2
 color = Color(0.051, 0.0667, 0.0902, 0.72)
 
@@ -26,9 +26,9 @@ color = Color(0.051, 0.0667, 0.0902, 0.72)
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 16.0
-offset_top = 520.0
+offset_top = 720.0
 offset_right = 850.0
-offset_bottom = 996.0
+offset_bottom = 1316.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 30
 
@@ -121,3 +121,103 @@ offset_right = 426.0
 offset_bottom = 510.0
 theme_override_font_sizes/font_size = 30
 text = "BW100"
+
+[node name="THigh" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 520.0
+offset_right = 146.0
+offset_bottom = 610.0
+theme_override_font_sizes/font_size = 30
+text = "HIGH"
+
+[node name="TMid" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 156.0
+offset_top = 520.0
+offset_right = 286.0
+offset_bottom = 610.0
+theme_override_font_sizes/font_size = 30
+text = "MID"
+
+[node name="TLow" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 296.0
+offset_top = 520.0
+offset_right = 426.0
+offset_bottom = 610.0
+theme_override_font_sizes/font_size = 30
+text = "LOW"
+
+[node name="VsyncButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 436.0
+offset_top = 520.0
+offset_right = 566.0
+offset_bottom = 610.0
+theme_override_font_sizes/font_size = 26
+text = "VSYNC"
+
+[node name="D40" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 620.0
+offset_right = 146.0
+offset_bottom = 710.0
+theme_override_font_sizes/font_size = 30
+text = "D40"
+
+[node name="D100" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 156.0
+offset_top = 620.0
+offset_right = 286.0
+offset_bottom = 710.0
+theme_override_font_sizes/font_size = 30
+text = "D100"
+
+[node name="D165" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 296.0
+offset_top = 620.0
+offset_right = 426.0
+offset_bottom = 710.0
+theme_override_font_sizes/font_size = 30
+text = "D165"
+
+[node name="RunButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 436.0
+offset_top = 620.0
+offset_right = 566.0
+offset_bottom = 710.0
+theme_override_font_sizes/font_size = 30
+text = "RUN"
+
+[node name="NoBf" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 576.0
+offset_top = 620.0
+offset_right = 706.0
+offset_bottom = 710.0
+theme_override_font_sizes/font_size = 28
+text = "NOBF"
+
+[node name="NoHud" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 716.0
+offset_top = 620.0
+offset_right = 846.0
+offset_bottom = 710.0
+theme_override_font_sizes/font_size = 26
+text = "NOHUD"

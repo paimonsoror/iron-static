@@ -10,6 +10,8 @@ var wave_text: String = ""
 var hp_text: String = ""
 var scrap_text: String = ""
 var data_text: String = ""
+## Whole seconds left in the wave ("14s"); empty until a wave_tick is given.
+var timer_text: String = ""
 
 var _last_s: float = -1.0
 var _wave: int = -1
@@ -17,6 +19,7 @@ var _hp: int = -1
 var _max_hp: int = -1
 var _scrap_key: String = ""
 var _data_key: String = ""
+var _secs_left: int = -1
 
 
 ## True when `now_s` is at least REFRESH_S after the last accepted refresh (the first call is always due).
@@ -28,15 +31,22 @@ func due(now_s: float) -> bool:
 
 
 ## Throttled: recomputes the texts only when `due(now_s)`. Returns true when it recomputed.
-func update(now_s: float, wave: int, hp: float, max_hp: float, scrap: BigNum, data: BigNum) -> bool:
+func update(
+	now_s: float, wave: int, hp: float, max_hp: float, scrap: BigNum, data: BigNum, wave_tick: int = -1
+) -> bool:
 	if not due(now_s):
 		return false
-	set_values(wave, hp, max_hp, scrap, data)
+	set_values(wave, hp, max_hp, scrap, data, wave_tick)
 	return true
 
 
 ## Unthrottled recompute; a string is rebuilt only when its source value changed.
-func set_values(wave: int, hp: float, max_hp: float, scrap: BigNum, data: BigNum) -> void:
+func set_values(wave: int, hp: float, max_hp: float, scrap: BigNum, data: BigNum, wave_tick: int = -1) -> void:
+	if wave_tick >= 0:
+		var secs: int = ceili(float(maxi(Ticks.WAVE_TICKS - wave_tick, 0)) / float(Ticks.TICK_RATE))
+		if secs != _secs_left:
+			_secs_left = secs
+			timer_text = Strings.fill1("hud.timer", "n", str(secs))
 	if wave != _wave:
 		_wave = wave
 		wave_text = Strings.fill1("hud.wave", "n", str(wave))

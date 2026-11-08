@@ -80,7 +80,7 @@ func test_refresh_follows_scrap_and_does_not_mutate_world() -> void:
 	w.economy.scrap = BigNum.from_float(1000.0)
 	var mid: String = w.state_hash()
 	panel.refresh()
-	assert_str(button.theme_type_variation).is_equal("")
+	assert_str(button.theme_type_variation).is_equal(str(ThemeBuilder.VAR_BUTTON_AFFORDABLE))
 	assert_str(w.state_hash()).is_equal(mid)
 	assert_str(before).is_not_equal(mid)
 
@@ -91,3 +91,62 @@ func test_panel_has_no_process_and_a_tenth_second_timer() -> void:
 	var timer: Timer = panel.get_node("%RefreshTimer")
 	assert_float(timer.wait_time).is_equal(0.1)
 	assert_bool(timer.is_stopped()).is_false()
+
+
+func test_code_driven_tab_and_buy_mode_switch_leaves_one_selected() -> void:
+	var panel: UpgradePanel = _panel()
+	panel.bind(_world(99))
+	for id: String in ["chassis", "intel", "arms"]:
+		assert_bool(panel.set_tab(id)).is_true()
+	for count: int in [10, 100, -1, 1]:
+		assert_bool(panel.set_buy_mode(count)).is_true()
+	var tabs_on: int = 0
+	for id: String in UpgradePanelModel.TAB_IDS:
+		var tb: Button = panel.get_node("%TabBar/Tab_" + id)
+		assert_bool(tb.focus_mode == Control.FOCUS_NONE).is_true()
+		tabs_on += 1 if tb.button_pressed else 0
+	var chips_on: int = 0
+	for k: int in 4:
+		var cb: Button = panel.get_node("%BuyBar/Buy_" + str(k))
+		assert_bool(cb.focus_mode == Control.FOCUS_NONE).is_true()
+		chips_on += 1 if cb.button_pressed else 0
+	assert_int(tabs_on).is_equal(1)
+	assert_int(chips_on).is_equal(1)
+	assert_bool((panel.get_node("%BuyBar/Buy_0") as Button).button_pressed).is_true()
+
+
+func test_row_cost_states_icon_and_maxed_plate() -> void:
+	var panel: UpgradePanel = _panel()
+	var w: SimWorld = _world(0)
+	panel.bind(w)
+	var row: UpgradeRow = panel.row_at(1)  # cycle_rate costs 25, start scrap 15
+	var button: Button = row.get_node("%BuyButton")
+	assert_int(row.cost_state()).is_equal(UpgradeRow.CostState.LOCKED)
+	assert_object(button.icon).is_same(UiKit.lock_icon())
+	assert_object((row.get_node("%Icon") as TextureRect).texture).is_same(ArtSlots.texture("icon_cycle_rate"))
+	w.economy.scrap = BigNum.from_float(1000.0)
+	panel.refresh()
+	assert_int(row.cost_state()).is_equal(UpgradeRow.CostState.AFFORDABLE)
+	assert_object(button.icon).is_same(ArtSlots.texture("icon_cur_scrap"))
+	assert_bool((row.get_node("%Fx") as RowFx).pulse).is_true()
+	w.run_levels[1] = w.config.upgrades[1].l_cap
+	panel.refresh()
+	assert_int(row.cost_state()).is_equal(UpgradeRow.CostState.MAXED)
+	assert_bool(button.disabled).is_true()
+	assert_str(button.theme_type_variation).is_equal(str(ThemeBuilder.VAR_BUTTON_MAXED))
+	assert_str(button.text).is_equal("MAX")
+	assert_bool((row.get_node("%Fx") as RowFx).pulse).is_false()
+
+
+func test_milestone_ring_follows_level_and_level_text_uses_number_font() -> void:
+	var panel: UpgradePanel = _panel()
+	var w: SimWorld = _world(0)
+	w.run_levels[0] = 24
+	panel.bind(w)
+	var row: UpgradeRow = panel.row_at(0)
+	assert_bool((row.get_node("%Fx") as RowFx).ring).is_true()
+	w.run_levels[0] = 25
+	panel.refresh()
+	assert_bool((row.get_node("%Fx") as RowFx).ring).is_false()
+	var level: Label = row.get_node("%LevelLabel")
+	assert_str(str(level.theme_type_variation)).is_equal(str(ThemeBuilder.VAR_LABEL_NUMBER))

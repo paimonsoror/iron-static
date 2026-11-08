@@ -9,7 +9,10 @@ extends PanelContainer
 signal buy_requested(upgrade_index: int, count: int)
 
 const REFRESH_S: float = 0.1
-const PANEL_MARGIN: float = 12.0
+const PANEL_MARGIN_H: float = 20.0
+const PANEL_MARGIN_V: float = 16.0
+const TAB_ICON_PX: int = 56
+const CHIP_FONT_SIZE: int = 48
 const ROW_SCENE: PackedScene = preload("res://src/ui/upgrade_row.tscn")
 
 var model: UpgradePanelModel = UpgradePanelModel.new()
@@ -32,12 +35,15 @@ var _buy_buttons: Array[Button] = []
 
 func _ready() -> void:
 	theme = ThemeBuilder.shared()
-	var frame: StyleBoxFlat = theme.get_stylebox("panel", "PanelContainer").duplicate() as StyleBoxFlat
-	frame.set_content_margin_all(PANEL_MARGIN)
-	add_theme_stylebox_override("panel", frame)
+	add_theme_stylebox_override("panel", UiKit.plate(PANEL_MARGIN_H, PANEL_MARGIN_V))
+	var brackets := Control.new()
+	brackets.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(brackets)
+	UiKit.add_brackets(brackets)
 	_setup_tabs()
 	_setup_buy_modes()
 	_intel_label.text = Strings.get_text("panel.intel_stub")
+	_intel_label.add_theme_stylebox_override("normal", UiKit.inset(24, 40))
 	_hint_label.hide()
 	_intel_label.hide()
 	_timer.wait_time = REFRESH_S
@@ -71,7 +77,7 @@ func buy_mode() -> int:
 func set_tab(tab_id: String) -> bool:
 	if not model.set_tab(tab_id):
 		return false
-	_tab_buttons[tab_id].set_pressed_no_signal(true)
+	_show_selected_tab()
 	_scroll.scroll_vertical = 0
 	refresh()
 	return true
@@ -81,7 +87,7 @@ func set_tab(tab_id: String) -> bool:
 func set_buy_mode(count: int) -> bool:
 	if not model.set_buy_mode(count):
 		return false
-	_buy_buttons[UpgradePanelModel.BUY_MODES.find(count)].set_pressed_no_signal(true)
+	_show_selected_mode()
 	refresh()
 	return true
 
@@ -145,27 +151,61 @@ func _on_row_buy(upgrade_index: int) -> void:
 
 func _setup_tabs() -> void:
 	var group := ButtonGroup.new()
+	var normal: StyleBoxTexture = UiKit.tab(12, 10)
+	var active: StyleBoxTexture = UiKit.tab_active(12, 10)
 	for tab_id: String in UpgradePanelModel.TAB_IDS:
 		var b: Button = _tab_bar.get_node("Tab_" + tab_id)
 		b.toggle_mode = true
 		b.button_group = group
 		b.text = Strings.get_text("tab." + tab_id)
 		b.pressed.connect(_on_tab_pressed.bind(tab_id))
+		_touch_style(b, normal, normal, active, active)
+		for color_name: String in ["font_color", "font_hover_color", "font_focus_color"]:
+			b.add_theme_color_override(color_name, Palette.AMBER)
+		for color_name: String in ["font_pressed_color", "font_hover_pressed_color"]:
+			b.add_theme_color_override(color_name, Palette.TEXT)
+		b.add_theme_font_override("font", theme.get_font("font", ThemeBuilder.VAR_LABEL_HEADING))
+		b.add_theme_constant_override("icon_max_width", TAB_ICON_PX)
+		b.add_theme_constant_override("h_separation", 0)
+		UiKit.set_icon(b, "icon_tab_" + tab_id)
+		b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		_tab_buttons[tab_id] = b
-	_tab_buttons[model.active_tab].set_pressed_no_signal(true)
+	_show_selected_tab()
 
 
 func _setup_buy_modes() -> void:
 	var group := ButtonGroup.new()
 	(_buy_bar.get_node("BuyLabel") as Label).text = Strings.get_text("buy.label")
+	var normal: StyleBoxTexture = UiKit.button(12, 10)
+	var active: StyleBoxTexture = UiKit.button_active(12, 10)
+	var font: Font = theme.get_font("font", ThemeBuilder.VAR_LABEL_NUMBER)
 	for k: int in UpgradePanelModel.BUY_MODES.size():
 		var b: Button = _buy_bar.get_node("Buy_%d" % k)
 		b.toggle_mode = true
 		b.button_group = group
 		b.text = Strings.get_text(UpgradePanelModel.BUY_KEYS[k])
 		b.pressed.connect(_on_buy_mode_pressed.bind(UpgradePanelModel.BUY_MODES[k]))
+		# Selected chip = `button_plate_active`; hover and focus look like normal so a swipe leaves no stuck highlight (Q55).
+		_touch_style(b, normal, normal, active, active)
+		b.add_theme_font_override("font", font)
+		b.add_theme_font_size_override("font_size", CHIP_FONT_SIZE)
+		if UpgradePanelModel.BUY_MODES[k] == -1:
+			var strip: Panel = UiKit.add_hazard(b, 28.0, 16.0)
+			strip.name = "Hazard"
 		_buy_buttons.append(b)
-	_buy_buttons[UpgradePanelModel.BUY_MODES.find(model.buy_mode)].set_pressed_no_signal(true)
+	_show_selected_mode()
+
+
+## Touch-safe styling of a toggle button: no focus box (a tap would leave it stuck), hover = normal.
+## `on` / `hover_on` are the selected plates.
+func _touch_style(b: Button, normal: StyleBox, hover: StyleBox, on: StyleBox, hover_on: StyleBox) -> void:
+	b.focus_mode = Control.FOCUS_NONE
+	b.add_theme_stylebox_override("normal", normal)
+	b.add_theme_stylebox_override("hover", hover)
+	b.add_theme_stylebox_override("pressed", on)
+	b.add_theme_stylebox_override("hover_pressed", hover_on)
+	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 
 func _on_tab_pressed(tab_id: String) -> void:
@@ -174,3 +214,16 @@ func _on_tab_pressed(tab_id: String) -> void:
 
 func _on_buy_mode_pressed(count: int) -> void:
 	set_buy_mode(count)
+
+
+## `set_pressed_no_signal` does not release the other buttons of a ButtonGroup: set every button explicitly
+## (otherwise a code-driven switch leaves two tabs or chips highlighted).
+func _show_selected_tab() -> void:
+	for tab_id: String in _tab_buttons:
+		_tab_buttons[tab_id].set_pressed_no_signal(tab_id == model.active_tab)
+
+
+func _show_selected_mode() -> void:
+	var selected: int = UpgradePanelModel.BUY_MODES.find(model.buy_mode)
+	for k: int in _buy_buttons.size():
+		_buy_buttons[k].set_pressed_no_signal(k == selected)

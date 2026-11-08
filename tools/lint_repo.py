@@ -63,6 +63,11 @@ def check_bytes(path: str, data: bytes) -> list[Finding]:
         found.append(("encoding-bom", path, 1, "UTF-8 BOM present", True))
     if b"\r\n" in data:
         found.append(("encoding-crlf", path, 1, "CRLF line endings", True))
+    # An invisible U+FEFF inside a .gd file (e.g. a BOM literal in a string) is dropped by Godot's
+    # binary script tokenization on export, silently changing behavior on device. Use 0xFEFF instead.
+    if path.endswith(".gd") and b"\xef\xbb\xbf" in data[3:]:
+        line = data[: data.index(b"\xef\xbb\xbf", 3)].count(b"\n") + 1
+        found.append(("encoding-inline-bom", path, line, "U+FEFF character inside a .gd file", True))
     return found
 
 
@@ -206,6 +211,7 @@ def self_test() -> int:
             continue
         expect(fx.name, check_file(m.group(1), text.encode("utf-8"), set()), None if m.group(2) == "clean" else m.group(2))
     expect("synthetic bom", check_file("src/x.gd", b"\xef\xbb\xbfclass_name X\n", set()), "encoding-bom")
+    expect("synthetic inline bom", check_file("src/x.gd", b'var a := "\xef\xbb\xbf"\n', set()), "encoding-inline-bom")
     expect("synthetic crlf", check_file("src/x.gd", b"class_name X\r\n", set()), "encoding-crlf")
     big = ("class_name Big\n" + "var a: int = 0\n" * 520).encode()
     expect("synthetic 520 lines", check_file("src/big.gd", big, set()), "file-size")

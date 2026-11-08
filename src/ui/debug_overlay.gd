@@ -8,6 +8,10 @@ extends Control
 ## B0..B3 force the displayed exposure band (view only, persists while the overlay is hidden), AUTO clears the
 ## override, LOAD restarts as the high-load scenario (wave 60, invulnerable; M1-25). Second row (y 420-510):
 ## BW0, BW12, BW100 set the in-memory best wave (M2-12); it applies from the next run start or redeploy.
+## Third row (y 520-610, V1-03): HIGH, MID, LOW switch the VisualQuality tier; VSYNC toggles vsync (uncapped fps).
+## Fourth row (y 620-710): D40, D100, D165 start a held load scenario (static crowd of about 40/100/165 enemies,
+## sim paused when reached; render-cost bench), RUN resumes the sim, NOBF / NOHUD hide the battlefield / the HUD+panel
+## (cost split: draws and fps with one layer off). Every press logs a [BENCH] line.
 ## [PERF] lines every PERF_PERIOD_S through Log.info while the overlay is shown or `force_perf` is true; with
 ## both off the overlay does no per-frame work at all. The text is rewritten at TEXT_REFRESH_S into a reused
 ## PackedStringArray (no per-frame allocation).
@@ -15,6 +19,9 @@ extends Control
 signal band_forced(band: int)
 signal load_requested
 signal best_wave_requested(wave: int)
+signal scenario_requested(wave: int, hold: bool)
+signal run_requested
+signal layer_toggled(layer: int)
 
 const CORNER_PX: float = 100.0
 const DOUBLE_TAP_MS: int = 800
@@ -23,17 +30,26 @@ const PERF_PERIOD_S: float = 10.0
 const TEXT_REFRESH_S: float = 0.25
 const FPS_WINDOW: int = 60
 const TICK_WINDOW: int = 120
-const LINE_COUNT: int = 13
+const LINE_COUNT: int = 15
+## Layers for layer_toggled.
+const LAYER_BATTLEFIELD: int = 0
+const LAYER_HUD: int = 1
+## Held scenario load waves (alive enemies when reached: about 40, 100, 162; measured with sim_run, see docs/perf).
+const SCENARIO_WAVES: Array[int] = [14, 19, 30]
 const BEST_WAVES: Array[int] = [0, 12, 100]
 
 ## Set by the owner when the [PERF] log must run even with the overlay hidden (--debug-perf, load mode).
 var force_perf: bool = false
 ## Set by the owner (main.gd) so the overlay can show the view's event-ring loss counter.
 var battle_view: BattleView
+## Set by the owner (main.gd): the tier switch buttons change it.
+var visual: VisualSettings = VisualSettings.new()
 
 var _controller: RunController
 var _fps := DebugStats.new(FPS_WINDOW)
 var _tick_ms := DebugStats.new(TICK_WINDOW)
+var _render := RenderSampler.new()
+var _render_ready: bool = false
 var _lines := PackedStringArray()
 var _since_perf: float = 0.0
 var _since_text: float = TEXT_REFRESH_S
@@ -46,6 +62,11 @@ var _press_ms: int = -1
 @onready var _auto_button: Button = %AutoButton
 @onready var _load_button: Button = %LoadButton
 @onready var _bw_buttons: Array[Button] = [%BW0, %BW12, %BW100]
+@onready var _tier_buttons: Array[Button] = [%THigh, %TMid, %TLow]
+@onready var _vsync_button: Button = %VsyncButton
+@onready var _scn_buttons: Array[Button] = [%D40, %D100, %D165]
+@onready var _run_button: Button = %RunButton
+@onready var _layer_buttons: Array[Button] = [%NoBf, %NoHud]
 
 
 func _ready() -> void:
@@ -62,6 +83,19 @@ func _ready() -> void:
 	for i: int in _bw_buttons.size():
 		_style_button(_bw_buttons[i])
 		_bw_buttons[i].pressed.connect(_on_best_wave_pressed.bind(BEST_WAVES[i]))
+	for i: int in _tier_buttons.size():
+		_style_button(_tier_buttons[i])
+		_tier_buttons[i].pressed.connect(_on_tier_pressed.bind(i))
+	for i: int in _scn_buttons.size():
+		_style_button(_scn_buttons[i])
+		_scn_buttons[i].pressed.connect(_on_scenario_pressed.bind(SCENARIO_WAVES[i]))
+	_style_button(_vsync_button)
+	_style_button(_run_button)
+	for i: int in _layer_buttons.size():
+		_style_button(_layer_buttons[i])
+		_layer_buttons[i].pressed.connect(_on_layer_pressed.bind(i))
+	_vsync_button.pressed.connect(_on_vsync_pressed)
+	_run_button.pressed.connect(_on_run_pressed)
 
 
 func setup(controller: RunController) -> void:
@@ -71,11 +105,17 @@ func setup(controller: RunController) -> void:
 ## Formats the periodic perf line (parsed by M1-25: keep the exact shape).
 ## Optional fields are appended after `enemies=` only (the smoke parser ignores trailing text).
 static func perf_line(
-	fps_avg: float, fps_min: float, tick_ms: float, enemies: int, spawn_throttled: int = 0, events_lost: int = 0
+	fps_avg: float,
+	fps_min: float,
+	tick_ms: float,
+	enemies: int,
+	spawn_throttled: int = 0,
+	events_lost: int = 0,
+	extra: String = ""
 ) -> String:
 	return (
-		"[PERF] fps=%.1f min=%.1f tick_ms=%.2f enemies=%d thr=%d lost=%d"
-		% [fps_avg, fps_min, tick_ms, enemies, spawn_throttled, events_lost]
+		"[PERF] fps=%.1f min=%.1f tick_ms=%.2f enemies=%d thr=%d lost=%d%s"
+		% [fps_avg, fps_min, tick_ms, enemies, spawn_throttled, events_lost, extra]
 	)
 
 
@@ -122,7 +162,11 @@ func _process(delta: float) -> void:
 		return
 	if _controller == null or _controller.world == null:
 		return
+	if not _render_ready:
+		_render_ready = true
+		_render.setup(get_viewport())
 	_fps.add(Engine.get_frames_per_second())
+	_render.sample(delta)
 	if _controller.last_ticks > 0:
 		_tick_ms.add(float(_controller.last_usec) / 1000.0 / float(_controller.last_ticks))
 	_since_perf += delta
@@ -135,7 +179,8 @@ func _process(delta: float) -> void:
 				_tick_ms.period_average(),
 				_controller.world.enemies.alive_count,
 				_controller.world.run.spawn_throttled,
-				_events_lost()
+				_events_lost(),
+				_render.take_suffix(visual.quality.tier_name())
 			)
 		)
 		_fps.reset_period()
@@ -175,6 +220,23 @@ func _refresh_text(w: SimWorld) -> void:
 		else "v" + Game.VERSION
 	)
 	_lines[12] = "BEST WAVE %d (BW sets it; applies next run)" % _controller.best_wave_s1
+	_lines[13] = (
+		"DRAWS %d  OBJ %d  PRIMS %d"
+		% [
+			int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)),
+			int(Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)),
+			int(Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)),
+		]
+	)
+	_lines[14] = (
+		"TEX %.1f  VID %.1f MB  TIER %s  VSYNC %s"
+		% [
+			Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED) / RenderSampler.MB,
+			Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / RenderSampler.MB,
+			visual.quality.tier_name().to_upper(),
+			"off" if DisplayServer.window_get_vsync_mode() == DisplayServer.VSYNC_DISABLED else "on",
+		]
+	)
 	_stats_label.text = "\n".join(_lines)
 
 
@@ -196,6 +258,32 @@ func _on_best_wave_pressed(wave: int) -> void:
 
 func _on_load_pressed() -> void:
 	load_requested.emit()
+
+
+func _on_tier_pressed(idx: int) -> void:
+	visual.set_tier(idx as VisualQuality.Tier)
+	_since_text = TEXT_REFRESH_S
+	Log.info("[BENCH] tier=%s" % visual.quality.tier_name())
+
+
+func _on_scenario_pressed(wave: int) -> void:
+	scenario_requested.emit(wave, true)
+
+
+func _on_layer_pressed(layer: int) -> void:
+	layer_toggled.emit(layer)
+
+
+func _on_run_pressed() -> void:
+	run_requested.emit()
+	Log.info("[BENCH] run resumed")
+
+
+func _on_vsync_pressed() -> void:
+	var off: bool = DisplayServer.window_get_vsync_mode() != DisplayServer.VSYNC_DISABLED
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED if off else DisplayServer.VSYNC_ENABLED)
+	_since_text = TEXT_REFRESH_S
+	Log.info("[BENCH] vsync=%s" % ("off" if off else "on"))
 
 
 func _style_button(button: Button) -> void:

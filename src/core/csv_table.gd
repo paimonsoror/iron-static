@@ -69,7 +69,9 @@ func get_value(row_index: int, column_name: String) -> String:
 
 ## Splits text into records. Returns an error message or "". Fills `out` and 1-based start lines.
 static func _tokenize(text: String, out: Array[PackedStringArray], lines: PackedInt32Array) -> String:
-	if text.begins_with("﻿"):
+	# Compare the code point: a literal U+FEFF in a string is dropped by Godot's binary script
+	# tokenization on export, which made this test always true on Android (first char eaten).
+	if not text.is_empty() and text.unicode_at(0) == 0xFEFF:
 		text = text.substr(1)
 	var fields: PackedStringArray = PackedStringArray()
 	var field: String = ""

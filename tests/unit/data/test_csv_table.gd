@@ -33,7 +33,7 @@ func test_quoted_fields() -> void:
 
 
 func test_crlf_bom_and_trailing_blank_fields() -> void:
-	var t: CsvTable = CsvTable.parse("﻿a,b,c\r\n1,,3\r\n,,\r\n")
+	var t: CsvTable = CsvTable.parse(String.chr(0xFEFF) + "a,b,c\r\n1,,3\r\n,,\r\n")
 	assert_str(t.error).is_empty()
 	assert_int(t.rows.size()).is_equal(2)
 	assert_str(t.get_value(0, "b")).is_empty()
