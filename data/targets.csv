@@ -1,0 +1,5 @@
+# Balance targets for tools/balance_run.ps1 (M2-14). profile,metric,target,tolerance (relative),source.
+# Status: PASS within tolerance, WARN within 2x tolerance, FAIL beyond. Metrics measured today: median_death_wave.
+# Foundry profiles (x2 24, x4 37, x10 60 per GDD 03 s6) need the Foundry (M3+); add rows when they exist.
+profile,metric,target,tolerance,source
+fresh,median_death_wave,12,0.30,gdd:03 s6

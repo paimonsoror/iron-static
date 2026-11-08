@@ -1,0 +1,57 @@
+class_name TestBalanceRunArgs
+extends GdUnitTestSuite
+## BalanceRunArgs: flag parsing and target status bands for tools/balance_run.gd.
+
+
+func test_defaults() -> void:
+	var a: BalanceRunArgs = BalanceRunArgs.parse(PackedStringArray())
+	assert_str(a.error).is_empty()
+	assert_str(a.profile).is_equal("fresh")
+	assert_int(a.waves).is_equal(100)
+	assert_int(a.runs).is_equal(20)
+	assert_int(a.seed_value).is_equal(1)
+	assert_str(a.policy).is_equal("greedy4")
+	assert_int(a.sector).is_equal(1)
+
+
+func test_all_flags() -> void:
+	var raw: PackedStringArray = PackedStringArray(
+		["--profile", "p.json", "--waves", "50", "--runs", "3", "--seed", "-2", "--policy", "all", "--sector", "2"]
+	)
+	var a: BalanceRunArgs = BalanceRunArgs.parse(raw)
+	assert_str(a.error).is_empty()
+	assert_str(a.profile).is_equal("p.json")
+	assert_int(a.waves).is_equal(50)
+	assert_int(a.runs).is_equal(3)
+	assert_int(a.seed_value).is_equal(-2)
+	assert_str(a.policy).is_equal("all")
+	assert_int(a.sector).is_equal(2)
+
+
+func test_unknown_flag_is_an_error() -> void:
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--bogus"])).error).contains("--bogus")
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["-Profile", "fresh"])).error).is_not_empty()
+
+
+func test_bad_values_are_errors() -> void:
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--runs"])).error).is_not_empty()
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--runs", "x"])).error).is_not_empty()
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--waves", "0"])).error).is_not_empty()
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--policy", "nope"])).error).is_not_empty()
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--profile", ""])).error).is_not_empty()
+
+
+func test_status_bands() -> void:
+	assert_str(BalanceRunArgs.status(12.0, 12.0, 0.30)).is_equal("PASS")
+	assert_str(BalanceRunArgs.status(8.4, 12.0, 0.30)).is_equal("PASS")
+	assert_str(BalanceRunArgs.status(15.6, 12.0, 0.30)).is_equal("PASS")
+	assert_str(BalanceRunArgs.status(7.0, 12.0, 0.30)).is_equal("WARN")
+	assert_str(BalanceRunArgs.status(19.0, 12.0, 0.30)).is_equal("WARN")
+	assert_str(BalanceRunArgs.status(4.0, 12.0, 0.30)).is_equal("FAIL")
+	assert_str(BalanceRunArgs.status(20.0, 12.0, 0.30)).is_equal("FAIL")
+
+
+func test_worst_status() -> void:
+	assert_str(BalanceRunArgs.worst("PASS", "WARN")).is_equal("WARN")
+	assert_str(BalanceRunArgs.worst("FAIL", "WARN")).is_equal("FAIL")
+	assert_str(BalanceRunArgs.worst("PASS", "PASS")).is_equal("PASS")
