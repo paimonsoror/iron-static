@@ -16,6 +16,7 @@ import soundfile as sf
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I mode ignores the script dir
 import analyze  # noqa: E402
 import dsp  # noqa: E402,F401
+import mix  # noqa: E402
 import music  # noqa: E402
 import sfx  # noqa: E402
 from dsp import SR  # noqa: E402
@@ -78,11 +79,12 @@ def main():
     assets, sketch = Path(args.assets), Path(args.sketch)
     report = {}
     sfx_audio = {}
-    for sid in sfx.SFX:
+    for sid in sfx.ORDER:
         y = sfx.render(sid)
         sfx_audio[sid] = y
         write_wav(assets / "sfx" / f"{sid}.wav", y)
-        write_wav(sketch / f"{sid}.wav", y)
+        if sid in sfx.CORE:
+            write_wav(sketch / f"{sid}.wav", y)  # the approved sketch pack keeps only the 12 core sounds
         report[f"{sid}.wav"] = analyze.stats(y, loop=False)
         print("sfx", sid, f"{len(y) / SR:.2f}s")
     layers = {}
@@ -102,9 +104,13 @@ def main():
     write_ogg(sketch / "music_preview.ogg", prev)
     report["music_preview.ogg"] = analyze.stats(prev, loop=False)
     gap = np.zeros(int(0.45 * SR))
-    reel = np.concatenate([np.concatenate([y, gap]) for y in sfx_audio.values()])
-    write_wav(sketch / "sfx_reel.wav", reel)
-    report["sfx_reel.wav"] = analyze.stats(reel, loop=False)
+    core_reel = np.concatenate([np.concatenate([sfx_audio[s], gap]) for s in sfx.CORE])
+    write_wav(sketch / "sfx_reel.wav", core_reel)
+    report["sfx_reel.wav"] = analyze.stats(core_reel, loop=False)
+    # Full reel = every SFX in 07 s7 id order with its slot trim (volume_db from mix.py), 0.45 s gaps.
+    reel = np.concatenate([np.concatenate([sfx_audio[s] * 10 ** (mix.trim_db(s, sfx_audio[s]) / 20), gap]) for s in sfx.ORDER])
+    write_ogg(sketch / "sfx_reel_full.ogg", reel)  # OGG: the WAV was 5.2 MB in git
+    report["sfx_reel_full.ogg"] = analyze.stats(reel, loop=False)
     (sketch / "analysis.json").write_text(json.dumps(report, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     print(analyze.table(report))
 

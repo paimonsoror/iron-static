@@ -75,6 +75,7 @@ func _on_run_started(world: SimWorld) -> void:
 
 func _on_run_ended(world: SimWorld) -> void:
 	_audio.in_menu = true  # results screen: menu mix (the death sound still comes through update())
+	_audio.play_results_tally(not Game.visual.reduce_motion)
 	_results.show_results(world)
 
 

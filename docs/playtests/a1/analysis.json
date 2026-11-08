@@ -65,15 +65,55 @@
   "seam_jump_ratio": 0.015,
   "seconds": 21.333
  },
+ "sfx_aegis_break.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1e-06,
+  "lufs_ish": -15.78,
+  "peak_dbfs": -5.0,
+  "rms_dbfs": -17.54,
+  "samples": 44100,
+  "seconds": 1.0
+ },
+ "sfx_arc.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 4e-06,
+  "lufs_ish": -20.51,
+  "peak_dbfs": -7.0,
+  "rms_dbfs": -23.63,
+  "samples": 12348,
+  "seconds": 0.28
+ },
+ "sfx_boss_death.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 2e-06,
+  "lufs_ish": -16.02,
+  "peak_dbfs": -3.0,
+  "rms_dbfs": -14.64,
+  "samples": 149940,
+  "seconds": 3.4
+ },
  "sfx_boss_warn.wav": {
   "channels": 1,
   "clipped_samples": 0,
-  "dc_offset": 0.0,
+  "dc_offset": 2.6e-05,
   "lufs_ish": -16.5,
   "peak_dbfs": -5.0,
   "rms_dbfs": -14.39,
   "samples": 105840,
   "seconds": 2.4
+ },
+ "sfx_cache_open.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 2.6e-05,
+  "lufs_ish": -23.2,
+  "peak_dbfs": -8.0,
+  "rms_dbfs": -22.74,
+  "samples": 41895,
+  "seconds": 0.95
  },
  "sfx_crit.wav": {
   "channels": 1,
@@ -95,10 +135,50 @@
   "samples": 114660,
   "seconds": 2.6
  },
- "sfx_enemy_death_heavy.wav": {
+ "sfx_dilation.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 2e-06,
+  "lufs_ish": -21.35,
+  "peak_dbfs": -7.0,
+  "rms_dbfs": -20.73,
+  "samples": 57330,
+  "seconds": 1.3
+ },
+ "sfx_draft_open.wav": {
   "channels": 1,
   "clipped_samples": 0,
   "dc_offset": 0.0,
+  "lufs_ish": -22.48,
+  "peak_dbfs": -8.0,
+  "rms_dbfs": -22.15,
+  "samples": 35280,
+  "seconds": 0.8
+ },
+ "sfx_draft_pick.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1.2e-05,
+  "lufs_ish": -22.34,
+  "peak_dbfs": -9.0,
+  "rms_dbfs": -22.93,
+  "samples": 17640,
+  "seconds": 0.4
+ },
+ "sfx_emp.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 2e-06,
+  "lufs_ish": -17.9,
+  "peak_dbfs": -5.0,
+  "rms_dbfs": -16.67,
+  "samples": 52920,
+  "seconds": 1.2
+ },
+ "sfx_enemy_death_heavy.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 6e-06,
   "lufs_ish": -15.64,
   "peak_dbfs": -4.0,
   "rms_dbfs": -13.75,
@@ -108,57 +188,267 @@
  "sfx_enemy_death_small.wav": {
   "channels": 1,
   "clipped_samples": 0,
-  "dc_offset": 0.0,
+  "dc_offset": 1.6e-05,
   "lufs_ish": -16.08,
   "peak_dbfs": -8.0,
   "rms_dbfs": -17.8,
   "samples": 13230,
   "seconds": 0.3
  },
+ "sfx_firmware_pick.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 6e-06,
+  "lufs_ish": -24.11,
+  "peak_dbfs": -10.0,
+  "rms_dbfs": -23.69,
+  "samples": 39690,
+  "seconds": 0.9
+ },
+ "sfx_gauntlet_rank_up.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1e-06,
+  "lufs_ish": -23.3,
+  "peak_dbfs": -6.0,
+  "rms_dbfs": -23.78,
+  "samples": 79380,
+  "seconds": 1.8
+ },
  "sfx_hit_metal.wav": {
   "channels": 1,
   "clipped_samples": 0,
-  "dc_offset": 0.0,
+  "dc_offset": 8e-06,
   "lufs_ish": -21.91,
   "peak_dbfs": -9.0,
   "rms_dbfs": -23.77,
   "samples": 9702,
   "seconds": 0.22
  },
+ "sfx_integrity_warn.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 2.7e-05,
+  "lufs_ish": -21.63,
+  "peak_dbfs": -8.0,
+  "rms_dbfs": -18.53,
+  "samples": 22050,
+  "seconds": 0.5
+ },
+ "sfx_lab_complete.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1e-06,
+  "lufs_ish": -22.66,
+  "peak_dbfs": -9.0,
+  "rms_dbfs": -23.54,
+  "samples": 66150,
+  "seconds": 1.5
+ },
  "sfx_laser_shot.wav": {
   "channels": 1,
   "clipped_samples": 0,
-  "dc_offset": 0.0,
+  "dc_offset": 3e-06,
   "lufs_ish": -25.22,
   "peak_dbfs": -14.0,
   "rms_dbfs": -27.29,
   "samples": 3748,
   "seconds": 0.085
  },
- "sfx_player_hit.wav": {
+ "sfx_meltdown.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 4.2e-05,
+  "lufs_ish": -12.5,
+  "peak_dbfs": -4.0,
+  "rms_dbfs": -10.19,
+  "samples": 114660,
+  "seconds": 2.6
+ },
+ "sfx_milestone_x15.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1e-06,
+  "lufs_ish": -22.07,
+  "peak_dbfs": -9.0,
+  "rms_dbfs": -23.54,
+  "samples": 57330,
+  "seconds": 1.3
+ },
+ "sfx_mine_beep.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 3e-06,
+  "lufs_ish": -17.0,
+  "peak_dbfs": -14.0,
+  "rms_dbfs": -18.59,
+  "samples": 6174,
+  "seconds": 0.14
+ },
+ "sfx_missile_launch.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1.1e-05,
+  "lufs_ish": -20.38,
+  "peak_dbfs": -8.0,
+  "rms_dbfs": -18.74,
+  "samples": 44100,
+  "seconds": 1.0
+ },
+ "sfx_nanite.wav": {
   "channels": 1,
   "clipped_samples": 0,
   "dc_offset": 0.0,
+  "lufs_ish": -27.13,
+  "peak_dbfs": -7.0,
+  "rms_dbfs": -30.42,
+  "samples": 24255,
+  "seconds": 0.55
+ },
+ "sfx_overcrit.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1e-06,
+  "lufs_ish": -18.27,
+  "peak_dbfs": -6.0,
+  "rms_dbfs": -17.84,
+  "samples": 41895,
+  "seconds": 0.95
+ },
+ "sfx_overdrive_off.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 0.0,
+  "lufs_ish": -17.19,
+  "peak_dbfs": -6.0,
+  "rms_dbfs": -17.17,
+  "samples": 44100,
+  "seconds": 1.0
+ },
+ "sfx_overdrive_on.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 3e-06,
+  "lufs_ish": -16.02,
+  "peak_dbfs": -5.0,
+  "rms_dbfs": -15.33,
+  "samples": 50714,
+  "seconds": 1.15
+ },
+ "sfx_player_hit.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1.2e-05,
   "lufs_ish": -13.84,
   "peak_dbfs": -5.0,
   "rms_dbfs": -12.07,
   "samples": 14112,
   "seconds": 0.32
  },
- "sfx_reel.wav": {
+ "sfx_pod_heal.wav": {
   "channels": 1,
   "clipped_samples": 0,
   "dc_offset": 0.0,
+  "lufs_ish": -21.34,
+  "peak_dbfs": -10.0,
+  "rms_dbfs": -20.71,
+  "samples": 37485,
+  "seconds": 0.85
+ },
+ "sfx_purge.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1e-06,
+  "lufs_ish": -19.86,
+  "peak_dbfs": -6.0,
+  "rms_dbfs": -19.81,
+  "samples": 66150,
+  "seconds": 1.5
+ },
+ "sfx_razor_spin.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 0.0,
+  "lufs_ish": -22.41,
+  "peak_dbfs": -9.0,
+  "rms_dbfs": -23.13,
+  "samples": 18522,
+  "seconds": 0.42
+ },
+ "sfx_reboot.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 5e-06,
+  "lufs_ish": -20.35,
+  "peak_dbfs": -6.0,
+  "rms_dbfs": -18.17,
+  "samples": 83790,
+  "seconds": 1.9
+ },
+ "sfx_reel.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 2e-06,
   "lufs_ish": -19.1,
   "peak_dbfs": -4.0,
   "rms_dbfs": -17.82,
   "samples": 620707,
   "seconds": 14.075
  },
+ "sfx_reel_full.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 2e-06,
+  "lufs_ish": -21.32,
+  "peak_dbfs": -2.0,
+  "rms_dbfs": -20.24,
+  "samples": 2580509,
+  "seconds": 58.515
+ },
+ "sfx_results_tally.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1.1e-05,
+  "lufs_ish": -25.23,
+  "peak_dbfs": -12.0,
+  "rms_dbfs": -26.16,
+  "samples": 44100,
+  "seconds": 1.0
+ },
+ "sfx_shock_ring.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 4e-06,
+  "lufs_ish": -22.5,
+  "peak_dbfs": -9.0,
+  "rms_dbfs": -22.38,
+  "samples": 30869,
+  "seconds": 0.7
+ },
+ "sfx_singularity.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 4.2e-05,
+  "lufs_ish": -14.54,
+  "peak_dbfs": -5.0,
+  "rms_dbfs": -13.58,
+  "samples": 97020,
+  "seconds": 2.2
+ },
+ "sfx_skin_burn.wav": {
+  "channels": 1,
+  "clipped_samples": 0,
+  "dc_offset": 1e-06,
+  "lufs_ish": -23.87,
+  "peak_dbfs": -5.0,
+  "rms_dbfs": -24.58,
+  "samples": 24255,
+  "seconds": 0.55
+ },
  "sfx_ui_deny.wav": {
   "channels": 1,
   "clipped_samples": 0,
-  "dc_offset": 0.0,
+  "dc_offset": 2.4e-05,
   "lufs_ish": -17.79,
   "peak_dbfs": -10.0,
   "rms_dbfs": -16.67,
@@ -168,20 +458,20 @@
  "sfx_ui_tap.wav": {
   "channels": 1,
   "clipped_samples": 0,
-  "dc_offset": 0.0,
-  "lufs_ish": -25.73,
+  "dc_offset": 0.000131,
+  "lufs_ish": -25.76,
   "peak_dbfs": -12.0,
-  "rms_dbfs": -26.05,
+  "rms_dbfs": -26.08,
   "samples": 2646,
   "seconds": 0.06
  },
  "sfx_upgrade_buy.wav": {
   "channels": 1,
   "clipped_samples": 0,
-  "dc_offset": 0.0,
-  "lufs_ish": -21.49,
+  "dc_offset": 0.000327,
+  "lufs_ish": -21.5,
   "peak_dbfs": -10.0,
-  "rms_dbfs": -21.16,
+  "rms_dbfs": -21.17,
   "samples": 5733,
   "seconds": 0.13
  },

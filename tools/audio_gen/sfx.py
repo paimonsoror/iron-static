@@ -153,5 +153,25 @@ SFX = {
 
 def render(sfx_id):
     fn, peak = SFX[sfx_id]
-    y = dsp.remove_dc(fn())
+    # DC removal shifts the faded ends off zero: re-fade the first 0.5 ms / last 8 ms so no file starts or ends with a step.
+    y = fade(dsp.remove_dc(fn()), 0.0005, 0.008)
     return dsp.normalize_peak(y, peak)
+
+
+CORE = tuple(SFX)  # the 12 sounds approved at the A1-GATE (sketch pack); never reordered
+
+import sfx2  # noqa: E402  (A1-08: the other 28 ids)
+
+SFX.update(sfx2.SFX2)
+
+# Reel / table order = the id order of 07 s7 (core ids included).
+ORDER = (
+    "sfx_laser_shot", "sfx_hit_metal", "sfx_crit", "sfx_overcrit", "sfx_enemy_death_small", "sfx_enemy_death_heavy",
+    "sfx_player_hit", "sfx_integrity_warn", "sfx_skin_burn", "sfx_wave_start", "sfx_boss_warn", "sfx_boss_death",
+    "sfx_upgrade_buy", "sfx_milestone_x15", "sfx_draft_open", "sfx_draft_pick", "sfx_cache_open", "sfx_pod_heal",
+    "sfx_razor_spin", "sfx_shock_ring", "sfx_mine_beep", "sfx_arc", "sfx_emp", "sfx_missile_launch",
+    "sfx_singularity", "sfx_dilation", "sfx_nanite", "sfx_overdrive_on", "sfx_overdrive_off", "sfx_aegis_break",
+    "sfx_reboot", "sfx_meltdown", "sfx_purge", "sfx_ui_tap", "sfx_ui_deny", "sfx_lab_complete", "sfx_firmware_pick",
+    "sfx_gauntlet_rank_up", "sfx_death", "sfx_results_tally",
+)
+assert sorted(ORDER) == sorted(SFX), "ORDER must list every SFX id once"
