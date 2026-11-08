@@ -1,6 +1,8 @@
 # 07 - UX, UI, Art and Audio
 
-Changelog: 2026-11-07 - Gauntlet screen and shop Pass tab tagged P1 (not in the Launch build); title IRON STATIC (icon and splash use the title text only on the splash).
+Changelog: 2026-11-08 - V1 visual pass: `10_art_bible.md` is now the authority for all visuals (style, sizes, sprite slots, VFX looks and budgets, HUD styling); sections 5.1, 5.3 and 5.6 below are reconciled with it (illustrated SVG sprites replace procedural-only enemies and Cinder; glow is baked additive; VFX/skin-burn polish and battle HUD styling moved from M4 to V1). Palette hex values (5.2), VFX ids (6), damage numbers (5.5), accessibility (4, 5.4) and layout/wireframes (1-3) are unchanged. 2026-11-07 - Gauntlet screen and shop Pass tab tagged P1 (not in the Launch build); title IRON STATIC (icon and splash use the title text only on the splash).
+
+**Visual authority:** `docs/design/10_art_bible.md` (V1 visual pass). Where this chapter and the art bible differ on look, sizes, sprites, effects or budgets, the art bible wins; this chapter keeps layout, UX flows, the palette values, ids, damage-number rules, accessibility and audio.
 
 References: genre notes [GENRE A2] recommend neon vector/glow shapes on dark with a HUD "machine vision" chrome as the cheapest way to get strong sci-fi mood while keeping enemy readability at swarm density; The Tower praised for being one-handed and well-optimized [GENRE A1, AppSpy]. Everything here is design direction; engine specifics are not prescribed. All hex values are tunable but are the starting palette.
 
@@ -175,10 +177,10 @@ Day 1 follow-up: when the Lab unlocks (wave 25) first research is free (0 `data`
 ## 5. Art style guide: "machine-vision vector"
 
 ### 5.1 Overall look
-Dark void background, thin glowing vector strokes, minimal fills. The world is drawn as seen through Cinder's targeting optics: a faint polar grid and range rings, tracking brackets around nearby targets, amber HUD text. Everything is procedural shapes and lines; no bitmap sprites required except icons and the logo.
-- Stroke widths (logical px at 1080 wide): enemies 3, elites 4 + inner line, bosses 6, Cinder frame 3, beam 3 core + 8 glow, grid 1.
-- Fills: enemies filled with `#2A0A10` at 80% for contrast; Cinder filled solid in layers.
-- Shapes only: circles, triangles, hexagons, diamonds, chevrons, lines. Max 12 line segments per enemy (performance).
+Dark void background and a world seen through Cinder's targeting optics: an animated polar grid, range rings and radar sweep, amber HUD text. **Hybrid (V1, see 10 s2):** Cinder, enemies, bosses, enemy bolts, icons and HUD frames are **illustrated layered SVG sprites** (shaded plates, gradients, baked glow); the beam, sparks, embers, shards, rings, grid and scanlines are procedural vector FX. The old 'shapes only' rule and the stroke widths below are superseded by 10 s2 and s4 (rim 3 px, seams 2 px, sprites 1.5x hit radius).
+- Superseded by 10 s2/s4/s6.1 (kept for history): stroke widths enemies 3, elites 4 + inner line, bosses 6, Cinder frame 3, beam 3 core + 8 glow, grid 1. V1 values: beam 36 glow / 8 core / 3 center, grid 1-1.5, enemy rim 3.
+- Enemy hull base stays `#2A0A10` (10 s3.2 ramps); Cinder is layered illustrated sprites.
+- Silhouette vocabulary (triangle wedge, chevron, trapezoid, diamond, hexagon) stays; the 12-segment cap is replaced by the sprite node/texture budgets of 10 s4.4 and s9.
 - Cinder is always the brightest, most saturated object at screen center; the swarm is darker with bright outlines.
 
 ### 5.2 Palette (hex)
@@ -220,7 +222,7 @@ Dark void background, thin glowing vector strokes, minimal fills. The world is d
 Red is reserved for hostile units/danger; amber is Cinder and information; teal is "friend/positive"; magenta is only enemy projectiles. This multi-color system keeps the look from echoing any single franchise's red-tint trade dress [GENRE B1].
 
 ### 5.3 Glow, scanlines, effects rules
-- One additive glow pass per frame for entities flagged `glow` (beams, Cinder core, enemy outlines). Glow radius <= 8 px for enemies, 14 px for Cinder. When more than 150 enemies are alive, per-enemy glow is disabled and outline brightness +15% is used instead.
+- Glow is **baked additive** (10 s4.3 and s10): `_glow` sheets composited with premultiplied alpha in the same draw as the body, halo sprites, beam strips; no WorldEnvironment glow by default. Glow reach <= 12 px for enemies, ~30 px for Cinder's core halo. The per-enemy glow switch for high density is the quality tier (10 s9.3: LOW stops sampling glow sheets), not a runtime enemy-count rule.
 - Scanlines: 2 px lines at 6% opacity over the battlefield only (not the panel); disabled in reduce-motion/high-contrast.
 - Vignette: edge darken 20%; pulses red when integrity < 25%.
 - Polar grid: rings at 10 m, 20 m, 30 m (labelled for `standoff`); fades when > 100 enemies.
@@ -240,14 +242,14 @@ Red is reserved for hostile units/danger; amber is Cinder and information; teal 
 - Aggregation: repeated hits on the same enemy within 0.2 s are summed into one number.
 
 ### 5.6 Cinder rendering
-Layers back to front: (1) range rings, (2) frame vector lines, (3) skin wedge ring (12 wedges), (4) chest core with pulse, (5) emitter ring (3 nodes, rotates toward target), (6) visor slit arc at facing direction, (7) integrity ring (thin arc around Cinder: teal -> amber -> red). Skin Burn states per 02 section 12.1. Idle animation: core pulse 1 Hz, slow scan sweep every 8 s. Death: wedges fly outward as ember lines, frame lines fade last.
+Layer list and cell table: `10_art_bible.md` s4.5 (sprites: shadow, frame, 12 plated wedges A/B, core housing, core, emitter ring, visor, shoulder emitter, glow layers; procedural: integrity ring, range rings in the arena shader). Original list kept for reference: (1) range rings, (2) frame, (3) skin wedge ring (12 wedges), (4) chest core with pulse, (5) emitter ring (3 nodes, rotates toward target), (6) visor slit arc at facing direction, (7) integrity ring (thin arc around Cinder: teal -> amber -> red). Skin Burn states per 02 section 12.1. Idle animation: core pulse 1 Hz, slow scan sweep every 8 s. Death: wedges fly outward as ember lines, frame lines fade last (looks and timings in 10 s6.4-6.5). The 'skin' is plated synthetic armor, not organic (10 s4.2, 09 Q42).
 
 ### 5.7 App icon and store art
 Icon: hex chest core in amber on near-black with a faint broken-circle range ring; no text; no skull or human face. Splash: amber text lines. Original art only; no The Tower look-alike hexagon-over-tower icon.
 
 ## 6. VFX list (ids)
 `vfx_beam`, `vfx_muzzle`, `vfx_hit_spark`, `vfx_kill_shatter` (3 line shards), `vfx_crit_flare`, `vfx_overcrit_burst`, `vfx_ricochet_line`, `vfx_split_lines`, `vfx_razor_trail`, `vfx_shock_ring`, `vfx_mine_arm`, `vfx_mine_blast`, `vfx_arc_zigzag`, `vfx_emp_ring`, `vfx_missile_trail`, `vfx_singularity_swirl`, `vfx_dilation_ripple`, `vfx_nanite_cloud`, `vfx_beacon_pulse`, `vfx_painter_zone`, `vfx_skin_embers`, `vfx_band_transition`, `vfx_meltdown_whiteout`, `vfx_overdrive_afterimage`, `vfx_milestone_ring` (gold ring on x1.5), `vfx_wave_banner_glitch`, `vfx_boss_warning`, `vfx_draft_open`, `vfx_cache_glow`, `vfx_pod_beam`, `vfx_barricade_hex`, `vfx_turncoat_flip`, `vfx_adaptation_outline`, `vfx_death_unravel`.
-Performance budget: particle pool cap 400; each VFX has an LOD level that reduces at high enemy counts.
+Performance budget: particle pool cap 400; each VFX has an LOD level that reduces at high enemy counts (exact looks, counts and budgets per VFX: 10 s6 and s9).
 
 ## 7. Audio direction
 - **Music:** dark synth ambient, cold analog pads, sub-bass drone, glassy FM bell motifs, sparse rhythmic pulse that grows with wave number. Tempo 82-96 BPM, irregular meter (7/8) in battle layers. Mood: lonely, mechanical, tense. **Avoid** any anvil-style four-note motif, heavy synth march or melodic lines that resemble a famous film theme [GENRE B1]. Adaptive layers: base pad (always) -> pulse (wave >= 10) -> percussion (wave >= 30 or boss) -> lead bell (boss/low integrity). Home screen: stripped ambient. Menus: soft resonant hum.

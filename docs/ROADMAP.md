@@ -1,6 +1,6 @@
 # IRON STATIC - Roadmap
 
-Changelog: 2026-11-07 v1.1 - M1 status line ticked (M1-26). 2026-11-07 v1.0 - first version. Merges the technical plan (`docs/TECH_ARCHITECTURE.md` section 12) with the GDD MVP scope (`docs/design/08_mvp_scope.md`) and applies the user decisions of 2026-11-07 (title, novel mechanics N1-N4 approved and N5 deferred, Standby Patrol approved, staged online rollout, BigNum). This file is the single source for milestone scope, order, exit criteria and sizing. Agent-ready task files: `docs/tasks/M0.md`, `M1.md`, `M2.md`; later milestones get their task files when the previous milestone closes.
+Changelog: 2026-11-08 v1.2 - inserted milestone V1 Visual pass between M2 and M3 (user decision 2026-11-08: hybrid illustrated-SVG + vector FX + styled HUD, now); overlapping visual items moved out of M4; art bible `docs/design/10_art_bible.md`, tasks `docs/tasks/V1.md`. 2026-11-07 v1.1 - M1 status line ticked (M1-26). 2026-11-07 v1.0 - first version. Merges the technical plan (`docs/TECH_ARCHITECTURE.md` section 12) with the GDD MVP scope (`docs/design/08_mvp_scope.md`) and applies the user decisions of 2026-11-07 (title, novel mechanics N1-N4 approved and N5 deferred, Standby Patrol approved, staged online rollout, BigNum). This file is the single source for milestone scope, order, exit criteria and sizing. Agent-ready task files: `docs/tasks/M0.md`, `M1.md`, `M2.md`, `V1.md`; later milestones get their task files when the previous milestone closes.
 
 ## 1. How to read this
 
@@ -17,6 +17,7 @@ Changelog: 2026-11-07 v1.1 - M1 status line ticked (M1-26). 2026-11-07 v1.0 - fi
 | M0 | Foundation | Repo, project skeleton, tests, lint, export preset and plugin spike so every later task runs through gates | 14 | 1-2 | toolchain (done) |
 | M1 | Core combat prototype | Deterministic headless sim plus on-screen auto-battle: Cinder, hitscan laser, 5 MVP enemies, waves, death, skin-burn bands | 26 | 3-4 | M0 |
 | M2 | In-run economy and upgrades | `scrap`, 10 run upgrades, BigNum, upgrade panel, results, input log, first balance runner | 16 | 2-3 | M1 |
+| V1 | Visual pass | Illustrated layered-SVG sprites for Cinder, enemies and bosses plus vector/neon FX, particles, shake and a styled sci-fi HUD, bigger on screen, within the render budget; gated by a user-approved style frame | 22 + gate | 3-4 | M2 |
 | M3 | Meta loop and persistence | `data` banking, Foundry (4 rows), Home/Results/Foundry, versioned HMAC save, run resume | 16 | 2-3 | M2 |
 | M4 | Patches, feel and FTUE | 9 patches and draft, Intel, VFX/juice, damage numbers, 2x speed, audio, FTUE | 26 | 3-4 | M3 |
 | M5 | MVP validation (MVP gate) | Balance pass, perf pass on a real device, determinism, fun checks FC1-FC12 | 12 | 2-3 | M4 |
@@ -25,7 +26,7 @@ Changelog: 2026-11-07 v1.1 - M1 status line ticked (M1-26). 2026-11-07 v1.0 - fi
 | P1 | Gauntlets and events | Gauntlets, Incursions, Operation Pass, replay verification | about 40 | 8-10 | Launch |
 | P2 | Cells and extras | Cells, turncoat N5, hardware modules, convoys, sectors 13-24 | about 30 | open | P1 |
 
-Totals: MVP (M0-M5) about 110 tasks; Launch (M0-M7) about 230 tasks. About 9-12 calendar months to Launch if sessions stay steady and the Play closed test runs in parallel (section 5).
+Totals: MVP (M0-M5, with V1) about 130 tasks (V1 adds 22; M4 shrinks by about 6); Launch (M0-M7) about 250 tasks. About 9.5-12.5 calendar months to Launch if sessions stay steady and the Play closed test runs in parallel (section 5).
 
 ## 3. Milestones in detail
 
@@ -53,6 +54,17 @@ Totals: MVP (M0-M5) about 110 tasks; Launch (M0-M7) about 230 tasks. About 9-12 
 - **Dependencies:** M1.
 - **User playtest:** play runs buying upgrades by hand. Questions: do first purchases feel immediate (FC2 preview), is the difference between buying and not buying visible in kill speed, is the panel one-thumb usable. Report the wave reached by hand vs the bot.
 
+### V1 Visual pass (22 tasks plus a user gate, 3-4 weeks)
+- **Why:** the user watched the M1/M2 emulator build and found the visuals low quality in four ways: flat (no glow, particles, hit flashes, explosions, shake), too small and thin (enemies 15-30 px with hairline strokes, small Cinder, empty arena), bland Cinder and enemies, generic HUD and panel. Decisions 2026-11-08: **hybrid direction** (illustrated sprites for Cinder, enemies and bosses with vector/neon FX and a styled HUD), **Claude-drawn layered SVG** art in fixed slots so it can be swapped for commissioned/AI art without code changes, and **now, before M3**.
+- **Status:** [ ] not started. Blocked only by M2 completion; V1-03 (instrumentation and the old-look baseline) may start earlier.
+- **Goal:** the battle screen looks like a finished game: a large, detailed Cinder, a detailed animated swarm, light and impact on every shot and kill, a styled HUD and panel, at the same performance class as the M1 build.
+- **Scope (authority: `docs/design/10_art_bible.md`; tasks: `docs/tasks/V1.md`):** **style frame first** (SVG feature probe, Cinder bands 0 and 3, five enemies, boss, bolt, styled HUD mock in a debug scene, emulator screenshots) and a **hard user approval gate** before any production art; SVG import pipeline, slot table, SVG lint and pixel checks; art production (Cinder sheet, enemy/boss/bolt sheets with glow layers, FX sheet, UI kit and 25 icons, arena floor); view-only **visual scale** (camera 32 m, sprites 1.5x hit radius, radial stand-off; sim numbers untouched); textured MultiMesh enemy renderer with hit flash, flipbook animation and spawn-in; layered Cinder rig keeping `CinderWedges` and the debug band override; beam, muzzle and impact FX; pooled particle ring for death bursts, sparks, embers and band transitions; screen shake (subtle, toggleable) and boss/Cinder-death slow-mo; animated polar grid, radar sweep, scanlines, vignette; low-HP vignette and heartbeat (moved from M4); HUD, upgrade panel and results restyle with 9-slice SVG plates and upgrade icons; readability verification (FC5/FC8 preview); render perf bench against the M1 baseline; quality tiers HIGH/MID/LOW (view-only).
+- **Moved out of M4 into V1:** skin-burn polish (embers, heartbeat, red vignette, band transitions), the VFX subset (`vfx_beam` merge, `vfx_hit_spark`, `vfx_kill_shatter`, `vfx_crit_flare`, `vfx_milestone_ring`, `vfx_death_unravel`, ring part of `vfx_boss_warning`), the wave-banner glitch look, battle HUD and panel visual styling, the screen-shake/reduce-motion rules. **Stays in M4:** patch draft and its overlay, Intel tab panels, damage numbers (logic and show rules; they reuse V1 fonts and colors), `vfx_draft_open`, boss banner text and the boss-warning *logic*, 2x speed, audio (placeholder SFX, ambient loop, haptics), FTUE per 07 s3, settings screen and accessibility (reduce motion toggle UI, colorblind palette data, high contrast), trademark/real-device items. V1 reads `reduce_motion` and shake settings from a view-side `VisualSettings` with debug/arg switches; M3/M4 add the real settings screen.
+- **Exit criteria:** user approved the style frame (gate recorded in `docs/playtests/v1/style_frame_report.md`); `tools\art_lint.ps1` and `tools\art_check.ps1` pass on all art; sim untouched (empty diff of `src/sim`, `src/meta`, `src/save`, `data` and unchanged replay goldens); battlefield draw calls <= 25 (hard 40) and art texture memory <= 48 MB; emulator at about 165 enemies (LOAD scenario) averages >= 28.7 fps (no more than 10% below the M1 baseline of 31.9) **or** the shortfall is documented and a lower default tier proven; PSS <= 240 MB and flat over a 5-minute soak; readability thresholds of V1-19 met (minimum on-screen sizes, Cinder luminance margin, band states countable in a crowd); screenshot pack of the battle, HUD, panel and results; lint, tests and `perf_bench -Check` green; IP grep clean.
+- **Dependencies:** M2 (HUD, panel, results exist). Decisions needed at the gate: 09 Q41-Q46 (camera width, plated skin, shake default, scanline intensity, icon style, slow-mo). Q23 (real device) is *not* required but the real-device performance verdict for V1 waits for it (FC6, M5).
+- **User playtest (after V1-22):** run the app on the emulator, watch two runs. Questions: Does Cinder read as a character and the brightest thing on screen? Can you name the five enemies in the crowd without a label (FC5 preview)? Does the field feel full and big enough now? Do you see the difference between the four skin-burn bands at a glance (FC8 preview)? Is the shake and flash level pleasant or tiring (Q43)? Is the HUD and panel tone right, and are the icons clear? Does anything stutter that did not before (compare with M1)? Are scanlines wanted (Q44)?
+- **Risks:** SVG renderer gaps (mitigated by the probe and the allowlist table), emulator fps (mitigated by premultiplied one-draw glow, one MultiMesh per type, the particle ring, quality tiers), art volume (many SVG sheets by agents; mitigated by fixed-cell sheets, lint, and the gate), taste drift (the gate).
+
 ### M3 Meta loop and persistence (about 16 tasks, 2-3 weeks)
 - **Goal:** the redeploy loop with permanence: `data` banked at death, Foundry upgrades persist, the app survives kill and restart.
 - **Scope:** 05 s1 Foundry with 4 rows (`laser_output`, `hull_integrity`, `nano_repair` Type D; `cycle_rate` Type C) incl. cost, multiplier and "Recommended" glow; 05 s7 unlock rows 1-2; 04 s2.2 `data` banking; 07 s2.3 Home, s2.4 Foundry, s2.10 Results; save system (TECH_ARCHITECTURE 5.1-5.3: atomic write, HMAC, backup, migrations framework, fixture v1, run snapshot and resume); settings v1 (sound, music, reduce motion, number format); `Clock` stub; best-wave tracking.
@@ -61,10 +73,10 @@ Totals: MVP (M0-M5) about 110 tasks; Launch (M0-M7) about 230 tasks. About 9-12 
 - **User playtest:** three runs with Foundry in between; kill the app mid-run and reopen. Questions: do you understand permanent vs temporary (FC3 preview), does redeploy take under 10 s (FC4 preview).
 
 ### M4 Patches, feel and FTUE (about 26 tasks, 3-4 weeks)
-- **Goal:** the MVP feature list is complete and polished enough to judge fun.
-- **Scope:** 02 s10 patch draft (9 patches: `patch_overcharge`, `patch_plating`, `patch_rate`, `patch_extraction`, `patch_regen`, `patch_ceramic`, `patch_t_glass`, `patch_t_greed`, `patch_t_hardhide`) and 07 s2.9 overlay; `boss_hulk` warning ring and boss banner (02 s15); Intel tab Stats and Wave panels; skin-burn polish (embers, heartbeat, red vignette, band transitions, 07 s5.6); damage numbers (07 s5.5); VFX subset (`vfx_beam` merge, `vfx_hit_spark`, `vfx_kill_shatter`, `vfx_crit_flare`, `vfx_milestone_ring`, `vfx_wave_banner_glitch`, `vfx_boss_warning`, `vfx_draft_open`, `vfx_death_unravel`); 2x speed; placeholder SFX and one ambient loop (07 s7); FTUE per 07 s3 minutes 0-10; settings and accessibility basics (reduce motion, colorblind palette data); haptics.
-- **Exit criteria:** wave-10 draft opens and each patch applies exactly per its table (unit tests); boss at wave 10 spawns and can be killed; FTUE script walkthrough on the emulator matches 07 s3 beats (screenshots at 6 timestamps); late-game stress scene holds the budget in TECH_ARCHITECTURE 2.7 or documents a QualityTier fallback; trademark search (Q31) and a real mid-range device (Q23) done.
-- **Dependencies:** M3. Art lock for the icon and logo waits for Q31.
+- **Goal:** the MVP feature list is complete and polished enough to judge fun. (Visual polish, VFX, juice and battle HUD/panel styling moved to **V1**; M4 is now patches, Intel, damage numbers, audio, FTUE and settings.)
+- **Scope:** 02 s10 patch draft (9 patches: `patch_overcharge`, `patch_plating`, `patch_rate`, `patch_extraction`, `patch_regen`, `patch_ceramic`, `patch_t_glass`, `patch_t_greed`, `patch_t_hardhide`) and 07 s2.9 overlay; `boss_hulk` warning logic and boss banner text (02 s15; the warning ring art is V1); Intel tab Stats and Wave panels; damage numbers (07 s5.5; uses V1 colors and fonts); `vfx_draft_open` (the other VFX ids and skin-burn polish are V1); 2x speed; placeholder SFX and one ambient loop (07 s7); FTUE per 07 s3 minutes 0-10; settings screen and accessibility basics (reduce motion toggle UI feeding V1 `VisualSettings`, shake and scanline options, colorblind palette data using the V1 `tint_hostile` shader hook, high contrast); haptics.
+- **Exit criteria:** wave-10 draft opens and each patch applies exactly per its table (unit tests); boss at wave 10 spawns and can be killed; FTUE script walkthrough on the emulator matches 07 s3 beats (screenshots at 6 timestamps); late-game stress scene holds the budget in TECH_ARCHITECTURE 2.7 or documents a QualityTier fallback (V1 already proves the render side on the emulator; M4 re-checks with patches, numbers and audio on); trademark search (Q31) and a real mid-range device (Q23) done.
+- **Dependencies:** M3 (and V1 for the look). Art lock for the icon and logo waits for Q31.
 - **User playtest:** a fresh-install first 10 minutes, as a new player. Questions: FC2 (understanding without text), FC7 (patch choice), FC8 (skin burn legibility), overall feel.
 
 ### M5 MVP validation, the MVP gate (about 12 tasks, 2-3 weeks)
@@ -106,7 +118,7 @@ Totals: MVP (M0-M5) about 110 tasks; Launch (M0-M7) about 230 tasks. About 9-12 
 ## 4. Critical path
 
 ```
-M0 -> M1 -> M2 -> M3 -> M4 -> M5 (MVP gate) -> M6 (6A -> 6B || 6C -> 6D) -> M7 (7D) -> Launch -> P1 -> P2
+M0 -> M1 -> M2 -> V1 -> M3 -> M4 -> M5 (MVP gate) -> M6 (6A -> 6B || 6C -> 6D) -> M7 (7D) -> Launch -> P1 -> P2
 ```
 
 Parallel tracks that must not slip, because they gate the critical path:
@@ -118,7 +130,8 @@ Parallel tracks that must not slip, because they gate the critical path:
 | Google Play account and testers | start of M3 (account), M4 (testers) | closed-test upload at end of M5, 14 days during M6 | The 12 testers x 14 days rule would otherwise add 3-5 weeks after M7 |
 | Trademark, domain, package ID (Q30, Q31, Q34) | before M4 art lock | before first Play upload (end of M5) | Package ID is permanent; privacy-policy URL is required for a closed test |
 | Backend track (7A) | after M3 (save format frozen) and Q26 | M7 | Cloud save needs the final save schema; parallelizable with M6 content |
-| Audio and art commission (Q19, Q14) | M5 | M7 | Placeholders must be replaced before the closed test is public-facing |
+| Audio and art commission (Q19, Q14) | M5 | M7 | Placeholders must be replaced before the closed test is public-facing; V1 art is agent-drawn SVG in swappable slots (`10_art_bible.md` 4.3), so a commissioned set can replace it file by file |
+| Style-frame gate (V1) | start of V1 | before any V1 art production | Prevents producing 20+ sheets in a direction the user rejects |
 
 Gates: G0 plugins (end M0), G1 perf bench (end M1), G2 fun checks (end M5), G3 sector scope (mid M6), G4 closed test passed (M7), G5 soft-launch KPIs (before global launch).
 
@@ -143,7 +156,8 @@ Target state at Launch: personal account assumed (Q24); if an organisation accou
 
 ## 6. Per-milestone user checklist (what only the user can do)
 
-- M0: answer Q25 (GitHub). M1-M2: playtest on the emulator; decide whether the look is right.
+- M0: answer Q25 (GitHub). M1-M2: playtest on the emulator; decide whether the look is right (done 2026-11-08: no, hence V1).
+- V1: **approve or redirect the style frame (the gate)**, answer Q41-Q46, then playtest the finished pass on the emulator.
 - M3: Q24, create Play account. M4: Q23 (real device), Q31 (trademark), Q34/Q30 (domain, package ID), Q36 (testers).
 - M5: run the formal fun checks with testers; upload the closed-test build.
 - M6: Q26 (backend hosting), Q10 (sector count gate), Q15 (languages), Q19 and Q14 (audio/art sources); playtest each sub-phase.
