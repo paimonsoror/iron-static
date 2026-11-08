@@ -33,12 +33,22 @@ var style_frame: bool = false
 var visual: VisualSettings = VisualSettings.new()
 ## SFX and adaptive music (A1). Presentation only: never read by the sim; phase-2 hooks call into it.
 var audio: AudioDirector = AudioDirector.new()
-## In-memory best death wave of sector 1 (lives in the controller; persistence arrives in M3).
+## Persistence (M3-12, no autoloads added): the profile lives in `saves.profile`.
+var saves: SaveService
+var clock: ClockSource = SystemClock.new()
+var settings_applier: SettingsApplier = SettingsApplier.new()
+## One-line notice key for the UI (`save.recovered`, `save.resumed`, `save.run_ended_by_update`); M3-14 shows it.
+var notice: String = ""
+## The profile file is damaged or too new: `SaveService.Problem` (NONE when fine). M3-14 shows the screen.
+var save_problem: SaveService.Problem = SaveService.Problem.NONE
+## Best death wave of sector 1 for this session (lives in the controller; raised from the profile at run start).
 var best_wave_s1: int:
 	get:
 		return controller.best_wave_s1
 	set(value):
 		controller.best_wave_s1 = value
+var _pending_resume: ResumeResult = null
+var _was_paused: bool = false
 
 
 func _ready() -> void:
@@ -62,10 +72,78 @@ func _ready() -> void:
 		audio.disabled = true
 		audio.settings.muted = true
 	audio.setup()
+	setup_persistence(DiskSaveFs.new(), OS.get_cmdline_user_args())
 
 
 func _process(delta: float) -> void:
 	controller.update(delta)
+	if saves != null:
+		if controller.paused and not _was_paused:
+			@warning_ignore("return_value_discarded")  # the pause overlay opened: checkpoint between ticks
+			saves.checkpoint_now()
+		_was_paused = controller.paused
+		@warning_ignore("return_value_discarded")
+		saves.tick(delta)
+
+
+## Lifecycle saves (TECH_ARCHITECTURE 2.8 / 5.3, V1-24): synchronous, between ticks. Desktop focus changes do
+## not save (same rule as the pause); closing the window does.
+func _notification(what: int) -> void:
+	if saves == null:
+		return
+	var flush: bool = (
+		what == NOTIFICATION_APPLICATION_PAUSED
+		or what == NOTIFICATION_WM_GO_BACK_REQUEST
+		or what == NOTIFICATION_WM_CLOSE_REQUEST
+		or (what == NOTIFICATION_APPLICATION_FOCUS_OUT and OS.has_feature("mobile"))
+	)
+	if flush:
+		saves.flush_for_background()
+
+
+## Boot persistence (also called by tests with a `MemorySaveFs`): builds the service, loads the profile,
+## applies the settings, then prepares a resume of an interrupted run. Never blocks on a bad snapshot.
+func setup_persistence(fs: SaveFs, args: PackedStringArray) -> void:
+	saves = SaveService.new(fs, clock, Crypto.new().generate_random_bytes(16).hex_encode())
+	saves.attach(controller)
+	controller.run_ended.connect(_on_run_ended)  # after the service's own banking handler
+	var status: LoadResult.Status = saves.load_profile()
+	save_problem = saves.problem
+	notice = saves.notice
+	Log.info("[SAVE] boot load status=%s problem=%s" % [LoadResult.Status.keys()[status], str(save_problem)])
+	settings_applier.apply(PlayerSettings.from_dict(saves.profile.settings), visual, audio.settings, args)
+	if save_problem == SaveService.Problem.NONE and not debug_load and not style_frame:
+		_pending_resume = saves.try_resume(_resume_config)
+		if saves.notice != notice:
+			notice = saves.notice
+
+
+## The profile (`saves.profile`).
+func profile() -> PlayerProfile:
+	return saves.profile
+
+
+## Hook after a run was banked and its profile save returned true (the snapshot is already cleared by
+## `SaveService.bank_run`, in that order); M3-14/17 may extend it.
+func on_run_banked() -> void:
+	Log.info("run banked unlocked=%s" % str(saves.last_unlocked_frames))
+
+
+@warning_ignore("unused_parameter")
+func _on_run_ended(ended_world: SimWorld) -> void:  # gdlint: ignore=unused-argument
+	if saves.last_bank_saved:
+		on_run_banked()
+
+
+func _resume_config(info: SnapshotInfo) -> SimConfig:
+	var cfg: SimConfig = SimConfigLoader.load_default(info.seed_value)
+	cfg.best_wave_s1 = info.best_wave_s1
+	cfg.debug_invulnerable = info.debug_invulnerable
+	SimConfigLoader.apply_foundry(cfg, saves.profile.foundry)
+	if info.frame_id != PlayerProfile.DEFAULT_FRAME:
+		@warning_ignore("return_value_discarded")  # unknown frame id: config stays VANGUARD, restore refuses it
+		SimConfigLoader.apply_frame(cfg, info.frame_id)
+	return cfg
 
 
 ## Upgrade panel purchase: queued, applied at the start of the next controller update (see RunController).
@@ -74,16 +152,27 @@ func request_buy(upgrade_index: int, count: int) -> void:
 	controller.request_buy(upgrade_index, count)
 
 
-## Starts a normal deployment with `seed_value` (first run: RunController.DEFAULT_SEED, then +1 per redeploy).
-func start_run(seed_value: int) -> void:
-	controller.start_run(seed_value)
-	Log.info("run started seed=%d" % seed_value)
+## Starts a normal deployment. At boot a pending run snapshot resumes instead (paused behind the overlay).
+## (impl) `legacy_seed` is ignored: the seed is DEFAULT_SEED + run id - 1 (Q61), the id from the profile;
+## main.gd still passes DEFAULT_SEED until M3-14 reworks the flow.
+@warning_ignore("unused_parameter")
+func start_run(legacy_seed: int = 0) -> void:  # gdlint: ignore=unused-argument
+	if _pending_resume != null and _pending_resume.status == ResumeResult.Status.RESUMED:
+		var res: ResumeResult = _pending_resume
+		_pending_resume = null
+		@warning_ignore("return_value_discarded")
+		controller.resume_run(res.world, res.info.run_id)
+		Log.info("run resumed run=%d tick=%d" % [res.info.run_id, res.world.tick])
+		return
+	_pending_resume = null
+	@warning_ignore("return_value_discarded")
+	saves.start_run()
+	Log.info("run started seed=%d run=%d" % [controller.seed_value, controller.run_id])
 
 
-## Starts the next deployment (seed + 1).
+## Starts the next deployment (next run id, Foundry levels from the profile).
 func redeploy() -> void:
-	controller.redeploy()
-	Log.info("run started seed=%d" % controller.seed_value)
+	start_run()
 
 
 ## High-load scenario: invulnerable run, fast-forwarded (unrendered) to `wave` (default `debug_load_wave`, 60),

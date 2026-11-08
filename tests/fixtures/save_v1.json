@@ -1,0 +1,43 @@
+{
+	"schema_version": 1,
+	"profile": {
+		"data": "1.5e12",
+		"flux": 3,
+		"cipher": 0,
+		"merit": 0,
+		"foundry": {
+			"laser_output": 12,
+			"cycle_rate": 9,
+			"hull_integrity": 7,
+			"nano_repair": 4
+		},
+		"best_wave": {
+			"1": 14
+		},
+		"runs_total": 23,
+		"run_counter": 24,
+		"last_banked_run": 23,
+		"lifetime_data": "4.2e13",
+		"farm_rate_1x": 812.5,
+		"settings": {
+			"music": 0.6,
+			"sfx": 0.8,
+			"muted": false,
+			"reduce_motion": true,
+			"shake": "low",
+			"scanlines": "normal",
+			"number_format": "scientific",
+			"fps_cap": 30
+		},
+		"frames_unlocked": ["vanguard", "bulwark"],
+		"frame_selected": "bulwark",
+		"last_active_utc": 1793000000,
+		"device_id": "00112233445566778899aabbccddeeff",
+		"created_utc": 1792000000,
+		"future_flag": {
+			"note": "unknown key, must survive a round trip"
+		}
+	},
+	"runs_stats": {},
+	"config_version": 1
+}

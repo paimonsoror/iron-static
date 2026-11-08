@@ -45,16 +45,32 @@ var last_usec: int = 0
 var best_wave_s1: int = 0
 ## Where the run record is written at run end (tests override it).
 var last_run_path: String = LAST_RUN_DIR + "/" + LAST_RUN_FILE
+## Persistent run id (profile run counter, M3-12); 0 for debug and bare test runs.
+var run_id: int = 0
 var _pending_buys: Array[Vector2i] = []
 var _load_run: bool = false
 
 
 ## Creates a fresh world for `seed_value` and enters IN_RUN. `invulnerable` and `load_target` are debug-only.
-func start_run(new_seed: int, invulnerable: bool = false, load_target: int = 0) -> SimWorld:
+func start_run(
+	new_seed: int,
+	invulnerable: bool = false,
+	load_target: int = 0,
+	foundry_levels: Dictionary = {},
+	new_run_id: int = 0,
+	frame_id: String = "",
+) -> SimWorld:
 	seed_value = new_seed
+	run_id = new_run_id
 	var cfg: SimConfig = SimConfigLoader.load_default(new_seed)
 	cfg.debug_invulnerable = invulnerable
 	cfg.best_wave_s1 = best_wave_s1
+	if not foundry_levels.is_empty():
+		SimConfigLoader.apply_foundry(cfg, foundry_levels)
+	if not frame_id.is_empty() and frame_id != PlayerProfile.DEFAULT_FRAME:
+		var applied: bool = SimConfigLoader.apply_frame(cfg, frame_id)  # unknown id: push_error, stays VANGUARD
+		if not applied:
+			Log.warn("run start: frame '%s' not applied" % frame_id)
 	world = SimWorld.new(cfg)
 	driver = TickDriver.new()
 	load_wave = load_target
@@ -71,6 +87,29 @@ func start_run(new_seed: int, invulnerable: bool = false, load_target: int = 0) 
 ## Starts the next deployment with seed = previous seed + 1 (normal rules, no debug flags).
 func redeploy() -> SimWorld:
 	return start_run(seed_value + 1)
+
+
+## True when this run's result counts for the profile (not a debug-load or invulnerable run).
+func banks_rewards() -> bool:
+	return not _load_run
+
+
+## Enters IN_RUN on a world rebuilt from a run snapshot (M3-13). Resumes PAUSED: the player taps to continue.
+func resume_run(restored: SimWorld, resumed_run_id: int) -> SimWorld:
+	world = restored
+	seed_value = restored.config.seed_value
+	run_id = resumed_run_id
+	driver = TickDriver.new()
+	load_wave = 0
+	time_scale = 1.0
+	_load_run = false
+	_pending_buys.clear()
+	last_ticks = 0
+	last_usec = 0
+	paused = true
+	state = State.IN_RUN
+	run_started.emit(world)
+	return world
 
 
 ## Queues a purchase from the UI (applied at the start of the next update()). Returns false when dropped.
