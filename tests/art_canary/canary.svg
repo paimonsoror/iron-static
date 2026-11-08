@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="128" viewBox="0 0 300 128">
+<g id="slot.frame_0"><circle cx="64" cy="64" r="40" fill="#FF2D4B"/></g>
+<g id="slot.frame_1" transform="translate(128,0)"><circle cx="64" cy="64" r="40" fill="#FF2D4B"/></g>
+<g id="slot.stray"><rect x="270" y="40" width="20" height="40" fill="#FFB000"/></g>
+</svg>

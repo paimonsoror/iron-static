@@ -1,0 +1,6 @@
+<!-- art-lint-fixture: file=icons/cur_data.svg expect=mask-gradient -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs><linearGradient id="g"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#000000"/></linearGradient>
+<mask id="m" maskUnits="userSpaceOnUse"><rect width="128" height="128" fill="url(#g)"/></mask></defs>
+<g id="slot.cur_data"><rect width="60" height="60" fill="#FFB000" mask="url(#m)"/></g>
+</svg>

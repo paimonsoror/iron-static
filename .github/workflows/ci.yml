@@ -38,6 +38,12 @@ jobs:
       - name: Repo rules
         run: python tools/lint_repo.py
 
+      - name: Art SVG lint
+        run: |
+          python tools/art_rules_gen.py --check
+          python tools/art_lint.py
+          python tools/art_lint.py --self-test
+
       - name: gdformat and gdlint
         run: |
           mapfile -t files < <(python tools/lint_repo.py --list-gd)

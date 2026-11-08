@@ -59,6 +59,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 | Balance run vs targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` | done (M2-14; exit 0 PASS/WARN, 1 FAIL, 2 error; skill: balance-check) |
 | CI compile gate (portable twin of lint's compile step; CI: `docs/setup/ci.md`) | `.venv\Scripts\python.exe tools\compile_gate.py --godot <godot> --project .` | done (M0-13) |
 | Render SVGs to PNG (ThorVG, same as importer) to inspect art | `.\tools\svg_render.ps1 [-Scale 2] [-Bg "#07090C"] [-Out build\svg] <files>` | done (V1) |
+| Art SVG lint (rules `tools/art_rules.json`, table `assets/art/slots.csv`; part of `lint.ps1`) / pixel check of sheets (`-Canary` proves detection) | `.\tools\art_lint.ps1 [files]` / `.\tools\art_check.ps1 [-Only f]` | done (V1-02) |
 | Screenshot from emulator | `cmd /c "cd /d C:\ && adb exec-out screencap -p > C:\dev\tower\build\shot.png"` | done |
 
 ## Definition of done (every task)
@@ -115,3 +116,4 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - `floor()`/`ceil()` return Variant: use `floori`/`ceili`. UI sizes are in 1080-wide base pixels: 1 dp = 2.63 px (body text >= 38 px, touch targets >= 148 px; see `ThemeBuilder` constants).
 - Call `world.command_buy` only between frames (never inside `driver.advance`); it logs `world.tick` and applies before that tick. Sim outcome changes need a `SimVersion.CURRENT` bump; after CSV balance edits refresh the golden constants in `tests/sim/test_replay.gd`.
 - GDScript `%` formatting breaks on `%`-prefixed node paths (`"%Node/x_%d" % k`): concatenate. `test.ps1 -Path a,b` only splits when run from PowerShell, not via `powershell -File` from bash.
+- Art slots (V1-02): `assets/art/slots.csv` uses the `keep` importer (not a translation) and is read by `ArtSlots` via FileAccess; edit art layout there, never in code. Run python tools with `-I` (a stray `types.py` in the cwd or script dir shadows the stdlib); `ArtSlots.log_errors = false` in tests that exercise missing files (push_error fails a test run).

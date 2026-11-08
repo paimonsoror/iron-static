@@ -12,7 +12,7 @@ const RING_POINTS: int = 96
 const VIGNETTE_STEPS: int = 6
 const VIGNETTE_PX: float = 160.0
 
-var _px_per_m: float = 28.0
+var _px_per_m: float = 33.75
 var _arena_radius_m: float = 52.0
 var _optic_range_m: float = 0.0
 var _rect := Rect2(-540.0, -538.0, 1080.0, 1076.0)
@@ -36,23 +36,23 @@ func set_optic_range(range_m: float) -> void:
 
 func _draw() -> void:
 	draw_rect(_rect, Palette.VOID)
-	var arena_px: float = _arena_radius_m * _px_per_m
+	var arena_px: float = ViewMath.map_dist(_arena_radius_m, _px_per_m)
 	var faint := Color(Palette.GRID, 1.0)
 	for k: int in SPOKES:
 		var dir: Vector2 = Vector2.from_angle(TAU * float(k) / float(SPOKES))
 		draw_line(Vector2.ZERO, dir * arena_px, faint, 2.0)
 	var rings: int = floori(_arena_radius_m / RING_STEP_M)
 	for i: int in range(1, rings + 1):
-		var r: float = float(i) * RING_STEP_M * _px_per_m
+		var r: float = ViewMath.map_dist(float(i) * RING_STEP_M, _px_per_m)
 		draw_arc(Vector2.ZERO, r, 0.0, TAU, RING_POINTS, faint, 2.0, true)
 	var edge := Color(Palette.RED_HAZE.lerp(Palette.CRITICAL, 0.35), 0.8)
 	draw_arc(Vector2.ZERO, arena_px, 0.0, TAU, RING_POINTS * 2, edge, 3.0, true)
 	var ring_col := Color(Palette.AMBER_DIM, 0.45)
 	for m: float in RANGE_RINGS_M:
-		draw_arc(Vector2.ZERO, m * _px_per_m, 0.0, TAU, RING_POINTS, ring_col, 2.0, true)
+		draw_arc(Vector2.ZERO, ViewMath.map_dist(m, _px_per_m), 0.0, TAU, RING_POINTS, ring_col, 2.0, true)
 	if _optic_range_m > 0.0:
 		var optic := Color(Palette.AMBER, 0.35)
-		draw_arc(Vector2.ZERO, _optic_range_m * _px_per_m, 0.0, TAU, RING_POINTS, optic, 2.0, true)
+		draw_arc(Vector2.ZERO, ViewMath.map_dist(_optic_range_m, _px_per_m), 0.0, TAU, RING_POINTS, optic, 2.0, true)
 	_draw_vignette()
 
 

@@ -1,96 +1,124 @@
-slot,file,glow_file,cell_w,cell_h,frames,pivot_x,pivot_y,fps,body_radius_px,texel_per_px,family,cell_x,cell_y,sheet_size,palette,notes
-skitter,skitter.svg,skitter_glow.svg,192,192,4,96,96,8,32,2.0,enemy,0,0,768x192 (glow 384x96),#12060A;#2A0A10;#4A1220;#7A1E30;#FF2D4B;#FF6B7E;#FFC2CC;#8A1F78;#FF4FD8;#FF9AE8;#FFE0F8,wedge crawler; glow cells half size same layout
-dart,dart.svg,dart_glow.svg,256,160,4,112,80,14,28,2.0,enemy,0,0,1024x160 (glow 512x80),#12060A;#2A0A10;#4A1220;#7A1E30;#FF2D4B;#FF6B7E;#FFC2CC;#8A1F78;#FF4FD8;#FF9AE8;#FFE0F8,arrowhead length 90 px; pivot behind tip
-walker,walker.svg,walker_glow.svg,384,384,4,192,192,5,70,2.0,enemy,0,0,1536x384 (glow 768x192),#12060A;#2A0A10;#4A1220;#7A1E30;#FF2D4B;#FF6B7E;#FFC2CC;#8A1F78;#FF4FD8;#FF9AE8;#FFE0F8,"siege hull, hazard stripe on front plate"
-lancer,lancer.svg,lancer_glow.svg,288,224,3,112,112,0,36,2.0,enemy,0,0,864x224 (glow 432x112),#12060A;#2A0A10;#4A1220;#7A1E30;#FF2D4B;#FF6B7E;#FFC2CC;#8A1F78;#FF4FD8;#FF9AE8;#FFE0F8,frames = idle/charge/fire picked by event (fps 0); barrel to 58 px
-boss_hulk,boss_hulk.svg,boss_hulk_glow.svg,640,640,1,320,320,6,150,1.5,enemy,0,0,640x640 (glow 1280x320: 4 cells 320x320),#1A0509;#3A0F18;#6A1C2A;#9A2E3E;#FF5A3C;#FF3B30;#FFE3A3,body 1 frame; glow 4 frames at 6 fps; plates reserved in boss_hulk_plates.svg
-bolt,bolt.svg,bolt_glow.svg,128,64,2,56,32,12,22,2.0,enemy,0,0,256x64 (glow 128x32),#8A1F78;#FF4FD8;#FF9AE8;#FFE0F8,magenta diamond; 22 px long on screen
-aegis_node,,,320,320,4,160,160,,,2.0,enemy,,,,,"reserved, not authored in V1"
-shade,,,192,192,4,96,96,,,2.0,enemy,,,,,"reserved, not authored in V1"
-jammer,,,256,256,4,128,128,,,2.0,enemy,,,,,"reserved, not authored in V1"
-mender,,,288,288,4,144,144,,,2.0,enemy,,,,,"reserved, not authored in V1"
-siege_lance,,,384,384,4,192,192,,,2.0,enemy,,,,,"reserved, not authored in V1"
-siphon,,,256,256,4,128,128,,,2.0,enemy,,,,,"reserved, not authored in V1"
-brood,,,256,256,4,128,128,,,2.0,enemy,,,,,"reserved, not authored in V1"
-boss_hive,,,640,640,1,320,320,,,1.5,enemy,,,,,"reserved, not authored in V1"
-boss_lance,,,640,640,1,320,320,,,1.5,enemy,,,,,"reserved, not authored in V1"
-boss_null,,,640,640,1,320,320,,,1.5,enemy,,,,,"reserved, not authored in V1"
-cinder_frame,cinder.svg,cinder_glow.svg,448,448,1,224,224,,100,2.0,cinder,0,0,"1024x1024 (glow 512x512, cells half size)",#8A5A44;#D9A383;#F0C4A0;#FFE6CC;#1F1612;#3A2A22;#5A4034;#7A5A48;#2B343B;#56656F;#8FA3B0;#D4E0E8;#8A5F00;#FFB000;#FFD27A;#FFF1C9;#FFE3A3;#FFFFFF;#FF3B30;#FF8A1F,cell of cinder sheet; glow cell = same rect halved
-cinder_emitter_ring,cinder.svg,cinder_glow.svg,448,448,1,224,224,,,2.0,cinder,448,0,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_wedge_a_intact,cinder.svg,cinder_glow.svg,128,112,1,64,196,,,2.0,cinder,0,448,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_wedge_b_intact,cinder.svg,cinder_glow.svg,128,112,1,64,196,,,2.0,cinder,128,448,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_wedge_a_charred,cinder.svg,cinder_glow.svg,128,112,1,64,196,,,2.0,cinder,256,448,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_wedge_b_charred,cinder.svg,cinder_glow.svg,128,112,1,64,196,,,2.0,cinder,384,448,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_core_housing,cinder.svg,cinder_glow.svg,160,160,1,80,80,,,2.0,cinder,512,448,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_core,cinder.svg,cinder_glow.svg,128,128,1,64,64,,,2.0,cinder,672,448,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_core_crack,cinder.svg,cinder_glow.svg,128,128,1,64,64,,,2.0,cinder,800,448,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_visor,cinder.svg,cinder_glow.svg,160,48,1,80,164,,,2.0,cinder,0,576,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_shoulder,cinder.svg,cinder_glow.svg,224,160,1,150,96,,,2.0,cinder,448,576,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_shadow,cinder.svg,cinder_glow.svg,336,336,1,168,168,,,2.0,cinder,672,576,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-cinder_integrity_ticks,cinder.svg,cinder_glow.svg,448,64,1,224,32,,,2.0,cinder,0,704,"1024x1024 (glow 512x512, cells half size)",,cell of cinder sheet; glow cell = same rect halved
-arena_floor,arena_floor.svg,,1080,1344,1,540,672,,,1.0,floor,0,0,1080x1344,#07090C;#0B0E13;#12171D;#1B222B;#8A5F00,battle rect; circular deck
-fx_halo_soft,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,0,0,1024x512,#FFFFFF,"white/neutral, tinted at use; proposed grid, fx_sheet.svg owner's layout wins"
-fx_flash_disc,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,128,0,,,
-fx_flare_star_4,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,256,0,,,
-fx_flare_star_8,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,384,0,,,
-fx_ring_thin,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,512,0,,,
-fx_ring_thick,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,640,0,,,
-fx_smoke_puff_a,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,768,0,,,
-fx_smoke_puff_b,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,896,0,,,
-fx_spark_a,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,0,128,,,sparks are 64x16 streaks inside the 128 cell
-fx_spark_b,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,128,128,,,sparks are 64x16 streaks inside the 128 cell
-fx_spark_c,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,256,128,,,sparks are 64x16 streaks inside the 128 cell
-fx_ember_a,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,384,128,,,
-fx_ember_b,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,512,128,,,
-fx_shard_1,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,640,128,,,
-fx_shard_2,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,768,128,,,
-fx_shard_3,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,896,128,,,
-fx_shard_4,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,0,256,,,
-fx_shard_5,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,128,256,,,
-fx_shard_6,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,256,256,,,
-fx_scan_sweep,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,384,256,,,
-fx_muzzle_cone,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,512,256,,,
-fx_beam_cap,fx_sheet.svg,,128,128,1,64,64,,,2.0,fx,640,256,,,
-fx_beam_strip,fx_sheet.svg,,256,32,1,128,16,,,2.0,fx,0,384,,,separate row; proposed
-ui_panel_plate,ui_kit.svg,,96,96,1,28,28,,,1.0,ui,0,0,512x384,#080B10;#0D1117;#151B24;#222B38;#8A5F00;#FFB000;#FFD27A;#FFF1C9;#07090C;#8FA3B0;#FFFFFF;#D4E0E8,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_panel_plate_active,ui_kit.svg,,96,96,1,28,28,,,1.0,ui,104,0,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_panel_inset,ui_kit.svg,,96,96,1,24,24,,,1.0,ui,208,0,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_tooltip_plate,ui_kit.svg,,96,96,1,24,24,,,1.0,ui,312,0,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_button_plate,ui_kit.svg,,96,96,1,28,28,,,1.0,ui,0,104,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_button_plate_pressed,ui_kit.svg,,96,96,1,28,28,,,1.0,ui,104,104,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_button_plate_disabled,ui_kit.svg,,96,96,1,28,28,,,1.0,ui,208,104,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_button_plate_affordable,ui_kit.svg,,96,96,1,28,28,,,1.0,ui,312,104,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_tab_plate,ui_kit.svg,,96,96,1,28,28,,,1.0,ui,0,208,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_tab_plate_active,ui_kit.svg,,96,96,1,28,28,,,1.0,ui,104,208,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_bar_frame,ui_kit.svg,,96,40,1,16,16,,,1.0,ui,208,208,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_bar_segment,ui_kit.svg,,24,24,1,0,0,,,1.0,ui,312,208,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_bar_segment_off,ui_kit.svg,,24,24,1,0,0,,,1.0,ui,344,208,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_bar_tick_minor,ui_kit.svg,,8,16,1,0,0,,,1.0,ui,376,208,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_bar_tick_major,ui_kit.svg,,8,24,1,0,0,,,1.0,ui,392,208,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_bracket_corner,ui_kit.svg,,48,48,1,0,0,,,1.0,ui,0,312,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-ui_divider,ui_kit.svg,,96,8,1,16,0,,,1.0,ui,56,312,,,"pivot_x/pivot_y = 9-slice margin_x(left,right)/margin_y(top,bottom)"
-icon_laser_output,icons/laser_output.svg,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,#FFB000;#FFD27A;#FFF1C9;#FFE3A3;#8A5F00;#080B10;#0D1117;#151B24;#D6B36A;#5BC8FF,authored in V1-01
-icon_cycle_rate,icons/cycle_rate.svg,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,#FFB000;#FFD27A;#FFF1C9;#FFE3A3;#8A5F00;#080B10;#0D1117;#151B24;#D6B36A;#5BC8FF,authored in V1-01
-icon_crit_chance,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_crit_mult,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_optic_range,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_hull_integrity,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_nano_repair,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_plating_pct,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_scrap_yield,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_reinvest,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_tab_arms,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_tab_chassis,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_tab_systems,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_tab_intel,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_cur_scrap,icons/cur_scrap.svg,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,#FFB000;#FFD27A;#FFF1C9;#FFE3A3;#8A5F00;#080B10;#0D1117;#151B24;#D6B36A;#5BC8FF,authored in V1-01
-icon_cur_data,icons/cur_data.svg,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,#FFB000;#FFD27A;#FFF1C9;#FFE3A3;#8A5F00;#080B10;#0D1117;#151B24;#D6B36A;#5BC8FF,authored in V1-01
-icon_cur_flux,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_cur_cipher,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_cur_merit,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_ic_speed,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_ic_pause,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_ic_play,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_ic_settings,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_ic_lock,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
-icon_ic_check,,,128,128,1,64,64,,,dpi,icon,0,0,128x128 viewBox,,V1-07 (not authored in V1-01)
+# IRON STATIC art slot table (V1-02, locked schema). Source of truth for sheet layout; read at runtime by ArtSlots and by tools/art_lint.py and tools/art_check.gd.
+# One row per slot. A slot is one cell (or `frames` equal cells laid out left to right starting at cell_x,cell_y) of one sheet file under assets/art/src/.
+# slot: unique id. file: sheet path relative to assets/art/src/ (empty = reserved). glow_file: glow sheet of the family (informational; lint checks the pair).
+# glow_slot: slot id of the paired additive glow cell(s). A glow row has its own file, sheet size and cell rect (half size, same layout; its texel_per_px is half of the body).
+# sheet_w,sheet_h: canvas size in texels (the SVG width/height/viewBox must equal it). cell_x,cell_y,cell_w,cell_h: first frame rect in texels. frames: frame count.
+# pivot_x,pivot_y: pivot inside the cell in texels (ui rows: 9-slice margins left/right and top/bottom). fps: flipbook rate (0 = event driven).
+# body_radius_px: on-screen hull radius at 1080 width before visual_scale (empty = n/a). texel_per_px: texels per on-screen px (0 = DPI independent icon).
+# visual_scale: per-slot multiplier on top of the global visual scale (walker 0.8 = V1-GATE decision). aspect: expected width/height of the solid silhouette (empty = no guard).
+# margin: texels that must stay transparent inside the cell border (pixel check). min_coverage: minimum % of cell pixels with alpha >= 10/255 (empty = 3). blend: normal|add. family: enemy|cinder|fx|ui|floor|icon.
+# status: ready (authored, fully checked) | todo (cell reserved on a sheet, art task pending, emptiness not checked) | reserved (no file yet).
+slot,file,glow_file,glow_slot,sheet_w,sheet_h,cell_x,cell_y,cell_w,cell_h,frames,pivot_x,pivot_y,fps,body_radius_px,texel_per_px,visual_scale,aspect,margin,min_coverage,blend,family,status,notes
+skitter,skitter.svg,skitter_glow.svg,skitter_glow,768,192,0,0,192,192,4,96,96,8,32,2,1,1,4,,normal,enemy,ready,wedge crawler; legs reach 1.35 r
+skitter_glow,skitter_glow.svg,,,384,96,0,0,96,96,4,48,48,8,,1,1,,6,,add,enemy,ready,"glow half size, same layout, additive"
+dart,dart.svg,dart_glow.svg,dart_glow,1024,160,0,0,256,160,4,112,80,14,28,2,1,1.6,4,,normal,enemy,ready,arrowhead length 90 px; pivot behind the tip
+dart_glow,dart_glow.svg,,,512,80,0,0,128,80,4,56,40,14,,1,1,,6,,add,enemy,ready,"glow half size, same layout, additive"
+walker,walker.svg,walker_glow.svg,walker_glow,1536,384,0,0,384,384,4,192,192,5,70,2,0.8,1,4,,normal,enemy,ready,siege hull; visual_scale 0.8 = V1-GATE walker 20% reduction (body about 112 px)
+walker_glow,walker_glow.svg,,,768,192,0,0,192,192,4,96,96,5,,1,0.8,,6,,add,enemy,ready,"glow half size, same layout, additive"
+lancer,lancer.svg,lancer_glow.svg,lancer_glow,864,224,0,0,288,224,3,112,112,0,36,2,1,1.6,4,,normal,enemy,ready,frames idle/charge/fire picked by the view; barrel to 58 px
+lancer_glow,lancer_glow.svg,,,432,112,0,0,144,112,3,56,56,0,,1,1,,6,,add,enemy,ready,"glow half size, same layout, additive"
+boss_hulk,boss_hulk.svg,boss_hulk_glow.svg,boss_hulk_glow,640,640,0,0,640,640,1,320,320,6,150,1.5,1,1,4,,normal,enemy,ready,body 1 frame; glow sheet holds 4 reactor frames at 6 fps
+boss_hulk_glow,boss_hulk_glow.svg,,,1280,320,0,0,320,320,4,160,160,6,,0.75,1,,6,,add,enemy,ready,"glow half size, same layout, additive"
+bolt,bolt.svg,bolt_glow.svg,bolt_glow,256,64,0,0,128,64,2,56,32,12,22,2,1,2.4,4,,normal,enemy,ready,magenta diamond with tail; 22 px long
+bolt_glow,bolt_glow.svg,,,128,32,0,0,64,32,2,28,16,12,,1,1,,6,,add,enemy,ready,"glow half size, same layout, additive"
+aegis_node,,,,,,,,320,320,4,160,160,,,2,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+shade,,,,,,,,192,192,4,96,96,,,2,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+jammer,,,,,,,,256,256,4,128,128,,,2,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+mender,,,,,,,,288,288,4,144,144,,,2,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+siege_lance,,,,,,,,384,384,4,192,192,,,2,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+siphon,,,,,,,,256,256,4,128,128,,,2,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+brood,,,,,,,,256,256,4,128,128,,,2,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+boss_hive,,,,,,,,640,640,1,320,320,,,1.5,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+boss_lance,,,,,,,,640,640,1,320,320,,,1.5,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+boss_null,,,,,,,,640,640,1,320,320,,,1.5,1,,,,normal,enemy,reserved,"reserved, not authored in V1"
+cinder_frame,cinder.svg,cinder_glow.svg,cinder_frame_hot,1024,1024,0,0,448,448,1,224,224,,100,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_emitter_ring,cinder.svg,cinder_glow.svg,cinder_emitter_glow,1024,1024,448,0,448,448,1,224,224,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_wedge_a_intact,cinder.svg,,,1024,1024,0,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_wedge_b_intact,cinder.svg,,,1024,1024,128,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_wedge_a_charred,cinder.svg,cinder_glow.svg,cinder_ember_edge_a,1024,1024,256,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_wedge_b_charred,cinder.svg,cinder_glow.svg,cinder_ember_edge_b,1024,1024,384,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_core_housing,cinder.svg,,,1024,1024,512,448,160,160,1,80,80,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_core,cinder.svg,cinder_glow.svg,cinder_halo_core,1024,1024,672,448,128,128,1,64,64,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_core_crack,cinder.svg,cinder_glow.svg,cinder_core_crack_glow,1024,1024,800,448,128,128,1,64,64,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_core_hot,cinder.svg,cinder_glow.svg,cinder_core_hot_halo,1024,1024,0,768,128,128,1,64,64,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_visor,cinder.svg,cinder_glow.svg,cinder_visor_glow,1024,1024,0,576,160,48,1,80,164,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_shoulder,cinder.svg,cinder_glow.svg,cinder_shoulder_glow,1024,1024,448,608,224,160,1,150,96,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_shadow,cinder.svg,,,1024,1024,672,576,336,336,1,168,168,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_integrity_ticks,cinder.svg,cinder_glow.svg,cinder_integrity_halo,1024,1024,0,704,448,64,1,224,32,,,2,1,,4,,normal,cinder,ready,cell of the cinder body sheet
+cinder_frame_hot,cinder_glow.svg,,,512,512,0,0,216,216,1,108,108,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+cinder_emitter_glow,cinder_glow.svg,,,512,512,216,0,224,224,1,112,112,,,1,1,,2,1,add,cinder,ready,three small lens glows (1.3% coverage); lens glow reaches 3 texels from the top edge: margin relaxed to 2 until V1-04 shrinks it to the 6 texel rule
+cinder_ember_edge_a,cinder_glow.svg,,,512,512,440,0,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+cinder_ember_edge_b,cinder_glow.svg,,,512,512,440,72,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+cinder_seam_glow,cinder_glow.svg,,,512,512,440,144,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+cinder_halo_core,cinder_glow.svg,,,512,512,0,232,248,248,1,124,124,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+cinder_core_hot_halo,cinder_glow.svg,,,512,512,248,232,192,192,1,96,96,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+cinder_core_crack_glow,cinder_glow.svg,,,512,512,440,232,72,72,1,36,36,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+cinder_shoulder_glow,cinder_glow.svg,,,512,512,440,312,72,72,1,36,36,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+cinder_visor_glow,cinder_glow.svg,,,512,512,248,432,100,44,1,53,90,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+cinder_integrity_halo,cinder_glow.svg,,,512,512,248,480,224,28,1,112,14,,,1,1,,6,,add,cinder,ready,"cell of the cinder glow sheet (half size, additive)"
+arena_floor,arena_floor.svg,,,1080,1344,0,0,1080,1344,1,540,672,,,1,1,,0,,normal,floor,ready,battle rect; circular deck; fills the whole canvas
+fx_halo_soft,fx_sheet.svg,,,1024,512,0,0,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_flash_disc,fx_sheet.svg,,,1024,512,128,0,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_flare_star_4,fx_sheet.svg,,,1024,512,256,0,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_flare_star_8,fx_sheet.svg,,,1024,512,384,0,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_ring_thin,fx_sheet.svg,,,1024,512,512,0,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_ring_thick,fx_sheet.svg,,,1024,512,640,0,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_smoke_puff_a,fx_sheet.svg,,,1024,512,768,0,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
+fx_smoke_puff_b,fx_sheet.svg,,,1024,512,896,0,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
+fx_spark_a,fx_sheet.svg,,,1024,512,0,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_spark_b,fx_sheet.svg,,,1024,512,128,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_spark_c,fx_sheet.svg,,,1024,512,256,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_ember_a,fx_sheet.svg,,,1024,512,384,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_ember_b,fx_sheet.svg,,,1024,512,512,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_shard_1,fx_sheet.svg,,,1024,512,640,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_shard_2,fx_sheet.svg,,,1024,512,768,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_shard_3,fx_sheet.svg,,,1024,512,896,128,128,128,1,64,64,,,2,1,,4,,add,fx,ready,"white/neutral, tinted at use"
+fx_shard_4,fx_sheet.svg,,,1024,512,0,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
+fx_shard_5,fx_sheet.svg,,,1024,512,128,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
+fx_shard_6,fx_sheet.svg,,,1024,512,256,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
+fx_scan_sweep,fx_sheet.svg,,,1024,512,384,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
+fx_muzzle_cone,fx_sheet.svg,,,1024,512,512,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
+fx_beam_cap,fx_sheet.svg,,,1024,512,640,256,128,128,1,64,64,,,2,1,,4,,add,fx,todo,"white/neutral, tinted at use; authored by V1-06"
+fx_beam_strip,fx_sheet.svg,,,1024,512,0,384,256,32,1,128,16,,,2,1,,0,,add,fx,todo,"beam body strip, separate row; authored by V1-06"
+ui_panel_plate,ui_kit.svg,,,512,384,0,0,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_panel_plate_active,ui_kit.svg,,,512,384,104,0,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_panel_inset,ui_kit.svg,,,512,384,208,0,96,96,1,24,24,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_tooltip_plate,ui_kit.svg,,,512,384,312,0,96,96,1,24,24,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_button_plate,ui_kit.svg,,,512,384,0,104,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_button_plate_pressed,ui_kit.svg,,,512,384,104,104,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_button_plate_disabled,ui_kit.svg,,,512,384,208,104,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_button_plate_affordable,ui_kit.svg,,,512,384,312,104,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_tab_plate,ui_kit.svg,,,512,384,0,208,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_tab_plate_active,ui_kit.svg,,,512,384,104,208,96,96,1,28,28,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_bar_frame,ui_kit.svg,,,512,384,208,208,96,40,1,16,16,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_bar_segment,ui_kit.svg,,,512,384,312,208,24,24,1,0,0,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_bar_segment_off,ui_kit.svg,,,512,384,344,208,24,24,1,0,0,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_bar_tick_minor,ui_kit.svg,,,512,384,376,208,8,16,1,0,0,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_bar_tick_major,ui_kit.svg,,,512,384,392,208,8,24,1,0,0,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_bracket_corner,ui_kit.svg,,,512,384,0,312,48,48,1,0,0,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+ui_divider,ui_kit.svg,,,512,384,56,312,96,8,1,16,0,,,1,1,,0,,normal,ui,ready,pivot = 9-slice margins LR/TB (divider: cap width); cells fill their rect to the border
+icon_laser_output,icons/laser_output.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_cycle_rate,icons/cycle_rate.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_crit_chance,icons/crit_chance.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_crit_mult,icons/crit_mult.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_optic_range,icons/optic_range.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_hull_integrity,icons/hull_integrity.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_nano_repair,icons/nano_repair.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_plating_pct,icons/plating_pct.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_scrap_yield,icons/scrap_yield.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_reinvest,icons/reinvest.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_tab_arms,icons/tab_arms.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_tab_chassis,icons/tab_chassis.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_tab_systems,icons/tab_systems.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_tab_intel,icons/tab_intel.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_cur_scrap,icons/cur_scrap.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_cur_data,icons/cur_data.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_cur_flux,icons/cur_flux.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_cur_cipher,icons/cur_cipher.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_cur_merit,icons/cur_merit.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_ic_speed,icons/ic_speed.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_ic_pause,icons/ic_pause.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_ic_play,icons/ic_play.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_ic_settings,icons/ic_settings.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_ic_lock,icons/ic_lock.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"
+icon_ic_check,icons/ic_check.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,todo,"128x128 viewBox, DPI independent; authored by V1-07"

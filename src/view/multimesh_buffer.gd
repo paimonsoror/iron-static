@@ -38,9 +38,20 @@ static func write_instance(
 
 
 ## Fills `out` with the alive enemies of `type_index`: position lerp(prev, pos, alpha) in pixels
-## (origin = Cinder, no axis flip), scale = radius in pixels, rotation facing the origin, white.
+## (origin = Cinder, no axis flip), scale = radius * visual_scale in pixels, rotation facing the origin, white.
+## `standoff` applies ViewMath.map_pos after interpolation; a non-empty `cull` rect (local px) skips
+## instances whose center lies outside it (caller grows it by the largest sprite radius).
 ## Returns the instance count (also bounded by out capacity).
-static func fill(store: EnemyStore, type_index: int, alpha: float, px_per_m: float, out: PackedFloat32Array) -> int:
+static func fill(
+	store: EnemyStore,
+	type_index: int,
+	alpha: float,
+	px_per_m: float,
+	out: PackedFloat32Array,
+	visual_scale: float = 1.0,
+	standoff: bool = false,
+	cull: Rect2 = Rect2()
+) -> int:
 	var cap: int = floori(out.size() / float(FLOATS_PER_INSTANCE))
 	var n: int = 0
 	for i: int in store.high_water:
@@ -48,18 +59,32 @@ static func fill(store: EnemyStore, type_index: int, alpha: float, px_per_m: flo
 			continue
 		if n >= cap:
 			break
-		var x: float = lerpf(store.prev_x[i], store.pos_x[i], alpha) * px_per_m
-		var y: float = lerpf(store.prev_y[i], store.pos_y[i], alpha) * px_per_m
-		write_instance(out, n, x, y, atan2(-y, -x), store.radius[i] * px_per_m)
+		var mx: float = lerpf(store.prev_x[i], store.pos_x[i], alpha)
+		var my: float = lerpf(store.prev_y[i], store.pos_y[i], alpha)
+		var k: float = ViewMath.map_factor(mx, my, px_per_m) if standoff else px_per_m
+		var x: float = mx * k
+		var y: float = my * k
+		if cull.has_area() and not cull.has_point(Vector2(x, y)):
+			continue
+		write_instance(out, n, x, y, atan2(-my, -mx), store.radius[i] * px_per_m * visual_scale)
 		n += 1
 	return n
 
 
 ## Fills `out` with alive bolts. ProjectileStore has no previous position, so the interpolated
 ## position is `pos - vel * dt * (1 - alpha)` (alpha 1 = current tick, alpha 0 = one tick back,
-## exact for straight-line bolts). Rotation follows the velocity; scale = `radius_m` in pixels.
+## exact for straight-line bolts). Rotation follows the velocity; scale = `radius_m * visual_scale`
+## in pixels. `standoff` and `cull` as in fill().
 static func fill_bolts(
-	store: ProjectileStore, alpha: float, dt: float, px_per_m: float, radius_m: float, out: PackedFloat32Array
+	store: ProjectileStore,
+	alpha: float,
+	dt: float,
+	px_per_m: float,
+	radius_m: float,
+	out: PackedFloat32Array,
+	visual_scale: float = 1.0,
+	standoff: bool = false,
+	cull: Rect2 = Rect2()
 ) -> int:
 	var cap: int = floori(out.size() / float(FLOATS_PER_INSTANCE))
 	var back: float = dt * (1.0 - alpha)
@@ -71,8 +96,13 @@ static func fill_bolts(
 			break
 		var vx: float = store.vel_x[i]
 		var vy: float = store.vel_y[i]
-		var x: float = (store.pos_x[i] - vx * back) * px_per_m
-		var y: float = (store.pos_y[i] - vy * back) * px_per_m
-		write_instance(out, n, x, y, atan2(vy, vx), radius_m * px_per_m)
+		var mx: float = store.pos_x[i] - vx * back
+		var my: float = store.pos_y[i] - vy * back
+		var k: float = ViewMath.map_factor(mx, my, px_per_m) if standoff else px_per_m
+		var x: float = mx * k
+		var y: float = my * k
+		if cull.has_area() and not cull.has_point(Vector2(x, y)):
+			continue
+		write_instance(out, n, x, y, atan2(vy, vx), radius_m * px_per_m * visual_scale)
 		n += 1
 	return n

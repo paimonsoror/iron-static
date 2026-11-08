@@ -40,8 +40,8 @@
 <circle cx="26" cy="0" r="9" fill="url(#g_spark_head)" transform="translate(60,64)"/>
 </g></g>
 <g id="slot.spark_c" transform="translate(256,128)"><g id="layer.base_spark_c">
-<path d="M-36 4 L-14 -3 L-4 4 L12 -3 L34 0 L12 1 L-4 7 L-14 1 Z" fill="url(#g_spark)" transform="translate(64,64)"/>
-<circle cx="30" cy="0" r="9" fill="url(#g_spark_head)" transform="translate(64,64)"/>
+<path d="M-36 4 L-14 -3 L-4 4 L12 -3 L34 0 L12 1 L-4 7 L-14 1 Z" fill="url(#g_spark)" transform="translate(64,64) scale(1.15)"/>
+<circle cx="30" cy="0" r="9" fill="url(#g_spark_head)" transform="translate(64,64) scale(1.15)"/>
 </g></g>
 <g id="slot.ember_a" transform="translate(384,128)"><g id="layer.base_ember_a">
 <circle cx="64" cy="64" r="18" fill="url(#g_ember)"/>

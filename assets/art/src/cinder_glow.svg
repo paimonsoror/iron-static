@@ -44,5 +44,5 @@
 
 <g id="slot.integrity_halo" transform="translate(248,480)">
 
-  <g id="layer.integrity_halo.glow"><ellipse cx="112" cy="14" rx="106" ry="9" fill="url(#gr_ihalo)"/><rect x="30" y="13" width="164" height="2" fill="#FFD27A" opacity="0.5"/></g></g>
+  <g id="layer.integrity_halo.glow"><ellipse cx="112" cy="14" rx="106" ry="8" fill="url(#gr_ihalo)"/><rect x="30" y="13" width="164" height="2" fill="#FFD27A" opacity="0.5"/></g></g>
 </svg>

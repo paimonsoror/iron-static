@@ -1,0 +1,5 @@
+<!-- art-lint-fixture: file=icons/cur_data.svg expect=forbidden-element -->
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs><pattern id="p" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill="#FFB000"/></pattern></defs>
+<g id="slot.cur_data"><rect width="60" height="60" fill="url(#p)"/></g>
+</svg>

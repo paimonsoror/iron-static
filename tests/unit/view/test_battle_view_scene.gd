@@ -15,7 +15,11 @@ func test_battle_view_binds_steps_and_renders() -> void:
 		if i % 10 == 0:
 			view.render(0.5)
 	view.render(1.0)
+	assert_float(view.px_per_m()).is_equal_approx(1080.0 / 32.0, 0.001)
+	view.set_camera_width_m(38.0)
 	assert_float(view.px_per_m()).is_equal_approx(1080.0 / 38.0, 0.001)
+	view.set_camera_width_m(32.0)
+	assert_float(view.cinder_view().radius_px * 0.92).is_equal_approx(2.0 * 33.75 * 1.5, 0.5)
 	assert_vector(view.position).is_equal(Vector2(540.0, 537.6))
 	view.layout(Vector2(1080.0, 2400.0))
 	view.render(0.0)

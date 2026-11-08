@@ -13,8 +13,8 @@ const PULSE_HZ: float = 1.0
 const SCAN_PERIOD_S: float = 8.0
 const WHITE_HOT := Color(1.0, 0.96, 0.88)
 
-## Outer radius of the emitter ring in pixels (Cinder radius 2.0 m * about 28 px/m).
-var radius_px: float = 56.0:
+## Outer radius of the emitter ring in pixels (battle view sets it from the visual scale).
+var radius_px: float = 110.0:
 	set(value):
 		radius_px = maxf(value, 8.0)
 		_rebuild_geometry()

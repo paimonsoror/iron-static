@@ -12,7 +12,9 @@ const STROKE_PX: float = 2.5
 const BOLT_RADIUS_M: float = 0.3
 const DEFAULT_RADIUS_M: float = 0.5
 
-var _px_per_m: float = 28.0
+var _px_per_m: float = 33.75
+## Local-pixel rectangle outside which instance centers are skipped (empty = no culling).
+var _cull := Rect2()
 var _rids: Array[RID] = []  # index 0-4 enemy types, 5 bolts
 var _buffers: Array[PackedFloat32Array] = []
 var _instances: Array[MultiMeshInstance2D] = []
@@ -35,7 +37,8 @@ func setup(
 	for t: int in ENEMY_SHAPES.size() + 1:
 		var is_bolt: bool = t == ENEMY_SHAPES.size()
 		var radius_m: float = BOLT_RADIUS_M if is_bolt else _radius_for(radii_m, t)
-		var stroke: float = ShapeMeshes.stroke_for(STROKE_PX, radius_m * px_per_m)
+		var draw_scale: float = ViewMath.VISUAL_SCALE if is_bolt else ViewMath.type_scale(t)
+		var stroke: float = ShapeMeshes.stroke_for(STROKE_PX, radius_m * px_per_m * draw_scale)
 		var shape: String = "bolt" if is_bolt else ENEMY_SHAPES[t]
 		var mm := MultiMesh.new()
 		mm.transform_format = MultiMesh.TRANSFORM_2D
@@ -61,11 +64,13 @@ func render(world: SimWorld, alpha: float) -> void:
 		return
 	var a: float = clampf(alpha, 0.0, 1.0)
 	for t: int in ENEMY_SHAPES.size():
-		var n: int = MultiMeshBuffer.fill(world.enemies, t, a, _px_per_m, _buffers[t])
+		var n: int = MultiMeshBuffer.fill(
+			world.enemies, t, a, _px_per_m, _buffers[t], ViewMath.type_scale(t), true, _cull
+		)
 		_upload(t, n)
 	var last: int = ENEMY_SHAPES.size()
 	var nb: int = MultiMeshBuffer.fill_bolts(
-		world.projectiles, a, SimWorld.DT, _px_per_m, BOLT_RADIUS_M, _buffers[last]
+		world.projectiles, a, SimWorld.DT, _px_per_m, BOLT_RADIUS_M, _buffers[last], ViewMath.VISUAL_SCALE, true, _cull
 	)
 	_upload(last, nb)
 
@@ -77,3 +82,14 @@ func _upload(slot: int, count: int) -> void:
 
 static func _radius_for(radii_m: PackedFloat32Array, t: int) -> float:
 	return radii_m[t] if t < radii_m.size() else DEFAULT_RADIUS_M
+
+
+## Sets the culling rectangle in local pixels (Rect2() disables). Use `cull_rect_for`.
+func set_cull(rect: Rect2) -> void:
+	_cull = rect
+
+
+## Battle rect (local px) grown by the largest sprite radius so nothing pops at the edge.
+static func cull_rect_for(battle_rect_local: Rect2, px_per_m: float) -> Rect2:
+	var margin: float = 4.0 * px_per_m * ViewMath.VISUAL_SCALE
+	return battle_rect_local.grow(margin)

@@ -1,0 +1,3 @@
+# Canary table for tools/art_check.ps1 -Canary: canary.svg draws a rect outside its cells (x 270..290), art_check must flag it.
+slot,file,glow_file,glow_slot,sheet_w,sheet_h,cell_x,cell_y,cell_w,cell_h,frames,pivot_x,pivot_y,fps,body_radius_px,texel_per_px,visual_scale,aspect,margin,blend,family,status,notes
+canary,canary.svg,,,300,128,0,0,128,128,2,64,64,4,,2,1,,4,normal,enemy,ready,planted defect

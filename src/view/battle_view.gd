@@ -10,6 +10,8 @@ extends Node2D
 
 ## View-only override of the displayed exposure band (debug overlay, M1-24); -1 shows the sim's band.
 var band_override: int = -1
+## View camera width in meters; 38.0 selects the old framing for comparison (call set_camera_width_m).
+var camera_width_m: float = ViewMath.VIEW_CAMERA_WIDTH_M
 var _world: SimWorld
 var _px_per_m: float = ViewMath.px_per_m(1080.0)
 var _viewport_size := Vector2(1080.0, 1920.0)
@@ -30,7 +32,7 @@ func _ready() -> void:
 ## Recomputes scale and positions for a viewport size (also called on resize).
 func layout(viewport_size: Vector2) -> void:
 	_viewport_size = viewport_size
-	_px_per_m = ViewMath.px_per_m(viewport_size.x)
+	_px_per_m = ViewMath.px_per_m(viewport_size.x, camera_width_m)
 	position = ViewMath.cinder_center(viewport_size)
 	var rect: Rect2 = ViewMath.battle_rect(viewport_size)
 	rect.position -= position
@@ -38,7 +40,7 @@ func layout(viewport_size: Vector2) -> void:
 	if _world != null:
 		arena_m = _world.config.tuning.arena_radius
 	_background.setup(_px_per_m, arena_m, rect)
-	_cinder.radius_px = _cinder_radius_m() * _px_per_m
+	_cinder.radius_px = cinder_radius_px()
 	if _world != null:
 		_setup_enemy_renderer()
 
@@ -101,6 +103,9 @@ func _setup_enemy_renderer() -> void:
 	for def: EnemyDef in defs:
 		radii.append(def.radius)
 	_enemies.setup(_px_per_m, radii)
+	var local: Rect2 = ViewMath.battle_rect(_viewport_size)
+	local.position -= ViewMath.cinder_center(_viewport_size)
+	_enemies.set_cull(EnemyRenderer.cull_rect_for(local, _px_per_m))
 
 
 func _cinder_radius_m() -> float:
@@ -111,3 +116,15 @@ func _cinder_radius_m() -> float:
 
 func _on_viewport_resized() -> void:
 	layout(get_viewport_rect().size)
+
+
+## Switches the camera width (32 m default, 38 m for comparison) and relayouts.
+func set_camera_width_m(width_m: float) -> void:
+	camera_width_m = width_m
+	layout(_viewport_size)
+
+
+## Outer radius of Cinder's emitter ring in px: the armor ring (0.92 of it) is Cinder's hit radius
+## times VISUAL_SCALE (about 100 px at 1080 width and 32 m), art bible 4.1.
+func cinder_radius_px() -> float:
+	return _cinder_radius_m() * _px_per_m * ViewMath.VISUAL_SCALE / 0.92

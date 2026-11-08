@@ -103,3 +103,19 @@ func test_bolts_interpolate_back_along_velocity() -> void:
 	assert_float(out[3]).is_equal_approx(100.0, 0.001)
 	assert_float(out[5]).is_equal_approx(0.0, 0.001)  # facing +y
 	assert_float(out[4]).is_equal_approx(3.0, 0.001)
+
+
+func test_fill_with_standoff_scale_and_cull() -> void:
+	var store := EnemyStore.new(8)
+	var near: int = _spawn(store, 0, 2.0, 0.0, 2.0, 0.0)
+	assert_int(near).is_greater_equal(0)
+	assert_int(_spawn(store, 0, 0.0, 40.0, 0.0, 40.0)).is_greater_equal(0)
+	var out := _out(8)
+	var ppm: float = 33.75
+	assert_int(MultiMeshBuffer.fill(store, 0, 1.0, ppm, out, 1.5, true)).is_equal(2)
+	assert_float(out[3]).is_equal_approx(2.0 * ppm + 72.0, 0.001)
+	assert_float(out[0]).is_equal_approx(-0.5 * ppm * 1.5, 0.001)  # faces origin, scaled
+	assert_float(out[F + 7]).is_equal_approx(40.0 * ppm, 0.001)
+	var cull := Rect2(-600.0, -700.0, 1200.0, 1400.0)
+	assert_int(MultiMeshBuffer.fill(store, 0, 1.0, ppm, out, 1.5, true, cull)).is_equal(1)
+	assert_float(out[3]).is_equal_approx(2.0 * ppm + 72.0, 0.001)

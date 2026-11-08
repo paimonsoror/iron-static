@@ -29,3 +29,7 @@ __pycache__/
 *.bak
 !tests/fixtures/**/*.bak
 Thumbs.db
+
+# Godot temp copies of GDExtension libraries (left behind by parallel-run collisions)
+~lib*.dll
+~lib*.so

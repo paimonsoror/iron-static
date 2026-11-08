@@ -49,6 +49,18 @@ $ok = ($LASTEXITCODE -eq 0)
 Step "repo rules" $ok (($out.Trim() -split "`n") | Select-Object -Last 1)
 if (-not $ok -or $out -cmatch "WARN ") { Write-Host $out }
 
+# Art SVG rules (V1-02): rules file freshness, lint over assets/art/src, lint self-test on the bad fixtures.
+$out = & $vpy "$PSScriptRoot\art_rules_gen.py" --check 2>&1 | Out-String
+Step "art rules current" ($LASTEXITCODE -eq 0) $out.Trim()
+$out = & $vpy -I "$PSScriptRoot\art_lint.py" 2>&1 | Out-String
+$ok = ($LASTEXITCODE -eq 0)
+Step "art lint (assets/art/src)" $ok (($out.Trim() -split "`n") | Select-Object -Last 1)
+if (-not $ok -or $out -match "\bERROR\b") { Write-Host $out }
+$out = & $vpy -I "$PSScriptRoot\art_lint.py" --self-test 2>&1 | Out-String
+$ok = ($LASTEXITCODE -eq 0)
+Step "art lint self-test (expected failures)" $ok (($out.Trim() -split "`n") | Select-Object -Last 1)
+if (-not $ok) { Write-Host $out }
+
 if (-not $SkipCompile) {
     # Import first so global classes (GdUnit4, class_name) resolve. Compile via tools/compile_check.gd
     # (autoloads exist in that mode; `--check-only` does not know them and fails on `Log`/`Game`).
