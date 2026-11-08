@@ -40,6 +40,7 @@ var _data_roll: NumberRoll = NumberRoll.new()
 @onready var _data_label: Label = %DataLabel
 @onready var _banner: WaveBanner = %WaveBanner
 @onready var _panel: UpgradePanel = %UpgradePanel
+@onready var _top_bar: Control = %TopBar
 
 
 func _ready() -> void:
@@ -68,6 +69,17 @@ func _ready() -> void:
 ## The upgrade panel (for M2-12 wiring and tests).
 func upgrade_panel() -> UpgradePanel:
 	return _panel
+
+
+## Insets the top bar and the bottom panel by the OS safe area (`SafeArea.margins`: left, top, right, bottom in
+## viewport px; cutouts, rounded corners). Zero margins restore the scene layout.
+func apply_safe_margins(m: Vector4) -> void:
+	_top_bar.offset_left = m.x
+	_top_bar.offset_top = m.y
+	_top_bar.offset_right = -m.z
+	_panel.offset_left = m.x
+	_panel.offset_right = -m.z
+	_panel.offset_bottom = -m.w
 
 
 ## The wave banner (tests).

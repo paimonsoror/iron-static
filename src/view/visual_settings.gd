@@ -13,12 +13,18 @@ const ARG_SHAKE: String = "--shake="
 const SHAKE_NAMES: Array[String] = ["off", "low", "normal"]
 const SHAKE_PX: Array[float] = [0.0, 5.0, 10.0]
 const DEFAULT_SCANLINE_INTENSITY: float = 0.06
+## Frame rate cap options (V1-24). The sim ticks at a fixed 30 Hz from frame time, so the cap never changes game
+## speed. 0 is "uncapped" and is only set by the debug bench flag, not offered to players.
+const FPS_CAPS: Array[int] = [30, 60]
+const DEFAULT_FPS_CAP: int = 60
 
 var quality: VisualQuality = VisualQuality.high()
 var screen_shake: Shake = Shake.LOW
 var reduce_motion: bool = false
 ## Scanline opacity (Q44: 0.06 default, 0.03 low, 0 off).
 var scanline_intensity: float = DEFAULT_SCANLINE_INTENSITY
+## Frame cap in fps (30 or 60; 0 = uncapped for benches). Applied with `apply_fps_cap`.
+var fps_cap: int = DEFAULT_FPS_CAP
 
 
 ## Builds settings from the user args (`--quality=`, `--shake=`); absent args give the defaults.
@@ -58,3 +64,23 @@ func effective_scanlines() -> float:
 	if reduce_motion or not quality.scanlines:
 		return 0.0
 	return scanline_intensity
+
+
+## Snaps `value` to an offered cap (the nearest of FPS_CAPS; ties go up).
+static func snap_fps_cap(value: int) -> int:
+	var best: int = FPS_CAPS[0]
+	for c: int in FPS_CAPS:
+		if absi(c - value) <= absi(best - value):
+			best = c
+	return best
+
+
+## Sets the cap from a player choice (snapped to an offered value) and applies it.
+func set_fps_cap(value: int) -> void:
+	fps_cap = snap_fps_cap(value)
+	apply_fps_cap()
+
+
+## Pushes `fps_cap` to the engine (Engine.max_fps; 0 = uncapped).
+func apply_fps_cap() -> void:
+	Engine.max_fps = fps_cap

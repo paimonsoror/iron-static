@@ -6,6 +6,8 @@ extends Control
 var _controller: RunController
 ## Pause the sim when the debug load wave is reached (static-crowd render bench, V1-03).
 var _hold: bool = false
+## Back gesture, app lifecycle and safe area (V1-24).
+var _mobile: MobileShell
 
 @onready var _battle: BattleView = %BattleView
 @onready var _hud: Hud = %Hud
@@ -36,6 +38,10 @@ func _ready() -> void:
 	_debug.battle_view = _battle
 	_debug.visual = Game.visual
 	_hold = Game.debug_hold
+	_mobile = MobileShell.new()
+	add_child(_mobile)  # last child: its pause overlay is topmost
+	_mobile.setup(_controller, _hud, _results, _debug)
+	ShaderWarmup.start(self)
 	_debug.force_perf = Game.perf_logging_forced()
 	if Game.debug_load:
 		Game.start_debug_load()

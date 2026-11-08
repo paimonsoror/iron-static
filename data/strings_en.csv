@@ -48,3 +48,6 @@ results.data,DATA  +{v}
 results.scrap,SCRAP  {v}
 results.best,BEST  --
 results.redeploy,REDEPLOY
+pause.title,PAUSED
+pause.resume_hint,TAP TO RESUME
+pause.exit_hint,BACK AGAIN TO EXIT

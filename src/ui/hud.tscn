@@ -20,7 +20,17 @@ unique_name_in_owner = true
 layout_mode = 1
 anchor_top = 0.56
 
-[node name="TopPlate" type="Panel" parent="."]
+[node name="TopBar" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopPlate" type="Panel" parent="TopBar"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 10
@@ -32,7 +42,7 @@ offset_bottom = 190.0
 grow_horizontal = 2
 mouse_filter = 2
 
-[node name="WaveLabel" type="Label" parent="."]
+[node name="WaveLabel" type="Label" parent="TopBar"]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 46.0
@@ -45,7 +55,7 @@ theme_override_font_sizes/font_size = 64
 text = "WAVE 1"
 vertical_alignment = 1
 
-[node name="SpeedLabel" type="Label" parent="."]
+[node name="SpeedLabel" type="Label" parent="TopBar"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -63,7 +73,7 @@ text = "1x"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="TimerBar" type="Control" parent="."]
+[node name="TimerBar" type="Control" parent="TopBar"]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 46.0
@@ -78,7 +88,7 @@ ceil_fill = false
 head_bright = true
 ticks = true
 
-[node name="TimerLabel" type="Label" parent="."]
+[node name="TimerLabel" type="Label" parent="TopBar"]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 482.0
@@ -90,7 +100,7 @@ theme_type_variation = &"LabelNumber"
 text = "24s"
 vertical_alignment = 1
 
-[node name="SpeedButton" type="Button" parent="."]
+[node name="SpeedButton" type="Button" parent="TopBar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(148, 148)
 layout_mode = 1
@@ -103,7 +113,7 @@ offset_right = -188.0
 offset_bottom = 174.0
 grow_horizontal = 0
 
-[node name="PauseButton" type="Button" parent="."]
+[node name="PauseButton" type="Button" parent="TopBar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(148, 148)
 layout_mode = 1
@@ -116,7 +126,7 @@ offset_right = -32.0
 offset_bottom = 174.0
 grow_horizontal = 0
 
-[node name="IntegrityBar" type="Control" parent="."]
+[node name="IntegrityBar" type="Control" parent="TopBar"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 10
@@ -133,7 +143,7 @@ value = 100.0
 ramp = true
 pocket_px = 270.0
 
-[node name="HpLabel" type="Label" parent="IntegrityBar"]
+[node name="HpLabel" type="Label" parent="TopBar/IntegrityBar"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 11
@@ -151,7 +161,7 @@ text = "0 / 0"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="ScrapPlate" type="Panel" parent="."]
+[node name="ScrapPlate" type="Panel" parent="TopBar"]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 16.0
@@ -160,7 +170,7 @@ offset_right = 520.0
 offset_bottom = 364.0
 mouse_filter = 2
 
-[node name="ScrapLabel" type="Label" parent="ScrapPlate"]
+[node name="ScrapLabel" type="Label" parent="TopBar/ScrapPlate"]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 100.0
@@ -172,7 +182,7 @@ theme_type_variation = &"LabelNumber"
 text = "SCRAP 0"
 vertical_alignment = 1
 
-[node name="DataPlate" type="Panel" parent="."]
+[node name="DataPlate" type="Panel" parent="TopBar"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 1
@@ -185,7 +195,7 @@ offset_bottom = 364.0
 grow_horizontal = 0
 mouse_filter = 2
 
-[node name="DataLabel" type="Label" parent="DataPlate"]
+[node name="DataLabel" type="Label" parent="TopBar/DataPlate"]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 100.0
