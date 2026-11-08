@@ -4,15 +4,17 @@ extends PanelContainer
 ## in the number font, `current > next`, cost button (affordable = amber plate with pulse, unaffordable = dim plate
 ## with a lock mark, maxed = MAX plate with the hazard stripe), gold ring near a x25 milestone, long-press (0.4 s)
 ## tooltip on the tooltip plate. Presentation only: `apply(model)` copies an `UpgradeRowModel` into the nodes and
-## rewrites a node only when its value changed. Effects are drawn by `RowFx`. Signals only: the panel turns
-## `buy_pressed` into `buy_requested(index, count)`.
+## rewrites a node only when its value changed. Effects are drawn by `RowFx`. Signals only: the panel forwards
+## `buy_pressed(index, count)` as `buy_requested(index, count)`.
+## V1-25 buying: tap the cost button = buy 1 on release; press and hold = repeat buys timed by `RepeatBuyModel`
+## (first repeat 0.35 s, then faster and in steps of 10 / 100). A drag past `MOVE_CANCEL_PX` or a scrolled row
+## cancels the press (the list scrolls instead). Tapping the row body (not the cost button) toggles the tooltip.
 ## (impl) The 4 px press depress is the pressed plate of the cost button; the 120 ms flash is `RowFx`.
 
-signal buy_pressed(upgrade_index: int)
+signal buy_pressed(upgrade_index: int, count: int)
 
 enum CostState { AFFORDABLE, LOCKED, MAXED }
 
-const LONG_PRESS_S: float = 0.4
 const TOOLTIP_S: float = 3.0
 const MOVE_CANCEL_PX: float = 24.0
 const SCROLL_CANCEL_PX: float = 8.0
@@ -35,6 +37,14 @@ var _state: int = -1
 var _ring: bool = false
 var _press_pos: Vector2 = Vector2.ZERO
 var _press_y: float = 0.0
+var _tap_armed: bool = false
+var _repeat: RepeatBuyModel = RepeatBuyModel.new()
+var _holding: bool = false
+var _hold_s: float = 0.0
+var _repeated: bool = false
+var _ptr: Vector2 = Vector2.ZERO
+var _down_pos: Vector2 = Vector2.ZERO
+var _down_y: float = 0.0
 var _hazard: Panel = null
 var _scrap_icon: Texture2D = null
 
@@ -46,7 +56,6 @@ var _scrap_icon: Texture2D = null
 @onready var _fx: RowFx = %Fx
 @onready var _tip: PanelContainer = %Tooltip
 @onready var _tip_label: Label = %TooltipLabel
-@onready var _press_timer: Timer = %PressTimer
 @onready var _tip_timer: Timer = %TipTimer
 
 
@@ -57,11 +66,13 @@ func _ready() -> void:
 	_style_cost_button()
 	_tip.add_theme_stylebox_override("panel", UiKit.tooltip(20, 6))
 	_fx.button = _buy_button
-	_press_timer.wait_time = LONG_PRESS_S
 	_tip_timer.wait_time = TOOLTIP_S
-	_press_timer.timeout.connect(_on_long_press)
 	_tip_timer.timeout.connect(_hide_tip)
-	_buy_button.pressed.connect(_on_buy_pressed)
+	_buy_button.button_down.connect(_on_button_down)
+	_buy_button.button_up.connect(_on_button_up)
+	_buy_button.gui_input.connect(_on_button_input)
+	visibility_changed.connect(_stop_hold)
+	set_process(false)
 	_tip.hide()
 
 
@@ -161,44 +172,48 @@ func _apply_state() -> void:
 
 func _gui_input(event: InputEvent) -> void:
 	# (impl) Presses are read from both the emulated mouse events and the raw touch events (a device may deliver
-	# only one of them to a row inside a ScrollContainer); starting the timer twice is harmless.
+	# only one of them to a row inside a ScrollContainer); `_tap_armed` makes the second source a no-op.
 	var mb: InputEventMouseButton = event as InputEventMouseButton
 	if mb != null and mb.button_index == MOUSE_BUTTON_LEFT:
-		_press_changed(mb.pressed, mb.position)
+		_tap_changed(mb.pressed, mb.position)
 		return
 	var st: InputEventScreenTouch = event as InputEventScreenTouch
 	if st != null:
-		_press_changed(st.pressed, st.position)
+		_tap_changed(st.pressed, st.position)
 		return
 	var mm: InputEventMouseMotion = event as InputEventMouseMotion
 	if mm != null:
-		_press_moved(mm.position)
+		_tap_moved(mm.position)
 		return
 	var sd: InputEventScreenDrag = event as InputEventScreenDrag
 	if sd != null:
-		_press_moved(sd.position)
+		_tap_moved(sd.position)
 
 
-func _press_changed(pressed: bool, pos: Vector2) -> void:
-	if not pressed:
-		_press_timer.stop()
+func _tap_changed(pressed: bool, pos: Vector2) -> void:
+	if pressed:
+		if not _tap_armed:
+			_press_pos = pos
+			_press_y = global_position.y
+			_tap_armed = true
 		return
-	if not _press_timer.is_stopped():
-		return  # second source (mouse and touch) of the same press
-	_hide_tip()
-	_press_pos = pos
-	_press_y = global_position.y
-	_press_timer.start()
+	if not _tap_armed:
+		return  # second source of the same release
+	_tap_armed = false
+	if pos.distance_to(_press_pos) > MOVE_CANCEL_PX or absf(global_position.y - _press_y) > SCROLL_CANCEL_PX:
+		return  # a drag, not a tap
+	toggle_tooltip()
 
 
-func _press_moved(pos: Vector2) -> void:
-	if not _press_timer.is_stopped() and pos.distance_to(_press_pos) > MOVE_CANCEL_PX:
-		_press_timer.stop()
+func _tap_moved(pos: Vector2) -> void:
+	if _tap_armed and pos.distance_to(_press_pos) > MOVE_CANCEL_PX:
+		_tap_armed = false
 
 
-func _on_long_press() -> void:
-	# A scroll drag moves the row under the finger: no tooltip then.
-	if absf(global_position.y - _press_y) > SCROLL_CANCEL_PX:
+## Tapping the row body shows the formula tooltip, tapping again (or waiting TOOLTIP_S) hides it.
+func toggle_tooltip() -> void:
+	if _tip.visible:
+		_hide_tip()
 		return
 	_tip.show()
 	_tip_timer.start()
@@ -209,7 +224,72 @@ func _hide_tip() -> void:
 	_tip.hide()
 
 
-func _on_buy_pressed() -> void:
+func _on_button_input(event: InputEvent) -> void:
+	var mb: InputEventMouseButton = event as InputEventMouseButton
+	if mb != null:
+		_ptr = mb.position
+		return
+	var mm: InputEventMouseMotion = event as InputEventMouseMotion
+	if mm != null:
+		_ptr = mm.position
+	var sd: InputEventScreenDrag = event as InputEventScreenDrag
+	if sd != null:
+		_ptr = sd.position
+	if _holding and _ptr.distance_to(_down_pos) > MOVE_CANCEL_PX:
+		_stop_hold()
+
+
+func _on_button_down() -> void:
+	_hide_tip()
+	_down_pos = _ptr
+	_down_y = global_position.y
+	_hold_s = 0.0
+	_repeated = false
+	_repeat.reset()
+	_holding = true
+	set_process(true)
+
+
+func _on_button_up() -> void:
+	var tap: bool = _holding and not _repeated
+	if tap and absf(global_position.y - _down_y) > SCROLL_CANCEL_PX:
+		tap = false
+	_stop_hold()
+	if tap:
+		_request(1)
+
+
+func _stop_hold() -> void:
+	_holding = false
+	set_process(false)
+
+
+func _process(delta: float) -> void:
+	advance_hold(delta)
+
+
+## Advances a held cost button by `delta` seconds (called per frame; tests call it directly).
+func advance_hold(delta: float) -> void:
+	if not _holding:
+		set_process(false)
+		return
+	if absf(global_position.y - _down_y) > SCROLL_CANCEL_PX:
+		_stop_hold()  # the list is scrolling under the finger
+		return
+	_hold_s += delta
+	var due: Vector2i = _repeat.poll(_hold_s)
+	if due.x == 0:
+		return
+	_repeated = true
+	if _state != CostState.AFFORDABLE:
+		_stop_hold()  # capped or out of scrap: the hold ends
+		return
+	for step: int in due.x:
+		assert(step >= 0)
+		_request(due.y)
+
+
+func _request(count: int) -> void:
 	if _state == CostState.AFFORDABLE:
 		_fx.play_flash()
-	buy_pressed.emit(_index)
+	buy_pressed.emit(_index, count)

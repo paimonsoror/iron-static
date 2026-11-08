@@ -1,9 +1,11 @@
 class_name TestHudLayout
 extends GdUnitTestSuite
-## Styled battle HUD (V1-16) at 1080x1920 and 1080x2400: nothing overlaps, touch targets >= 148 px, text >= 38 px,
-## text contrast >= 4.5:1 on its plate, banner behavior and the pause icon swap.
+## Styled, compacted battle HUD (V1-16, V1-25) at 1080x1920 and 1080x2400: nothing overlaps, icon buttons drawn
+## <= 90 px with touch rects >= 126 px that do not overlap, text >= 38 px, total height <= 250 px, text contrast
+## >= 4.5:1 on its plate, banner behavior and the pause icon swap.
 
-const MIN_TOUCH: float = 148.0
+const MIN_TOUCH: float = 126.0
+const MAX_HUD_H: float = 250.0
 const MIN_TEXT: int = 38
 const MIN_CONTRAST: float = 4.5
 
@@ -44,10 +46,18 @@ func _check(height: float) -> void:
 	var panel: Rect2 = _rect(hud.upgrade_panel())
 	var screen := Rect2(0.0, 0.0, 1080.0, height)
 	# Touch targets.
-	for b: Button in [hud.get_node("%SpeedButton"), hud.get_node("%PauseButton")]:
-		assert_float(b.size.y).is_greater_equal(MIN_TOUCH)
-		assert_float(b.size.x).is_greater_equal(MIN_TOUCH)
-		assert_float(b.custom_minimum_size.y).is_greater_equal(MIN_TOUCH)
+	var touch: Array[Rect2] = []
+	for b: TouchButton in [hud.get_node("%SpeedButton"), hud.get_node("%PauseButton")]:
+		var tr: Rect2 = b.touch_rect()
+		assert_float(tr.size.x).is_greater_equal(MIN_TOUCH)
+		assert_float(tr.size.y).is_greater_equal(MIN_TOUCH)
+		assert_float(b.size.x).is_less_equal(90.0)
+		touch.append(Rect2(b.global_position + tr.position, tr.size))
+	assert_bool(touch[0].intersects(touch[1])).is_false()
+	assert_float(maxf(scrap.end.y, data.end.y) - top.position.y).is_less_equal(MAX_HUD_H)
+	# Wave, time left and speed share one line.
+	assert_float(absf(wave.get_center().y - timer_text.get_center().y)).is_less(1.0)
+	assert_float(absf(wave.get_center().y - speed_text.get_center().y)).is_less(1.0)
 	# Inside the screen and the top plate.
 	for r: Rect2 in [top, speed, pause, integrity, scrap, data]:
 		assert_bool(screen.encloses(r)).is_true()

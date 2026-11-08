@@ -1,6 +1,7 @@
 class_name TestUpgradePanelLayout
 extends GdUnitTestSuite
-## Layout of the HUD upgrade panel at 1080x1920 and 1080x2400 (M2-10): nothing overlaps, touch targets >= 148 px.
+## HUD upgrade panel layout at 1080x1920 and 1080x2400 (M2-10, V1-25): height follows content, capped at 36 percent,
+## bottom-anchored, no buy selector, nothing overlaps, touch targets >= 148 px.
 
 const MIN_TOUCH: float = 148.0
 
@@ -28,27 +29,17 @@ func _check(height: float) -> void:
 	await await_idle_frame()
 	var panel: UpgradePanel = hud.upgrade_panel()
 	var pr: Rect2 = _rect(panel)
-	assert_float(pr.position.y).is_equal_approx(height * 0.56, 1.0)
-	assert_float(pr.end.y).is_less_equal(height + 0.5)
+	assert_float(pr.end.y).is_equal_approx(height, 1.0)
+	assert_float(pr.size.y).is_less_equal(height * 0.36 + 1.0)
 	var tabs: Array[Rect2] = []
 	for id: String in UpgradePanelModel.TAB_IDS:
 		var b: Button = panel.get_node("%TabBar/Tab_" + id)
 		assert_float(b.size.y).is_greater_equal(MIN_TOUCH)
 		tabs.append(_rect(b))
-	var buys: Array[Rect2] = []
-	for k: int in 4:
-		var b: Button = panel.get_node("%BuyBar/Buy_" + str(k))
-		assert_float(b.size.y).is_greater_equal(MIN_TOUCH)
-		buys.append(_rect(b))
 	var scroll: Rect2 = _rect(panel.get_node("%Scroll") as Control)
 	for t: Rect2 in tabs:
 		assert_bool(pr.encloses(t)).is_true()
-		for bb: Rect2 in buys:
-			assert_bool(t.intersects(bb)).is_false()
 		assert_bool(t.intersects(scroll)).is_false()
-	for bb: Rect2 in buys:
-		assert_bool(pr.encloses(bb)).is_true()
-		assert_bool(bb.intersects(scroll)).is_false()
 	for i: int in tabs.size() - 1:
 		assert_bool(tabs[i].intersects(tabs[i + 1])).is_false()
 	assert_bool(pr.encloses(scroll)).is_true()
@@ -68,7 +59,9 @@ func _check(height: float) -> void:
 	# At least two full rows are visible without scrolling; ARMS needs the scroll for the rest.
 	assert_float(scroll.size.y).is_greater_equal(2.0 * UpgradeRow.ROW_MIN_H)
 	var content: Control = panel.get_node("%RowsBox")
-	assert_float(content.size.y).is_greater(scroll.size.y)
+	assert_float(content.size.y).is_greater_equal(scroll.size.y - 1.0)
+	# No dead space: the scroll area is no taller than its content unless the cap bites.
+	assert_float(scroll.size.y).is_less_equal(content.get_combined_minimum_size().y + 1.0)
 	print(
 		(
 			"[layout %d] panel %s scroll h %.0f visible rows %.1f"

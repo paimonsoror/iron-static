@@ -3,14 +3,17 @@
 [ext_resource type="Script" path="res://src/ui/upgrade_panel.gd" id="1_panel"]
 
 [node name="UpgradePanel" type="PanelContainer"]
-anchors_preset = 15
+anchors_preset = 12
+anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = -700.0
 grow_horizontal = 2
-grow_vertical = 2
+grow_vertical = 0
 script = ExtResource("1_panel")
 
 [node name="Column" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
@@ -38,39 +41,6 @@ size_flags_horizontal = 3
 clip_text = true
 
 [node name="Tab_intel" type="Button" parent="Column/TabBar"]
-custom_minimum_size = Vector2(0, 148)
-layout_mode = 2
-size_flags_horizontal = 3
-clip_text = true
-
-[node name="BuyBar" type="HBoxContainer" parent="Column"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="BuyLabel" type="Label" parent="Column/BuyBar"]
-layout_mode = 2
-theme_type_variation = &"LabelDim"
-
-[node name="Buy_0" type="Button" parent="Column/BuyBar"]
-custom_minimum_size = Vector2(0, 148)
-layout_mode = 2
-size_flags_horizontal = 3
-clip_text = true
-
-[node name="Buy_1" type="Button" parent="Column/BuyBar"]
-custom_minimum_size = Vector2(0, 148)
-layout_mode = 2
-size_flags_horizontal = 3
-clip_text = true
-
-[node name="Buy_2" type="Button" parent="Column/BuyBar"]
-custom_minimum_size = Vector2(0, 148)
-layout_mode = 2
-size_flags_horizontal = 3
-clip_text = true
-
-[node name="Buy_3" type="Button" parent="Column/BuyBar"]
 custom_minimum_size = Vector2(0, 148)
 layout_mode = 2
 size_flags_horizontal = 3

@@ -1,6 +1,6 @@
 # 07 - UX, UI, Art and Audio
 
-Changelog: 2026-11-08 (M2-16: unaffordable-text contrast note, see 09 Q48) - 2026-11-08 - V1 visual pass: `10_art_bible.md` is now the authority for all visuals (style, sizes, sprite slots, VFX looks and budgets, HUD styling); sections 5.1, 5.3 and 5.6 below are reconciled with it (illustrated SVG sprites replace procedural-only enemies and Cinder; glow is baked additive; VFX/skin-burn polish and battle HUD styling moved from M4 to V1). Palette hex values (5.2), VFX ids (6), damage numbers (5.5), accessibility (4, 5.4) and layout/wireframes (1-3) are unchanged. 2026-11-07 - Gauntlet screen and shop Pass tab tagged P1 (not in the Launch build); title IRON STATIC (icon and splash use the title text only on the splash).
+Changelog: 2026-11-08 (V1-25: s2.1 wireframe is the compact HUD, s2.2 buying rule implemented) - 2026-11-08 (A1 audio pass: s7 rewritten - Claude-synthesized audio in swappable slots, ambient-to-industrial direction, 4/4 meter rule, sfx_upgrade_buy now steps up in pitch during a hold-to-buy) - 2026-11-08 (M2-16: unaffordable-text contrast note, see 09 Q48) - 2026-11-08 - V1 visual pass: `10_art_bible.md` is now the authority for all visuals (style, sizes, sprite slots, VFX looks and budgets, HUD styling); sections 5.1, 5.3 and 5.6 below are reconciled with it (illustrated SVG sprites replace procedural-only enemies and Cinder; glow is baked additive; VFX/skin-burn polish and battle HUD styling moved from M4 to V1). Palette hex values (5.2), VFX ids (6), damage numbers (5.5), accessibility (4, 5.4) and layout/wireframes (1-3) are unchanged. 2026-11-07 - Gauntlet screen and shop Pass tab tagged P1 (not in the Launch build); title IRON STATIC (icon and splash use the title text only on the splash).
 
 **Visual authority:** `docs/design/10_art_bible.md` (V1 visual pass). Where this chapter and the art bible differ on look, sizes, sprites, effects or budgets, the art bible wins; this chapter keeps layout, UX flows, the palette values, ids, damage-number rules, accessibility and audio.
 
@@ -19,32 +19,30 @@ References: genre notes [GENRE A2] recommend neon vector/glow shapes on dark wit
 ### 2.1 Battle screen (in deployment)
 ```
 +--------------------------------------+
-| S01 QUIET YARDS   WAVE 37     [x2] [=]|  <- top bar: sector, wave, speed, pause
-| [=====wave timer 14s======]  BOSS 3w |  <- timer bar + boss/draft countdown chips
-| SCRAP 12.4K        DATA +3.2K  FLUX o|  <- run counters (amber / blue / teal)
-|                                      |
+| WAVE 37     14s          1x  [>>] [||]|  <- line 1 (84 px): wave, time left, speed, buttons (80 px drawn, 126 px touch)
+| [==========wave timer bar===========]|  <- line 2 (16 px): thin segmented timer bar
+| [##########integrity##########] 80/100|  <- line 3 (48 px): integrity bar, number in its pocket
+| [SCRAP 12.4K]            [DATA +3.2K] |  <- line 4 (64 px): currency chips (amber / blue)
+|                                      |     HUD total about 244 px at 1080 wide, plus the safe-area inset
 |         .  v  .      /\              |
 |     v        \  |  /     .           |
-|      .   <-- (  CINDER  ) -->  v      |   BATTLEFIELD (circle arena, enemies from all sides)
-|     /\    /  |  \     .              |   integrity ring around Cinder
-|        .      ^                      |   adaptation chips (L K A B N) at left edge
+|      .   <-- (  CINDER  ) -->  v      |   BATTLEFIELD (circle arena, enemies from all sides);
+|     /\    /  |  \     .              |   Cinder is centered in the open field between the HUD
+|        .      ^                      |   and the panel (BattleView.set_field_insets)
 |   (OD)                  [1][2][3]    |   OD = Overdrive button (bottom-left of field)
-|   ADAPT L:42 K:3 A:0          weapon-system buttons (toggle) bottom-right of field
-+--------------------------------------+
-| [ARMS] [CHASSIS] [SYSTEMS] [INTEL]   |  <- upgrade panel tabs
++--------------------------------------+   weapon-system buttons (toggle) bottom-right of field
+| [ARMS] [CHASSIS] [SYSTEMS] [INTEL]   |  <- upgrade panel tabs; panel height = content, max 36% of the screen
 | (icon) LASER OUTPUT  L24  1.2K>1.3K  |
-|        ................ [   9.8K ]   |  <- cost button (amber if affordable)
+|        ................ [   9.8K ]   |  <- cost button: tap = +1 level, hold = repeat
 | (icon) CYCLE RATE    L11  1.44>1.48  |
 |        ................ [   410  ]   |
-| (icon) CRIT CHANCE   L5   6%>6.8%    |
-|        ................ [   1.1K ]   |
-| ... scroll ...                       |
+|   Next unlock at wave 3              |  <- scrolls inside when the rows exceed the cap
 +--------------------------------------+
 ```
 HUD elements (ids): `hud_wave`, `hud_sector`, `hud_timer_bar`, `hud_speed`, `hud_pause`, `hud_scrap`, `hud_data_run`, `hud_flux_orb_counter`, `hud_integrity_ring`, `hud_adapt_bars`, `hud_overdrive_btn`, `hud_weapon_btn_1..3`, `hud_boss_chip`, `hud_draft_chip`, `hud_exposure_label` (shows band when it changes), `hud_cache_ping`. Tapping `hud_wave` opens Intel.
 
 ### 2.2 Upgrade panel details (row spec)
-Each row (height 88 dp): icon (40 dp, damage-type color), name, run level `L`, current value -> next value, cost button (right, 120 dp wide). Gold ring flashes on rows within 3 levels of a x1.5 milestone (every 25 levels). Locked rows are not shown (progressive disclosure; a single "Next unlock at wave X" line at list bottom). Tapping the row body (anywhere except the cost button) opens a tooltip with the formula and Foundry contribution (no hidden info). **Buying (2026-11-08, user: the x1/x10/x100/Max selector was confusing, removed; lands in M3):** there is no buy-mode selector. Tap the cost button = buy 1 level; press and hold it = repeat buy that accelerates the longer it is held, stopping at the cap or when the next level is unaffordable. The same rule applies to the Foundry and every other upgrade list.
+Each row (height 88 dp): icon (40 dp, damage-type color), name, run level `L`, current value -> next value, cost button (right, 120 dp wide). Gold ring flashes on rows within 3 levels of a x1.5 milestone (every 25 levels). Locked rows are not shown (progressive disclosure; a single "Next unlock at wave X" line at list bottom). Tapping the row body (anywhere except the cost button) opens a tooltip with the formula and Foundry contribution (no hidden info). **Buying (2026-11-08, user: the x1/x10/x100/Max selector was confusing; removed in V1-25 for the run panel):** there is no buy-mode selector. Tap the cost button = buy 1 level on release (a scroll drag cancels it); press and hold it = repeat buy that accelerates the longer it is held (first repeat 0.35 s, interval easing 250 -> 50 ms over 2 s, steps of 10 levels after 3 s and 100 after 6 s (impl)), stopping at the cap or when the next level is unaffordable; a drag past the tap slop cancels the hold. The panel height follows its content, capped at 36 percent of the screen height. The same rule applies to the Foundry and every other upgrade list.
 ```
 Tabs: [ARMS]   rows: laser_output, cycle_rate, crit_chance, crit_mult, optic_range, standoff, split_*, burst_*, ricochet_*, overcrit_*, armor_tear_*
       [CHASSIS] rows: hull_integrity, nano_repair, plating_*, spike_return, siphon_cell, push_*, razor_*, shock_*, mine_*, fail_safe, barricade_*
@@ -253,8 +251,10 @@ Icon: hex chest core in amber on near-black with a faint broken-circle range rin
 Performance budget: particle pool cap 400; each VFX has an LOD level that reduces at high enemy counts (exact looks, counts and budgets per VFX: 10 s6 and s9).
 
 ## 7. Audio direction
-- **Music:** dark synth ambient, cold analog pads, sub-bass drone, glassy FM bell motifs, sparse rhythmic pulse that grows with wave number. Tempo 82-96 BPM, irregular meter (7/8) in battle layers. Mood: lonely, mechanical, tense. **Avoid** any anvil-style four-note motif, heavy synth march or melodic lines that resemble a famous film theme [GENRE B1]. Adaptive layers: base pad (always) -> pulse (wave >= 10) -> percussion (wave >= 30 or boss) -> lead bell (boss/low integrity). Home screen: stripped ambient. Menus: soft resonant hum.
-- **Mix:** SFX priority over music; heavy limiting of simultaneous beam SFX (voice cap 6; at high fire rate use a looping pulsing "charged beam" loop).
-- **SFX list (ids):** `sfx_laser_shot` (short tick-zap, pitch randomized +-3%), `sfx_hit_metal`, `sfx_crit` (bright ping), `sfx_overcrit` (low boom + ring), `sfx_enemy_death_small`, `sfx_enemy_death_heavy`, `sfx_player_hit` (dull thud), `sfx_integrity_warn` (heartbeat at band 3), `sfx_skin_burn` (crackle at band change), `sfx_wave_start` (low pulse), `sfx_boss_warn` (rising drone), `sfx_boss_death`, `sfx_upgrade_buy` (click-chirp scaling with x10), `sfx_milestone_x15` (gold chime), `sfx_draft_open`, `sfx_draft_pick`, `sfx_cache_open`, `sfx_pod_heal`, `sfx_razor_spin`, `sfx_shock_ring`, `sfx_mine_beep`, `sfx_arc`, `sfx_emp`, `sfx_missile_launch`, `sfx_singularity`, `sfx_dilation`, `sfx_nanite`, `sfx_overdrive_on/off`, `sfx_aegis_break`, `sfx_reboot`, `sfx_meltdown`, `sfx_purge`, `sfx_ui_tap`, `sfx_ui_deny`, `sfx_lab_complete`, `sfx_firmware_pick`, `sfx_gauntlet_rank_up`, `sfx_death` (system shutdown whine), `sfx_results_tally`.
+- **Source (decision 2026-11-08):** all SFX and music are **Claude-synthesized**: offline Python synth scripts (`tools/audio_gen/`, deterministic, fixed seeds) write original audio files into swappable **audio slots** (`assets/audio/slots.csv`, same idea as the art slots, art bible 4.3), so a commissioned composer pack can replace the files one by one later with no code change (Q19). Sketch gate: `docs/playtests/a1/`; tasks: `docs/tasks/A1.md`.
+- **Music:** **ambient to industrial**. Early waves: calm cold-analog-synth drone, sub-bass and detuned pads (home screen: stripped pad only; menus: soft resonant hum). As waves climb and in boss fights the industrial layers come in: a syncopated filtered pulse, then metal clanks, steel-plate impacts, hydraulic hits and hisses, a kick-like thud, and a glassy FM bell or low saw lead for boss and low integrity. Tempo 84-96 BPM (shipped: 90), **4/4 (or 6/8) only**, syncopation inside the bar. Mood: lonely, mechanical, tense. Adaptive layers (thresholds in `assets/audio/music_layers.csv`): base pad (always) -> pulse (wave >= 10 or boss) -> percussion (wave >= 30 or boss) -> lead (boss, or integrity band 3). The layers are equal-length, sample-locked loops (`AudioStreamSynchronized`).
+- **IP avoid-list (hard):** any anvil-style four-note motif; any melody, motif or chord progression that resembles a famous film theme; **no repeating anvil or metal-clank ostinato in an odd meter (13/16, 13/8, 7/8 and the like) as a hook**; no heavy synth march; no samples from any existing recording; never name a film franchise in files, code, comments or docs (the genre mood is matched, nothing else) [GENRE B1].
+- **Mix:** SFX priority over music (the Music bus has a compressor side-chained to SFX, so effects duck the music slightly); a limiter on Master; per-id voice caps and cooldowns from the slot table (`sfx_laser_shot` voice cap 6 with a short cooldown; it is soft and non-fatiguing because it plays very often; at very high fire rate a looping pulsing "charged beam" loop may replace it). Music/SFX volume and mute are `AudioSettings` (settings screen: M3/M4).
+- **SFX list (ids):** `sfx_laser_shot` (short soft tick-zap, pitch randomized +-3%), `sfx_hit_metal`, `sfx_crit` (bright ping), `sfx_overcrit` (low boom + ring), `sfx_enemy_death_small`, `sfx_enemy_death_heavy`, `sfx_player_hit` (dull thud), `sfx_integrity_warn` (heartbeat at band 3), `sfx_skin_burn` (crackle at band change), `sfx_wave_start` (low pulse), `sfx_boss_warn` (rising drone), `sfx_boss_death`, `sfx_upgrade_buy` (short click-chirp; during a press-and-hold repeat buy its pitch steps up slightly with each consecutive buy, capped at about +5 semitones, and resets on release; voice cap 3 and a 45 ms cooldown keep it pleasant at up to about 20 buys per second), `sfx_milestone_x15` (gold chime), `sfx_draft_open`, `sfx_draft_pick`, `sfx_cache_open`, `sfx_pod_heal`, `sfx_razor_spin`, `sfx_shock_ring`, `sfx_mine_beep`, `sfx_arc`, `sfx_emp`, `sfx_missile_launch`, `sfx_singularity`, `sfx_dilation`, `sfx_nanite`, `sfx_overdrive_on/off`, `sfx_aegis_break`, `sfx_reboot`, `sfx_meltdown`, `sfx_purge`, `sfx_ui_tap`, `sfx_ui_deny`, `sfx_lab_complete`, `sfx_firmware_pick`, `sfx_gauntlet_rank_up`, `sfx_death` (system shutdown whine), `sfx_results_tally`. A1 ships the 12 core ids (`laser_shot`, `hit_metal`, `crit`, `enemy_death_small`, `enemy_death_heavy`, `player_hit`, `wave_start`, `boss_warn`, `upgrade_buy`, `ui_tap`, `ui_deny`, `death`); the rest follow with their features.
 - **Voice:** no voice acting; machine "terminal" blips for text lines.
 - **Haptics:** tied to audio events (purchase tick, boss pulse, death thud).

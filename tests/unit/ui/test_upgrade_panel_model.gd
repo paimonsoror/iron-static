@@ -1,6 +1,6 @@
 class_name TestUpgradePanelModel
 extends GdUnitTestSuite
-## UpgradePanelModel (M2-10): tab filtering, hint line, buy-mode state.
+## UpgradePanelModel (M2-10): tab filtering, hint line, tab state.
 
 
 func _defs() -> Array[RunUpgradeDef]:
@@ -40,14 +40,8 @@ func test_best_wave_zero_shows_four_starting_rows_and_wave_3_hint() -> void:
 	assert_str(UpgradePanelModel.hint_text(defs, 3)).is_equal("Next unlock at wave 5")
 
 
-func test_buy_mode_and_tab_state_toggle() -> void:
+func test_tab_state_toggle() -> void:
 	var m := UpgradePanelModel.new()
-	assert_int(m.buy_mode).is_equal(1)
-	for count: int in [10, 100, -1, 1]:
-		assert_bool(m.set_buy_mode(count)).is_true()
-		assert_int(m.buy_mode).is_equal(count)
-	assert_bool(m.set_buy_mode(7)).is_false()
-	assert_int(m.buy_mode).is_equal(1)
 	assert_str(m.active_tab).is_equal("arms")
 	assert_bool(m.set_tab("systems")).is_true()
 	assert_bool(m.set_tab("nope")).is_false()

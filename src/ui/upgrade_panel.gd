@@ -1,10 +1,11 @@
 class_name UpgradePanel
 extends PanelContainer
-## The bottom-44% upgrade panel (M2-10; GDD 07 sections 2.1, 2.2): tabs ARMS / CHASSIS / SYSTEMS / INTEL,
-## buy modes x1 x10 x100 MAX, one pre-instanced `UpgradeRow` per upgrade def (shown per tab and visibility),
-## a `Next unlock at wave N` line at the end of the list. Reads the bound `SimWorld` every 0.1 s from a Timer
-## (no `_process`) and never mutates it: a row's buy button only emits `buy_requested(index, count)`;
-## M2-12 connects that to `world.command_buy`.
+## The bottom upgrade panel (M2-10; GDD 07 sections 2.1, 2.2): tabs ARMS / CHASSIS / SYSTEMS / INTEL,
+## one pre-instanced `UpgradeRow` per upgrade def (shown per tab and visibility), a `Next unlock at wave N` line at
+## the end of the list. V1-25: no buy-mode selector (a row's cost button buys 1 on tap, repeats on hold), and the
+## panel height follows its content (tabs + rows + hint) capped at `max_height_px`, scrolling inside; it is anchored
+## to the bottom and grows upward (`reflow`). Reads the bound `SimWorld` every 0.1 s from a Timer (no `_process`)
+## and never mutates it: a row only emits `buy_requested(index, count)`; M2-12 connects that to `world.command_buy`.
 
 signal buy_requested(upgrade_index: int, count: int)
 
@@ -12,20 +13,20 @@ const REFRESH_S: float = 0.1
 const PANEL_MARGIN_H: float = 20.0
 const PANEL_MARGIN_V: float = 16.0
 const TAB_ICON_PX: int = 56
-const CHIP_FONT_SIZE: int = 48
 const ROW_SCENE: PackedScene = preload("res://src/ui/upgrade_row.tscn")
 
 var model: UpgradePanelModel = UpgradePanelModel.new()
+## Height cap in px (the HUD sets 36 percent of its height); 0 = 36 percent of the viewport.
+var max_height_px: float = 0.0
 
 var _world: SimWorld = null
 var _defs: Array[RunUpgradeDef] = []
 var _rows: Array[UpgradeRow] = []
 var _hint: String = ""
 var _tab_buttons: Dictionary[String, Button] = {}
-var _buy_buttons: Array[Button] = []
 
 @onready var _tab_bar: HBoxContainer = %TabBar
-@onready var _buy_bar: HBoxContainer = %BuyBar
+@onready var _column: VBoxContainer = %Column
 @onready var _scroll: ScrollContainer = %Scroll
 @onready var _rows_box: VBoxContainer = %RowsBox
 @onready var _hint_label: Label = %HintLabel
@@ -41,7 +42,6 @@ func _ready() -> void:
 	add_child(brackets)
 	UiKit.add_brackets(brackets)
 	_setup_tabs()
-	_setup_buy_modes()
 	_intel_label.text = Strings.get_text("panel.intel_stub")
 	_intel_label.add_theme_stylebox_override("normal", UiKit.inset(24, 40))
 	_hint_label.hide()
@@ -49,6 +49,8 @@ func _ready() -> void:
 	_timer.wait_time = REFRESH_S
 	_timer.timeout.connect(refresh)
 	_timer.start()
+	_rows_box.minimum_size_changed.connect(reflow)
+	reflow()
 
 
 ## Binds the world to read (a new run gives a new world). Rows are rebuilt only when the upgrade table differs.
@@ -69,10 +71,6 @@ func active_tab() -> String:
 	return model.active_tab
 
 
-func buy_mode() -> int:
-	return model.buy_mode
-
-
 ## Selects a tab (no signal); false for an unknown id.
 func set_tab(tab_id: String) -> bool:
 	if not model.set_tab(tab_id):
@@ -83,13 +81,21 @@ func set_tab(tab_id: String) -> bool:
 	return true
 
 
-## Selects x1 / x10 / x100 / Max (-1) (no signal); false for any other count.
-func set_buy_mode(count: int) -> bool:
-	if not model.set_buy_mode(count):
-		return false
-	_show_selected_mode()
-	refresh()
-	return true
+## Sizes the panel to its content: tab bar plus rows, capped at `max_height_px`, anchored at the bottom edge.
+func reflow() -> void:
+	if not is_node_ready():
+		return
+	var cap: float = max_height_px
+	if cap <= 0.0:
+		cap = get_viewport_rect().size.y * 0.36
+	var chrome: float = get_theme_stylebox("panel").get_minimum_size().y
+	chrome += _tab_bar.get_combined_minimum_size().y + float(_column.get_theme_constant("separation"))
+	var scroll_h: float = clampf(_rows_box.get_combined_minimum_size().y, 0.0, maxf(cap - chrome, 0.0))
+	if not is_equal_approx(_scroll.custom_minimum_size.y, scroll_h):
+		_scroll.custom_minimum_size.y = scroll_h
+	var want_top: float = offset_bottom - (chrome + scroll_h)
+	if not is_equal_approx(offset_top, want_top):
+		offset_top = want_top
 
 
 ## Row widget of upgrade `index` (tests, layout checks), or null.
@@ -113,13 +119,14 @@ func refresh() -> void:
 		if _rows[i].visible != want:
 			_rows[i].visible = want
 	for i: int in shown:
-		var p: UpgradePreview = UpgradeSystem.preview(_world, i, model.buy_mode)
+		var p: UpgradePreview = UpgradeSystem.preview(_world, i, 1)
 		_rows[i].apply(UpgradeRowModel.from_preview(p, p.affordable, p.level, _defs[i]))
 	var hint: String = "" if intel else UpgradePanelModel.hint_text(_defs, _world.config.best_wave_s1)
 	if hint != _hint:
 		_hint = hint
 		_hint_label.text = hint
 		_hint_label.visible = not hint.is_empty()
+	reflow()
 
 
 func _same_defs(defs: Array[RunUpgradeDef]) -> bool:
@@ -145,8 +152,8 @@ func _build_rows(defs: Array[RunUpgradeDef]) -> void:
 		_rows.append(row)
 
 
-func _on_row_buy(upgrade_index: int) -> void:
-	buy_requested.emit(upgrade_index, model.buy_mode)
+func _on_row_buy(upgrade_index: int, count: int) -> void:
+	buy_requested.emit(upgrade_index, count)
 
 
 func _setup_tabs() -> void:
@@ -174,29 +181,6 @@ func _setup_tabs() -> void:
 	_show_selected_tab()
 
 
-func _setup_buy_modes() -> void:
-	var group := ButtonGroup.new()
-	(_buy_bar.get_node("BuyLabel") as Label).text = Strings.get_text("buy.label")
-	var normal: StyleBoxTexture = UiKit.button(12, 10)
-	var active: StyleBoxTexture = UiKit.button_active(12, 10)
-	var font: Font = theme.get_font("font", ThemeBuilder.VAR_LABEL_NUMBER)
-	for k: int in UpgradePanelModel.BUY_MODES.size():
-		var b: Button = _buy_bar.get_node("Buy_%d" % k)
-		b.toggle_mode = true
-		b.button_group = group
-		b.text = Strings.get_text(UpgradePanelModel.BUY_KEYS[k])
-		b.pressed.connect(_on_buy_mode_pressed.bind(UpgradePanelModel.BUY_MODES[k]))
-		# Selected chip = `button_plate_active`; hover and focus look like normal so a swipe leaves no stuck highlight (Q55).
-		_touch_style(b, normal, normal, active, active)
-		b.add_theme_font_override("font", font)
-		b.add_theme_font_size_override("font_size", CHIP_FONT_SIZE)
-		if UpgradePanelModel.BUY_MODES[k] == -1:
-			var strip: Panel = UiKit.add_hazard(b, 28.0, 16.0)
-			strip.name = "Hazard"
-		_buy_buttons.append(b)
-	_show_selected_mode()
-
-
 ## Touch-safe styling of a toggle button: no focus box (a tap would leave it stuck), hover = normal.
 ## `on` / `hover_on` are the selected plates.
 func _touch_style(b: Button, normal: StyleBox, hover: StyleBox, on: StyleBox, hover_on: StyleBox) -> void:
@@ -212,18 +196,8 @@ func _on_tab_pressed(tab_id: String) -> void:
 	set_tab(tab_id)
 
 
-func _on_buy_mode_pressed(count: int) -> void:
-	set_buy_mode(count)
-
-
 ## `set_pressed_no_signal` does not release the other buttons of a ButtonGroup: set every button explicitly
 ## (otherwise a code-driven switch leaves two tabs or chips highlighted).
 func _show_selected_tab() -> void:
 	for tab_id: String in _tab_buttons:
 		_tab_buttons[tab_id].set_pressed_no_signal(tab_id == model.active_tab)
-
-
-func _show_selected_mode() -> void:
-	var selected: int = UpgradePanelModel.BUY_MODES.find(model.buy_mode)
-	for k: int in _buy_buttons.size():
-		_buy_buttons[k].set_pressed_no_signal(k == selected)

@@ -30,9 +30,10 @@ func test_row_scene_loads_applies_model_and_emits_buy_pressed() -> void:
 	var button: Button = row.get_node("%BuyButton")
 	assert_str(button.theme_type_variation).is_equal(str(ThemeBuilder.VAR_BUTTON_UNAFFORDABLE))
 	var hits: Array[int] = []
-	row.buy_pressed.connect(func(i: int) -> void: hits.append(i))
-	button.pressed.emit()
-	assert_array(hits).is_equal([0])
+	row.buy_pressed.connect(func(i: int, c: int) -> void: hits.append(i * 1000 + c))
+	button.button_down.emit()
+	button.button_up.emit()
+	assert_array(hits).is_equal([1])
 	assert_bool(row.is_tooltip_visible()).is_false()
 
 
@@ -56,18 +57,19 @@ func test_panel_scene_loads_filters_rows_and_shows_hint() -> void:
 	assert_bool(panel.row_at(5).visible).is_false()
 
 
-func test_buy_requested_carries_index_and_remembered_buy_mode() -> void:
+func test_buy_requested_carries_index_and_count_of_a_tap() -> void:
 	var panel: UpgradePanel = _panel()
 	panel.bind(_world(99))
 	var got: Array[Vector2i] = []
 	panel.buy_requested.connect(func(i: int, c: int) -> void: got.append(Vector2i(i, c)))
-	(panel.row_at(1).get_node("%BuyButton") as Button).pressed.emit()
-	panel.set_buy_mode(100)
+	var b1: Button = panel.row_at(1).get_node("%BuyButton")
+	b1.button_down.emit()
+	b1.button_up.emit()
 	panel.set_tab("systems")
-	assert_int(panel.buy_mode()).is_equal(100)
-	(panel.row_at(8).get_node("%BuyButton") as Button).pressed.emit()
-	assert_array(got).is_equal([Vector2i(1, 1), Vector2i(8, 100)])
-	assert_bool(panel.set_buy_mode(5)).is_false()
+	var b8: Button = panel.row_at(8).get_node("%BuyButton")
+	b8.button_down.emit()
+	b8.button_up.emit()
+	assert_array(got).is_equal([Vector2i(1, 1), Vector2i(8, 1)])
 
 
 func test_refresh_follows_scrap_and_does_not_mutate_world() -> void:
@@ -93,26 +95,18 @@ func test_panel_has_no_process_and_a_tenth_second_timer() -> void:
 	assert_bool(timer.is_stopped()).is_false()
 
 
-func test_code_driven_tab_and_buy_mode_switch_leaves_one_selected() -> void:
+func test_code_driven_tab_switch_leaves_one_selected_and_no_buy_selector() -> void:
 	var panel: UpgradePanel = _panel()
 	panel.bind(_world(99))
 	for id: String in ["chassis", "intel", "arms"]:
 		assert_bool(panel.set_tab(id)).is_true()
-	for count: int in [10, 100, -1, 1]:
-		assert_bool(panel.set_buy_mode(count)).is_true()
 	var tabs_on: int = 0
 	for id: String in UpgradePanelModel.TAB_IDS:
 		var tb: Button = panel.get_node("%TabBar/Tab_" + id)
 		assert_bool(tb.focus_mode == Control.FOCUS_NONE).is_true()
 		tabs_on += 1 if tb.button_pressed else 0
-	var chips_on: int = 0
-	for k: int in 4:
-		var cb: Button = panel.get_node("%BuyBar/Buy_" + str(k))
-		assert_bool(cb.focus_mode == Control.FOCUS_NONE).is_true()
-		chips_on += 1 if cb.button_pressed else 0
 	assert_int(tabs_on).is_equal(1)
-	assert_int(chips_on).is_equal(1)
-	assert_bool((panel.get_node("%BuyBar/Buy_0") as Button).button_pressed).is_true()
+	assert_object(panel.get_node_or_null("%BuyBar")).is_null()
 
 
 func test_row_cost_states_icon_and_maxed_plate() -> void:

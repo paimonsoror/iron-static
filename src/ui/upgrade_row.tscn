@@ -81,10 +81,6 @@ layout_mode = 2
 mouse_filter = 2
 autowrap_mode = 3
 
-[node name="PressTimer" type="Timer" parent="."]
-unique_name_in_owner = true
-one_shot = true
-
 [node name="TipTimer" type="Timer" parent="."]
 unique_name_in_owner = true
 one_shot = true

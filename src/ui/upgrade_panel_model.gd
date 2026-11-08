@@ -1,16 +1,12 @@
 class_name UpgradePanelModel
 extends RefCounted
-## Pure state of the upgrade panel (M2-10): active tab, buy mode, tab filtering by visibility and the
+## Pure state of the upgrade panel (M2-10): active tab, tab filtering by visibility and the
 ## "next unlock" hint. GDD 07 section 2.1/2.2, 08 section 1.3. INTEL is a stub until M4.
 
 const TAB_IDS: PackedStringArray = ["arms", "chassis", "systems", "intel"]
 const TAB_INTEL: String = "intel"
-## Buy modes: x1, x10, x100, Max (-1), the `count` of UpgradeSystem.preview/buy.
-const BUY_MODES: PackedInt32Array = [1, 10, 100, -1]
-const BUY_KEYS: PackedStringArray = ["buy.x1", "buy.x10", "buy.x100", "buy.max"]
 
 var active_tab: String = "arms"
-var buy_mode: int = 1
 
 
 ## Returns false (state unchanged) for an unknown tab id.
@@ -18,14 +14,6 @@ func set_tab(tab_id: String) -> bool:
 	if not TAB_IDS.has(tab_id):
 		return false
 	active_tab = tab_id
-	return true
-
-
-## Returns false (state unchanged) for a count that is not a buy mode.
-func set_buy_mode(count: int) -> bool:
-	if not BUY_MODES.has(count):
-		return false
-	buy_mode = count
 	return true
 
 

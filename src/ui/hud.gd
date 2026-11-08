@@ -1,9 +1,11 @@
 class_name Hud
 extends Control
 ## Battle HUD (GDD 07 section 2.1: hud_wave, hud_timer_bar, hud_speed, hud_pause, hud_integrity_ring as a bar,
-## hud_scrap amber, hud_data_run blue) plus the bottom-44% `UpgradePanel` (M2-10), styled per art bible 7.2 (V1-16):
-## top plate with brackets, segmented timer and integrity bars (numbers in a reserved pocket), counter plates with
-## currency icons, icon buttons and a wave banner. Base resolution 1080 wide; buttons are 148 px squares.
+## hud_scrap amber, hud_data_run blue) plus the bottom `UpgradePanel` (M2-10), styled per art bible 7.2 (V1-16) and
+## compacted in V1-25: line 1 wave + time left + speed + 80 px speed/pause icons (126 px touch rects), line 2 thin
+## timer bar, line 3 integrity bar, line 4 currency chips (about 240 px tall). Base resolution 1080 wide.
+## `field_insets_changed(top_px, bottom_px)` reports the HUD bottom edge and the panel's cover so main can call
+## `BattleView.set_field_insets`; it fires (deferred, coalesced) on ready, resize, safe-area and panel size changes.
 ## Signals only; the owner feeds values with refresh(world, now_s) at any rate. Counter text comes from `HudModel`
 ## (10 Hz throttle, `NumberFormat`); a label is rewritten only when its text changed. Scrap and data roll to new
 ## values over 0.25 s (`NumberRoll`, stepped by the same 10 Hz refresh; instant under reduce motion). The panel is
@@ -12,11 +14,16 @@ extends Control
 signal speed_changed(multiplier: int)
 signal pause_toggled(paused: bool)
 signal buy_requested(upgrade_index: int, count: int)
+signal field_insets_changed(top_px: float, bottom_px: float)
 
 const SPEEDS: Array[int] = [1, 2]
 ## Counter plate icon size and offset (inside the 92 px plate).
-const COUNTER_ICON_PX: float = 64.0
-const COUNTER_ICON_POS: Vector2 = Vector2(18.0, 14.0)
+const COUNTER_ICON_PX: float = 48.0
+const COUNTER_ICON_POS: Vector2 = Vector2(20.0, 8.0)
+## Upgrade panel height cap as a share of the viewport height.
+const PANEL_MAX_SHARE: float = 0.36
+## Touch rect of the 80 px icon buttons: 80 + 2 x 23 = 126 px (48 dp).
+const TOUCH_PAD_PX: float = 23.0
 
 ## Set true to force reduce motion (it is also read from `Game.visual.reduce_motion`).
 var reduce_motion: bool = false
@@ -27,13 +34,15 @@ var _model: HudModel = HudModel.new()
 var _last_wave: int = -1
 var _scrap_roll: NumberRoll = NumberRoll.new()
 var _data_roll: NumberRoll = NumberRoll.new()
+var _insets_dirty: bool = false
+var _last_insets: Vector2 = Vector2(-1.0, -1.0)
 
 @onready var _wave_label: Label = %WaveLabel
 @onready var _timer_bar: SegmentedBar = %TimerBar
 @onready var _timer_label: Label = %TimerLabel
 @onready var _speed_label: Label = %SpeedLabel
-@onready var _speed_button: Button = %SpeedButton
-@onready var _pause_button: Button = %PauseButton
+@onready var _speed_button: TouchButton = %SpeedButton
+@onready var _pause_button: TouchButton = %PauseButton
 @onready var _integrity_bar: SegmentedBar = %IntegrityBar
 @onready var _hp_label: Label = %HpLabel
 @onready var _scrap_label: Label = %ScrapLabel
@@ -61,9 +70,14 @@ func _ready() -> void:
 	UiKit.style_icon_button(_pause_button, "icon_ic_pause")
 	_speed_button.pressed.connect(_on_speed_pressed)
 	_pause_button.pressed.connect(_on_pause_pressed)
+	_speed_button.touch_pad = TOUCH_PAD_PX
+	_pause_button.touch_pad = TOUCH_PAD_PX
 	_panel.buy_requested.connect(_on_buy_requested)
+	_panel.resized.connect(_mark_insets_dirty)
+	resized.connect(_on_resized)
 	_update_speed_text()
 	_update_pause_text()
+	_on_resized()
 
 
 ## The upgrade panel (for M2-12 wiring and tests).
@@ -80,6 +94,39 @@ func apply_safe_margins(m: Vector4) -> void:
 	_panel.offset_left = m.x
 	_panel.offset_right = -m.z
 	_panel.offset_bottom = -m.w
+	_panel.reflow()
+	_mark_insets_dirty()
+
+
+## The field the HUD leaves open, in this control's pixels: `x` = HUD bottom edge (lowest chip plate),
+## `y` = how far the panel reaches up from the bottom of the screen (screen height minus panel top).
+func field_insets() -> Vector2:
+	var top: float = 0.0
+	for plate: Control in [%ScrapPlate, %DataPlate, %TopPlate, %IntegrityBar]:
+		top = maxf(top, plate.global_position.y + plate.size.y - global_position.y)
+	var bottom: float = size.y - (_panel.global_position.y - global_position.y)
+	return Vector2(top, bottom)
+
+
+func _on_resized() -> void:
+	_panel.max_height_px = size.y * PANEL_MAX_SHARE
+	_panel.reflow()
+	_mark_insets_dirty()
+
+
+func _mark_insets_dirty() -> void:
+	if _insets_dirty or not is_inside_tree():
+		return
+	_insets_dirty = true
+	_flush_insets.call_deferred()
+
+
+func _flush_insets() -> void:
+	_insets_dirty = false
+	var v: Vector2 = field_insets()
+	if v != _last_insets:
+		_last_insets = v
+		field_insets_changed.emit(v.x, v.y)
 
 
 ## The wave banner (tests).

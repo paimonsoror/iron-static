@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://src/ui/hud.gd" id="1_hud"]
 [ext_resource type="PackedScene" path="res://src/ui/upgrade_panel.tscn" id="2_panel"]
 [ext_resource type="Script" path="res://src/ui/segmented_bar.gd" id="3_bar"]
 [ext_resource type="Script" path="res://src/ui/wave_banner.gd" id="4_banner"]
+
+[ext_resource type="Script" path="res://src/ui/touch_button.gd" id="5_touch"]
 
 [node name="Hud" type="Control"]
 layout_mode = 3
@@ -18,7 +20,10 @@ script = ExtResource("1_hud")
 [node name="UpgradePanel" parent="." instance=ExtResource("2_panel")]
 unique_name_in_owner = true
 layout_mode = 1
-anchor_top = 0.56
+anchors_preset = 12
+anchor_top = 1.0
+offset_top = -700.0
+grow_vertical = 0
 
 [node name="TopBar" type="Control" parent="."]
 unique_name_in_owner = true
@@ -38,7 +43,7 @@ anchor_right = 1.0
 offset_left = 14.0
 offset_top = 10.0
 offset_right = -14.0
-offset_bottom = 190.0
+offset_bottom = 122.0
 grow_horizontal = 2
 mouse_filter = 2
 
@@ -46,13 +51,25 @@ mouse_filter = 2
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 46.0
-offset_top = 22.0
-offset_right = 560.0
-offset_bottom = 98.0
+offset_top = 14.0
+offset_right = 440.0
+offset_bottom = 92.0
 mouse_filter = 2
 theme_type_variation = &"LabelHeading"
-theme_override_font_sizes/font_size = 64
+theme_override_font_sizes/font_size = 60
 text = "WAVE 1"
+vertical_alignment = 1
+
+[node name="TimerLabel" type="Label" parent="TopBar"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 450.0
+offset_top = 14.0
+offset_right = 620.0
+offset_bottom = 92.0
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+text = "24s"
 vertical_alignment = 1
 
 [node name="SpeedLabel" type="Label" parent="TopBar"]
@@ -61,25 +78,54 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -480.0
-offset_top = 30.0
-offset_right = -352.0
-offset_bottom = 98.0
+offset_left = -380.0
+offset_top = 14.0
+offset_right = -262.0
+offset_bottom = 92.0
 grow_horizontal = 0
 mouse_filter = 2
 theme_type_variation = &"LabelNumber"
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 48
 text = "1x"
 horizontal_alignment = 2
 vertical_alignment = 1
 
+[node name="SpeedButton" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -238.0
+offset_top = 12.0
+offset_right = -158.0
+offset_bottom = 92.0
+grow_horizontal = 0
+script = ExtResource("5_touch")
+
+[node name="PauseButton" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -112.0
+offset_top = 12.0
+offset_right = -32.0
+offset_bottom = 92.0
+grow_horizontal = 0
+script = ExtResource("5_touch")
+
 [node name="TimerBar" type="Control" parent="TopBar"]
 unique_name_in_owner = true
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
 offset_left = 46.0
-offset_top = 112.0
-offset_right = 466.0
-offset_bottom = 156.0
+offset_top = 98.0
+offset_right = -46.0
+offset_bottom = 114.0
+grow_horizontal = 2
 mouse_filter = 2
 script = ExtResource("3_bar")
 segments = 24
@@ -88,60 +134,22 @@ ceil_fill = false
 head_bright = true
 ticks = true
 
-[node name="TimerLabel" type="Label" parent="TopBar"]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 482.0
-offset_top = 108.0
-offset_right = 640.0
-offset_bottom = 160.0
-mouse_filter = 2
-theme_type_variation = &"LabelNumber"
-text = "24s"
-vertical_alignment = 1
-
-[node name="SpeedButton" type="Button" parent="TopBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(148, 148)
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -336.0
-offset_top = 26.0
-offset_right = -188.0
-offset_bottom = 174.0
-grow_horizontal = 0
-
-[node name="PauseButton" type="Button" parent="TopBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(148, 148)
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -180.0
-offset_top = 26.0
-offset_right = -32.0
-offset_bottom = 174.0
-grow_horizontal = 0
-
 [node name="IntegrityBar" type="Control" parent="TopBar"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_left = 16.0
-offset_top = 200.0
+offset_top = 126.0
 offset_right = -16.0
-offset_bottom = 260.0
+offset_bottom = 174.0
 grow_horizontal = 2
 mouse_filter = 2
 script = ExtResource("3_bar")
 max_value = 100.0
 value = 100.0
 ramp = true
-pocket_px = 270.0
+pocket_px = 250.0
 
 [node name="HpLabel" type="Label" parent="TopBar/IntegrityBar"]
 unique_name_in_owner = true
@@ -150,13 +158,13 @@ anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -276.0
+offset_left = -256.0
 offset_right = -14.0
 grow_horizontal = 0
 grow_vertical = 2
 mouse_filter = 2
 theme_type_variation = &"LabelNumber"
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 38
 text = "0 / 0"
 horizontal_alignment = 2
 vertical_alignment = 1
@@ -165,20 +173,21 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 16.0
-offset_top = 272.0
+offset_top = 180.0
 offset_right = 520.0
-offset_bottom = 364.0
+offset_bottom = 244.0
 mouse_filter = 2
 
 [node name="ScrapLabel" type="Label" parent="TopBar/ScrapPlate"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 100.0
-offset_top = 8.0
-offset_right = 486.0
-offset_bottom = 84.0
+offset_left = 84.0
+offset_top = 0.0
+offset_right = 490.0
+offset_bottom = 64.0
 mouse_filter = 2
 theme_type_variation = &"LabelNumber"
+theme_override_font_sizes/font_size = 42
 text = "SCRAP 0"
 vertical_alignment = 1
 
@@ -189,21 +198,22 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -520.0
-offset_top = 272.0
+offset_top = 180.0
 offset_right = -16.0
-offset_bottom = 364.0
+offset_bottom = 244.0
 grow_horizontal = 0
 mouse_filter = 2
 
 [node name="DataLabel" type="Label" parent="TopBar/DataPlate"]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 100.0
-offset_top = 8.0
-offset_right = 486.0
-offset_bottom = 84.0
+offset_left = 84.0
+offset_top = 0.0
+offset_right = 490.0
+offset_bottom = 64.0
 mouse_filter = 2
 theme_type_variation = &"LabelNumber"
+theme_override_font_sizes/font_size = 42
 text = "DATA 0"
 vertical_alignment = 1
 
@@ -212,8 +222,8 @@ unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 420.0
-offset_bottom = 632.0
+offset_top = 300.0
+offset_bottom = 512.0
 grow_horizontal = 2
 mouse_filter = 2
 script = ExtResource("4_banner")

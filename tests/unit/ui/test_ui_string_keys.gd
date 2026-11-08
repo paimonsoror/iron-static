@@ -16,8 +16,6 @@ func test_hud_and_results_overlay_use_only_known_keys() -> void:
 	for tab: String in UpgradePanelModel.TAB_IDS:
 		panel.set_tab(tab)
 		panel.refresh()
-	for mode: int in UpgradePanelModel.BUY_MODES:
-		panel.set_buy_mode(mode)
 	hud.set_paused(true)
 	hud.set_paused(false)
 	var overlay: ResultsOverlay = auto_free((load("res://src/ui/results_overlay.tscn") as PackedScene).instantiate())
