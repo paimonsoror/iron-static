@@ -14,6 +14,12 @@ const ARG_DEBUG_PERF: String = "--debug-perf"
 var controller: RunController = RunController.new()
 var debug_load: bool = false
 var debug_perf: bool = false
+## In-memory best death wave of sector 1 (lives in the controller; persistence arrives in M3).
+var best_wave_s1: int:
+	get:
+		return controller.best_wave_s1
+	set(value):
+		controller.best_wave_s1 = value
 
 
 func _ready() -> void:
@@ -26,6 +32,12 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	controller.update(delta)
+
+
+## Upgrade panel purchase: queued, applied at the start of the next controller update (see RunController).
+func request_buy(upgrade_index: int, count: int) -> void:
+	@warning_ignore("return_value_discarded")
+	controller.request_buy(upgrade_index, count)
 
 
 ## Starts a normal deployment with `seed_value` (first run: RunController.DEFAULT_SEED, then +1 per redeploy).

@@ -6,13 +6,15 @@ extends Control
 ## command) or `adb shell input swipe 40 40 40 40 800`.
 ## Buttons (base 1080 px layout, top-left anchored so coordinates are identical on 1080x1920 and 1080x2400):
 ## B0..B3 force the displayed exposure band (view only, persists while the overlay is hidden), AUTO clears the
-## override, LOAD restarts as the high-load scenario (wave 60, invulnerable; M1-25).
+## override, LOAD restarts as the high-load scenario (wave 60, invulnerable; M1-25). Second row (y 420-510):
+## BW0, BW12, BW100 set the in-memory best wave (M2-12); it applies from the next run start or redeploy.
 ## [PERF] lines every PERF_PERIOD_S through Log.info while the overlay is shown or `force_perf` is true; with
 ## both off the overlay does no per-frame work at all. The text is rewritten at TEXT_REFRESH_S into a reused
 ## PackedStringArray (no per-frame allocation).
 
 signal band_forced(band: int)
 signal load_requested
+signal best_wave_requested(wave: int)
 
 const CORNER_PX: float = 100.0
 const DOUBLE_TAP_MS: int = 800
@@ -21,7 +23,8 @@ const PERF_PERIOD_S: float = 10.0
 const TEXT_REFRESH_S: float = 0.25
 const FPS_WINDOW: int = 60
 const TICK_WINDOW: int = 120
-const LINE_COUNT: int = 12
+const LINE_COUNT: int = 13
+const BEST_WAVES: Array[int] = [0, 12, 100]
 
 ## Set by the owner when the [PERF] log must run even with the overlay hidden (--debug-perf, load mode).
 var force_perf: bool = false
@@ -42,6 +45,7 @@ var _press_ms: int = -1
 @onready var _band_buttons: Array[Button] = [%B0, %B1, %B2, %B3]
 @onready var _auto_button: Button = %AutoButton
 @onready var _load_button: Button = %LoadButton
+@onready var _bw_buttons: Array[Button] = [%BW0, %BW12, %BW100]
 
 
 func _ready() -> void:
@@ -55,6 +59,9 @@ func _ready() -> void:
 	_style_button(_load_button)
 	_auto_button.pressed.connect(_on_band_pressed.bind(-1))
 	_load_button.pressed.connect(_on_load_pressed)
+	for i: int in _bw_buttons.size():
+		_style_button(_bw_buttons[i])
+		_bw_buttons[i].pressed.connect(_on_best_wave_pressed.bind(BEST_WAVES[i]))
 
 
 func setup(controller: RunController) -> void:
@@ -167,6 +174,7 @@ func _refresh_text(w: SimWorld) -> void:
 		if _controller.load_wave > 0
 		else "v" + Game.VERSION
 	)
+	_lines[12] = "BEST WAVE %d (BW sets it; applies next run)" % _controller.best_wave_s1
 	_stats_label.text = "\n".join(_lines)
 
 
@@ -178,6 +186,12 @@ func _on_band_pressed(band: int) -> void:
 	_forced_band = band
 	_since_text = TEXT_REFRESH_S
 	band_forced.emit(band)
+
+
+func _on_best_wave_pressed(wave: int) -> void:
+	_controller.best_wave_s1 = wave
+	_since_text = TEXT_REFRESH_S
+	best_wave_requested.emit(wave)
 
 
 func _on_load_pressed() -> void:

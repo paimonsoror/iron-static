@@ -5,6 +5,11 @@ extends RefCounted
 ## instance and feeds it `_process` time. Lives in src/core (reads the wall clock for budgets and timing only).
 ## Debug load mode (M1-25): a run started with `load_wave > 0` is stepped without rendering, in wall-clock
 ## budgeted chunks per update(), until it reaches that wave, then continues as a normal run.
+## Buys (M2-12): `request_buy` only queues; the queue is applied at the START of the next update() (or
+## fast_forward()), before the driver advances, so `command_buy` never runs inside `driver.advance` and each
+## buy is logged at the tick about to run. While paused the tick does not move, so buys land on the current
+## tick (accepted, applied at the next update()). Requests during RESULTS or the debug load fast-forward are
+## dropped (impl). At run end the best wave is updated (not for load runs) and `last_run.json` is written.
 
 signal run_started(world: SimWorld)
 signal run_ended(world: SimWorld)
@@ -18,6 +23,8 @@ const LOAD_WAVE: int = 60
 const LOAD_BUDGET_USEC: int = 12000
 ## Ticks stepped between clock checks while fast-forwarding.
 const LOAD_CHUNK_TICKS: int = 30
+const LAST_RUN_DIR: String = "user://runs"
+const LAST_RUN_FILE: String = "last_run.json"
 
 var state: State = State.BOOT
 var world: SimWorld
@@ -31,6 +38,12 @@ var load_wave: int = 0
 ## Ticks run and wall microseconds spent by the last update() (debug overlay reads these).
 var last_ticks: int = 0
 var last_usec: int = 0
+## In-memory best death wave of sector 1 (persistence arrives in M3); copied into SimConfig at run start.
+var best_wave_s1: int = 0
+## Where the run record is written at run end (tests override it).
+var last_run_path: String = LAST_RUN_DIR + "/" + LAST_RUN_FILE
+var _pending_buys: Array[Vector2i] = []
+var _load_run: bool = false
 
 
 ## Creates a fresh world for `seed_value` and enters IN_RUN. `invulnerable` and `load_target` are debug-only.
@@ -38,9 +51,12 @@ func start_run(new_seed: int, invulnerable: bool = false, load_target: int = 0) 
 	seed_value = new_seed
 	var cfg: SimConfig = SimConfigLoader.load_default(new_seed)
 	cfg.debug_invulnerable = invulnerable
+	cfg.best_wave_s1 = best_wave_s1
 	world = SimWorld.new(cfg)
 	driver = TickDriver.new()
 	load_wave = load_target
+	_load_run = invulnerable or load_target > 0
+	_pending_buys.clear()
 	last_ticks = 0
 	last_usec = 0
 	state = State.IN_RUN
@@ -53,12 +69,21 @@ func redeploy() -> SimWorld:
 	return start_run(seed_value + 1)
 
 
+## Queues a purchase from the UI (applied at the start of the next update()). Returns false when dropped.
+func request_buy(upgrade_index: int, count: int) -> bool:
+	if state != State.IN_RUN or load_wave > 0:
+		return false
+	_pending_buys.append(Vector2i(upgrade_index, count))
+	return true
+
+
 ## Per-frame advance. Returns the number of ticks that ran.
 func update(delta: float) -> int:
 	if state != State.IN_RUN:
 		return 0
 	var start_usec: int = Time.get_ticks_usec()
 	var ran: int = 0
+	_apply_pending_buys()
 	if load_wave > 0:
 		ran = _load_step(start_usec)
 	elif paused:
@@ -74,6 +99,7 @@ func update(delta: float) -> int:
 ## Steps up to `max_ticks` ticks immediately (tests, loading); stops when the run ends. Returns ticks run.
 func fast_forward(max_ticks: int) -> int:
 	var ran: int = 0
+	_apply_pending_buys()
 	while ran < max_ticks and state == State.IN_RUN and not world.is_over():
 		world.step()
 		ran += 1
@@ -120,8 +146,36 @@ func _load_step(start_usec: int) -> int:
 	return ran
 
 
+func _apply_pending_buys() -> void:
+	if _pending_buys.is_empty():
+		return
+	if world != null and state == State.IN_RUN and load_wave == 0:
+		for req: Vector2i in _pending_buys:
+			@warning_ignore("return_value_discarded")  # rejections (unaffordable, locked) are simply not logged
+			world.command_buy(req.x, req.y)
+	_pending_buys.clear()
+
+
+func _write_last_run(w: SimWorld) -> void:
+	var dir_path: String = last_run_path.get_base_dir()
+	if DirAccess.make_dir_recursive_absolute(dir_path) != OK:
+		Log.warn("run record: cannot create " + dir_path)
+		return
+	var file: FileAccess = FileAccess.open(last_run_path, FileAccess.WRITE)
+	if file == null:
+		Log.warn("run record: cannot write " + last_run_path)
+		return
+	file.store_string(RunRecord.from_world(w).to_json())
+	file.close()
+	Log.info("run record written: " + ProjectSettings.globalize_path(last_run_path))
+
+
 func _check_over() -> void:
 	if state == State.IN_RUN and world.is_over():
 		state = State.RESULTS
 		load_wave = 0
+		_pending_buys.clear()
+		if not _load_run:
+			best_wave_s1 = maxi(best_wave_s1, world.run.death_wave)
+		_write_last_run(world)
 		run_ended.emit(world)

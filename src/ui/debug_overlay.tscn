@@ -26,7 +26,7 @@ color = Color(0.051, 0.0667, 0.0902, 0.72)
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 16.0
-offset_top = 424.0
+offset_top = 520.0
 offset_right = 850.0
 offset_bottom = 996.0
 mouse_filter = 2
@@ -91,3 +91,33 @@ offset_right = 846.0
 offset_bottom = 410.0
 theme_override_font_sizes/font_size = 32
 text = "LOAD"
+
+[node name="BW0" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 420.0
+offset_right = 146.0
+offset_bottom = 510.0
+theme_override_font_sizes/font_size = 30
+text = "BW0"
+
+[node name="BW12" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 156.0
+offset_top = 420.0
+offset_right = 286.0
+offset_bottom = 510.0
+theme_override_font_sizes/font_size = 30
+text = "BW12"
+
+[node name="BW100" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 296.0
+offset_top = 420.0
+offset_right = 426.0
+offset_bottom = 510.0
+theme_override_font_sizes/font_size = 30
+text = "BW100"

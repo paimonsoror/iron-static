@@ -16,9 +16,11 @@ func _ready() -> void:
 	_controller = Game.controller
 	_hud.speed_changed.connect(_on_speed_changed)
 	_hud.pause_toggled.connect(_on_pause_toggled)
+	_hud.buy_requested.connect(Game.request_buy)
 	_results.redeploy_pressed.connect(_on_redeploy_pressed)
 	_debug.band_forced.connect(_on_band_forced)
 	_debug.load_requested.connect(_on_load_requested)
+	_debug.best_wave_requested.connect(_on_best_wave_requested)
 	_controller.run_started.connect(_on_run_started)
 	_controller.run_ended.connect(_on_run_ended)
 	_debug.setup(_controller)
@@ -67,3 +69,7 @@ func _on_band_forced(band: int) -> void:
 func _on_load_requested() -> void:
 	_debug.force_perf = true
 	Game.start_debug_load()
+
+
+func _on_best_wave_requested(wave: int) -> void:
+	Game.best_wave_s1 = wave
