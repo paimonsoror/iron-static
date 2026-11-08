@@ -58,6 +58,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 | Playtest and soak (agent skills) | `.claude/skills/playtest-report/`, `.claude/skills/soak-test/` | done (M1) |
 | Balance run vs targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` | done (M2-14; exit 0 PASS/WARN, 1 FAIL, 2 error; skill: balance-check) |
 | CI compile gate (portable twin of lint's compile step; CI: `docs/setup/ci.md`) | `.venv\Scripts\python.exe tools\compile_gate.py --godot <godot> --project .` | done (M0-13) |
+| Render SVGs to PNG (ThorVG, same as importer) to inspect art | `.\tools\svg_render.ps1 [-Scale 2] [-Bg "#07090C"] [-Out build\svg] <files>` | done (V1) |
 | Screenshot from emulator | `cmd /c "cd /d C:\ && adb exec-out screencap -p > C:\dev\tower\build\shot.png"` | done |
 
 ## Definition of done (every task)
