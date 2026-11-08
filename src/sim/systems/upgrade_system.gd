@@ -16,7 +16,7 @@ static func buy(world: SimWorld, index: int, count: int) -> int:
 	var new_level: int = p.level + p.levels
 	world.run_levels[index] = new_level
 	var old_hull: float = world.stats.hull_integrity
-	world.stats = StatBlock.from_resolver(world.config.upgrades, world.run_levels)
+	world.stats = world.resolve_stats()
 	var delta: float = world.stats.hull_integrity - old_hull
 	if delta != 0.0:
 		var c: CinderState = world.cinder
@@ -42,7 +42,7 @@ static func preview(world: SimWorld, index: int, count: int) -> UpgradePreview:
 	p.visible = world.visible[index] != 0
 	p.maxed = level >= def.l_cap
 	p.levels_to_milestone = StatResolver.levels_to_next_milestone(level)
-	p.current_value = StatResolver.value_at(def, level)
+	p.current_value = _value(world, index, level)
 	if p.maxed:
 		p.next_value = p.current_value
 		return p
@@ -61,7 +61,7 @@ static func preview(world: SimWorld, index: int, count: int) -> UpgradePreview:
 		p.levels = n
 	p.affordable = p.levels > 0
 	p.cost = BigNum.from_float(total if p.levels > 0 else first)
-	p.next_value = StatResolver.value_at(def, level + maxi(p.levels, 1))
+	p.next_value = _value(world, index, level + maxi(p.levels, 1))
 	return p
 
 
@@ -72,3 +72,16 @@ static func _want(count: int, room: int) -> int:
 	if count == 1 or count == 10 or count == 100:
 		return mini(count, room)
 	return 0
+
+
+## Stat value of row `index` at run `level` including this world's Foundry levels and frame modifiers, so
+## previews show the real stat (M3-07/M3-22).
+static func _value(world: SimWorld, index: int, level: int) -> float:
+	var cfg: SimConfig = world.config
+	var def: RunUpgradeDef = cfg.upgrades[index]
+	var fl: int = cfg.foundry_levels[index] if index < cfg.foundry_levels.size() else 0
+	var ff: float = cfg.foundry_f[index] if index < cfg.foundry_f.size() else 0.0
+	var ext: ExternalMults = world.frame_ext
+	if ext == null:
+		return StatResolver.value_at(def, level, fl, ff)
+	return StatResolver.value_at(def, level, fl, ff, ext.mult_for(def.id), ext.add_for(def.id))

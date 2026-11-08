@@ -102,3 +102,43 @@ static func _i32(n: int) -> PackedInt32Array:
 	if a.resize(n) != OK:
 		push_error("ProjectileStore: resize failed")
 	return a
+
+
+## Snapshot support (M3-09): every array up to `high_water`, plus the free list.
+func save_state() -> Dictionary:
+	var n: int = high_water
+	return {
+		"alive_count": alive_count,
+		"high_water": n,
+		"free_top": _free_top,
+		"free_list": _free_list.slice(0, _free_top),
+		"alive": alive.slice(0, n),
+		"owner_type": owner_type.slice(0, n),
+		"pos_x": pos_x.slice(0, n),
+		"pos_y": pos_y.slice(0, n),
+		"vel_x": vel_x.slice(0, n),
+		"vel_y": vel_y.slice(0, n),
+		"damage": damage.slice(0, n),
+		"ttl_ticks": ttl_ticks.slice(0, n),
+	}
+
+
+## Restores `save_state` output into this (fresh) store. Returns false when it does not fit.
+func load_state(d: Dictionary) -> bool:
+	var n: int = d["high_water"]
+	var top: int = d["free_top"]
+	if n > capacity or top > capacity:
+		return false
+	alive_count = d["alive_count"]
+	high_water = n
+	_free_top = top
+	_free_list = EnemyStore._fit_i32(d["free_list"], capacity)
+	alive = EnemyStore._fit_u8(d["alive"], capacity)
+	owner_type = EnemyStore._fit_u8(d["owner_type"], capacity)
+	pos_x = EnemyStore._fit_f32(d["pos_x"], capacity)
+	pos_y = EnemyStore._fit_f32(d["pos_y"], capacity)
+	vel_x = EnemyStore._fit_f32(d["vel_x"], capacity)
+	vel_y = EnemyStore._fit_f32(d["vel_y"], capacity)
+	damage = EnemyStore._fit_f64(d["damage"], capacity)
+	ttl_ticks = EnemyStore._fit_i32(d["ttl_ticks"], capacity)
+	return true

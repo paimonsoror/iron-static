@@ -32,6 +32,8 @@ const PLAN_SLACK: int = 8  ## plan capacity = n_cap + PLAN_SLACK (one boss plus 
 const ENEMY_CAP_MARGIN: int = 64  ## store capacity above the alive caps
 const BOLT_EXTRA_TTL_S: float = 1.0  ## bolt ttl = arena crossing time plus this
 
+static var log_frame_errors: bool = true  ## tests of the rejection path switch it off (push_error fails a run)
+
 var config: SimConfig
 var tick: int = 0
 var wave: int = 1
@@ -60,6 +62,14 @@ var rng_effects: Rng
 var rng_draft: Rng
 
 var laser_charge: int = 0
+## Frame state (M3-22). `frame_ext` = stat modifiers (null for a neutral frame), `frame_passive` = FrameMods.PASSIVE_*
+## actually in force (a frame the sim cannot run falls back to neutral), `overclock_kills` = kills this wave
+## (capped at FrameMods.OVERCLOCK_CAP; hashed only for a non-neutral frame).
+var frame_ext: ExternalMults = null
+var frame_passive: int = FrameMods.PASSIVE_NONE
+var frame_scrap_mult: float = 1.0
+var frame_data_mult: float = 1.0
+var overclock_kills: int = 0
 var next_wave_is_boss: bool = false
 var query_buf: PackedInt32Array
 var type_is_boss: PackedByteArray
@@ -70,6 +80,7 @@ var _streams: Array[Rng] = []
 
 func _init(cfg: SimConfig) -> void:
 	config = cfg
+	_init_frame(cfg)
 	var t: SimTuning = cfg.tuning
 	var cap: int = maxi(EnemyStore.DEFAULT_CAPACITY, t.alive_cap_normal + t.alive_cap_boss + ENEMY_CAP_MARGIN)
 	enemies = EnemyStore.new(cap)
@@ -80,11 +91,13 @@ func _init(cfg: SimConfig) -> void:
 		push_error("SimWorld: run_levels resize failed")
 	run_levels.fill(0)
 	visible = UnlockRules.visible(cfg.upgrades, cfg.best_wave_s1)
-	stats = StatBlock.from_resolver(cfg.upgrades, run_levels)
+	stats = resolve_stats()
 	economy = EconomyState.new()
 	economy.scrap = BigNum.from_float(t.start_scrap)
 	cinder = CinderState.new()
 	cinder.setup(stats.hull_integrity, cfg.debug_invulnerable)
+	if frame_passive == FrameMods.PASSIVE_BASTION:
+		cinder.hit_cap_frac = FrameMods.BASTION_HIT_CAP
 	run = RunStats.new()
 	events = SimEvents.new()
 	plan = WavePlanState.new(t.n_cap + PLAN_SLACK)
@@ -251,3 +264,33 @@ func _init_type_tables(cfg: SimConfig) -> void:
 				type_behavior[t] = BEH_MELEE_BOSS
 			_:
 				type_behavior[t] = BEH_MELEE
+
+
+## Stats from run levels, the config's Foundry arrays and the frame modifiers (M3-07, M3-22). The single place
+## the sim resolves stats (init and after every buy).
+func resolve_stats() -> StatBlock:
+	return resolve_stats_for(run_levels)
+
+
+## Same for hypothetical run levels (the policy bot evaluates one more level without buying it).
+func resolve_stats_for(levels: PackedInt32Array) -> StatBlock:
+	return StatBlock.from_resolver(config.upgrades, levels, config.foundry_levels, config.foundry_f, frame_ext)
+
+
+## Applies `config.frame`. A neutral or absent frame leaves everything at the pre-M3 path. A frame the sim
+## cannot run (M6 rows) is rejected: push_error, and the config falls back to VANGUARD so the record, the
+## config hash and the replay all agree.
+func _init_frame(cfg: SimConfig) -> void:
+	var f: FrameMods = cfg.frame
+	if f != null and not f.is_runnable():
+		if log_frame_errors:
+			push_error("SimWorld: frame '%s' is not implemented, falling back to vanguard" % cfg.frame_id)
+		cfg.frame = null
+		cfg.frame_id = "vanguard"
+		f = null
+	if f == null or f.is_neutral():
+		return
+	frame_ext = f.to_external()
+	frame_passive = f.passive
+	frame_scrap_mult = f.scrap_mult
+	frame_data_mult = f.data_mult

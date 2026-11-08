@@ -6,6 +6,10 @@ extends RefCounted
 ## "death_wave":int,"final_hash":str,"command_count":int,"commands":"dt,a,b;dt,a,b[,kind];..."}.
 ## Commands are one string: ticks are deltas from the previous command; the kind is omitted for CMD_BUY (0)
 ## and appended as a fourth field otherwise. About 7 bytes per buy, so 2,000 commands are about 14 KB.
+## Optional keys (M3, absent = pre-M3 behavior): "foundry":"id:level;id:level" (id-keyed, only non-zero levels, row
+## order of the recording config; absent = all zero) and "frame":"<id>" (absent = vanguard). `apply_to` restores the
+## Foundry levels by id; the Foundry factors `f` and the frame modifiers are config data the caller supplies
+## (the config hash detects a mismatch).
 
 const FORMAT: int = 1
 
@@ -16,6 +20,8 @@ var sector: int = 1
 var best_wave_s1: int = 0
 var ruleset: String = "standard"
 var debug_invulnerable: bool = false
+var foundry: String = ""
+var frame_id: String = "vanguard"
 var final_tick: int = 0
 var death_wave: int = 0
 var final_hash: String = ""
@@ -32,6 +38,8 @@ static func from_world(world: SimWorld) -> RunRecord:
 	r.best_wave_s1 = cfg.best_wave_s1
 	r.ruleset = cfg.ruleset
 	r.debug_invulnerable = cfg.debug_invulnerable
+	r.foundry = _foundry_text(cfg)
+	r.frame_id = cfg.frame_id
 	r.final_tick = world.tick
 	r.death_wave = world.run.death_wave
 	r.final_hash = world.state_hash()
@@ -46,6 +54,13 @@ func apply_to(cfg: SimConfig) -> void:
 	cfg.best_wave_s1 = best_wave_s1
 	cfg.ruleset = ruleset
 	cfg.debug_invulnerable = debug_invulnerable
+	_apply_foundry(cfg)
+	if frame_id != cfg.frame_id:
+		if frame_id == "vanguard":
+			cfg.frame = null
+			cfg.frame_id = frame_id
+		else:
+			push_error("RunRecord: config lacks the modifiers of frame '%s'" % frame_id)
 
 
 func to_json() -> String:
@@ -74,6 +89,10 @@ func to_json() -> String:
 		"command_count": commands.size(),
 		"commands": ";".join(parts),
 	}
+	if foundry != "":
+		d["foundry"] = foundry
+	if frame_id != "vanguard":
+		d["frame"] = frame_id
 	return JSON.stringify(d)
 
 
@@ -96,6 +115,8 @@ static func from_json(text: String) -> RunRecord:
 	r.final_tick = _geti(d, "final_tick", 0)
 	r.death_wave = _geti(d, "death_wave", 0)
 	r.final_hash = _gets(d, "final_hash", "")
+	r.foundry = _gets(d, "foundry", "")
+	r.frame_id = _gets(d, "frame", "vanguard")
 	var packed: String = _gets(d, "commands", "")
 	var t: int = 0
 	if packed != "":
@@ -126,3 +147,36 @@ static func _getb(d: Dictionary, key: String) -> bool:
 static func _gets(d: Dictionary, key: String, fallback: String) -> String:
 	var v: Variant = d.get(key, fallback)
 	return v if typeof(v) == TYPE_STRING else fallback
+
+
+static func _foundry_text(cfg: SimConfig) -> String:
+	var parts: PackedStringArray = PackedStringArray()
+	for i: int in mini(cfg.foundry_levels.size(), cfg.upgrades.size()):
+		if cfg.foundry_levels[i] != 0:
+			if parts.append("%s:%d" % [cfg.upgrades[i].id, cfg.foundry_levels[i]]):
+				push_error("RunRecord: append failed")
+	return ";".join(parts)
+
+
+## Sets `cfg.foundry_levels` from the record (empty when none), keeping `foundry_f` when it is already aligned.
+## Ids the config does not know are ignored; the config hash then differs and the replay is flagged.
+func _apply_foundry(cfg: SimConfig) -> void:
+	cfg.foundry_levels = PackedInt32Array()
+	if foundry == "":
+		return
+	if cfg.foundry_levels.resize(cfg.upgrades.size()) != OK:
+		push_error("RunRecord: resize failed")
+	cfg.foundry_levels.fill(0)
+	if cfg.foundry_f.size() != cfg.upgrades.size():
+		var f: PackedFloat64Array = PackedFloat64Array()
+		if f.resize(cfg.upgrades.size()) != OK:
+			push_error("RunRecord: resize failed")
+		f.fill(0.0)
+		cfg.foundry_f = f
+	for token: String in foundry.split(";"):
+		var kv: PackedStringArray = token.split(":")
+		if kv.size() != 2:
+			continue
+		for i: int in cfg.upgrades.size():
+			if cfg.upgrades[i].id == kv[0]:
+				cfg.foundry_levels[i] = maxi(0, int(kv[1]))

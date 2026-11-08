@@ -22,7 +22,6 @@ func _init(policy_name: String = "greedy4") -> void:
 
 
 func think(world: SimWorld) -> void:
-	var defs: Array[RunUpgradeDef] = world.config.upgrades
 	var allowed: PackedInt32Array = _candidates(world)
 	for buy_round: int in MAX_BUYS_PER_THINK:
 		var base_score: float = PowerRating.score(world.stats)
@@ -36,7 +35,7 @@ func think(world: SimWorld) -> void:
 			if p.maxed or not p.visible:
 				continue
 			levels[i] += 1
-			var after: StatBlock = StatBlock.from_resolver(defs, levels)
+			var after: StatBlock = world.resolve_stats_for(levels)
 			levels[i] -= 1
 			var gain: float = PowerRating.score(after) / base_score - 1.0
 			var cost: float = p.cost.to_float()

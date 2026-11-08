@@ -17,6 +17,10 @@ static func compute(cfg: SimConfig) -> String:
 	_put_text(ctx, "upgrades:%d" % cfg.upgrades.size())
 	for u: RunUpgradeDef in cfg.upgrades:
 		_put_resource(ctx, u)
+	_put_foundry(ctx, cfg)
+	var fm: FrameMods = cfg.frame
+	if fm != null and not fm.is_neutral():
+		_put_text(ctx, fm.hash_text(cfg.frame_id))
 	return ctx.finish().hex_encode()
 
 
@@ -51,3 +55,17 @@ static func _put_resource(ctx: HashingContext, res: Resource) -> void:
 			_:
 				text = "%s=s%s;" % [n, str(value)]
 		_put_text(ctx, text)
+
+
+## `foundry:` section (M3-07): appended only when some level is non-zero, so all-zero configs keep their
+## pre-M3 hash. Triples of (row index, level, raw bits of f) in row order.
+static func _put_foundry(ctx: HashingContext, cfg: SimConfig) -> void:
+	var text: String = ""
+	for i: int in cfg.foundry_levels.size():
+		var level: int = cfg.foundry_levels[i]
+		if level == 0:
+			continue
+		var f: float = cfg.foundry_f[i] if i < cfg.foundry_f.size() else 0.0
+		text += "%d:%d:%s;" % [i, level, PackedFloat64Array([f]).to_byte_array().hex_encode()]
+	if text != "":
+		_put_text(ctx, "foundry:" + text)

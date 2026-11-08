@@ -12,3 +12,10 @@ var ruleset: String = "standard"
 var debug_invulnerable: bool = false
 ## Best wave reached in sector 1; gates which upgrade rows are visible (M2-04/06).
 var best_wave_s1: int = 0
+## Permanent Foundry levels per `upgrades` row (M3-07). Aligned with `upgrades`; empty = all zero, which keeps
+## every hash identical to pre-M3. `foundry_f[i]` is the Type D per-level factor f of row i.
+var foundry_levels: PackedInt32Array = PackedInt32Array()
+var foundry_f: PackedFloat64Array = PackedFloat64Array()
+## Cinder frame (M3-22): null or neutral = VANGUARD (identical to pre-frame). `frame_id` is recorded.
+var frame: FrameMods = null
+var frame_id: String = "vanguard"

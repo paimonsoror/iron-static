@@ -28,9 +28,11 @@ static func resolve(
 	return s
 
 
-## Stat value of one row at `level` with no Foundry and neutral external multipliers (UI previews).
-static func value_at(def: RunUpgradeDef, level: int) -> float:
-	return _value(def, level, 0, 0.0, 1.0, 0.0)
+## Stat value of one row at `level`; Foundry level/factor and external mult/add default to none (UI previews).
+static func value_at(
+	def: RunUpgradeDef, level: int, f_level: int = 0, f: float = 0.0, mult: float = 1.0, add: float = 0.0
+) -> float:
+	return _value(def, level, f_level, f, mult, add)
 
 
 ## Distance to the next multiple of 25 (a level that is already a multiple gives 25).

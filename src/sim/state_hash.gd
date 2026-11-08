@@ -15,6 +15,8 @@ static func compute(w: SimWorld) -> String:
 	_projectiles(ctx, w.projectiles)
 	_plan(ctx, w.plan)
 	_economy(ctx, w)
+	if w.frame_ext != null or w.frame_passive != FrameMods.PASSIVE_NONE:
+		_put(ctx, PackedInt64Array([w.overclock_kills]).to_byte_array())  # non-neutral frames only
 	return ctx.finish().hex_encode()
 
 

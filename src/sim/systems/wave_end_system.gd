@@ -19,6 +19,7 @@ static func step(world: SimWorld) -> void:
 	world.level_atk += 1 - lag_skip
 	# Step 7: boss check for the wave after the next one starts (current becomes ending + 1).
 	world.next_wave_is_boss = world.is_boss_wave(ending + 2)
+	world.overclock_kills = 0  # Overclock resets at the wave boundary (M3-22)
 	# Step 9: stale cleanup, the third wave end after spawning marks the enemy.
 	var limit: int = world.config.tuning.stale_wave_ends
 	var store: EnemyStore = world.enemies
