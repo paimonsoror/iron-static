@@ -33,3 +33,6 @@ Thumbs.db
 # Godot temp copies of GDExtension libraries (left behind by parallel-run collisions)
 ~lib*.dll
 ~lib*.so
+
+# Stray files from Windows paths with stripped backslashes (e.g. C:\dev	oweruild\x.png -> devtowerbuildx.png)
+/devtower*
