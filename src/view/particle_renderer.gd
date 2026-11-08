@@ -4,7 +4,8 @@ extends Node2D
 ## over one `fx_sheet` texture, fixed capacity = the quality tier's `particle_cap` (smoke gets 1/8 of it).
 ## GPU-side integration: the vertex shader moves, spins, scales and fades every particle from its spawn data and
 ## `u_now` (sim seconds), so per frame the CPU only sets one uniform per material and re-uploads a buffer when a
-## particle was written. Local space: origin = Cinder (put this node at Cinder's screen position, like Enemies).
+## particle was written. Per-particle data travels in a float32 texture, not in instance COLOR/CUSTOM (V1-26).
+## Local space: origin = Cinder (put this node at Cinder's screen position, like Enemies).
 ## The two ParticlePools are the write targets of FxEmitter; this node never reads the sim.
 
 const SHADER_PATH: String = "res://assets/shaders/particle_ring.gdshader"
@@ -21,6 +22,7 @@ var sweep_cleared: int = 0
 var _instances: Array[MultiMeshInstance2D] = []
 var _mats: Array[ShaderMaterial] = []
 var _pools: Array[ParticlePool] = []
+var _data_tex: Array[ImageTexture] = []
 var _now: float = 0.0
 var _last_sweep: float = 0.0
 
@@ -32,13 +34,13 @@ func setup(cap: int) -> void:
 	_instances.clear()
 	_mats.clear()
 	_pools.clear()
+	_data_tex.clear()
 	var smoke_cap: int = maxi(floori(float(cap) / float(SMOKE_FRACTION)), MIN_SMOKE)
 	var add_cap: int = maxi(cap - smoke_cap, MIN_SMOKE)
 	additive.setup(add_cap)
 	smoke.setup(smoke_cap)
 	var base: Shader = load(SHADER_PATH) as Shader
-	var mix_shader: Shader = Shader.new()
-	mix_shader.code = base.code.replace("render_mode blend_add;", "render_mode blend_mix;")
+	var mix_shader: Shader = make_mix_shader()
 	var cells := PackedVector4Array()
 	var kinds := PackedVector4Array()
 	var kinds2 := PackedVector4Array()
@@ -75,7 +77,24 @@ func flush() -> void:
 		mm.visible_instance_count = pool.used
 		if pool.dirty:
 			RenderingServer.multimesh_set_buffer(mm.get_rid(), pool.buffer)
+			_data_tex[i].update(data_image(pool))
 			pool.dirty = false
+
+
+## The alpha-blended twin of the particle shader (smoke pool): same code, `blend_mix` instead of `blend_add`.
+## ShaderWarmup uses this too, so the warmed variant is the one the game draws.
+static func make_mix_shader() -> Shader:
+	var base: Shader = load(SHADER_PATH) as Shader
+	var mix_shader := Shader.new()
+	mix_shader.code = base.code.replace("render_mode blend_add;", "render_mode blend_mix;")
+	return mix_shader
+
+
+## The pool's per-particle data as a one-row RGBAF image (TEXELS texels per particle, float32, exact).
+static func data_image(pool: ParticlePool) -> Image:
+	return Image.create_from_data(
+		pool.capacity * ParticlePack.TEXELS, 1, false, Image.FORMAT_RGBAF, pool.data.to_byte_array()
+	)
 
 
 ## Empties both rings (new run or world change).
@@ -137,8 +156,6 @@ static func build_tables(cells: PackedVector4Array, kinds: PackedVector4Array, k
 func _add_layer(pool: ParticlePool, shader: Shader, tex: Texture2D, tables: Array[PackedVector4Array]) -> void:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_2D
-	mm.use_colors = true
-	mm.use_custom_data = true  # before instance_count
 	mm.mesh = _unit_quad()
 	mm.instance_count = pool.capacity
 	mm.visible_instance_count = 0
@@ -148,6 +165,8 @@ func _add_layer(pool: ParticlePool, shader: Shader, tex: Texture2D, tables: Arra
 	mat.set_shader_parameter("u_kind", tables[1])
 	mat.set_shader_parameter("u_kind2", tables[2])
 	mat.set_shader_parameter("u_now", ParticlePack.clock_now(_now))
+	var data_tex: ImageTexture = ImageTexture.create_from_image(data_image(pool))
+	mat.set_shader_parameter("u_data", data_tex)
 	var inst := MultiMeshInstance2D.new()
 	inst.multimesh = mm
 	inst.texture = tex
@@ -157,6 +176,7 @@ func _add_layer(pool: ParticlePool, shader: Shader, tex: Texture2D, tables: Arra
 	_instances.append(inst)
 	_mats.append(mat)
 	_pools.append(pool)
+	_data_tex.append(data_tex)
 
 
 static func _unit_quad() -> ArrayMesh:

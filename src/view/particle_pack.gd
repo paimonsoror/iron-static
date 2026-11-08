@@ -1,25 +1,47 @@
 class_name ParticlePack
 extends RefCounted
-## Encoding of one particle into the 16 floats of a MultiMesh instance (V1-13). The vertex shader
-## `particle_ring.gdshader` integrates the particle analytically from these values, so the CPU writes a particle
-## once at spawn.
+## Encoding of one particle (V1-13, hardened V1-26). The vertex shader `particle_ring.gdshader` integrates the
+## particle analytically from these values, so the CPU writes a particle once at spawn.
 ##
-## Spike finding (desktop GL, same Compatibility path as Android): instance COLOR and CUSTOM DATA reach the vertex
-## shader as 16-bit half floats, so large packed integers are lost (a packed 24-bit value reads back rounded to
-## 11 bits). Only the instance TRANSFORM keeps float32. Therefore the origin lives in the transform and every other
-## field is a small integer (<= 2047, exact in a half float) stored in one of the 8 half slots:
-##   [8]  COLOR.r  birth       11 bits: (sim seconds * 64) mod 2048, a 32 s wrapping clock (age = now - birth)
-##   [9]  COLOR.g  life 7 bits (1/64 s units, 0 = dead slot) | peak alpha 4 bits << 7 (x/15)
-##   [10] COLOR.b  kind 5 bits | blue 5 bits << 5 (x/31)
-##   [11] COLOR.a  red 5 bits | green 5 bits << 5 (x/31)
-##   [12] CUSTOM.x velocity x px/s + 1024    [13] CUSTOM.y velocity y px/s + 1024   (-1024..1023)
-##   [14] CUSTOM.z size at birth in px (0..2047)   [15] CUSTOM.w size at death in px
+## V1-26 (white flash on PowerVR C-Series via ANGLE/Vulkan): the old layout bit-packed several fields into each
+## 16-bit half of the instance COLOR / CUSTOM data and decoded them with floor/shift/mask in the shader. A GPU that
+## runs that arithmetic at fp16/mediump decodes garbage (pale colours became yellow, sizes 10-60x too big). Now NO
+## field shares a number with another and nothing is bit-unpacked:
+##   * MultiMesh instance = the 2D transform only (float32): origin = spawn position. No instance COLOR or CUSTOM.
+##   * Every other field is a plain float32 in a one-row RGBAF data texture the vertex shader reads with
+##     `texelFetch` (3 texels per particle, texel index = INSTANCE_ID * 3), see `ParticlePool.data`:
+##       texel 0: r g b a    tint 0..1 (additive pool: tint is NOT premultiplied) and peak alpha 0..1
+##       texel 1: vx vy s0 s1  velocity px/s (-1024..1024), size at birth / death px (0..SIZE_CAP)
+##       texel 2: birth life kind spare  birth on the 32 s wrapping clock (1/64 s steps), life s (0 = dead slot),
+##                kind id (small integer, decoded with floor(x + 0.5))
+##
+## Precision budget (float32 is exact for all of these; the same table shows the fp16 worst case in case a driver
+## stores or reads the texture as halves, 11-bit mantissa = relative error 2^-11):
+##   tint / alpha 0..1        error <= 0.0005 (invisible, 8-bit output step is 0.0039)
+##   velocity +-1024 px/s     error <= 0.5 px/s, over a 2 s life <= 1 px
+##   size 0..1800 px          error <= 0.5 px at 1024..2048, <= 0.06 px below 128
+##   birth 0..32 s            error <= 0.016 s above 16 s (one frame), exact multiples of 1/64 s below 16 s
+##   life 1/64..127/64 s      error <= 0.001 s
+##   kind 0..31               exact (integers <= 2048 are exact in a half)
 ## Rotation, spin, drag and the "align to velocity" flag are per KIND tables in the shader (and a hash of the
-## instance id for the start angle / spin sign), so they cost no bits. The bit layout is repeated in the shader.
+## instance id for the start angle / spin sign), so they cost no data.
 
-const FLOATS: int = MultiMeshBuffer.FLOATS_PER_INSTANCE
-const COLOR_OFFSET: int = 8
-const CUSTOM_OFFSET: int = 12
+const FLOATS: int = 8  ## MultiMesh buffer floats per instance (transform only)
+## Floats per particle in the data texture and RGBA texels per particle.
+const DATA_FLOATS: int = 12
+const TEXELS: int = 3
+## Float offsets inside one particle's data record.
+const D_R: int = 0
+const D_G: int = 1
+const D_B: int = 2
+const D_A: int = 3
+const D_VX: int = 4
+const D_VY: int = 5
+const D_S0: int = 6
+const D_S1: int = 7
+const D_BIRTH: int = 8
+const D_LIFE: int = 9
+const D_KIND: int = 10
 ## The shader clock wraps every CLOCK_PERIOD_S seconds; the pool clears expired slots at least every SWEEP_S so a
 ## dead particle can never come back around.
 const CLOCK_STEPS: float = 64.0
@@ -28,8 +50,10 @@ const CLOCK_RANGE: int = 2048
 const SWEEP_S: float = 8.0
 const LIFE_STEPS: float = 64.0
 const LIFE_MAX_S: float = 127.0 / 64.0
-const VEL_BIAS: int = 1024
-const SIZE_MAX: int = 2047
+const VEL_MAX: float = 1024.0
+## Largest legitimate particle size in px (Cinder's death flash is 1800 px at most). The shader repeats this cap
+## as SIZE_CAP so a corrupt value can never draw a screen-filling glow.
+const SIZE_MAX: float = 1800.0
 
 ## fx_sheet cell per kind (index = kind id, max 32). Spark kinds use the 128x32 band at rows 48..80.
 const KIND_HALO: int = 0
@@ -90,54 +114,24 @@ static func clock_units(sim_seconds: float) -> int:
 	return posmod(floori(sim_seconds * CLOCK_STEPS), CLOCK_RANGE)
 
 
+## Birth as the shader reads it: seconds on the wrapping clock, a multiple of 1/64 s.
+static func clock_birth(sim_seconds: float) -> float:
+	return float(clock_units(sim_seconds)) / CLOCK_STEPS
+
+
 ## Value of the shader's `u_now` for a sim time (seconds on the wrapping clock).
 static func clock_now(sim_seconds: float) -> float:
 	return fposmod(sim_seconds, CLOCK_PERIOD_S)
 
 
-static func life_units(life_s: float) -> int:
-	return clampi(roundi(life_s * LIFE_STEPS), 1, 127)
+## Life in seconds as stored: a multiple of 1/64 s in [1/64, LIFE_MAX_S].
+static func life_seconds(life_s: float) -> float:
+	return float(clampi(roundi(life_s * LIFE_STEPS), 1, 127)) / LIFE_STEPS
 
 
-## Life + peak alpha half.
-static func pack_life_alpha(life_s: float, alpha: float) -> float:
-	return float(life_units(life_s) | (clampi(roundi(alpha * 15.0), 0, 15) << 7))
+static func clamp_vel(v: float) -> float:
+	return clampf(v, -VEL_MAX, VEL_MAX)
 
 
-## Kind + blue half.
-static func pack_kind_blue(kind: int, c: Color) -> float:
-	return float((kind & 31) | (clampi(roundi(c.b * 31.0), 0, 31) << 5))
-
-
-## Red + green half.
-static func pack_red_green(c: Color) -> float:
-	return float(clampi(roundi(c.r * 31.0), 0, 31) | (clampi(roundi(c.g * 31.0), 0, 31) << 5))
-
-
-static func pack_vel(v: float) -> float:
-	return float(clampi(roundi(v), -VEL_BIAS, VEL_BIAS - 1) + VEL_BIAS)
-
-
-static func pack_size(px: float) -> float:
-	return float(clampi(roundi(px), 0, SIZE_MAX))
-
-
-static func unpack_life(v: float) -> float:
-	return float(int(v) & 127) / LIFE_STEPS
-
-
-static func unpack_alpha(v: float) -> float:
-	return float((int(v) >> 7) & 15) / 15.0
-
-
-static func unpack_kind(v: float) -> int:
-	return int(v) & 31
-
-
-static func unpack_color(kind_blue: float, red_green: float) -> Color:
-	var rg: int = int(red_green)
-	return Color(float(rg & 31) / 31.0, float((rg >> 5) & 31) / 31.0, float((int(kind_blue) >> 5) & 31) / 31.0)
-
-
-static func unpack_vel(v: float) -> float:
-	return float(int(v) - VEL_BIAS)
+static func clamp_size(px: float) -> float:
+	return clampf(px, 0.0, SIZE_MAX)

@@ -15,6 +15,7 @@ func test_write_never_exceeds_capacity_and_overwrites_oldest_first() -> void:
 		assert_int(pool.id_at(slot)).is_equal(i)
 	assert_int(pool.used).is_equal(400)
 	assert_int(pool.buffer.size()).is_equal(400 * ParticlePack.FLOATS)
+	assert_int(pool.data.size()).is_equal(400 * ParticlePack.DATA_FLOATS)
 	var present := {}
 	for s: int in 400:
 		present[pool.id_at(s)] = true
@@ -48,53 +49,59 @@ func test_emit_does_not_allocate_after_setup() -> void:
 	assert_int(pool.head).is_equal(1000 % 64)
 
 
-func test_packed_fields_roundtrip() -> void:
+func test_fields_roundtrip() -> void:
 	var pool := ParticlePool.new()
 	pool.setup(4)
 	var c := Color(1.0, 0.5, 0.0, 0.8)
 	var slot: int = pool.emit(Vector2(100.25, -7.5), Vector2(-300.0, 420.0), 5.0, 0.75, Vector2(30.0, 12.0), c, 13)
 	var o: int = slot * ParticlePack.FLOATS
+	var d: int = slot * ParticlePack.DATA_FLOATS
 	assert_float(pool.buffer[o + 3]).is_equal(100.25)
 	assert_float(pool.buffer[o + 7]).is_equal(-7.5)
-	assert_float(ParticlePack.unpack_life(pool.buffer[o + 9])).is_equal_approx(0.75, 0.01)
-	assert_float(ParticlePack.unpack_alpha(pool.buffer[o + 9])).is_equal_approx(0.8, 0.04)
-	assert_int(ParticlePack.unpack_kind(pool.buffer[o + 10])).is_equal(13)
-	var back: Color = ParticlePack.unpack_color(pool.buffer[o + 10], pool.buffer[o + 11])
-	assert_float(back.r).is_equal_approx(1.0, 0.02)
-	assert_float(back.g).is_equal_approx(0.5, 0.02)
-	assert_float(back.b).is_equal_approx(0.0, 0.02)
-	assert_float(ParticlePack.unpack_vel(pool.buffer[o + 12])).is_equal(-300.0)
-	assert_float(ParticlePack.unpack_vel(pool.buffer[o + 13])).is_equal(420.0)
-	assert_float(pool.buffer[o + 14]).is_equal(30.0)
-	assert_float(pool.buffer[o + 15]).is_equal(12.0)
+	assert_float(pool.data[d + ParticlePack.D_LIFE]).is_equal_approx(0.75, 0.001)
+	assert_float(pool.data[d + ParticlePack.D_A]).is_equal_approx(0.8, 0.0001)
+	assert_int(pool.kind_at(slot)).is_equal(13)
+	assert_float(pool.data[d + ParticlePack.D_R]).is_equal_approx(1.0, 0.0001)
+	assert_float(pool.data[d + ParticlePack.D_G]).is_equal_approx(0.5, 0.0001)
+	assert_float(pool.data[d + ParticlePack.D_B]).is_equal_approx(0.0, 0.0001)
+	assert_float(pool.data[d + ParticlePack.D_VX]).is_equal(-300.0)
+	assert_float(pool.data[d + ParticlePack.D_VY]).is_equal(420.0)
+	assert_float(pool.data[d + ParticlePack.D_S0]).is_equal(30.0)
+	assert_float(pool.data[d + ParticlePack.D_S1]).is_equal(12.0)
 	assert_int(pool.birth_units_at(slot)).is_equal(320)  # 5.0 s * 64
 
 
-func test_inlined_emit_matches_the_pack_helpers() -> void:
+func test_emit_matches_the_pack_helpers() -> void:
 	var pool := ParticlePool.new()
 	pool.setup(2)
-	var c := Color(0.3, 0.7, 0.9, 0.45)
-	var slot: int = pool.emit(Vector2.ZERO, Vector2(77.0, -12.0), 3.3, 0.31, Vector2(14.0, 9.0), c, 5)
-	var o: int = slot * ParticlePack.FLOATS
-	assert_float(pool.buffer[o + 8]).is_equal(float(ParticlePack.clock_units(3.3)))
-	assert_float(pool.buffer[o + 9]).is_equal(ParticlePack.pack_life_alpha(0.31, c.a))
-	assert_float(pool.buffer[o + 10]).is_equal(ParticlePack.pack_kind_blue(5, c))
-	assert_float(pool.buffer[o + 11]).is_equal(ParticlePack.pack_red_green(c))
-	assert_float(pool.buffer[o + 12]).is_equal(ParticlePack.pack_vel(77.0))
-	assert_float(pool.buffer[o + 13]).is_equal(ParticlePack.pack_vel(-12.0))
+	var slot: int = pool.emit(Vector2.ZERO, Vector2(77.0, -12.0), 3.3, 0.31, Vector2(14.0, 9.0), Color.WHITE, 5)
+	var d: int = slot * ParticlePack.DATA_FLOATS
+	assert_float(pool.data[d + ParticlePack.D_BIRTH]).is_equal(ParticlePack.clock_birth(3.3))
+	assert_float(pool.data[d + ParticlePack.D_LIFE]).is_equal(ParticlePack.life_seconds(0.31))
 
 
-func test_every_packed_value_fits_a_half_float() -> void:
-	# COLOR and CUSTOM data reach the shader as 16-bit halves: integers up to 2047 stay exact
+func test_bad_input_is_clamped_to_legitimate_ranges() -> void:
 	var pool := ParticlePool.new()
 	pool.setup(2)
 	var slot: int = pool.emit(
-		Vector2(5000.0, 5000.0), Vector2(9999.0, -9999.0), 9999.0, 99.0, Vector2(9999.0, 9999.0), Color.WHITE, 31
+		Vector2(5000.0, 5000.0),
+		Vector2(9999.0, -9999.0),
+		9999.0,
+		99.0,
+		Vector2(9999.0, -5.0),
+		Color(7.0, -1.0, 2.0, 9.0),
+		99
 	)
-	for k: int in range(8, 16):
-		var v: float = pool.buffer[slot * ParticlePack.FLOATS + k]
-		assert_bool(v >= 0.0 and v <= 2047.0).is_true()
-		assert_float(v).is_equal(floorf(v))
+	var d: int = slot * ParticlePack.DATA_FLOATS
+	for k: int in [ParticlePack.D_R, ParticlePack.D_G, ParticlePack.D_B, ParticlePack.D_A]:
+		assert_bool(pool.data[d + k] >= 0.0 and pool.data[d + k] <= 1.0).is_true()
+	assert_float(pool.data[d + ParticlePack.D_VX]).is_equal(ParticlePack.VEL_MAX)
+	assert_float(pool.data[d + ParticlePack.D_VY]).is_equal(-ParticlePack.VEL_MAX)
+	assert_float(pool.data[d + ParticlePack.D_S0]).is_equal(ParticlePack.SIZE_MAX)
+	assert_float(pool.data[d + ParticlePack.D_S1]).is_equal(0.0)
+	assert_float(pool.data[d + ParticlePack.D_LIFE]).is_equal(ParticlePack.LIFE_MAX_S)
+	assert_int(pool.kind_at(slot)).is_equal(31)
+	assert_float(pool.data[d + ParticlePack.D_BIRTH]).is_less(ParticlePack.CLOCK_PERIOD_S)
 
 
 func test_sweep_marks_expired_slots_dead_but_keeps_live_ones() -> void:

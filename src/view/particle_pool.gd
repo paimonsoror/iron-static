@@ -4,8 +4,11 @@ extends RefCounted
 ## allocation after setup(): `emit()` overwrites the OLDEST slot when the ring is full (round-robin head), so a
 ## burst of kills can never exceed the cap and never grows memory. The renderer uploads `buffer` when `dirty`.
 
-## Instance buffer, `capacity` * ParticlePack.FLOATS floats.
+## MultiMesh instance buffer (transform only), `capacity` * ParticlePack.FLOATS floats.
 var buffer := PackedFloat32Array()
+## Per-particle data (tint, alpha, velocity, size, birth, life, kind), `capacity` * ParticlePack.DATA_FLOATS floats;
+## the renderer uploads it as a float32 RGBA texture (layout and precision budget: ParticlePack).
+var data := PackedFloat32Array()
 var capacity: int = 0
 ## Next slot to write (the oldest particle once the ring has wrapped).
 var head: int = 0
@@ -25,6 +28,7 @@ var ends := PackedFloat32Array()
 func setup(cap: int) -> void:
 	capacity = maxi(cap, 1)
 	var ok: bool = buffer.resize(capacity * ParticlePack.FLOATS) == OK
+	ok = ok and data.resize(capacity * ParticlePack.DATA_FLOATS) == OK
 	ok = ok and ids.resize(capacity) == OK and ends.resize(capacity) == OK
 	if not ok:
 		push_error("ParticlePool: resize failed")
@@ -34,14 +38,13 @@ func setup(cap: int) -> void:
 ## Empties the ring without touching the allocation.
 func clear() -> void:
 	buffer.fill(0.0)
+	data.fill(0.0)  # life 0 = dead slot
 	ids.fill(-1)
 	ends.fill(-1.0e9)
 	for i: int in capacity:
 		var o: int = i * ParticlePack.FLOATS
-		buffer[o] = 1.0  # identity basis; the packed fields stay 0 (life 0 = dead slot)
+		buffer[o] = 1.0  # identity basis
 		buffer[o + 5] = 1.0
-		buffer[o + 12] = float(ParticlePack.VEL_BIAS)
-		buffer[o + 13] = float(ParticlePack.VEL_BIAS)
 	head = 0
 	used = 0
 	total_written = 0
@@ -53,23 +56,23 @@ func clear() -> void:
 func emit(pos: Vector2, vel: Vector2, birth: float, life: float, size: Vector2, color: Color, kind: int) -> int:
 	# the packing of ParticlePack is inlined here: this runs hundreds of times in a heavy frame
 	var slot: int = head
-	var o: int = slot * 16
+	var o: int = slot * ParticlePack.FLOATS
+	var d: int = slot * ParticlePack.DATA_FLOATS
 	var lu: int = int(life * 64.0 + 0.5)
 	lu = 1 if lu < 1 else (127 if lu > 127 else lu)
-	var vx: int = int(vel.x + 1024.5)
-	var vy: int = int(vel.y + 1024.5)
-	var s0: int = int(size.x + 0.5)
-	var s1: int = int(size.y + 0.5)
 	buffer[o + 3] = pos.x
 	buffer[o + 7] = pos.y
-	buffer[o + 8] = float(int(birth * 64.0) & 2047)
-	buffer[o + 9] = float(lu | (int(color.a * 15.0 + 0.5) << 7))
-	buffer[o + 10] = float((kind & 31) | (int(color.b * 31.0 + 0.5) << 5))
-	buffer[o + 11] = float(int(color.r * 31.0 + 0.5) | (int(color.g * 31.0 + 0.5) << 5))
-	buffer[o + 12] = float(0 if vx < 0 else (2047 if vx > 2047 else vx))
-	buffer[o + 13] = float(0 if vy < 0 else (2047 if vy > 2047 else vy))
-	buffer[o + 14] = float(s0 if s0 < 2047 else 2047)
-	buffer[o + 15] = float(s1 if s1 < 2047 else 2047)
+	data[d] = clampf(color.r, 0.0, 1.0)
+	data[d + 1] = clampf(color.g, 0.0, 1.0)
+	data[d + 2] = clampf(color.b, 0.0, 1.0)
+	data[d + 3] = clampf(color.a, 0.0, 1.0)
+	data[d + 4] = clampf(vel.x, -ParticlePack.VEL_MAX, ParticlePack.VEL_MAX)
+	data[d + 5] = clampf(vel.y, -ParticlePack.VEL_MAX, ParticlePack.VEL_MAX)
+	data[d + 6] = clampf(size.x, 0.0, ParticlePack.SIZE_MAX)
+	data[d + 7] = clampf(size.y, 0.0, ParticlePack.SIZE_MAX)
+	data[d + 8] = float(posmod(int(birth * 64.0), ParticlePack.CLOCK_RANGE)) / 64.0
+	data[d + 9] = float(lu) / 64.0
+	data[d + 10] = float(clampi(kind, 0, 31))
 	ids[slot] = total_written
 	ends[slot] = birth + minf(life, ParticlePack.LIFE_MAX_S)
 	total_written += 1
@@ -84,9 +87,9 @@ func emit(pos: Vector2, vel: Vector2, birth: float, life: float, size: Vector2, 
 func sweep(now: float) -> int:
 	var n: int = 0
 	for i: int in used:
-		var o: int = i * ParticlePack.FLOATS + 9
-		if ends[i] < now and (int(buffer[o]) & 127) != 0:
-			buffer[o] = 0.0
+		var o: int = i * ParticlePack.DATA_FLOATS + ParticlePack.D_LIFE
+		if ends[i] < now and data[o] != 0.0:
+			data[o] = 0.0
 			n += 1
 	if n > 0:
 		dirty = true
@@ -108,15 +111,15 @@ func id_at(slot: int) -> int:
 
 ## Birth in clock units (1/64 s, wrapping at 32 s).
 func birth_units_at(slot: int) -> int:
-	return int(buffer[slot * ParticlePack.FLOATS + ParticlePack.COLOR_OFFSET])
+	return roundi(data[slot * ParticlePack.DATA_FLOATS + ParticlePack.D_BIRTH] * ParticlePack.CLOCK_STEPS)
 
 
 func kind_at(slot: int) -> int:
-	return ParticlePack.unpack_kind(buffer[slot * ParticlePack.FLOATS + ParticlePack.COLOR_OFFSET + 2])
+	return roundi(data[slot * ParticlePack.DATA_FLOATS + ParticlePack.D_KIND])
 
 
 func is_dead_slot(slot: int) -> bool:
-	return (int(buffer[slot * ParticlePack.FLOATS + ParticlePack.COLOR_OFFSET + 1]) & 127) == 0
+	return data[slot * ParticlePack.DATA_FLOATS + ParticlePack.D_LIFE] == 0.0
 
 
 func pos_at(slot: int) -> Vector2:

@@ -58,13 +58,15 @@ func _add_enemy() -> void:
 
 func _add_particles() -> void:
 	var base: Shader = load(ParticleRenderer.SHADER_PATH) as Shader
-	var mix_shader := Shader.new()
-	mix_shader.code = base.code.replace("render_mode blend_add;", "render_mode blend_mix;")  # as ParticleRenderer
+	var pool := ParticlePool.new()
+	pool.setup(1)
+	var data_tex: ImageTexture = ImageTexture.create_from_image(ParticleRenderer.data_image(pool))
 	var tex: Texture2D = ArtSlots.texture(ParticlePack.SLOTS[ParticlePack.KIND_FLASH])
-	for shader: Shader in [base, mix_shader]:
+	for shader: Shader in [base, ParticleRenderer.make_mix_shader()]:
 		var mat := ShaderMaterial.new()
 		mat.shader = shader
-		_add_instance(mat, tex, _quad(64.0))
+		mat.set_shader_parameter("u_data", data_tex)
+		_add_instance(mat, tex, _quad(64.0), false)
 
 
 func _add_arena() -> void:
@@ -96,17 +98,19 @@ func _add_additive_layer() -> void:
 	add_child(layer)
 
 
-## One-instance MultiMesh (instanced draw path, with per-instance color and custom data like the game's).
-func _add_instance(mat: ShaderMaterial, tex: Texture2D, mesh: Mesh) -> void:
+## One-instance MultiMesh (instanced draw path). The enemy shader reads per-instance color and custom data; the
+## particle shader reads only the transform and a data texture (`with_instance_data` false), as in the game.
+func _add_instance(mat: ShaderMaterial, tex: Texture2D, mesh: Mesh, with_instance_data: bool = true) -> void:
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_2D
-	mm.use_colors = true
-	mm.use_custom_data = true  # before instance_count
+	mm.use_colors = with_instance_data
+	mm.use_custom_data = with_instance_data  # before instance_count
 	mm.mesh = mesh
 	mm.instance_count = 1
 	mm.set_instance_transform_2d(0, Transform2D.IDENTITY)
-	mm.set_instance_color(0, Color.WHITE)
-	mm.set_instance_custom_data(0, Color(0.0, 0.0, 1.0, 0.0))
+	if with_instance_data:
+		mm.set_instance_color(0, Color.WHITE)
+		mm.set_instance_custom_data(0, Color(0.0, 0.0, 1.0, 0.0))
 	var inst := MultiMeshInstance2D.new()
 	inst.multimesh = mm
 	inst.texture = tex
