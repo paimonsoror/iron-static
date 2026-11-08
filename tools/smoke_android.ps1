@@ -96,6 +96,22 @@ if ($ImagePath) {
     $shot = Join-Path $outDir "$stamp.png"
     $selStr = ''; if ($Serial) { $selStr = "-s $Serial " }
     cmd.exe /c "cd /d C:\ && `"$Adb`" $($selStr)exec-out screencap -p > `"$shot`"" 2>&1 | Out-Null
+    # Multi-display devices (foldables) print a text warning ahead of the PNG: capture each display id and keep the
+    # largest valid PNG (an inactive display is tiny or fails).
+    $isPng = $false
+    if (Test-Path $shot) { $hb = [System.IO.File]::ReadAllBytes($shot) | Select-Object -First 4; $isPng = ($hb.Count -ge 4 -and $hb[1] -eq 0x50) }
+    if (-not $isPng) {
+        $ids = @(Run-Adb @('shell', 'dumpsys SurfaceFlinger --display-id') | ForEach-Object { if ($_ -match '^Display (\d+)') { $Matches[1] } })
+        $bestLen = 0
+        foreach ($id in $ids) {
+            $cand = Join-Path $outDir "${stamp}_d$id.png"
+            cmd.exe /c "cd /d C:\ && `"$Adb`" $($selStr)exec-out screencap -d $id -p > `"$cand`"" 2>&1 | Out-Null
+            if ((Test-Path $cand) -and (Get-Item $cand).Length -gt $bestLen) {
+                $cb = [System.IO.File]::ReadAllBytes($cand) | Select-Object -First 4
+                if ($cb.Count -ge 4 -and $cb[1] -eq 0x50) { $bestLen = (Get-Item $cand).Length; Copy-Item $cand $shot -Force }
+            }
+        }
+    }
     if (-not (Test-Path $shot) -or (Get-Item $shot).Length -lt 1000) { Fail "screenshot failed" }
     Copy-Item $shot (Join-Path $outDir "latest.png") -Force
     Write-Host "== Screenshot $shot"
