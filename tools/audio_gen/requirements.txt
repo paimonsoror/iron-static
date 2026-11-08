@@ -1,0 +1,7 @@
+# Pinned audio generator dependencies (A1-02). Venv: tools/audio_gen/.venv (gitignored).
+numpy==2.5.4
+scipy==1.18.1
+soundfile==0.14.0
+cffi==2.1.1
+pycparser==3.12
+typing_extensions==4.16.0

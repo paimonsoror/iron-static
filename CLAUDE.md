@@ -9,7 +9,7 @@ IRON STATIC (code name `ironstatic`, provisional applicationId `com.ironstatic.g
 | Game rules, terms, numbers, ids (source of truth for the game) | `docs/design/00..09_*.md` (GDD). Start with `00_overview.md` section 8 glossary |
 | Technical decisions (source of truth for technology) | `docs/TECH_ARCHITECTURE.md` |
 | Milestones M0-M7, P1, P2, critical path, Play timeline | `docs/ROADMAP.md` |
-| Agent-ready tasks | `docs/tasks/M0.md`, `M1.md`, `M2.md` (later files are written when the previous milestone closes) |
+| Agent-ready tasks | `docs/tasks/M0.md`, `M1.md`, `M2.md`, `V1.md`, `A1.md` (later files are written when the previous milestone closes) |
 | Toolchain, emulator, troubleshooting | `docs/setup/DEV_ENVIRONMENT.md` (+ other `docs/setup/*.md` written in M0) |
 | Open questions (ONE list) | `docs/design/09_open_questions.md` |
 | Background research on The Tower | `docs/research/` (comparison only) |
@@ -60,6 +60,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 | CI compile gate (portable twin of lint's compile step; CI: `docs/setup/ci.md`) | `.venv\Scripts\python.exe tools\compile_gate.py --godot <godot> --project .` | done (M0-13) |
 | Render SVGs to PNG (ThorVG, same as importer) to inspect art | `.\tools\svg_render.ps1 [-Scale 2] [-Bg "#07090C"] [-Out build\svg] <files>` | done (V1) |
 | Art SVG lint (rules `tools/art_rules.json`, table `assets/art/slots.csv`; part of `lint.ps1`) / pixel check of sheets (`-Canary` proves detection) | `.\tools\art_lint.ps1 [files]` / `.\tools\art_check.ps1 [-Only f]` | done (V1-02) |
+| Render all audio (Claude-synthesized SFX + music via `tools/audio_gen/`; deterministic; writes `assets/audio/` and the sketch pack `docs/playtests/a1/`; venv `tools/audio_gen/.venv` auto-created) | `.	oolsudio_gen.ps1 [-Assets <dir>] [-Sketch <dir>]` | done (A1-02) |
 | Screenshot from emulator | `cmd /c "cd /d C:\ && adb exec-out screencap -p > C:\dev\tower\build\shot.png"` | done |
 
 ## Definition of done (every task)
@@ -116,6 +117,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - `floor()`/`ceil()` return Variant: use `floori`/`ceili`. UI sizes are in 1080-wide base pixels: 1 dp = 2.63 px (body text >= 38 px, touch targets >= 148 px; see `ThemeBuilder` constants).
 - Call `world.command_buy` only between frames (never inside `driver.advance`); it logs `world.tick` and applies before that tick. Sim outcome changes need a `SimVersion.CURRENT` bump; after CSV balance edits refresh the golden constants in `tests/sim/test_replay.gd`.
 - GDScript `%` formatting breaks on `%`-prefixed node paths (`"%Node/x_%d" % k`): concatenate. `test.ps1 -Path a,b` only splits when run from PowerShell, not via `powershell -File` from bash.
+- Audio (A1): slots in `assets/audio/slots.csv` + `music_layers.csv` (`keep` importer, read by `AudioSlots`/`MusicIntensity`); audio files must not sit in a `.gdignore`d folder; python tools run with `-I` ignore the script dir, so `render.py` adds it to `sys.path`; libsndfile overflows the stack on one huge OGG `write()` on Windows (write in chunks); pitch jitter uses `AudioDirector`'s own RNG, never the sim `Rng`.
 - Art slots (V1-02): `assets/art/slots.csv` uses the `keep` importer (not a translation) and is read by `ArtSlots` via FileAccess; edit art layout there, never in code. Run python tools with `-I` (a stray `types.py` in the cwd or script dir shadows the stdlib); `ArtSlots.log_errors = false` in tests that exercise missing files (push_error fails a test run).
 - Exported scripts are binary-tokenized: invisible chars (U+FEFF) inside .gd strings vanish on device (broke all art on Android, lint rule encoding-inline-bom). Use code points (0xFEFF). Data loading must be verified on the emulator/device, not only desktop; smoke fails on ERROR: ArtSlots:/Strings:.
 - MultiMesh 2D buffer (V1-10): 16 floats per instance = transform 8 (`c0.x c1.x 0 c2.x c0.y c1.y 0 c2.y`), color 4, custom data 4 (flash, frame, spawn-in, phase); `use_custom_data` before `instance_count`; `mm.buffer` is empty under the headless dummy renderer; `VisualQuality`/`Log` need autoloads, so `-s` capture scripts must not name `BattleView` as a type (use `load()` + `call`).

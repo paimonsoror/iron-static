@@ -1,0 +1,113 @@
+"""Render all IRON STATIC audio (A1). Usage (via tools/audio_gen.ps1):
+    render.py [--assets DIR] [--sketch DIR] [--only sfx|music|sketch]
+Writes game assets (assets/audio/sfx/*.wav 16-bit mono, assets/audio/music/*.ogg stereo) and the sketch pack
+(copies, 64 s preview, sfx reel, analysis.json). Deterministic: re-running reproduces identical bytes.
+"""
+
+import argparse
+import json
+import struct
+import sys
+from pathlib import Path
+
+import numpy as np
+import soundfile as sf
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I mode ignores the script dir
+import analyze  # noqa: E402
+import dsp  # noqa: E402,F401
+import music  # noqa: E402
+import sfx  # noqa: E402
+from dsp import SR  # noqa: E402
+
+REPO = Path(__file__).resolve().parents[2]
+
+
+def _ogg_crc_table():
+    t = []
+    for i in range(256):
+        r = i << 24
+        for _ in range(8):
+            r = ((r << 1) ^ 0x04C11DB7) & 0xFFFFFFFF if r & 0x80000000 else (r << 1) & 0xFFFFFFFF
+        t.append(r)
+    return t
+
+
+_CRC = _ogg_crc_table()
+
+
+def _fix_ogg_serial(data, serial=0x1A57A71C):
+    """libsndfile picks a random Ogg stream serial; pin it (and redo page CRCs) so output is reproducible."""
+    out = bytearray(data)
+    pos = 0
+    while pos < len(out):
+        if out[pos : pos + 4] != b"OggS":
+            raise ValueError("bad ogg page")
+        nseg = out[pos + 26]
+        size = 27 + nseg + sum(out[pos + 27 : pos + 27 + nseg])
+        struct.pack_into("<I", out, pos + 14, serial)
+        struct.pack_into("<I", out, pos + 22, 0)
+        crc = 0
+        for b in out[pos : pos + size]:
+            crc = ((crc << 8) & 0xFFFFFFFF) ^ _CRC[((crc >> 24) & 0xFF) ^ b]
+        struct.pack_into("<I", out, pos + 22, crc)
+        pos += size
+    return bytes(out)
+
+
+def write_wav(path, y):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    sf.write(str(path), y, SR, subtype="PCM_16", format="WAV")
+
+
+def write_ogg(path, y):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # Chunked writes: one giant write() overflows libsndfile's stack on Windows.
+    with sf.SoundFile(str(path), "w", SR, y.shape[1] if y.ndim == 2 else 1, format="OGG", subtype="VORBIS") as f:
+        for i in range(0, len(y), 32768):
+            f.write(y[i : i + 32768])
+    path.write_bytes(_fix_ogg_serial(path.read_bytes()))
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--assets", default=str(REPO / "assets" / "audio"))
+    ap.add_argument("--sketch", default=str(REPO / "docs" / "playtests" / "a1"))
+    ap.add_argument("--only", choices=["sfx", "music", "sketch"], default=None)
+    args = ap.parse_args()
+    assets, sketch = Path(args.assets), Path(args.sketch)
+    report = {}
+    sfx_audio = {}
+    for sid in sfx.SFX:
+        y = sfx.render(sid)
+        sfx_audio[sid] = y
+        write_wav(assets / "sfx" / f"{sid}.wav", y)
+        write_wav(sketch / f"{sid}.wav", y)
+        report[f"{sid}.wav"] = analyze.stats(y, loop=False)
+        print("sfx", sid, f"{len(y) / SR:.2f}s")
+    layers = {}
+    for lid, fn in music.LAYERS.items():
+        y = fn()
+        layers[lid] = y
+        write_ogg(assets / "music" / f"{lid}.ogg", y)
+        write_ogg(sketch / f"{lid}.ogg", y)
+        st = analyze.stats(y, loop=True)
+        dec, _ = sf.read(str(assets / "music" / f"{lid}.ogg"))
+        st["decoded_samples"] = int(len(dec))
+        st["expected_samples"] = int(len(y))
+        st["decoded_seam_jump_ratio"] = analyze.seam_ratio(dec)
+        report[f"{lid}.ogg"] = st
+        print("music", lid, f"{len(y) / SR:.2f}s")
+    prev = music.preview(layers)
+    write_ogg(sketch / "music_preview.ogg", prev)
+    report["music_preview.ogg"] = analyze.stats(prev, loop=False)
+    gap = np.zeros(int(0.45 * SR))
+    reel = np.concatenate([np.concatenate([y, gap]) for y in sfx_audio.values()])
+    write_wav(sketch / "sfx_reel.wav", reel)
+    report["sfx_reel.wav"] = analyze.stats(reel, loop=False)
+    (sketch / "analysis.json").write_text(json.dumps(report, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+    print(analyze.table(report))
+
+
+if __name__ == "__main__":
+    sys.exit(main())

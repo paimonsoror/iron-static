@@ -30,6 +30,8 @@ var debug_hold: bool = false
 var style_frame: bool = false
 ## View-side quality tier and visual options (handed to the view by main.gd; never read by the sim).
 var visual: VisualSettings = VisualSettings.new()
+## SFX and adaptive music (A1). Presentation only: never read by the sim; phase-2 hooks call into it.
+var audio: AudioDirector = AudioDirector.new()
 ## In-memory best death wave of sector 1 (lives in the controller; persistence arrives in M3).
 var best_wave_s1: int:
 	get:
@@ -54,6 +56,8 @@ func _ready() -> void:
 			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 			visual.fps_cap = 0  # the bench measures uncapped throughput
 	visual.apply_fps_cap()
+	add_child(audio)
+	audio.setup()
 
 
 func _process(delta: float) -> void:
