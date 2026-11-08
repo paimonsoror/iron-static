@@ -65,6 +65,7 @@ func test_background_sets_uniforms_from_state() -> void:
 	bg.setup_visual(vis)
 	bg.setup(33.75, 52.0, Rect2(-540.0, -537.6, 1080.0, 1075.2))
 	bg.set_optic_range(24.0)
+	bg.snap_haze()
 	bg.apply_state(2.0, 3, 150)
 	var fx_rect: ColorRect = bg.get_child(0)
 	var fx: ShaderMaterial = fx_rect.material
@@ -73,10 +74,11 @@ func test_background_sets_uniforms_from_state() -> void:
 	assert_float(fx.get_shader_parameter("sweep_phase")).is_equal_approx(0.25, 0.0001)
 	assert_float(fx.get_shader_parameter("density")).is_equal_approx(0.5, 0.0001)
 	assert_float(fx.get_shader_parameter("optic_range_px")).is_equal_approx(810.0, 0.01)
-	assert_float(ov.get_shader_parameter("low_hp")).is_equal(0.45)
+	assert_float(ov.get_shader_parameter("low_hp")).is_equal_approx(0.25, 0.001)  # between beats
 	assert_float(ov.get_shader_parameter("scan_alpha")).is_equal_approx(0.06, 0.0001)
 	vis.reduce_motion = true
+	bg.snap_haze()
 	bg.apply_state(2.0, 3, 0)
 	assert_float(fx.get_shader_parameter("sweep_enabled")).is_equal(0.0)
 	assert_float(ov.get_shader_parameter("scan_alpha")).is_equal(0.0)
-	assert_float(ov.get_shader_parameter("low_hp")).is_equal(0.3)
+	assert_float(ov.get_shader_parameter("low_hp")).is_equal_approx(0.3, 0.001)

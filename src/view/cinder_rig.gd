@@ -47,7 +47,8 @@ func _init() -> void:
 
 
 ## Advances the rig to the latest sim values (view clock `t`).
-func update(new_band: int, new_aim: float, t: float) -> void:
+## `beat_t` >= 0 is the band-3 heartbeat clock (the overlay's), so core and haze beat together.
+func update(new_band: int, new_aim: float, t: float, beat_t: float = -1.0) -> void:
 	var dt: float = clampf(t - time_s, 0.0, 0.05) if _started else 0.0
 	time_s = t
 	aim = new_aim
@@ -61,7 +62,7 @@ func update(new_band: int, new_aim: float, t: float) -> void:
 		_begin_transition(new_band)
 	ring_rot = CinderAnim.aim_step(ring_rot, CinderLayout.ring_target(ring_rot, aim), dt)
 	visor_rot = CinderAnim.aim_step(visor_rot, aim + CinderLayout.UP_OFFSET, dt)
-	_pulse = 0.5 if reduce_motion else CinderAnim.pulse(band, t)
+	_pulse = 0.5 if reduce_motion else CinderAnim.pulse(band, t if beat_t < 0.0 else beat_t)
 	if reduce_motion and band >= 3:
 		_pulse = 0.7
 	_finish_transitions()

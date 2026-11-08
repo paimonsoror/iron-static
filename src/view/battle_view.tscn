@@ -15,8 +15,8 @@ script = ExtResource("2_bg")
 [node name="Enemies" type="Node2D" parent="."]
 script = ExtResource("3_enemies")
 
-[node name="Beams" type="Node2D" parent="."]
-script = ExtResource("4_beams")
-
 [node name="Cinder" type="Node2D" parent="."]
 script = ExtResource("5_cinder")
+
+[node name="Beams" type="Node2D" parent="."]
+script = ExtResource("4_beams")

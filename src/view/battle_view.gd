@@ -31,6 +31,7 @@ func _ready() -> void:
 	# Looked up by path: scripts that compile this class without autoloads (capture tools) must still load.
 	var settings: VisualSettings = _game_visual()
 	_cinder.visual = settings
+	_beams.visual = settings
 	if settings != null:
 		_background.setup_visual(settings)
 	_setup_particles(settings)
@@ -78,13 +79,14 @@ func render(alpha: float) -> void:
 	var hp_frac: float = 0.0
 	if cinder.max_hp > 0.0:
 		hp_frac = cinder.hp / cinder.max_hp
-	var band: int = cinder.band if band_override < 0 else band_override
+	var band: int = displayed_band(cinder.band, band_override)
+	var clock_s: float = (float(_world.tick) + alpha) * SimWorld.DT
+	_cinder.heart_clock_s = clock_s
 	_cinder.set_state(hp_frac, band, _aim, now_s)
 	_background.set_optic_range(_world.stats.optic_range)
-	_background.apply_state((float(_world.tick) + alpha) * SimWorld.DT, band, _world.enemies.alive_count)
+	_background.apply_state(clock_s, band, _world.enemies.alive_count)
 	_enemies.render(_world, alpha)
-	var emitter: Vector2 = Vector2.from_angle(_aim) * _cinder.radius_px
-	_beams.update(_world, now_s, _px_per_m, emitter, _enemies)
+	_beams.update(_world, now_s, _px_per_m, _cinder.emitter_position(), _enemies)
 	_fx.update(_world, alpha, _game_visual(), band)
 
 
@@ -181,3 +183,8 @@ func _game_visual() -> VisualSettings:
 		var settings: VisualSettings = v
 		return settings
 	return null
+
+
+## View-only band override for the Cinder rig, the arena haze and the FX (debug overlay); the sim band when < 0.
+static func displayed_band(sim_band: int, override: int) -> int:
+	return sim_band if override < 0 else clampi(override, 0, 3)

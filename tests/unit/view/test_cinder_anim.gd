@@ -45,7 +45,9 @@ func test_pulse_bounded_and_rates() -> void:
 
 func test_heartbeat_has_two_peaks() -> void:
 	var first: float = CinderAnim.pulse(3, 0.08 / 1.2)
-	var second: float = CinderAnim.pulse(3, 0.30 / 1.2)
+	var second: float = CinderAnim.pulse(
+		3, (HeartbeatModel.FIRST_PHASE + HeartbeatModel.GAP_S * HeartbeatModel.HZ) / 1.2
+	)
 	var between: float = CinderAnim.pulse(3, 0.19 / 1.2)
 	assert_float(first).is_equal_approx(1.0, 0.001)
 	assert_float(second).is_equal_approx(0.7, 0.001)

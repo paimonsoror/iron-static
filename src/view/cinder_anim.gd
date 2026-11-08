@@ -26,7 +26,7 @@ const SHOT_S: float = 0.12
 ## Pulse rates in Hz (band 0 and 1, band 2, band 3 double beat).
 const PULSE_HZ: float = 1.0
 const PULSE_HZ_B2: float = 1.3
-const HEART_HZ: float = 1.2
+const HEART_HZ: float = HeartbeatModel.HZ
 const EMBER_FLICKER_HZ: float = 6.0
 const AIM_MAX_DEG_S: float = 540.0
 ## Exponential catch-up rate of the aim smoothing (1/s), capped by AIM_MAX_DEG_S.
@@ -84,15 +84,9 @@ static func reform_flash(t: float) -> float:
 ## Core pulse 0..1 for `band` at time `t` seconds: sine 1 Hz (bands 0 and 1), 1.3 Hz (band 2), lub-dub 1.2 Hz (band 3).
 static func pulse(band: int, t: float) -> float:
 	if band >= 3:
-		var p: float = fposmod(t * HEART_HZ, 1.0)
-		return maxf(_beat(p, 0.08, 0.1), 0.7 * _beat(p, 0.30, 0.1))
+		return HeartbeatModel.value(t)
 	var hz: float = PULSE_HZ_B2 if band == 2 else PULSE_HZ
 	return 0.5 + 0.5 * sin(TAU * hz * t)
-
-
-static func _beat(p: float, center: float, width: float) -> float:
-	var v: float = clampf(1.0 - absf(p - center) / width, 0.0, 1.0)
-	return v * v * (3.0 - 2.0 * v)
 
 
 ## Ember edge alpha: steady in band 1, 6 Hz flicker 0.7..1.0 in bands 2 and 3 (art bible 4.5).

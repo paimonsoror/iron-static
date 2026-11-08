@@ -17,6 +17,8 @@ var radius_px: float = 110.0:
 		queue_redraw()
 ## Visual options (quality tier, reduce motion); null = HIGH defaults. Set by BattleView.
 var visual: VisualSettings = null
+## Heartbeat clock shared with the arena overlay (sim time); < 0 = use the view clock. Set by BattleView.
+var heart_clock_s: float = -1.0
 
 var _hp_frac: float = 1.0
 var _ring_pts := PackedVector2Array()
@@ -47,7 +49,7 @@ func set_state(hp_frac: float, band: int, aim_angle: float, time_s: float) -> vo
 		_rig.reduce_motion = visual.reduce_motion
 		_rig.animate = visual.quality.wedge_anim
 	_rig.glow_mul = CinderLayout.glow_factor(glow_on)
-	_rig.update(clampi(band, 0, 3), aim_angle, time_s)
+	_rig.update(clampi(band, 0, 3), aim_angle, time_s, heart_clock_s)
 	_glow.visible = glow_on
 	var shiver: Vector2 = _rig.shiver()
 	_body.position = shiver

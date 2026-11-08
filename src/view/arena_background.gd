@@ -23,6 +23,10 @@ var _overlay: ColorRect
 var _motes: CPUParticles2D
 var _fx_mat: ShaderMaterial
 var _ov_mat: ShaderMaterial
+var _lh_base: float = 0.0
+var _lh_swing: float = 0.0
+var _snap: bool = false
+var _last_ms: int = Time.get_ticks_msec()
 var _fx_cache: Dictionary = {}
 var _ov_cache: Dictionary = {}
 
@@ -77,16 +81,23 @@ func apply_state(clock_s: float, band: int, alive: int) -> void:
 	var sweep_on: bool = ArenaFxParams.sweep_enabled(_visual)
 	var pulse_on: bool = ArenaFxParams.range_pulse_enabled(_visual)
 	var beat: bool = ArenaFxParams.pulse_allowed(_visual)
-	var low_hp: float = ArenaFxParams.low_hp(band, beat)
+	# Haze: eased steady level (150 ms, wall clock so it also settles while the sim is paused) plus the heartbeat swing.
+	var now_ms: int = Time.get_ticks_msec()
+	var ease_dt: float = clampf(float(now_ms - _last_ms) / 1000.0, 0.0, 0.1)
+	_last_ms = now_ms
+	if _snap:
+		_snap = false
+		ease_dt = 10.0
+	_lh_base = ArenaFxParams.ease_step(_lh_base, ArenaFxParams.low_hp_base(band, beat), ease_dt)
+	_lh_swing = ArenaFxParams.ease_step(_lh_swing, ArenaFxParams.low_hp_swing(band, beat), ease_dt)
+	var low_hp: float = ArenaFxParams.low_hp_intensity(_lh_base, _lh_swing, HeartbeatModel.value(clock_s))
 	_set_fx(&"sweep_enabled", ArenaFxParams.flag(sweep_on))
 	_set_fx(&"pulse_enabled", ArenaFxParams.flag(pulse_on))
 	_set_fx(&"density", ArenaFxParams.density_fade(alive))
 	_set_fx(&"sweep_phase", ArenaFxParams.sweep_phase(clock_s) if sweep_on else 0.0)
 	_set_fx(&"pulse_phase", ArenaFxParams.pulse_phase(clock_s) if pulse_on else 0.0)
 	_set_ov(&"scan_alpha", _visual.effective_scanlines())
-	_set_ov(&"low_hp", low_hp)
-	_set_ov(&"pulse_on", ArenaFxParams.flag(beat))
-	_set_ov(&"time", clock_s if (beat and low_hp > 0.0) else 0.0)
+	_set_ov(&"low_hp", snappedf(low_hp, 0.001))
 	_apply_motes()
 
 
@@ -155,3 +166,8 @@ func _make_motes() -> CPUParticles2D:
 	ramp.offsets = PackedFloat32Array([0.0, 0.3, 1.0])
 	p.color_ramp = ramp
 	return p
+
+
+## The next `apply_state` jumps the haze to its target instead of easing (scene start, captures, tests).
+func snap_haze() -> void:
+	_snap = true

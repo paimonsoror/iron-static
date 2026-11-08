@@ -15,6 +15,8 @@ const LOW_HP_BAND2: float = 0.08
 const LOW_HP_STATIC: float = 0.3
 ## Art px per meter the floor SVG was authored at (1080 / 32 m).
 const ART_PX_PER_M: float = 33.75
+## Time constant of the haze ease (V1-15): 150 ms, so 95% of a step is reached in 450 ms (1 - e^-3).
+const LOW_HP_EASE_TAU_S: float = 0.15
 
 
 ## Grid/pulse strength 0..1 for `alive` enemies: 1 up to 100, 0.5 at 150, 0 from 200.
@@ -71,3 +73,29 @@ static func art_scale(ppm: float) -> float:
 ## 1.0 or 0.0 for shader float switches.
 static func flag(on: bool) -> float:
 	return 1.0 if on else 0.0
+
+
+## Steady part of the haze intensity: 0.25 at band 3 (0.3 static without the pulse), 0.08 at band 2, 0 below.
+static func low_hp_base(band: int, pulse: bool) -> float:
+	if band >= 3:
+		return HeartbeatModel.BASE_B3 if pulse else LOW_HP_STATIC
+	if band == 2:
+		return LOW_HP_BAND2
+	return 0.0
+
+
+## Heartbeat-driven part of the haze: 0.20 at band 3 while pulsing, 0 otherwise.
+static func low_hp_swing(band: int, pulse: bool) -> float:
+	return HeartbeatModel.SWING_B3 if (band >= 3 and pulse) else 0.0
+
+
+## Final haze intensity from the eased base and swing and the heartbeat value 0..1.
+static func low_hp_intensity(base: float, swing: float, beat: float) -> float:
+	return base + swing * clampf(beat, 0.0, 1.0)
+
+
+## One frame of the 150 ms exponential ease of `current` toward `target` (dt 0 leaves it unchanged, no overshoot).
+static func ease_step(current: float, target: float, dt: float) -> float:
+	if dt <= 0.0:
+		return current
+	return target + (current - target) * exp(-dt / LOW_HP_EASE_TAU_S)
