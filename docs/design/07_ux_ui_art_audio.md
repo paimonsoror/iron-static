@@ -32,7 +32,6 @@ References: genre notes [GENRE A2] recommend neon vector/glow shapes on dark wit
 |   ADAPT L:42 K:3 A:0          weapon-system buttons (toggle) bottom-right of field
 +--------------------------------------+
 | [ARMS] [CHASSIS] [SYSTEMS] [INTEL]   |  <- upgrade panel tabs
-| BUY: [x1][x10][x100][MAX]            |
 | (icon) LASER OUTPUT  L24  1.2K>1.3K  |
 |        ................ [   9.8K ]   |  <- cost button (amber if affordable)
 | (icon) CYCLE RATE    L11  1.44>1.48  |
@@ -45,7 +44,7 @@ References: genre notes [GENRE A2] recommend neon vector/glow shapes on dark wit
 HUD elements (ids): `hud_wave`, `hud_sector`, `hud_timer_bar`, `hud_speed`, `hud_pause`, `hud_scrap`, `hud_data_run`, `hud_flux_orb_counter`, `hud_integrity_ring`, `hud_adapt_bars`, `hud_overdrive_btn`, `hud_weapon_btn_1..3`, `hud_boss_chip`, `hud_draft_chip`, `hud_exposure_label` (shows band when it changes), `hud_cache_ping`. Tapping `hud_wave` opens Intel.
 
 ### 2.2 Upgrade panel details (row spec)
-Each row (height 88 dp): icon (40 dp, damage-type color), name, run level `L`, current value -> next value, cost button (right, 120 dp wide). Gold ring flashes on rows within 3 levels of a x1.5 milestone (every 25 levels). Locked rows are not shown (progressive disclosure; a single "Next unlock at wave X" line at list bottom). Long-press on a row opens a tooltip with the formula and Foundry contribution (no hidden info).
+Each row (height 88 dp): icon (40 dp, damage-type color), name, run level `L`, current value -> next value, cost button (right, 120 dp wide). Gold ring flashes on rows within 3 levels of a x1.5 milestone (every 25 levels). Locked rows are not shown (progressive disclosure; a single "Next unlock at wave X" line at list bottom). Tapping the row body (anywhere except the cost button) opens a tooltip with the formula and Foundry contribution (no hidden info). **Buying (2026-11-08, user: the x1/x10/x100/Max selector was confusing, removed; lands in M3):** there is no buy-mode selector. Tap the cost button = buy 1 level; press and hold it = repeat buy that accelerates the longer it is held, stopping at the cap or when the next level is unaffordable. The same rule applies to the Foundry and every other upgrade list.
 ```
 Tabs: [ARMS]   rows: laser_output, cycle_rate, crit_chance, crit_mult, optic_range, standoff, split_*, burst_*, ricochet_*, overcrit_*, armor_tear_*
       [CHASSIS] rows: hull_integrity, nano_repair, plating_*, spike_return, siphon_cell, push_*, razor_*, shock_*, mine_*, fail_safe, barricade_*
@@ -79,7 +78,7 @@ Nav items unlock progressively (02/05 unlock order); locked items are hidden, no
 ### 2.4 Foundry
 ```
 | FOUNDRY                     DATA 12.4K |
-| [ARMS][CHASSIS][SYSTEMS]  BUY [x1][x10][MAX] |
+| [ARMS][CHASSIS][SYSTEMS]               |
 | LASER OUTPUT  F42   x10.1 -> x10.7     |
 |   next milestone F50 (x1.25)    [ 18.7K]|
 | HULL INTEGRITY F38  x8.6 -> x9.1        |
@@ -160,11 +159,11 @@ Goals: a first death within ~3 minutes, first Foundry purchase by minute 4, a pa
 | 0:15-0:40 | Cold open | 3 amber system lines: `RELAY 06 ONLINE`, `HOSTILE SWARM DETECTED`, `HOLD THE RELAY` + Cinder fades in | Skippable; sets tone; story light |
 | 0:40-1:10 | Run 1, waves 1-2 | Cinder auto-fires; skitters approach; hand pointer on `laser_output` row ("UPGRADE") | The 20 starting scrap affords it immediately |
 | 1:10-1:50 | Waves 2-4 | After first kills, highlight `cycle_rate` when affordable; show scrap rising; speed button teased (2x available) | One line of text each |
-| 1:50-2:30 | Waves 5-8 | `dart` appears (first fast enemy) with a tiny label "DART - FAST"; `hull_integrity` highlighted after first damage taken; buy-x10 hint | Cinder's skin begins to scorch at band 1 (visual hook) |
+| 1:50-2:30 | Waves 5-8 | `dart` appears (first fast enemy) with a tiny label "DART - FAST"; `hull_integrity` highlighted after first damage taken; hold-to-buy hint | Cinder's skin begins to scorch at band 1 (visual hook) |
 | 2:30-3:10 | Waves 9-12 | Wave 10: first Patch draft (3 patches, one gamble) with explanation "Patches last this deployment" | Player chooses; auto-pick off |
 | 3:10-3:30 | Death | Skin burn peaks; integrity 0; "RELAY LOST" fade | Death is dramatic, short |
 | 3:30-4:15 | Results | `DATA +190`, damage breakdown, "FOUNDRY" button pulses | `best_s1` 12 unlocks: optic_range, plating_pct, reinvest preview |
-| 4:15-5:30 | Foundry (guided) | Pointer on `laser_output`: buy x1 then x10; show "+X% starting damage" and preview of next run | Teaches permanence vs temporary |
+| 4:15-5:30 | Foundry (guided) | Pointer on `laser_output`: tap to buy one level, then hold to buy several; show "+X% starting damage" and preview of next run | Teaches permanence vs temporary |
 | 5:30-8:30 | Run 2 | Redeploy; stronger start; reaches wave ~16-20; run counters; first salvage? no (no elites yet); `crit_chance` upgrade appears | The "I got further" beat |
 | 8:30-9:30 | Death 2 / Results | New best; progress bar to "Next unlock: R&D Lab at wave 25"; Foundry spend again | Show checklist: 3 upcoming unlocks |
 | 9:30-10:00 | Home | Soft prompt: enable notifications ("Tell me when research finishes?") only after Lab is unlocked; for now: invite 2x speed toggle | No ads or IAP offer yet; starter pack appears at `best_s1` 25 or day 2 |

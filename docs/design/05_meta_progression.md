@@ -32,7 +32,7 @@ For every Type C stat in 02 section 7 (all other ids): `f_inc = r_inc` (same per
 (M2, **(impl)**) In code the cap is `max(1, floor(l_cap / 2))` and the Foundry step `f_inc` is the CSV `step` of the run row (no separate column); the Foundry ships in M3, so M2 only resolves F = 0.
 
 ### 1.4 Foundry UI rules
-Each row shows: current value, next-level value, delta, cost, max, and time/`data` to afford at current farm rate (information is cheap and addresses "opaque systems"). Buy x1/x10/x100/Max. A "Recommended" glow marks the cheapest stat whose next level is a milestone (every 10 levels = x1.25 for D stats).
+Each row shows: current value, next-level value, delta, cost, max, and time/`data` to afford at current farm rate (information is cheap and addresses "opaque systems"). Tap the cost button to buy one level, hold to repeat-buy (no buy-mode selector; 07 s2.2, 2026-11-08). A "Recommended" glow marks the cheapest stat whose next level is a milestone (every 10 levels = x1.25 for D stats).
 
 ## 2. R&D Lab (timed research) - tag: Launch (MVP: none; MVP has only Foundry) [META Labs]
 
@@ -199,7 +199,7 @@ Bot+ equivalent (Post-launch): `cipher` unlocks a second ability at level 10.
 Progress key: best wave reached in Sector 1 (`best_s1`) unless marked.
 | Order | Trigger | Unlocks |
 |---|---|---|
-| 1 | Start | Run upgrades: `laser_output`, `cycle_rate`, `hull_integrity`, `nano_repair`; Foundry for those four (MVP). Buy-x10/Max. |
+| 1 | Start | Run upgrades: `laser_output`, `cycle_rate`, `hull_integrity`, `nano_repair`; Foundry for those four (MVP). Tap/hold buying (07 s2.2). |
 | 2 | First death | Foundry screen (tutorial) |
 | 3 | `best_s1` 3 | Run: `scrap_yield` |
 | 4 | `best_s1` 4 | `scrap_per_wave` |
