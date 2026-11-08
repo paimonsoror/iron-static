@@ -13,12 +13,16 @@ const VIEW_CAMERA_WIDTH_M: float = 32.0
 const BATTLE_FRACTION: float = 0.56
 ## Sprites are drawn at this multiple of the hit radius (art bible 4.1).
 const VISUAL_SCALE: float = 1.5
-## Per enemy type (sim row order: skitter, dart, walker, lancer, boss_hulk) multiplier on
-## VISUAL_SCALE. Walker is about 20% smaller on screen (V1 gate). TODO(V1-02): move to the
-## `visual_scale` column of assets/art/slots.csv / ArtSlots when that column exists.
-const TYPE_SCALE: Array[float] = [1.0, 1.0, 0.8, 1.0, 1.0]
-## Extra draw distance for enemies in contact (px), fading out between 2 m and 10 m.
+## Art slot id per enemy type (sim row order). The per-type `visual_scale` (walker 0.8, V1 gate) and the
+## on-screen hull radius come from `assets/art/slots.csv` through ArtSlots.
+const ENEMY_SLOTS: Array[String] = ["skitter", "dart", "walker", "lancer", "boss_hulk"]
+## Pixels per meter at 1080 width and the 32 m camera: the reference the slot table sizes are written for.
+const REF_PPM: float = 1080.0 / 32.0
+## Default extra draw distance for enemies in contact (px), fading out between 2 m and 10 m. Contact enemies
+## use `contact_standoff_px` per type instead (their sprite edge rests just outside Cinder's armor ring).
 const STANDOFF_PX: float = 72.0
+## Gap in px between Cinder's armor ring and the sprite edge of an enemy in contact.
+const CONTACT_GAP_PX: float = 4.0
 const STANDOFF_NEAR_M: float = 2.0
 const STANDOFF_SPAN_M: float = 8.0
 
@@ -30,27 +34,27 @@ static func px_per_m(viewport_width: float, camera_m: float = 0.0) -> float:
 
 
 ## Radial stand-off remap of a distance in meters to a draw distance in px from Cinder.
-## Strictly increasing while ppm > STANDOFF_PX / STANDOFF_SPAN_M (9 px/m).
-static func map_dist(dist_m: float, ppm: float) -> float:
+## Strictly increasing while ppm > standoff_px / STANDOFF_SPAN_M (9 px/m for the default 72 px).
+static func map_dist(dist_m: float, ppm: float, standoff_px: float = STANDOFF_PX) -> float:
 	var t: float = clampf(1.0 - (dist_m - STANDOFF_NEAR_M) / STANDOFF_SPAN_M, 0.0, 1.0)
-	return dist_m * ppm + STANDOFF_PX * t
+	return dist_m * ppm + standoff_px * t
 
 
 ## Sim position (meters, origin Cinder) to draw position (px, origin Cinder). Direction is kept.
 ## Apply to interpolated positions; never feed the result back into the sim.
-static func map_pos(sim_m: Vector2, ppm: float) -> Vector2:
+static func map_pos(sim_m: Vector2, ppm: float, standoff_px: float = STANDOFF_PX) -> Vector2:
 	var d: float = sim_m.length()
 	if d < 0.001:
 		return Vector2.ZERO
-	return sim_m / d * map_dist(d, ppm)
+	return sim_m / d * map_dist(d, ppm, standoff_px)
 
 
 ## Multiplier to apply to a sim vector (x, y in meters) to get its draw position (hot loops).
-static func map_factor(x_m: float, y_m: float, ppm: float) -> float:
+static func map_factor(x_m: float, y_m: float, ppm: float, standoff_px: float = STANDOFF_PX) -> float:
 	var d: float = sqrt(x_m * x_m + y_m * y_m)
 	if d < 0.001:
 		return 0.0
-	return map_dist(d, ppm) / d
+	return map_dist(d, ppm, standoff_px) / d
 
 
 ## Plain length scaling (no stand-off); sprite sizes use visual_radius_px.
@@ -58,17 +62,46 @@ static func map_radius(r_m: float, ppm: float) -> float:
 	return r_m * ppm
 
 
+## `visual_scale` column of the enemy type's art slot (1.0 for an unknown index).
+static func slot_visual_scale(type_index: int) -> float:
+	if type_index < 0 or type_index >= ENEMY_SLOTS.size():
+		return 1.0
+	return ArtSlots.slot(ENEMY_SLOTS[type_index]).visual_scale
+
+
 ## Scale multiplier of an enemy type (index = sim row), VISUAL_SCALE included.
 static func type_scale(type_index: int) -> float:
-	var k: float = 1.0
-	if type_index >= 0 and type_index < TYPE_SCALE.size():
-		k = TYPE_SCALE[type_index]
-	return VISUAL_SCALE * k
+	return VISUAL_SCALE * slot_visual_scale(type_index)
 
 
-## Draw radius in px of a sprite whose hit radius is `r_m`.
+## On-screen hull radius in px of an enemy type from the slot table (`body_radius_px` x `visual_scale`, scaled
+## from the 1080-wide reference); 0 when the slot has none.
+static func body_radius_px(type_index: int, ppm: float) -> float:
+	if type_index < 0 or type_index >= ENEMY_SLOTS.size():
+		return 0.0
+	var art: ArtSlot = ArtSlots.slot(ENEMY_SLOTS[type_index])
+	return art.body_radius_px * art.visual_scale * ppm / REF_PPM
+
+
+## Draw radius in px of a sprite: the slot table radius, or `r_m` times the type scale without one.
 static func visual_radius_px(r_m: float, type_index: int, ppm: float) -> float:
+	var table: float = body_radius_px(type_index, ppm)
+	if table > 0.0:
+		return table
 	return r_m * ppm * type_scale(type_index)
+
+
+## Stand-off (px, for map_dist) that puts the sprite edge of an enemy standing at `contact_m` just outside
+## Cinder's armor ring: center distance = armor radius + sprite radius + CONTACT_GAP_PX.
+## Armor ring radius = `cinder_radius_m` x ppm x VISUAL_SCALE (art bible 4.1). Capped below the span that
+## would break monotonicity (standoff < SPAN x ppm).
+static func contact_standoff_px(
+	sprite_radius_px: float, cinder_radius_m: float, ppm: float, contact_m: float = STANDOFF_NEAR_M
+) -> float:
+	var armor: float = cinder_radius_m * ppm * VISUAL_SCALE
+	var t: float = clampf(1.0 - (contact_m - STANDOFF_NEAR_M) / STANDOFF_SPAN_M, 0.0, 1.0)
+	var want: float = armor + sprite_radius_px + CONTACT_GAP_PX - contact_m * ppm
+	return clampf(want / maxf(t, 0.05), 0.0, STANDOFF_SPAN_M * ppm * 0.95)
 
 
 static func battle_height(viewport_height: float) -> float:

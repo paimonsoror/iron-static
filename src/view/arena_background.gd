@@ -1,21 +1,48 @@
 class_name ArenaBackground
 extends Node2D
-## Static arena backdrop (GDD 07 section 5.3): void fill of the battle area, faint polar
-## grid (spokes every 30 degrees, rings every 10 m up to the arena edge) and brighter range
-## rings at 10/20/30 m. One _draw, redrawn only when the layout or optic range changes.
-## Local space: origin = Cinder; `battle_rect` is given in local pixels.
+## Arena backdrop (art bible 6.7, V1-08): the static floor art plus analytic grid, sweep, pulses and optic ring in
+## ONE opaque full-rect pass (`arena_fx.gdshader`, below the sprites), and scanlines, vignette and the low-HP haze
+## in ONE premultiplied pass (`arena_overlay.gdshader`, above the sprites; this node adds it as the last child of
+## its parent so Cinder and the beams sit under it). Plus 24 ambient motes on HIGH. Local space: origin = Cinder.
+## Decision (impl): scanlines and vignette DO overlay the sprites (6% rows, 20% edge darken, no blur), so the
+## picture reads as one screen; the grid never draws over units.
+## Cost: 2 draws (3 with motes), no per-frame allocation; uniforms are written only when their value changes.
 
-const RING_STEP_M: float = 10.0
-const RANGE_RINGS_M: Array[float] = [10.0, 20.0, 30.0]
-const SPOKES: int = 12
-const RING_POINTS: int = 96
-const VIGNETTE_STEPS: int = 6
-const VIGNETTE_PX: float = 160.0
+const FLOOR_SLOT: String = "arena_floor"
+const MOTE_COUNT: int = 24
+const FX_SHADER: Shader = preload("res://assets/shaders/arena_fx.gdshader")
+const OVERLAY_SHADER: Shader = preload("res://assets/shaders/arena_overlay.gdshader")
 
-var _px_per_m: float = 33.75
+var _px_per_m: float = ViewMath.px_per_m(1080.0)
 var _arena_radius_m: float = 52.0
 var _optic_range_m: float = 0.0
 var _rect := Rect2(-540.0, -538.0, 1080.0, 1076.0)
+var _visual: VisualSettings = VisualSettings.new()
+var _floor: ColorRect
+var _overlay: ColorRect
+var _motes: CPUParticles2D
+var _fx_mat: ShaderMaterial
+var _ov_mat: ShaderMaterial
+var _fx_cache: Dictionary = {}
+var _ov_cache: Dictionary = {}
+
+
+func _ready() -> void:
+	_fx_mat = ShaderMaterial.new()
+	_fx_mat.shader = FX_SHADER
+	_fx_mat.set_shader_parameter("floor_tex", ArtSlots.texture(FLOOR_SLOT))
+	_floor = _make_rect(_fx_mat)
+	add_child(_floor)
+	_motes = _make_motes()
+	add_child(_motes)
+	_ov_mat = ShaderMaterial.new()
+	_ov_mat.shader = OVERLAY_SHADER
+	_overlay = _make_rect(_ov_mat)
+	# The parent is still setting up its children: attach after it, as its last (topmost) child.
+	get_parent().add_child.call_deferred(_overlay)
+	tree_exiting.connect(_overlay.queue_free)
+	_apply_layout()
+	apply_state(0.0, 0, 0)
 
 
 ## `rect` is the battle area in this node's local pixels.
@@ -23,7 +50,14 @@ func setup(px_per_m: float, arena_radius_m: float, rect: Rect2) -> void:
 	_px_per_m = px_per_m
 	_arena_radius_m = arena_radius_m
 	_rect = rect
-	queue_redraw()
+	if _fx_mat != null:
+		_apply_layout()
+		apply_state(0.0, 0, 0)
+
+
+## Injects the visual settings (tier toggles, reduce motion, scanline intensity). Read every frame, no signals.
+func setup_visual(settings: VisualSettings) -> void:
+	_visual = settings
 
 
 ## 0 hides the optic range ring.
@@ -31,40 +65,93 @@ func set_optic_range(range_m: float) -> void:
 	if is_equal_approx(range_m, _optic_range_m):
 		return
 	_optic_range_m = range_m
-	queue_redraw()
+	if _fx_mat != null:
+		_set_fx(&"optic_range_px", ArenaFxParams.optic_px(range_m, _px_per_m))
 
 
-func _draw() -> void:
-	draw_rect(_rect, Palette.VOID)
-	var arena_px: float = ViewMath.map_dist(_arena_radius_m, _px_per_m)
-	var faint := Color(Palette.GRID, 1.0)
-	for k: int in SPOKES:
-		var dir: Vector2 = Vector2.from_angle(TAU * float(k) / float(SPOKES))
-		draw_line(Vector2.ZERO, dir * arena_px, faint, 2.0)
-	var rings: int = floori(_arena_radius_m / RING_STEP_M)
-	for i: int in range(1, rings + 1):
-		var r: float = ViewMath.map_dist(float(i) * RING_STEP_M, _px_per_m)
-		draw_arc(Vector2.ZERO, r, 0.0, TAU, RING_POINTS, faint, 2.0, true)
-	var edge := Color(Palette.RED_HAZE.lerp(Palette.CRITICAL, 0.35), 0.8)
-	draw_arc(Vector2.ZERO, arena_px, 0.0, TAU, RING_POINTS * 2, edge, 3.0, true)
-	var ring_col := Color(Palette.AMBER_DIM, 0.45)
-	for m: float in RANGE_RINGS_M:
-		draw_arc(Vector2.ZERO, ViewMath.map_dist(m, _px_per_m), 0.0, TAU, RING_POINTS, ring_col, 2.0, true)
-	if _optic_range_m > 0.0:
-		var optic := Color(Palette.AMBER, 0.35)
-		draw_arc(Vector2.ZERO, ViewMath.map_dist(_optic_range_m, _px_per_m), 0.0, TAU, RING_POINTS, optic, 2.0, true)
-	_draw_vignette()
+## Per-frame update. `clock_s` is the view clock (sim time, freezes with the sim), `band` Cinder's integrity band,
+## `alive` the live enemy count (density fade of the grid).
+func apply_state(clock_s: float, band: int, alive: int) -> void:
+	if _fx_mat == null:
+		return
+	var sweep_on: bool = ArenaFxParams.sweep_enabled(_visual)
+	var pulse_on: bool = ArenaFxParams.range_pulse_enabled(_visual)
+	var beat: bool = ArenaFxParams.pulse_allowed(_visual)
+	var low_hp: float = ArenaFxParams.low_hp(band, beat)
+	_set_fx(&"sweep_enabled", ArenaFxParams.flag(sweep_on))
+	_set_fx(&"pulse_enabled", ArenaFxParams.flag(pulse_on))
+	_set_fx(&"density", ArenaFxParams.density_fade(alive))
+	_set_fx(&"sweep_phase", ArenaFxParams.sweep_phase(clock_s) if sweep_on else 0.0)
+	_set_fx(&"pulse_phase", ArenaFxParams.pulse_phase(clock_s) if pulse_on else 0.0)
+	_set_ov(&"scan_alpha", _visual.effective_scanlines())
+	_set_ov(&"low_hp", low_hp)
+	_set_ov(&"pulse_on", ArenaFxParams.flag(beat))
+	_set_ov(&"time", clock_s if (beat and low_hp > 0.0) else 0.0)
+	_apply_motes()
 
 
-## Dark bands at the battle-area edges (stacked translucent rects, cheap and static).
-func _draw_vignette() -> void:
-	var step: float = VIGNETTE_PX / float(VIGNETTE_STEPS)
-	for i: int in VIGNETTE_STEPS:
-		var a: float = 0.35 * (1.0 - float(i) / float(VIGNETTE_STEPS))
-		var col := Color(0.0, 0.0, 0.0, a / float(VIGNETTE_STEPS) * 2.0)
-		var inset: float = step * float(i)
-		var r: Rect2 = _rect.grow(-inset)
-		draw_rect(Rect2(r.position, Vector2(r.size.x, step)), col)
-		draw_rect(Rect2(Vector2(r.position.x, r.end.y - step), Vector2(r.size.x, step)), col)
-		draw_rect(Rect2(r.position, Vector2(step, r.size.y)), col)
-		draw_rect(Rect2(Vector2(r.end.x - step, r.position.y), Vector2(step, r.size.y)), col)
+func _apply_layout() -> void:
+	_floor.position = _rect.position
+	_floor.size = _rect.size
+	_overlay.position = _rect.position
+	_overlay.size = _rect.size
+	_set_fx(&"rect_px", _rect.size)
+	_set_fx(&"rect_origin_px", _rect.position)
+	_set_fx(&"px_per_m", _px_per_m)
+	_set_fx(&"art_scale", ArenaFxParams.art_scale(_px_per_m))
+	_set_fx(&"arena_radius_px", ViewMath.map_dist(_arena_radius_m, _px_per_m))
+	_set_fx(&"optic_range_px", ArenaFxParams.optic_px(_optic_range_m, _px_per_m))
+	_set_ov(&"rect_px", _rect.size)
+	_motes.position = _rect.get_center()
+	_motes.emission_rect_extents = _rect.size * 0.5
+
+
+func _apply_motes() -> void:
+	var want: bool = _visual.quality.motes and not _visual.reduce_motion
+	if _motes.emitting != want:
+		_motes.emitting = want
+		_motes.visible = want
+
+
+func _set_fx(uniform: StringName, value: Variant) -> void:
+	if _fx_cache.has(uniform) and _fx_cache[uniform] == value:
+		return
+	_fx_cache[uniform] = value
+	_fx_mat.set_shader_parameter(uniform, value)
+
+
+func _set_ov(uniform: StringName, value: Variant) -> void:
+	if _ov_cache.has(uniform) and _ov_cache[uniform] == value:
+		return
+	_ov_cache[uniform] = value
+	_ov_mat.set_shader_parameter(uniform, value)
+
+
+func _make_rect(mat: ShaderMaterial) -> ColorRect:
+	var r := ColorRect.new()
+	r.material = mat
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.color = Color.WHITE
+	return r
+
+
+func _make_motes() -> CPUParticles2D:
+	var p := CPUParticles2D.new()
+	p.amount = MOTE_COUNT
+	p.lifetime = 12.0
+	p.preprocess = 12.0
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	p.direction = Vector2.UP
+	p.spread = 25.0
+	p.gravity = Vector2.ZERO
+	p.initial_velocity_min = 6.0
+	p.initial_velocity_max = 16.0
+	p.scale_amount_min = 3.0
+	p.scale_amount_max = 6.0
+	var ramp := Gradient.new()
+	ramp.colors = PackedColorArray(
+		[Color(Palette.AMBER_DIM, 0.0), Color(Palette.AMBER_DIM, 0.18), Color(Palette.FRAME, 0.0)]
+	)
+	ramp.offsets = PackedFloat32Array([0.0, 0.3, 1.0])
+	p.color_ramp = ramp
+	return p

@@ -72,9 +72,9 @@ func test_type_scale_and_walker_is_smaller() -> void:
 	var ppm: float = ViewMath.px_per_m(1080.0)
 	assert_float(ViewMath.type_scale(0)).is_equal(1.5)
 	assert_float(ViewMath.type_scale(2)).is_equal_approx(1.2, 1e-6)
-	# skitter 0.6 m -> about 30 px radius, walker 1.4 m -> about 57 px
-	assert_float(ViewMath.visual_radius_px(0.6, 0, ppm)).is_equal_approx(30.4, 0.1)
-	assert_float(ViewMath.visual_radius_px(1.4, 2, ppm)).is_equal_approx(56.7, 0.1)
+	# slot table: skitter body radius 32 px, walker 70 px x visual_scale 0.8 = 56 px (read from ArtSlots)
+	assert_float(ViewMath.visual_radius_px(0.6, 0, ppm)).is_equal_approx(32.0, 0.01)
+	assert_float(ViewMath.visual_radius_px(1.4, 2, ppm)).is_equal_approx(56.0, 0.01)
 	assert_float(ViewMath.type_scale(99)).is_equal(1.5)
 
 
@@ -93,3 +93,42 @@ func test_enemy_cull_rect_covers_battle_rect_with_margin() -> void:
 	var c: Rect2 = EnemyRenderer.cull_rect_for(rect, ppm)
 	assert_bool(c.encloses(rect)).is_true()
 	assert_float(rect.position.x - c.position.x).is_greater_equal(ViewMath.visual_radius_px(3.0, 4, ppm))
+
+
+func test_type_scale_reads_the_slot_table() -> void:
+	for t: int in ViewMath.ENEMY_SLOTS.size():
+		var vs: float = ArtSlots.slot(ViewMath.ENEMY_SLOTS[t]).visual_scale
+		assert_float(ViewMath.type_scale(t)).is_equal_approx(ViewMath.VISUAL_SCALE * vs, 1e-6)
+	assert_float(ViewMath.slot_visual_scale(2)).is_equal_approx(0.8, 1e-6)
+	assert_float(ViewMath.body_radius_px(2, ViewMath.REF_PPM)).is_equal_approx(56.0, 1e-4)
+	assert_float(ViewMath.body_radius_px(2, ViewMath.REF_PPM * 2.0)).is_equal_approx(112.0, 1e-3)
+
+
+func test_contact_standoff_clears_the_armor_ring_per_type() -> void:
+	var ppm: float = ViewMath.px_per_m(1080.0)
+	var armor: float = 2.0 * ppm * ViewMath.VISUAL_SCALE  # about 101 px
+	var last: float = -1.0
+	for t: int in ViewMath.ENEMY_SLOTS.size():
+		var r: float = ViewMath.body_radius_px(t, ppm)
+		var s: float = ViewMath.contact_standoff_px(r, 2.0, ppm)
+		var center: float = ViewMath.map_dist(2.0, ppm, s)
+		# the sprite edge rests just outside the ring: gap = CONTACT_GAP_PX
+		assert_float(center - r - armor).is_equal_approx(ViewMath.CONTACT_GAP_PX, 0.01)
+		assert_float(s).is_less(ViewMath.STANDOFF_SPAN_M * ppm)
+		# still strictly increasing with distance
+		var prev: float = -1.0
+		for k: int in range(1, 601):
+			var d: float = ViewMath.map_dist(float(k) * 0.1, ppm, s)
+			assert_float(d).is_greater(prev)
+			prev = d
+		last = maxf(last, s)
+	# heavier sprites need more stand-off than skitters
+	assert_float(ViewMath.contact_standoff_px(56.0, 2.0, ppm)).is_greater(ViewMath.contact_standoff_px(32.0, 2.0, ppm))
+	assert_float(last).is_greater(0.0)
+
+
+func test_beam_end_with_per_type_standoff() -> void:
+	var ppm: float = ViewMath.px_per_m(1080.0)
+	var target := Vector2.from_angle(0.4) * 2.0
+	var end: Vector2 = BeamRenderer.beam_end(target, 50.0, ppm, 100.0)
+	assert_float(end.length()).is_equal_approx(ViewMath.map_dist(2.0, ppm, 100.0) - 0.6 * 50.0, 0.001)

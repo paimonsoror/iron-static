@@ -26,6 +26,10 @@ var _events := EventCursor.new()
 
 func _ready() -> void:
 	get_viewport().size_changed.connect(_on_viewport_resized)
+	# Looked up by path: scripts that compile this class without autoloads (capture tools) must still load.
+	var settings: VisualSettings = _game_visual()
+	if settings != null:
+		_background.setup_visual(settings)
 	layout(get_viewport_rect().size)
 
 
@@ -72,9 +76,10 @@ func render(alpha: float) -> void:
 	var band: int = cinder.band if band_override < 0 else band_override
 	_cinder.set_state(hp_frac, band, _aim, now_s)
 	_background.set_optic_range(_world.stats.optic_range)
+	_background.apply_state((float(_world.tick) + alpha) * SimWorld.DT, band, _world.enemies.alive_count)
 	_enemies.render(_world, alpha)
 	var emitter: Vector2 = Vector2.from_angle(_aim) * _cinder.radius_px
-	_beams.update(_world, now_s, _px_per_m, emitter)
+	_beams.update(_world, now_s, _px_per_m, emitter, _enemies)
 
 
 ## Exposed for the debug overlay (M1-24) to override the displayed band.
@@ -102,7 +107,8 @@ func _setup_enemy_renderer() -> void:
 	var radii := PackedFloat32Array()
 	for def: EnemyDef in defs:
 		radii.append(def.radius)
-	_enemies.setup(_px_per_m, radii)
+	_enemies.visual = _game_visual()
+	_enemies.setup(_px_per_m, radii, EnemyStore.DEFAULT_CAPACITY, ProjectileStore.DEFAULT_CAPACITY, _cinder_radius_m())
 	var local: Rect2 = ViewMath.battle_rect(_viewport_size)
 	local.position -= ViewMath.cinder_center(_viewport_size)
 	_enemies.set_cull(EnemyRenderer.cull_rect_for(local, _px_per_m))
@@ -128,3 +134,15 @@ func set_camera_width_m(width_m: float) -> void:
 ## times VISUAL_SCALE (about 100 px at 1080 width and 32 m), art bible 4.1.
 func cinder_radius_px() -> float:
 	return _cinder_radius_m() * _px_per_m * ViewMath.VISUAL_SCALE / 0.92
+
+
+## The `Game` autoload's visual settings, looked up by path so capture tools without autoloads still load.
+func _game_visual() -> VisualSettings:
+	var game: Node = get_node_or_null("/root/Game")
+	if game == null:
+		return null
+	var v: Variant = game.get("visual")
+	if v is VisualSettings:
+		var settings: VisualSettings = v
+		return settings
+	return null

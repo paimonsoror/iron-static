@@ -51,8 +51,8 @@ func bind(world: SimWorld) -> void:
 
 
 ## Consumes new SHOT_FIRED events and redraws. `now_s` is monotonic wall time (seconds),
-## `emitter_px` the beam start in local pixels.
-func update(world: SimWorld, now_s: float, px_per_m: float, emitter_px: Vector2) -> void:
+## `emitter_px` the beam start in local pixels, `enemies` supplies the per-type stand-off (null = default).
+func update(world: SimWorld, now_s: float, px_per_m: float, emitter_px: Vector2, enemies: EnemyRenderer = null) -> void:
 	_now_s = now_s
 	var store: EnemyStore = world.enemies
 	while _events.poll(world.events) > 0:
@@ -62,8 +62,10 @@ func update(world: SimWorld, now_s: float, px_per_m: float, emitter_px: Vector2)
 			var idx: int = _events.a_at(i)
 			if idx < 0 or idx >= store.high_water:
 				continue
-			var vis_r: float = ViewMath.visual_radius_px(store.radius[idx], store.type_id[idx], px_per_m)
-			var target: Vector2 = beam_end(Vector2(store.pos_x[idx], store.pos_y[idx]), vis_r, px_per_m)
+			var type: int = store.type_id[idx]
+			var vis_r: float = ViewMath.visual_radius_px(store.radius[idx], type, px_per_m)
+			var standoff: float = ViewMath.STANDOFF_PX if enemies == null else enemies.standoff_px(type)
+			var target: Vector2 = beam_end(Vector2(store.pos_x[idx], store.pos_y[idx]), vis_r, px_per_m, standoff)
 			add_beam(emitter_px, target, now_s)
 	var active: bool = _any_active()
 	if active or _was_active:
@@ -108,8 +110,10 @@ func _draw() -> void:
 
 ## Beam end in local px: the remapped target position pulled back toward Cinder by
 ## BEAM_PULLBACK of the sprite's visual radius (the beam stops on the sprite's near edge).
-static func beam_end(target_m: Vector2, visual_radius_px: float, px_per_m: float) -> Vector2:
-	var p: Vector2 = ViewMath.map_pos(target_m, px_per_m)
+static func beam_end(
+	target_m: Vector2, visual_radius_px: float, px_per_m: float, standoff_px: float = ViewMath.STANDOFF_PX
+) -> Vector2:
+	var p: Vector2 = ViewMath.map_pos(target_m, px_per_m, standoff_px)
 	var d: float = p.length()
 	if d < 0.001:
 		return p
