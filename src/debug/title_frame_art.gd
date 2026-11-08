@@ -13,17 +13,24 @@ const REF_H: float = 2400.0
 ## Parallax layers back to front: sheet name, top y on the stage, draw scale, drift amplitude px, drift period s.
 const LAYER_NAMES: Array[String] = ["sky_glow", "spires_far", "hulks_mid", "ridge_near", "ridge_front"]
 const LAYER_Y: PackedFloat32Array = [0.0, 880.0, 1030.0, 1440.0, 1960.0]
-const LAYER_SCALE: PackedFloat32Array = [2.0, 2.0, 1.0, 1.0, 1.0]
+## Draw scale per layer: the production sheets are authored at the stage resolution but rasterized smaller to save
+## texture memory (sky 3x, spires 8/3, hulks and near ridge 4/3, front ridge 2x; the first two are soft by design).
+const LAYER_SCALE: PackedFloat32Array = [3.0, 2.6666667, 1.3333334, 1.3333334, 2.0]
 const LAYER_AMP: PackedFloat32Array = [0.0, 6.0, 14.0, 24.0, 38.0]
 const LAYER_PERIOD: PackedFloat32Array = [60.0, 53.0, 41.0, 33.0, 27.0]
-## Cinder's feet on the ridge_near layer (layer-local texels) and the silhouette draw scale.
+## Cinder's feet on the ridge_near layer in stage px, the silhouette and glow draw scale (stage px per texel), and
+## their pivots in texels (sil sheets are 420 x 588 shown 1:1; glow sheets 210 x 294 shown 2x).
 const PERCH: Vector2 = Vector2(1040.0, 210.0)
-const SIL_SCALE: float = 0.7
-const SIL_PIVOT: Vector2 = Vector2(300.0, 806.0)
-const GLOW_PIVOT: Vector2 = Vector2(150.0, 403.0)
-## Smoke layers: top y, height, then the shader parameters (see title_smoke.gdshader).
-const SMOKE_Y: PackedFloat32Array = [760.0, 1360.0, 1700.0]
-const SMOKE_H: PackedFloat32Array = [900.0, 780.0, 700.0]
+const SIL_SCALE: float = 1.0
+const GLOW_SCALE: float = 2.0
+const SIL_PIVOT: Vector2 = Vector2(210.0, 564.2)
+const GLOW_PIVOT: Vector2 = Vector2(105.0, 282.1)
+const FRAMES: Array[String] = ["vanguard", "bulwark", "striker"]
+## Smoke layers: top y, height, then the shader parameters (see title_smoke.gdshader). Layer 0 is the sky haze: the
+## horizon haze plus the high drifting band in the top third of the sky.
+const SMOKE_Y: PackedFloat32Array = [0.0, 1360.0, 1700.0]
+const SMOKE_H: PackedFloat32Array = [1660.0, 780.0, 700.0]
+const LOGO_SCALE: float = 1.1
 
 static var _tex: Dictionary = {}
 

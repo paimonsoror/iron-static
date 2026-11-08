@@ -97,6 +97,7 @@ func events_lost_total() -> int:
 ## Starts observing `world` (skips events already pushed).
 func bind(world: SimWorld) -> void:
 	_world = world
+	_cinder.set_frame(world.config.frame_id)
 	_events.sync_to(world.events)
 	_beams.bind(world)
 	_impact.bind(world)

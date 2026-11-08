@@ -5,7 +5,9 @@ extends Control
 
 signal action(id: String)
 
-const IDS: Array[String] = ["HIGH", "MID", "LOW", "MOTION", "SCAN", "FLARE", "GLITCH", "HIDE"]
+const IDS: Array[String] = [
+	"HIGH", "MID", "LOW", "MOTION", "SCAN", "FLARE", "GLITCH", "VANGUARD", "BULWARK", "STRIKER", "HIDE"
+]
 
 var _buttons: Dictionary = {}
 var _row: HFlowContainer = null
@@ -21,7 +23,7 @@ func setup() -> void:
 	for id: String in IDS:
 		var b := Button.new()
 		b.text = id
-		b.custom_minimum_size = Vector2(110.0, 64.0)
+		b.custom_minimum_size = Vector2(110.0 if id.length() < 8 else 190.0, 64.0)
 		b.add_theme_font_size_override("font_size", 28)
 		b.pressed.connect(_on_pressed.bind(id))
 		_row.add_child(b)

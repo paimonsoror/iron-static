@@ -14,6 +14,7 @@ const FROZEN_SMOKE_S: float = 41.0
 
 var reduce_motion: bool = false
 var tier: VisualQuality.Tier = VisualQuality.Tier.HIGH
+var frame_id_shown: String = "vanguard"
 
 var _rng := RandomNumberGenerator.new()
 var _layers: Array[Sprite2D] = []
@@ -67,13 +68,30 @@ func build() -> void:
 
 
 func _build_cinder(ridge: Sprite2D) -> void:
-	_sil = TitleFrameArt.sprite_pivot("sil_vanguard", TitleFrameArt.SIL_PIVOT, TitleFrameArt.SIL_SCALE)
-	_sil.position = TitleFrameArt.PERCH
+	var ls: float = TitleFrameArt.LAYER_SCALE[3]
+	var local_perch: Vector2 = TitleFrameArt.PERCH / ls
+	_sil = TitleFrameArt.sprite_pivot("sil_vanguard", TitleFrameArt.SIL_PIVOT, TitleFrameArt.SIL_SCALE / ls)
+	_sil.position = local_perch
 	ridge.add_child(_sil)
-	_glow = TitleFrameArt.sprite_pivot("sil_vanguard_glow", TitleFrameArt.GLOW_PIVOT, TitleFrameArt.SIL_SCALE * 2.0)
-	_glow.position = TitleFrameArt.PERCH
+	_glow = TitleFrameArt.sprite_pivot("sil_vanguard_glow", TitleFrameArt.GLOW_PIVOT, _glow_scale())
+	_glow.position = local_perch
 	_glow.material = TitleFrameArt.additive()
 	ridge.add_child(_glow)
+
+
+func _glow_scale() -> float:
+	return TitleFrameArt.GLOW_SCALE / TitleFrameArt.LAYER_SCALE[3]
+
+
+## Shows the silhouette (and its glow) of the selected frame: "vanguard", "bulwark" or "striker". M3-28 calls this
+## with the profile's `frame_selected`; only the selected frame's sheets are ever loaded.
+func set_frame(frame_id: String) -> void:
+	if not TitleFrameArt.FRAMES.has(frame_id):
+		push_error("title frame: unknown frame " + frame_id)
+		return
+	frame_id_shown = frame_id
+	_sil.texture = TitleFrameArt.tex("sil_" + frame_id)
+	_glow.texture = TitleFrameArt.tex("sil_" + frame_id + "_glow")
 
 
 ## Anchors the stage to the bottom of a viewport of `size` and centres it horizontally.
@@ -83,7 +101,8 @@ func layout(size: Vector2) -> void:
 	var extra: float = maxf(size.y - TitleFrameArt.REF_H, 0.0)
 	var sky: Sprite2D = _layers[0]
 	_base_pos[0] = Vector2(0.0, -extra)
-	sky.scale = Vector2(2.0, 2.0 + extra / 750.0)
+	var sky_s: float = TitleFrameArt.LAYER_SCALE[0]
+	sky.scale = Vector2(sky_s, sky_s + extra / float(sky.texture.get_height()))
 
 
 func set_tier(t: VisualQuality.Tier) -> void:
@@ -132,7 +151,7 @@ func tick(t: float, dt: float) -> void:
 		m.set_shader_parameter("u_time", smoke_t)
 	var pulse: float = 0.5 if reduce_motion else 0.5 + 0.5 * sin(TAU * t / 2.6)
 	_glow.modulate = Color(1.0, 1.0, 1.0, 0.72 + 0.28 * pulse)
-	_glow.scale = Vector2.ONE * TitleFrameArt.SIL_SCALE * 2.0 * (1.0 + 0.04 * pulse)
+	_glow.scale = Vector2.ONE * _glow_scale() * (1.0 + 0.04 * pulse)
 	_tick_embers(t, dt)
 	_tick_flare(t, dt)
 
@@ -197,19 +216,32 @@ func _apply_flare(env: float) -> void:
 
 
 func _far_haze() -> Dictionary:
+	# horizon haze (uv.y above hi_end) and the high drifting band that frames the logo (uv.y below hi_end)
 	return {
 		"density": 0.95,
-		"noise_scale": 1.7,
-		"drift": Vector2(0.010, -0.003),
+		"noise_scale": 3.1,
+		"drift": Vector2(0.016, -0.005),
 		"additive": 0.12,
 		"edge_lo": 0.4,
 		"edge_hi": 0.66,
 		"col_dark": Color(0.1, 0.06, 0.045),
 		"col_warm": Color(1.0, 0.45, 0.1),
-		"warm_y": 0.85,
+		"warm_y": 0.92,
 		"warm_amount": 0.8,
-		"fade_top": 0.4,
-		"fade_bottom": 0.25,
+		"fade_top": 0.2,
+		"fade_bottom": 0.136,
+		"hi_end": 0.54,
+		"hi_density": 0.78,
+		"hi_scale": 2.6,
+		"hi_drift": Vector2(0.011, -0.002),
+		"hi_edge_lo": 0.36,
+		"hi_edge_hi": 0.7,
+		"hi_dark": Color(0.045, 0.035, 0.035),
+		"hi_warm": Color(0.95, 0.5, 0.18),
+		"hi_warm_y": 0.5,
+		"hi_hole_y": 0.32,
+		"hi_hole_h": 0.1,
+		"hi_hole_amount": 0.6,
 	}
 
 

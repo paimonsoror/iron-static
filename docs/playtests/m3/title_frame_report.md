@@ -48,3 +48,20 @@ M3-TITLE-GATE: waiting for user approval; no title production task (M3-26, M3-27
 
 ## M3-TITLE-GATE decision (2026-11-08)
 User: **APPROVED WITH FIXES** (go to production). Fixes required in M3-26: denser, more detailed wreckage (broken mechs, cables, gears, plating instead of blocky hulks), smoke reaching up into the empty top third of the sky, and a cleaner Cinder silhouette (the raised left arm must not read as a fist). Hero figure: the **selected frame** (VANGUARD, BULWARK or STRIKER) stands on the ridge, so the title needs a silhouette per frame.
+
+## M3-26 production art (before / after)
+Generator: `assets/art/title/gen/gen_title_art.py` (`python -I`, deterministic; writes `assets/art/title/src/*.svg`; `base/*.svgsrc` are the approved M3-25 sheets that are only resized or tightened). Captures `docs/playtests/m3/M3-26_*.png` (title_high/mid/low/reduce_motion/wide 1990x1920/flare/glitch, `title_bulwark`, `title_striker`, `hero_*` 2x crops, logo crops), per-SVG renders in `M3-26_svg/`, numbers in `M3-26_metrics.txt`. Before: `M3-25_title_high.png`.
+
+| Fix | Before (M3-25) | After (M3-26) |
+|---|---|---|
+| Wreckage | 5 blocky hulks | three depth ranks: broken biped husks (stump leg, torn shoulder, dangling arm), fallen walkers with a raised bird leg, tracked turret wrecks, collapsed gantries, burst tanks, lattice pylons with snapped arms, gears, torn plates, scrap piles, hanging cables; dim red only on dead vents |
+| Smoke | nothing in the top third | layer 0 is now sky haze: the horizon haze plus a high streaky drifting band (same shader, `hi_*` uniforms, one fbm per pixel, thinned behind the logo, warm-lit underneath); LOW also keeps static baked haze strata in `sky_glow` |
+| Cinder | raised left arm read as a fist | both arms down; left arm ends in an emitter cannon with three lenses, low sensor pod on the left shoulder, wide hex-core chest, single visor slit and antenna blade |
+| Hero | VANGUARD only | `sil_vanguard`, `sil_bulwark` (wide, stacked pauldrons, exhaust stacks, slab shield, bronze trim), `sil_striker` (slim, digitigrade, vented chest, twin emitter rails, white-hot trim) + glow sheets + `sil_locked` (3 outline cells for the frame bay); `TitleFrameStage.set_frame("vanguard"/"bulwark"/"striker")` swaps them |
+| Logo | word 880 px wide | letter gaps cut about 40% (word 780 px), shown at 1.1x; still legible in the glitch capture |
+
+Draw calls (desktop, unchanged): HIGH 15 (14 without scanlines, 16 during a flare), MID 13, LOW 11, reduce motion 14, wide 15. Smoke layers 3 / 2 / 1.
+Texture memory (RGBA8): style frame 22.0 MB -> **11.3 MB** with one frame loaded (13.7 MB if all three frames were loaded; only the selected frame's sheets load). Sheets are rasterized smaller than the stage and drawn scaled (sky 720x500 at 3x, spires 810x240, hulks 1620x435 and near ridge 1620x480 at 4/3x, front ridge 1080x220 at 2x, silhouettes 420x588 at 1x, glows 210x294 at 2x). `sil_locked` 450x210 (0.4 MB) loads in the frame bay only.
+Slots: 16 `title_*` rows are merged into `assets/art/slots.csv` (files as `../title/src/x.svg`, so `ArtSlots` resolves them without code changes) and kept in `assets/art/title/title_slots.csv` for `art_lint.py --slots`. SVG canvas = slot sheet size, content scaled inside the cell group (lint rule); `hulks_mid` is split into several `slot.hulks_mid*` groups to stay under the 80 elements per cell rule (sheet total under 400).
+Checks: art_lint (title table) 13 files 0 errors 0 warnings; art_check 13 files 0 fail; `tests/unit/view/test_title_art.gd` (slots load at spec size, silhouettes differ by at least 12% in bbox aspect or area, stage swaps frames), `test_title_frame.gd`, `test_art_slots.gd`: 16 tests pass (run in an isolated copy with src/sim and src/view restored from HEAD, because other agents' in-progress cinder_view files break the compile in the shared tree). Not run: emulator, on-device fps.
+Uncertain: the Vanguard cannon lenses are small and sit low in the foreground fog (check on device); the high smoke band is streaky at 1080 px and may want a lower density on phone; flare still brightens via modulate above 1.0 (verify on the phone).

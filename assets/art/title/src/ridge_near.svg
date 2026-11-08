@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2160" height="640" viewBox="0 0 2160 640">
+<svg xmlns="http://www.w3.org/2000/svg" width="1620" height="480" viewBox="0 0 1620 480">
 <defs>
 <linearGradient id="g_ridge" x1="0" y1="0" x2="0" y2="640" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#12171D"/><stop offset="0.5" stop-color="#0D1117"/><stop offset="1" stop-color="#07090C"/></linearGradient>
 <linearGradient id="g_ridge2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B222B"/><stop offset="1" stop-color="#0D1117"/></linearGradient>
 <linearGradient id="g_gear" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B222B"/><stop offset="1" stop-color="#0D1117"/></linearGradient>
 <linearGradient id="g_haze" x1="0" y1="0" x2="0" y2="640" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#5A4034" stop-opacity="0.3"/><stop offset="0.5" stop-color="#3A2A22" stop-opacity="0.1"/><stop offset="1" stop-color="#3A2A22" stop-opacity="0"/></linearGradient>
 </defs>
-<g id="slot.ridge_near">
+<g id="slot.ridge_near"><g transform="scale(0.75)">
 <polygon points="646,255 669.5,267.1 666.2,288.4 640.2,292.9 633.5,309.7 649.5,330.8 637.3,348.5 611.9,341.3 598.6,353.5 603.8,379.4 585.1,390.1 565.3,372.6 548,377.8 541.5,403.5 520,405 509.8,380.6 492,377.8 474.9,398.1 454.9,390.1 456.3,363.7 441.4,353.5 417.3,364.3 402.7,348.5 415.5,325.4 406.5,309.7 380,309 373.8,288.4 395.3,273 394,255 370.5,242.9 373.8,221.6 399.8,217.1 406.5,200.3 390.5,179.2 402.7,161.5 428.1,168.7 441.4,156.5 436.2,130.6 454.9,119.9 474.7,137.4 492,132.2 498.5,106.5 520,105 530.2,129.4 548,132.2 565.1,111.9 585.1,119.9 583.7,146.3 598.6,156.5 622.7,145.7 637.3,161.5 624.5,184.6 633.5,200.3 660,201 666.2,221.6 644.7,237" fill="url(#g_gear)"/>
 <circle cx="520" cy="255" r="93" fill="#0B0E13"/>
 <circle cx="520" cy="255" r="75" fill="none" stroke="#2B343B" stroke-width="3"/>
@@ -82,5 +82,5 @@
 <ellipse cx="1336" cy="286" rx="22" ry="7" fill="#7A1E30" opacity="0.7"/>
 <polyline points="1330,214.5 1412.3,257.2 1412.3,342.8" fill="none" stroke="#8A5F00" stroke-width="3" stroke-linejoin="round" opacity="0.6"/>
 <rect x="0" y="0" width="2160" height="640" fill="url(#g_haze)"/>
-</g>
+</g></g>
 </svg>

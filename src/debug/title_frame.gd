@@ -17,6 +17,7 @@ const SETTLE_S: float = 1.2
 
 var tier: VisualQuality.Tier = VisualQuality.Tier.HIGH
 var reduce_motion: bool = false
+var frame_id: String = "vanguard"
 var scan_on: bool = true
 
 var _host: Node = null
@@ -41,6 +42,9 @@ func _ready() -> void:
 			shots_dir = a.get_slice("=", 1) if "=" in a else "build/title_frame"
 	tier = VisualQuality.tier_from_args(args)
 	reduce_motion = args.has("--reduce-motion")
+	for a: String in args:
+		if a.begins_with("--frame="):
+			frame_id = a.get_slice("=", 1)
 	_host = self
 	if shots_dir != "":
 		_viewport = SubViewport.new()
@@ -66,12 +70,14 @@ func _build() -> void:
 	_stage = TitleFrameStage.new()
 	art.add_child(_stage)
 	_stage.build()
+	_stage.set_frame(frame_id)
 	var ui := CanvasLayer.new()
 	ui.layer = 1
 	_host.add_child(ui)
 	_logo = TitleFrameLogo.new()
 	ui.add_child(_logo)
 	_logo.setup()
+	_logo.scale = Vector2.ONE * TitleFrameArt.LOGO_SCALE
 	_buttons = TitleFrameButtons.new()
 	ui.add_child(_buttons)
 	_buttons.setup()
@@ -138,6 +144,8 @@ func _on_action(id: String) -> void:
 			_stage.start_flare()
 		"GLITCH":
 			_logo.force_tear()
+		"VANGUARD", "BULWARK", "STRIKER":
+			_stage.set_frame(id.to_lower())
 		"HIDE":
 			_menu.set_shown(false)
 	_apply_all()

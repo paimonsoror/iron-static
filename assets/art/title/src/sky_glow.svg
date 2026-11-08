@@ -1,12 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="750" viewBox="0 0 1080 750">
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="500" viewBox="0 0 720 500">
 <defs>
-<linearGradient id="g_sky" x1="0" y1="0" x2="0" y2="750" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#07090C"/><stop offset="0.4" stop-color="#0D1117"/><stop offset="0.6" stop-color="#1F1612"/><stop offset="0.8" stop-color="#3A2A22"/><stop offset="1" stop-color="#5A4034"/></linearGradient>
+<linearGradient id="g_sky" x1="0" y1="0" x2="0" y2="750" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#0D1117"/><stop offset="0.4" stop-color="#1B222B"/><stop offset="0.6" stop-color="#1F1612"/><stop offset="0.8" stop-color="#3A2A22"/><stop offset="1" stop-color="#5A4034"/></linearGradient>
 <radialGradient id="g_glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFB000" stop-opacity="0.6"/><stop offset="0.3" stop-color="#FF8A1F" stop-opacity="0.3"/><stop offset="0.7" stop-color="#8A5F00" stop-opacity="0.1"/><stop offset="1" stop-color="#8A5F00" stop-opacity="0"/></radialGradient>
 <radialGradient id="g_sun" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFF1C9" stop-opacity="0.9"/><stop offset="0.3" stop-color="#FFD27A" stop-opacity="0.6"/><stop offset="1" stop-color="#FF8A1F" stop-opacity="0"/></radialGradient>
 <radialGradient id="g_band" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#12171D" stop-opacity="0.8"/><stop offset="1" stop-color="#12171D" stop-opacity="0"/></radialGradient>
 <radialGradient id="g_bandw" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#5A4034" stop-opacity="0.6"/><stop offset="1" stop-color="#5A4034" stop-opacity="0"/></radialGradient>
+<radialGradient id="g_hz" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#5A4034" stop-opacity="0.7"/><stop offset="1" stop-color="#5A4034" stop-opacity="0"/></radialGradient>
+<radialGradient id="g_hzd" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#07090C" stop-opacity="0.85"/><stop offset="1" stop-color="#07090C" stop-opacity="0"/></radialGradient>
 </defs>
-<g id="slot.sky_glow">
+<g id="slot.sky_glow"><g transform="scale(0.66667)">
 <rect x="0" y="0" width="1080" height="750" fill="url(#g_sky)"/>
 <ellipse cx="560" cy="668" rx="560" ry="360" fill="url(#g_glow)"/>
 <ellipse cx="560" cy="700" rx="190" ry="70" fill="url(#g_sun)"/>
@@ -24,5 +26,15 @@
 <ellipse cx="452.4" cy="361.3" rx="480.1" ry="20.2" fill="url(#g_band)"/>
 <ellipse cx="845.6" cy="403.2" rx="260.1" ry="17.4" fill="url(#g_band)"/>
 <ellipse cx="513.6" cy="440.2" rx="514.9" ry="20.4" fill="url(#g_band)"/>
-</g>
+<ellipse cx="250" cy="70" rx="420" ry="34" fill="url(#g_hz)"/>
+<ellipse cx="800" cy="118" rx="380" ry="30" fill="url(#g_hz)"/>
+<ellipse cx="520" cy="40" rx="520" ry="26" fill="url(#g_hz)"/>
+<ellipse cx="640" cy="96" rx="440" ry="22" fill="url(#g_hzd)"/>
+<ellipse cx="180" cy="150" rx="360" ry="20" fill="url(#g_hzd)"/>
+<ellipse cx="400" cy="214" rx="470" ry="24" fill="url(#g_hz)"/>
+<ellipse cx="900" cy="262" rx="300" ry="22" fill="url(#g_hz)"/>
+<ellipse cx="540" cy="300" rx="540" ry="18" fill="url(#g_hzd)"/>
+<ellipse cx="160" cy="340" rx="340" ry="22" fill="url(#g_hz)"/>
+<ellipse cx="700" cy="396" rx="440" ry="18" fill="url(#g_hz)"/>
+</g></g>
 </svg>

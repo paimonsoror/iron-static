@@ -20,6 +20,20 @@ uniform float warm_y : hint_range(0.0, 1.0) = 0.7;      // vertical position (uv
 uniform float warm_amount : hint_range(0.0, 1.0) = 0.6;
 uniform float fade_top : hint_range(0.01, 1.0) = 0.25;   // uv.y span where the band fades in from the top
 uniform float fade_bottom : hint_range(0.01, 1.0) = 0.25; // uv.y span where it fades out at the bottom
+// High band (M3-26): above uv.y = hi_end the same rect draws a second, streakier drifting band (0 = off). It is
+// thinned around `hi_hole_y` so the logo plate stays legible and lit from below (`hi_warm_y`). One fbm per pixel.
+uniform float hi_end : hint_range(0.0, 1.0) = 0.0;
+uniform float hi_density : hint_range(0.0, 1.0) = 0.7;
+uniform float hi_scale : hint_range(0.5, 8.0) = 2.6;
+uniform vec2 hi_drift = vec2(0.01, -0.002);
+uniform float hi_edge_lo : hint_range(0.0, 1.0) = 0.36;
+uniform float hi_edge_hi : hint_range(0.0, 1.0) = 0.7;
+uniform vec4 hi_dark : source_color = vec4(0.045, 0.035, 0.035, 1.0);
+uniform vec4 hi_warm : source_color = vec4(0.95, 0.5, 0.18, 1.0);
+uniform float hi_warm_y : hint_range(0.0, 1.0) = 0.5;
+uniform float hi_hole_y : hint_range(0.0, 1.0) = 0.3;
+uniform float hi_hole_h : hint_range(0.01, 0.5) = 0.1;
+uniform float hi_hole_amount : hint_range(0.0, 1.0) = 0.5;
 
 
 float hash21(vec2 p) {
@@ -55,14 +69,28 @@ float fbm(vec2 p) {
 
 void fragment() {
 	float aspect = rect_px.x / rect_px.y;
-	vec2 p = vec2(UV.x * aspect * 0.7, UV.y) * noise_scale + drift * u_time;
-	float n = fbm(p);
-	float m = smoothstep(edge_lo, edge_hi, n);
-	float band = smoothstep(0.0, fade_top, UV.y) * (1.0 - smoothstep(1.0 - fade_bottom, 1.0, UV.y));
-	float a = m * density * band;
-	float warm = exp(-pow((UV.y - warm_y) * 2.6, 2.0)) * (0.35 + 0.65 * n) * warm_amount;
-	// lit edges: the thin rim of each billow catches the warm light
-	float rim = smoothstep(edge_lo, edge_lo + 0.08, n) * (1.0 - smoothstep(edge_lo + 0.08, edge_lo + 0.22, n));
-	vec3 rgb = mix(col_dark.rgb, col_warm.rgb, clamp(warm + rim * warm_amount * 0.7, 0.0, 1.0));
-	COLOR = vec4(rgb * a, a * (1.0 - additive));
+	if (UV.y < hi_end) {
+		// streaky: stretched along x, slow
+		vec2 hp = vec2(UV.x * aspect * 0.28, UV.y * 1.1) * hi_scale + hi_drift * u_time;
+		float hn = fbm(hp);
+		float hm = smoothstep(hi_edge_lo, hi_edge_hi, hn);
+		float hole = 1.0 - hi_hole_amount * exp(-pow((UV.y - hi_hole_y) / hi_hole_h, 2.0));
+		float hband = smoothstep(0.0, 0.05, UV.y) * (1.0 - smoothstep(hi_end - 0.1, hi_end, UV.y));
+		float ha = hm * hi_density * hband * hole;
+		float hwarm = exp(-pow((UV.y - hi_warm_y) * 5.0, 2.0)) * (0.3 + 0.7 * hn);
+		float hrim = smoothstep(hi_edge_lo, hi_edge_lo + 0.08, hn) * (1.0 - smoothstep(hi_edge_lo + 0.08, hi_edge_lo + 0.22, hn));
+		vec3 hrgb = mix(hi_dark.rgb, hi_warm.rgb, clamp(hwarm * 0.6 + hrim * 0.5, 0.0, 1.0));
+		COLOR = vec4(hrgb * ha, ha * (1.0 - additive * 0.5));
+	} else {
+		vec2 p = vec2(UV.x * aspect * 0.7, UV.y) * noise_scale + drift * u_time;
+		float n = fbm(p);
+		float m = smoothstep(edge_lo, edge_hi, n);
+		float band = smoothstep(hi_end, hi_end + fade_top, UV.y) * (1.0 - smoothstep(1.0 - fade_bottom, 1.0, UV.y));
+		float a = m * density * band;
+		float warm = exp(-pow((UV.y - warm_y) * 2.6, 2.0)) * (0.35 + 0.65 * n) * warm_amount;
+		// lit edges: the thin rim of each billow catches the warm light
+		float rim = smoothstep(edge_lo, edge_lo + 0.08, n) * (1.0 - smoothstep(edge_lo + 0.08, edge_lo + 0.22, n));
+		vec3 rgb = mix(col_dark.rgb, col_warm.rgb, clamp(warm + rim * warm_amount * 0.7, 0.0, 1.0));
+		COLOR = vec4(rgb * a, a * (1.0 - additive));
+	}
 }

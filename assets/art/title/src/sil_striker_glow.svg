@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210" height="294" viewBox="0 0 210 294">
+<defs>
+<radialGradient id="g_halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFB000" stop-opacity="0.8"/><stop offset="0.2" stop-color="#FFB000" stop-opacity="0.4"/><stop offset="0.6" stop-color="#FF8A1F" stop-opacity="0.1"/><stop offset="1" stop-color="#FF8A1F" stop-opacity="0"/></radialGradient>
+<radialGradient id="g_core" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.3" stop-color="#FFF1C9"/><stop offset="0.7" stop-color="#FFD27A"/><stop offset="1" stop-color="#FFB000"/></radialGradient>
+<radialGradient id="g_corew" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.6" stop-color="#FFFFFF"/><stop offset="0.8" stop-color="#FFF1C9"/><stop offset="1" stop-color="#FFD27A"/></radialGradient>
+<radialGradient id="g_lens" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFF1C9"/><stop offset="0.5" stop-color="#FFB000" stop-opacity="0.8"/><stop offset="1" stop-color="#FFB000" stop-opacity="0"/></radialGradient>
+<radialGradient id="g_back" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF8A1F" stop-opacity="0.3"/><stop offset="1" stop-color="#FF8A1F" stop-opacity="0"/></radialGradient>
+<radialGradient id="g_lensw" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.5" stop-color="#FFF1C9" stop-opacity="0.8"/><stop offset="1" stop-color="#FFD27A" stop-opacity="0"/></radialGradient>
+</defs>
+<g id="slot.sil_striker_glow"><g transform="scale(0.7)">
+<ellipse cx="150" cy="190" rx="120" ry="175" fill="url(#g_back)"/>
+<circle cx="150.0" cy="175.0" r="76.0" fill="url(#g_halo)"/>
+<polygon points="170,175 160,192.3 140,192.3 130,175 140,157.7 160,157.7" fill="url(#g_corew)"/>
+<polyline points="158,192.4 142,157.6" fill="none" stroke="#FFB000" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.80"/>
+<rect x="130.0" y="120.0" width="40.0" height="3.5" fill="#FFFFFF"/>
+<ellipse cx="150.0" cy="121.75" rx="32.0" ry="10" fill="url(#g_lens)" opacity="0.5"/>
+<circle cx="200.0" cy="66.0" r="8.0" fill="url(#g_lensw)"/>
+<circle cx="209.0" cy="70.0" r="8.0" fill="url(#g_lensw)"/>
+</g></g>
+</svg>

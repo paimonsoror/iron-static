@@ -15,6 +15,8 @@ const KIND_UP: int = 2
 const FLASH_TEAL := Color(0.75, 1.0, 0.96)
 
 var scale_f: float = 1.0
+## Frame layout and slot-id prefix (M3-27); VANGUARD = the V1 rig. Set through `set_frame`.
+var spec: CinderFrameSpec = CinderFrameSpec.for_frame(CinderFrameSpec.VANGUARD)
 ## 0 = glow sheets off (tier), else the glow alpha multiplier.
 var glow_mul: float = 1.0
 ## No idle pulse or flicker, no shiver.
@@ -68,6 +70,16 @@ func update(new_band: int, new_aim: float, t: float, beat_t: float = -1.0) -> vo
 	_finish_transitions()
 
 
+## Selects the frame variant (`vanguard`, `bulwark`, `striker`; anything else = vanguard). Drops cached textures.
+func set_frame(id: String) -> void:
+	var next: CinderFrameSpec = CinderFrameSpec.for_frame(id)
+	if next == spec:
+		return
+	spec = next
+	_body = null
+	_glow = null
+
+
 func notify_hit() -> void:
 	_hit_at = time_s
 	_shiver_seed += 1
@@ -90,7 +102,7 @@ func active_node() -> int:
 
 ## Position of the active emitter node relative to the Cinder origin (px).
 func emitter_position() -> Vector2:
-	return CinderLayout.node_position(ring_rot, active_node(), scale_f)
+	return CinderLayout.node_position(ring_rot, active_node(), scale_f, spec.node_radius_texels)
 
 
 ## Transition kind of wedge `k` (KIND_NONE, KIND_DOWN, KIND_UP).
@@ -138,8 +150,8 @@ func _finish_transitions() -> void:
 
 func _tex(art: ArtSlot) -> Texture2D:
 	if _body == null:
-		_body = ArtSlots.texture(CinderLayout.SLOT_FRAME)
-		_glow = ArtSlots.texture(CinderLayout.SLOT_FRAME_HOT)
+		_body = ArtSlots.texture(spec.slot(CinderLayout.SLOT_FRAME))
+		_glow = ArtSlots.texture(spec.slot(CinderLayout.SLOT_FRAME_HOT))
 	return _glow if art.additive else _body
 
 
@@ -147,7 +159,7 @@ func _tex(art: ArtSlot) -> Texture2D:
 func _cell(c: CanvasItem, slot_id: String, pos: Vector2, rot: float, sc: float, mod: Color) -> void:
 	if slot_id.is_empty():
 		return
-	var art: ArtSlot = ArtSlots.slot(slot_id)
+	var art: ArtSlot = ArtSlots.slot(spec.slot(slot_id))
 	var ppt: float = CinderLayout.GLOW_PX_PER_TEXEL if art.additive else CinderLayout.BODY_PX_PER_TEXEL
 	c.draw_set_transform(pos, rot, Vector2(sc, sc))
 	var rect: Rect2 = CinderLayout.cell_draw_rect(art.pivot, Vector2(art.cell_size), ppt * scale_f)
@@ -160,9 +172,7 @@ func _gray(v: float, a: float = 1.0) -> Color:
 
 func paint_body(c: CanvasItem) -> void:
 	var s: float = scale_f
-	_cell(
-		c, CinderLayout.SLOT_SHADOW, CinderLayout.SHADOW_OFFSET * s, 0.0, CinderLayout.SHADOW_SCALE / 0.5, Color.WHITE
-	)
+	_cell(c, CinderLayout.SLOT_SHADOW, spec.shadow_offset * s, 0.0, spec.shadow_scale / 0.5, Color.WHITE)
 	_cell(c, CinderLayout.SLOT_FRAME, Vector2.ZERO, 0.0, 1.0, Color.WHITE)
 	_paint_wedges(c, false, false)
 	_cell(c, CinderLayout.SLOT_HOUSING, Vector2.ZERO, 0.0, 1.0, Color.WHITE)
@@ -173,8 +183,8 @@ func paint_body(c: CanvasItem) -> void:
 		_cell(c, CinderLayout.SLOT_CRACK, Vector2.ZERO, 0.0, 1.0, Color.WHITE)
 	_cell(c, CinderLayout.SLOT_RING, Vector2.ZERO, ring_rot, 1.0, Color.WHITE)
 	_cell(c, CinderLayout.SLOT_VISOR, Vector2.ZERO, visor_rot, 1.0, Color.WHITE)
-	_cell(c, CinderLayout.SLOT_SHOULDER, CinderLayout.SHOULDER_POS * s, 0.0, 1.0, Color.WHITE)
-	_cell(c, CinderLayout.SLOT_TICKS, CinderLayout.TICKS_POS * s, 0.0, CinderLayout.TICKS_SCALE, Color.WHITE)
+	_cell(c, CinderLayout.SLOT_SHOULDER, spec.shoulder_pos * s, 0.0, 1.0, Color.WHITE)
+	_cell(c, CinderLayout.SLOT_TICKS, spec.ticks_pos * s, 0.0, spec.ticks_scale, Color.WHITE)
 	_paint_wedges(c, false, true)
 
 
@@ -198,9 +208,9 @@ func paint_glow(c: CanvasItem) -> void:
 	var shot: float = CinderAnim.shot_boost(time_s - _shot_at)
 	_cell(c, CinderLayout.SLOT_RING_GLOW, Vector2.ZERO, ring_rot, 1.0, _white_a((1.0 + 0.8 * shot) * g))
 	_cell(c, CinderLayout.SLOT_VISOR_GLOW, Vector2.ZERO, visor_rot, 1.0, _white_a(g))
-	var lens: Vector2 = (CinderLayout.SHOULDER_POS + CinderLayout.SHOULDER_LENS_OFFSET) * s
+	var lens: Vector2 = (spec.shoulder_pos + spec.shoulder_lens_offset) * s
 	_cell(c, CinderLayout.SLOT_SHOULDER_GLOW, lens, 0.0, 1.0, _white_a((0.9 + 0.6 * shot) * g))
-	_cell(c, CinderLayout.SLOT_TICKS_GLOW, CinderLayout.TICKS_POS * s, 0.0, CinderLayout.TICKS_SCALE, _white_a(0.8 * g))
+	_cell(c, CinderLayout.SLOT_TICKS_GLOW, spec.ticks_pos * s, 0.0, spec.ticks_scale, _white_a(0.8 * g))
 	_paint_wedges(c, true, true)
 
 

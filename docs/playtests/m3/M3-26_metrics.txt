@@ -1,0 +1,12 @@
+high portrait: draws=15 smoke=3 embers_live=49 fps(desktop)=60
+high portrait during a flare: draws=16 smoke=3 embers_live=50 fps(desktop)=37
+high portrait, scanlines off: draws=14 smoke=3 embers_live=9 fps(desktop)=26
+mid portrait: draws=13 smoke=2 embers_live=27 fps(desktop)=60
+low portrait: draws=11 smoke=1 embers_live=0 fps(desktop)=60
+high portrait, reduce motion: draws=14 smoke=3 embers_live=0 fps(desktop)=60
+high wide 1990x1920: draws=15 smoke=3 embers_live=50 fps(desktop)=60
+high portrait, frame bulwark: draws=15 smoke=3 embers_live=49 fps(desktop)=60
+high portrait, frame striker: draws=15 smoke=3 embers_live=50 fps(desktop)=60
+texture memory, one frame loaded (RGBA8): 11.3 MB
+texture memory, all three frames loaded: 13.7 MB
+sheet sizes: sky_glow 720x500, spires_far 810x240, hulks_mid 1620x435, ridge_near 1620x480, ridge_front 1080x220, logo 960x400, sil_vanguard 420x588, sil_vanguard_glow 210x294, sil_bulwark 420x588, sil_bulwark_glow 210x294, sil_striker 420x588, sil_striker_glow 210x294, sil_locked 450x210

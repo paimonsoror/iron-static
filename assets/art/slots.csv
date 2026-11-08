@@ -125,3 +125,69 @@ icon_ic_play,icons/ic_play.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,ic
 icon_ic_settings,icons/ic_settings.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
 icon_ic_lock,icons/ic_lock.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
 icon_ic_check,icons/ic_check.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+cinder_bulwark_frame,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_frame_hot,1024,1024,0,0,448,448,1,224,224,,100,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_emitter_ring,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_emitter_glow,1024,1024,448,0,448,448,1,224,224,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_wedge_a_intact,cinder_bulwark.svg,,,1024,1024,0,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_wedge_b_intact,cinder_bulwark.svg,,,1024,1024,128,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_wedge_a_charred,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_ember_edge_a,1024,1024,256,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_wedge_b_charred,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_ember_edge_b,1024,1024,384,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_core_housing,cinder_bulwark.svg,,,1024,1024,512,448,160,160,1,80,80,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_core,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_halo_core,1024,1024,672,448,128,128,1,64,64,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_core_crack,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_core_crack_glow,1024,1024,800,448,128,128,1,64,64,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_core_hot,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_core_hot_halo,1024,1024,0,768,128,128,1,64,64,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_visor,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_visor_glow,1024,1024,0,576,160,48,1,80,164,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_shoulder,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_shoulder_glow,1024,1024,448,608,224,160,1,150,96,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_shadow,cinder_bulwark.svg,,,1024,1024,672,576,336,336,1,168,168,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_integrity_ticks,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_integrity_halo,1024,1024,0,704,448,64,1,224,32,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
+cinder_bulwark_frame_hot,cinder_bulwark_glow.svg,,,512,512,0,0,216,216,1,108,108,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_bulwark_emitter_glow,cinder_bulwark_glow.svg,,,512,512,216,0,224,224,1,112,112,,,1,1,,6,,add,cinder,ready,three lens glows with ring arc lights (restored to standard margin 6 and coverage in V1-04)
+cinder_bulwark_ember_edge_a,cinder_bulwark_glow.svg,,,512,512,440,0,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_bulwark_ember_edge_b,cinder_bulwark_glow.svg,,,512,512,440,72,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_bulwark_seam_glow,cinder_bulwark_glow.svg,,,512,512,440,144,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_bulwark_halo_core,cinder_bulwark_glow.svg,,,512,512,0,232,248,248,1,124,124,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_bulwark_core_hot_halo,cinder_bulwark_glow.svg,,,512,512,248,232,192,192,1,96,96,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_bulwark_core_crack_glow,cinder_bulwark_glow.svg,,,512,512,440,232,72,72,1,36,36,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_bulwark_shoulder_glow,cinder_bulwark_glow.svg,,,512,512,440,312,72,72,1,36,36,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_bulwark_visor_glow,cinder_bulwark_glow.svg,,,512,512,248,432,100,44,1,53,90,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_bulwark_integrity_halo,cinder_bulwark_glow.svg,,,512,512,248,480,224,28,1,112,14,,,1,1,,6,,add,cinder,ready,"cell of the cinder bulwark glow sheet (half size, additive)"
+cinder_striker_frame,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_frame_hot,1024,1024,0,0,448,448,1,224,224,,100,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_emitter_ring,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_emitter_glow,1024,1024,448,0,448,448,1,224,224,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_wedge_a_intact,cinder_striker.svg,,,1024,1024,0,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_wedge_b_intact,cinder_striker.svg,,,1024,1024,128,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_wedge_a_charred,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_ember_edge_a,1024,1024,256,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_wedge_b_charred,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_ember_edge_b,1024,1024,384,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_core_housing,cinder_striker.svg,,,1024,1024,512,448,160,160,1,80,80,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_core,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_halo_core,1024,1024,672,448,128,128,1,64,64,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_core_crack,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_core_crack_glow,1024,1024,800,448,128,128,1,64,64,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_core_hot,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_core_hot_halo,1024,1024,0,768,128,128,1,64,64,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_visor,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_visor_glow,1024,1024,0,576,160,48,1,80,164,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_shoulder,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_shoulder_glow,1024,1024,448,608,224,160,1,150,96,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_shadow,cinder_striker.svg,,,1024,1024,672,576,336,336,1,168,168,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_integrity_ticks,cinder_striker.svg,cinder_striker_glow.svg,cinder_striker_integrity_halo,1024,1024,0,704,448,64,1,224,32,,,2,1,,4,,normal,cinder,ready,cell of the cinder striker body sheet
+cinder_striker_frame_hot,cinder_striker_glow.svg,,,512,512,0,0,216,216,1,108,108,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+cinder_striker_emitter_glow,cinder_striker_glow.svg,,,512,512,216,0,224,224,1,112,112,,,1,1,,6,,add,cinder,ready,three lens glows with ring arc lights (restored to standard margin 6 and coverage in V1-04)
+cinder_striker_ember_edge_a,cinder_striker_glow.svg,,,512,512,440,0,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+cinder_striker_ember_edge_b,cinder_striker_glow.svg,,,512,512,440,72,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+cinder_striker_seam_glow,cinder_striker_glow.svg,,,512,512,440,144,72,64,1,36,102,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+cinder_striker_halo_core,cinder_striker_glow.svg,,,512,512,0,232,248,248,1,124,124,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+cinder_striker_core_hot_halo,cinder_striker_glow.svg,,,512,512,248,232,192,192,1,96,96,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+cinder_striker_core_crack_glow,cinder_striker_glow.svg,,,512,512,440,232,72,72,1,36,36,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+cinder_striker_shoulder_glow,cinder_striker_glow.svg,,,512,512,440,312,72,72,1,36,36,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+cinder_striker_visor_glow,cinder_striker_glow.svg,,,512,512,248,432,100,44,1,53,90,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+cinder_striker_integrity_halo,cinder_striker_glow.svg,,,512,512,248,480,224,28,1,112,14,,,1,1,,6,,add,cinder,ready,"cell of the cinder striker glow sheet (half size, additive)"
+title_sky_glow,../title/src/sky_glow.svg,,,720,500,0,0,720,500,1,0,0,,,1,3,,0,,normal,floor,ready,"shown at 3x (2160x1500), y 0; dusk gradient, horizon glow, baked high haze in the top third"
+title_spires_far,../title/src/spires_far.svg,,,810,240,0,0,810,240,1,0,0,,,1,2.6667,,0,,normal,floor,ready,"shown at 8/3x (2160x640), bottom at stage y 1520"
+title_hulks_mid,../title/src/hulks_mid.svg,,,1620,435,0,0,1620,435,1,0,0,,,1,1.3333,,0,,normal,floor,ready,"shown at 4/3x (2160x580) at stage y 1030; dense wreckage in three ranks"
+title_ridge_near,../title/src/ridge_near.svg,,,1620,480,0,0,1620,480,1,0,0,,,1,1.3333,,0,,normal,floor,ready,"shown at 4/3x (2160x640) at stage y 1440; scrap ridge, perch plateau at stage x 1040 y 210 of the layer"
+title_ridge_front,../title/src/ridge_front.svg,,,1080,220,0,0,1080,220,1,0,0,,,1,2,,0,,normal,floor,ready,"shown at 2x (2160x440), bottom anchored at stage y 1960; near-black foreground"
+title_logo_iron,../title/src/logo.svg,,,960,400,0,0,960,200,1,480,100,,,1,1,,4,,normal,ui,ready,"IRON word, stencil letters (tightened spacing in M3-26); shown at 1.1x"
+title_logo_static,../title/src/logo.svg,,,960,400,0,200,960,200,1,480,100,,,1,1,,4,,normal,ui,ready,"STATIC word, stencil letters (tightened spacing in M3-26); shown at 1.1x"
+title_sil_vanguard,../title/src/sil_vanguard.svg,../title/src/sil_vanguard_glow.svg,title_sil_vanguard_glow,420,588,0,0,420,588,1,210,564,,,1,1,,4,,normal,cinder,ready,"VANGUARD hero silhouette, pivot at the feet; shown 1:1 on the near ridge"
+title_sil_vanguard_glow,../title/src/sil_vanguard_glow.svg,,,210,294,0,0,210,294,1,105,282,,,1,2,,6,,add,cinder,ready,"VANGUARD core, visor and emitter glow; half size, additive, shown 2x"
+title_sil_bulwark,../title/src/sil_bulwark.svg,../title/src/sil_bulwark_glow.svg,title_sil_bulwark_glow,420,588,0,0,420,588,1,210,564,,,1,1,,4,,normal,cinder,ready,"BULWARK hero silhouette, pivot at the feet; shown 1:1 on the near ridge"
+title_sil_bulwark_glow,../title/src/sil_bulwark_glow.svg,,,210,294,0,0,210,294,1,105,282,,,1,2,,6,,add,cinder,ready,"BULWARK core, visor and emitter glow; half size, additive, shown 2x"
+title_sil_striker,../title/src/sil_striker.svg,../title/src/sil_striker_glow.svg,title_sil_striker_glow,420,588,0,0,420,588,1,210,564,,,1,1,,4,,normal,cinder,ready,"STRIKER hero silhouette, pivot at the feet; shown 1:1 on the near ridge"
+title_sil_striker_glow,../title/src/sil_striker_glow.svg,,,210,294,0,0,210,294,1,105,282,,,1,2,,6,,add,cinder,ready,"STRIKER core, visor and emitter glow; half size, additive, shown 2x"
+title_sil_locked_vanguard,../title/src/sil_locked.svg,,,450,210,0,0,150,210,1,75,193,,,1,1,,4,,normal,cinder,ready,"locked outline of VANGUARD for the frame bay"
+title_sil_locked_bulwark,../title/src/sil_locked.svg,,,450,210,150,0,150,210,1,75,193,,,1,1,,4,,normal,cinder,ready,"locked outline of BULWARK for the frame bay"
+title_sil_locked_striker,../title/src/sil_locked.svg,,,450,210,300,0,150,210,1,75,193,,,1,1,,4,,normal,cinder,ready,"locked outline of STRIKER for the frame bay"

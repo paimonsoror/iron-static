@@ -133,9 +133,11 @@ static func node_angle(ring_rot: float, k: int) -> float:
 	return ring_rot - UP_OFFSET + NODE_STEP * float(k)
 
 
-## Node position relative to the Cinder origin, in px, for a rig of `scale_f`.
-static func node_position(ring_rot: float, k: int, scale_f: float) -> Vector2:
-	return Vector2.from_angle(node_angle(ring_rot, k)) * (NODE_RADIUS_TEXELS * BODY_PX_PER_TEXEL * scale_f)
+## Node position relative to the Cinder origin, in px, for a rig of `scale_f` (`node_radius_texels` is per frame data).
+static func node_position(
+	ring_rot: float, k: int, scale_f: float, node_radius_texels: float = NODE_RADIUS_TEXELS
+) -> Vector2:
+	return Vector2.from_angle(node_angle(ring_rot, k)) * (node_radius_texels * BODY_PX_PER_TEXEL * scale_f)
 
 
 ## Draw rect (position and size in px, relative to the pivot-at-origin transform) of a cell drawn at `px_per_texel`.

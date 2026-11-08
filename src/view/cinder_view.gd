@@ -59,6 +59,19 @@ func set_state(hp_frac: float, band: int, aim_angle: float, time_s: float) -> vo
 	_glow.queue_redraw()
 
 
+## Selects the frame variant of the rig (`vanguard`, `bulwark`, `striker`; M3-27). Called by `BattleView.bind` from
+## `world.config.frame_id`; unknown ids draw VANGUARD.
+func set_frame(id: String) -> void:
+	_rig.set_frame(id)
+	queue_redraw()
+	_body.queue_redraw()
+	_glow.queue_redraw()
+
+
+func frame_id() -> String:
+	return _rig.spec.frame_id
+
+
 ## A hit on Cinder (`CINDER_HIT`): core flash and frame shiver (off under reduce motion).
 func notify_hit() -> void:
 	_rig.notify_hit()
@@ -82,7 +95,7 @@ func emitter_position() -> Vector2:
 
 ## Position of emitter node `k` relative to Cinder's origin (px).
 func emitter_node_position(k: int) -> Vector2:
-	return CinderLayout.node_position(_rig.ring_rot, k, _rig.scale_f)
+	return CinderLayout.node_position(_rig.ring_rot, k, _rig.scale_f, _rig.spec.node_radius_texels)
 
 
 func rig() -> CinderRig:
