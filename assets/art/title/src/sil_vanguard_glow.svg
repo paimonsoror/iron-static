@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420">
+<defs>
+<radialGradient id="g_halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFB000" stop-opacity="0.8"/><stop offset="0.2" stop-color="#FFB000" stop-opacity="0.4"/><stop offset="0.6" stop-color="#FF8A1F" stop-opacity="0.1"/><stop offset="1" stop-color="#FF8A1F" stop-opacity="0"/></radialGradient>
+<radialGradient id="g_core" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.3" stop-color="#FFF1C9"/><stop offset="0.7" stop-color="#FFD27A"/><stop offset="1" stop-color="#FFB000"/></radialGradient>
+<radialGradient id="g_lens" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFF1C9"/><stop offset="0.5" stop-color="#FFB000" stop-opacity="0.8"/><stop offset="1" stop-color="#FFB000" stop-opacity="0"/></radialGradient>
+<radialGradient id="g_back" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF8A1F" stop-opacity="0.3"/><stop offset="1" stop-color="#FF8A1F" stop-opacity="0"/></radialGradient>
+</defs>
+<g id="slot.sil_vanguard_glow">
+<ellipse cx="150" cy="200" rx="138" ry="182" fill="url(#g_back)"/>
+<circle cx="150" cy="183" r="95" fill="url(#g_halo)"/>
+<polygon points="175,183 162.5,204.7 137.5,204.7 125,183 137.5,161.3 162.5,161.3" fill="url(#g_core)"/>
+<polyline points="164.5,204.7 135.5,161.3" fill="none" stroke="#FFB000" stroke-width="1.5" stroke-linejoin="round" stroke-opacity="0.8"/>
+<rect x="122" y="119" width="56" height="5" fill="#FFD27A"/>
+<ellipse cx="150" cy="123" rx="40" ry="10" fill="url(#g_lens)" opacity="0.5"/>
+<circle cx="50.5" cy="92" r="9" fill="url(#g_lens)"/>
+<circle cx="72.5" cy="92" r="9" fill="url(#g_lens)"/>
+<circle cx="90.5" cy="92" r="9" fill="url(#g_lens)"/>
+</g>
+</svg>

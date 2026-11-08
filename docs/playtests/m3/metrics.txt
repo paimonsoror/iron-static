@@ -1,0 +1,8 @@
+high portrait: draws=15 smoke=3 embers_live=50 fps(desktop)=60
+high portrait during a flare: draws=16 smoke=3 embers_live=50 fps(desktop)=1
+high portrait, scanlines off: draws=14 smoke=3 embers_live=9 fps(desktop)=12
+mid portrait: draws=13 smoke=2 embers_live=26 fps(desktop)=59
+low portrait: draws=11 smoke=1 embers_live=0 fps(desktop)=60
+high portrait, reduce motion: draws=14 smoke=3 embers_live=0 fps(desktop)=59
+high wide 1990x1920: draws=15 smoke=3 embers_live=50 fps(desktop)=59
+texture memory of the title sheets (RGBA8): 22.0 MB
