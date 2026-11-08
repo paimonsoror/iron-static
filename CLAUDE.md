@@ -89,3 +89,5 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - Run PS tools as `powershell -NoProfile -File tools\<script>.ps1` from `C:\dev\tower`; never run two deploys at once (adb/log collisions).
 - Gradle: first build ~10 min, then ~4 min per deploy; debug APK ~155 MiB (57 MiB without Gradle). `org.gradle.daemon=false` is required (a daemon hangs the deploy script).
 - Smoke test: `D`/`I AndroidRuntime` lines from `monkey` are normal; only error-level lines fail.
+- Sentry (GDExtension, auto-loads, inert without DSN) prints `ERROR: Sentry: Failed to initialize engine lifecycle tracking - SceneTree is unavailable.` on every `--script` run; benign, allowlist it if a gate ever scans `--script` output.
+- `x.call(...) as SomeClass` trips `unsafe_cast`; assign to a `Variant` var first, then to a typed var.
