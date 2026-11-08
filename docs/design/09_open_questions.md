@@ -80,3 +80,5 @@ Each item lists the question, why it matters, and a recommendation. Priority: **
 6. Q6 - age gate and ads/IAP rules for minors.
 7. Q28 - Operation Pass at Launch or P1 (recommendation: P1).
 8. Q8 - selling `cipher` at all.
+
+V1-GATE (2026-11-08): Q41 resolved - camera 32 m. Q42 resolved - metallic gunmetal/ceramic plates with amber trim (not the recommended tan plates). Q43-Q47 resolved as recommended. New crowd-readability decisions (per-type accent colors, walkers ~20% smaller, density-based glow reduction) are in `10_art_bible.md` (V1-GATE block).

@@ -1,8 +1,20 @@
 # 10 - Art Bible (IRON STATIC visual pass)
 
-Changelog: 2026-11-08 v1.0 - first version. Written after the user watched the M1/M2 emulator build and judged it low quality (flat, too small and thin, bland Cinder/enemies, generic HUD). Decisions of 2026-11-08: hybrid direction (illustrated sprites + vector/neon FX + styled sci-fi HUD), Claude-drawn layered SVG as the art source, timing "now" as milestone V1 between M2 and M3. This chapter is the **authority for everything visual**; `07_ux_ui_art_audio.md` sections 5-6 keep the palette hex values, VFX ids, damage-number rules and accessibility rules, and defer to this chapter where they differ (see 07 changelog). Task file: `docs/tasks/V1.md`. Milestone: `docs/ROADMAP.md` V1.
+Changelog: 2026-11-08 v1.1 - V1-GATE decisions block added (approved with changes). 2026-11-08 v1.0 - first version. Written after the user watched the M1/M2 emulator build and judged it low quality (flat, too small and thin, bland Cinder/enemies, generic HUD). Decisions of 2026-11-08: hybrid direction (illustrated sprites + vector/neon FX + styled sci-fi HUD), Claude-drawn layered SVG as the art source, timing "now" as milestone V1 between M2 and M3. This chapter is the **authority for everything visual**; `07_ux_ui_art_audio.md` sections 5-6 keep the palette hex values, VFX ids, damage-number rules and accessibility rules, and defer to this chapter where they differ (see 07 changelog). Task file: `docs/tasks/V1.md`. Milestone: `docs/ROADMAP.md` V1.
 
 Status of facts: items marked **[V: url]** were verified against Godot or ThorVG documentation on 2026-11-08; **[U]** = unverified, to be settled by the probe/spike named next to it; **[D]** = a design decision of this chapter.
+
+
+> **V1-GATE decisions (2026-11-08, user) - these override the rest of this chapter where they differ; V1-22 folds them into the body.**
+> 1. **Approved for production**: the hybrid direction of the V1-01 style frame (`docs/playtests/v1/`).
+> 2. **Camera 32 m** (33.75 px/m), sprites 1.5x hit radius, stand-off 72 px (Q41 resolved as recommended).
+> 3. **Crowd readability** (all three requested):
+>    - **Distinct accent color per enemy type** (hull stays dark; rim, vents and emissives carry the accent): skitter = red `#FF2D4B`, dart = pink-magenta `#FF4FD8`, walker = orange `#FF7A1A`, lancer = violet `#A35CFF`, boss = deep red `#FF1F3D` with white-hot reactor. Hostile still reads hostile against Cinder's amber/teal; check FC5 and color-blind safety (shape stays the primary cue).
+>    - **Walkers about 20% smaller on screen** (visual scale only; body ~112 px instead of 140; sim radius unchanged).
+>    - **Density-based glow reduction**: enemy glow strength and rim brightness fall automatically as alive enemies rise (e.g. 100% up to 40 enemies, linearly to 45% at 165), so silhouettes separate instead of merging into one red mass.
+> 4. **Cinder skin = metallic** (Q42 changed from the recommendation): the 12 skin wedges become **gunmetal / ceramic armor plates with amber trim and panel detail**, not tan/peach skin tones. The burn-away still chars plates and reveals the frame (band 1 charred plates, band 2 frame ribs, band 3 white-hot frame + cracked core).
+> 5. Defaults kept as recommended (user did not change them): screen shake on Low, never on kills, off with reduce motion (Q43); scanlines 6% (Q44); bold flat glyph icons on chamfered plates (Q45); slow-mo only on boss/Cinder death if view-only (Q46); no WorldEnvironment glow by default - measured -26% fps on the emulator (Q47).
+> 6. Style-frame review fixes to fold into production: full-strength hit flash turns a sprite into a white ghost (cap it per art bible); skitter legs are thin detached strokes (thicken / connect); band-0 core halo washes the wedges (reduce); beams need a proper `beam_strip` cell (stepped glow today); the floor's 10 m seam ring doubles the shader grid ring.
 
 ---
 

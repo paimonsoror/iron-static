@@ -1,0 +1,315 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="192" viewBox="0 0 768 192">
+<defs>
+  <radialGradient id="g_hull" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#2A0A10"/><stop offset="0.6" stop-color="#1B080D"/><stop offset="1" stop-color="#12060A"/></radialGradient>
+  <radialGradient id="g_plate" cx="0.5" cy="0.45" r="0.65"><stop offset="0" stop-color="#4A1220"/><stop offset="0.7" stop-color="#2A0A10"/><stop offset="1" stop-color="#1B080D"/></radialGradient>
+  <radialGradient id="g_plate_hi" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stop-color="#7A1E30"/><stop offset="0.6" stop-color="#4A1220"/><stop offset="1" stop-color="#2A0A10"/></radialGradient>
+  <linearGradient id="g_dark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A0A10"/><stop offset="1" stop-color="#12060A"/></linearGradient>
+  <radialGradient id="g_shadow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#12060A" stop-opacity="0.85"/><stop offset="0.6" stop-color="#12060A" stop-opacity="0.5"/><stop offset="1" stop-color="#12060A" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo_red" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF6B7E" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF2D4B" stop-opacity="0.6"/><stop offset="0.65" stop-color="#FF2D4B" stop-opacity="0.2"/><stop offset="1" stop-color="#FF2D4B" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo_mag" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF4FD8" stop-opacity="0.6"/><stop offset="0.65" stop-color="#FF4FD8" stop-opacity="0.2"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo_amb" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFD27A" stop-opacity="0.7"/><stop offset="0.4" stop-color="#FFB000" stop-opacity="0.4"/><stop offset="1" stop-color="#FFB000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_lens" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFE0F8"/><stop offset="0.35" stop-color="#FF9AE8"/><stop offset="0.7" stop-color="#FF4FD8"/><stop offset="1" stop-color="#8A1F78"/></radialGradient>
+  <radialGradient id="g_vent" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFC2CC"/><stop offset="0.5" stop-color="#FF6B7E"/><stop offset="1" stop-color="#FF2D4B"/></radialGradient>
+  <linearGradient id="g_rim" gradientUnits="userSpaceOnUse" x1="70" y1="0" x2="168" y2="0"><stop offset="0" stop-color="#FFB000" stop-opacity="0"/><stop offset="0.55" stop-color="#FFB000" stop-opacity="0.55"/><stop offset="1" stop-color="#FFD27A"/></linearGradient>
+</defs>
+<g id="slot.frame_0" transform="translate(0,0)">
+ <g id="layer.shadow.frame_0">
+  <ellipse cx="96" cy="98" rx="80" ry="62" fill="url(#g_shadow)" opacity="0.70"/>
+ </g>
+ <g id="layer.base.frame_0">
+  <polyline points="116,70 146,30 172,55" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="116,70 146,30 172,55" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,70 146,30 172,55" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="172" cy="55" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="88,54 80,22 64,14" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="88,54 80,22 64,14" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,54 80,22 64,14" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="64" cy="14" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="56,50 30,28 22,59" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="56,50 30,28 22,59" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,50 30,28 22,59" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="22" cy="59" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="116,122 146,160 172,144" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="116,122 146,160 172,144" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,122 146,160 172,144" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="172" cy="144" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="88,138 80,172 64,171" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="88,138 80,172 64,171" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,138 80,172 64,171" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="64" cy="171" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="56,142 30,162 22,140" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="56,142 30,162 22,140" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,142 30,162 22,140" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="22" cy="140" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="url(#g_hull)"/>
+ </g>
+ <g id="layer.light.frame_0">
+  <polygon points="142.7,96 118.2,80.9 92.3,67.2 66.4,58.6 50.6,61.4 46.2,71.5 47.7,85.9 49.1,96 47.7,106.1 46.2,120.5 50.6,130.6 66.4,133.4 92.3,124.8 118.2,111.1" fill="url(#g_plate)"/>
+  <polygon points="122,96 108.4,87.6 94,80 79.6,75.2 70.8,76.8 68.4,82.4 69.2,90.4 70,96 69.2,101.6 68.4,109.6 70.8,115.2 79.6,116.8 94,112 108.4,104.4" fill="url(#g_plate_hi)" opacity="0.95"/>
+  <polygon points="150,93 128,78 98,64 108,58 134,70 158,92" fill="#4A1220" opacity="0.85"/>
+  <polygon points="150,99 128,114 98,128 108,134 134,122 158,100" fill="#4A1220" opacity="0.85"/>
+ </g>
+ <g id="layer.highlight.frame_0">
+  <polyline points="154,94 130,79 100,64" fill="none" stroke="#7A1E30" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polyline points="154,98 130,113 100,128" fill="none" stroke="#7A1E30" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
+  <polyline points="104,84 128,94" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.70"/>
+  <polyline points="66,80 84,84" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
+  <polyline points="70,112 86,108" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.45"/>
+  <circle cx="94" cy="62" r="2.6" fill="#7A1E30"/>
+  <circle cx="94" cy="130" r="2.6" fill="#7A1E30"/>
+  <circle cx="62" cy="52" r="2.6" fill="#7A1E30"/>
+  <circle cx="62" cy="140" r="2.6" fill="#7A1E30"/>
+  <circle cx="120" cy="80" r="2.6" fill="#7A1E30"/>
+  <circle cx="120" cy="112" r="2.6" fill="#7A1E30"/>
+ </g>
+ <g id="layer.edge.frame_0">
+  <polyline points="94,60 94,132" fill="none" stroke="#12060A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="62,47 62,145" fill="none" stroke="#12060A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="150,96 70,96" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="104,76 132,92" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polyline points="104,116 132,100" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="#12060A" stroke-width="13" stroke-linejoin="round" opacity="0.55"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="#FF2D4B" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="url(#g_rim)" stroke-width="5" stroke-linejoin="round"/>
+  <polyline points="116,70 146,30 172,55" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,54 80,22 64,14" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,50 30,28 22,59" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,122 146,160 172,144" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,138 80,172 64,171" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,142 30,162 22,140" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+ </g>
+ <g id="layer.emissive.frame_0">
+  <rect x="55" y="82" width="16" height="28" fill="#12060A" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="miter"/>
+  <rect x="58" y="84" width="10" height="24" fill="#FF6B7E"/>
+  <rect x="61" y="89.4" width="4" height="13.2" fill="#FFC2CC"/>
+  <polygon points="84,70 100,74 98,78 83,74" fill="#FF6B7E"/>
+  <polygon points="124,89 148,91 148,94 124,92" fill="#FF2D4B"/>
+  <polygon points="134,90.5 146,91.5 146,93 134,92" fill="#FFC2CC" opacity="0.90"/>
+ </g>
+</g>
+<g id="slot.frame_1" transform="translate(192,0)">
+ <g id="layer.shadow.frame_1">
+  <ellipse cx="96" cy="98" rx="80" ry="62" fill="url(#g_shadow)" opacity="0.70"/>
+ </g>
+ <g id="layer.base.frame_1">
+  <polyline points="116,70 149,32 177,48" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="116,70 149,32 177,48" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,70 149,32 177,48" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="177" cy="48" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="88,54 77,22 59,14" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="88,54 77,22 59,14" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,54 77,22 59,14" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="59" cy="14" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="56,50 33,30 27,52" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="56,50 33,30 27,52" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,50 33,30 27,52" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="27" cy="52" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="116,122 143,160 167,144" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="116,122 143,160 167,144" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,122 143,160 167,144" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="167" cy="144" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="88,138 83,170 69,178" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="88,138 83,170 69,178" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,138 83,170 69,178" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="69" cy="178" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="56,142 27,162 17,140" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="56,142 27,162 17,140" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,142 27,162 17,140" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="17" cy="140" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="url(#g_hull)"/>
+ </g>
+ <g id="layer.light.frame_1">
+  <polygon points="142.7,96 118.2,80.9 92.3,67.2 66.4,58.6 50.6,61.4 46.2,71.5 47.7,85.9 49.1,96 47.7,106.1 46.2,120.5 50.6,130.6 66.4,133.4 92.3,124.8 118.2,111.1" fill="url(#g_plate)"/>
+  <polygon points="122,96 108.4,87.6 94,80 79.6,75.2 70.8,76.8 68.4,82.4 69.2,90.4 70,96 69.2,101.6 68.4,109.6 70.8,115.2 79.6,116.8 94,112 108.4,104.4" fill="url(#g_plate_hi)" opacity="0.95"/>
+  <polygon points="150,93 128,78 98,64 108,58 134,70 158,92" fill="#4A1220" opacity="0.85"/>
+  <polygon points="150,99 128,114 98,128 108,134 134,122 158,100" fill="#4A1220" opacity="0.85"/>
+ </g>
+ <g id="layer.highlight.frame_1">
+  <polyline points="154,94 130,79 100,64" fill="none" stroke="#7A1E30" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polyline points="154,98 130,113 100,128" fill="none" stroke="#7A1E30" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
+  <polyline points="104,84 128,94" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.70"/>
+  <polyline points="66,80 84,84" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
+  <polyline points="70,112 86,108" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.45"/>
+  <circle cx="94" cy="62" r="2.6" fill="#7A1E30"/>
+  <circle cx="94" cy="130" r="2.6" fill="#7A1E30"/>
+  <circle cx="62" cy="52" r="2.6" fill="#7A1E30"/>
+  <circle cx="62" cy="140" r="2.6" fill="#7A1E30"/>
+  <circle cx="120" cy="80" r="2.6" fill="#7A1E30"/>
+  <circle cx="120" cy="112" r="2.6" fill="#7A1E30"/>
+ </g>
+ <g id="layer.edge.frame_1">
+  <polyline points="94,60 94,132" fill="none" stroke="#12060A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="62,47 62,145" fill="none" stroke="#12060A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="150,96 70,96" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="104,76 132,92" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polyline points="104,116 132,100" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="#12060A" stroke-width="13" stroke-linejoin="round" opacity="0.55"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="#FF2D4B" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="url(#g_rim)" stroke-width="5" stroke-linejoin="round"/>
+  <polyline points="116,70 149,32 177,48" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,54 77,22 59,14" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,50 33,30 27,52" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,122 143,160 167,144" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,138 83,170 69,178" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,142 27,162 17,140" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+ </g>
+ <g id="layer.emissive.frame_1">
+  <rect x="55" y="82" width="16" height="28" fill="#12060A" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="miter"/>
+  <rect x="58" y="88" width="10" height="16" fill="#FF6B7E"/>
+  <rect x="61" y="91.6" width="4" height="8.8" fill="#FFC2CC"/>
+  <polygon points="84,70 100,74 98,78 83,74" fill="#FF6B7E"/>
+  <polygon points="124,89 148,91 148,94 124,92" fill="#FF2D4B"/>
+  <polygon points="134,90.5 146,91.5 146,93 134,92" fill="#FFC2CC" opacity="0.90"/>
+ </g>
+</g>
+<g id="slot.frame_2" transform="translate(384,0)">
+ <g id="layer.shadow.frame_2">
+  <ellipse cx="96" cy="98" rx="80" ry="62" fill="url(#g_shadow)" opacity="0.70"/>
+ </g>
+ <g id="layer.base.frame_2">
+  <polyline points="116,70 146,32 172,48" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="116,70 146,32 172,48" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,70 146,32 172,48" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="172" cy="48" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="88,54 80,20 64,21" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="88,54 80,20 64,21" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,54 80,20 64,21" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="64" cy="21" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="56,50 30,30 22,52" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="56,50 30,30 22,52" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,50 30,30 22,52" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="22" cy="52" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="116,122 146,162 172,137" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="116,122 146,162 172,137" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,122 146,162 172,137" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="172" cy="137" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="88,138 80,170 64,178" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="88,138 80,170 64,178" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,138 80,170 64,178" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="64" cy="178" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="56,142 30,164 22,133" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="56,142 30,164 22,133" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,142 30,164 22,133" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="22" cy="133" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="url(#g_hull)"/>
+ </g>
+ <g id="layer.light.frame_2">
+  <polygon points="142.7,96 118.2,80.9 92.3,67.2 66.4,58.6 50.6,61.4 46.2,71.5 47.7,85.9 49.1,96 47.7,106.1 46.2,120.5 50.6,130.6 66.4,133.4 92.3,124.8 118.2,111.1" fill="url(#g_plate)"/>
+  <polygon points="122,96 108.4,87.6 94,80 79.6,75.2 70.8,76.8 68.4,82.4 69.2,90.4 70,96 69.2,101.6 68.4,109.6 70.8,115.2 79.6,116.8 94,112 108.4,104.4" fill="url(#g_plate_hi)" opacity="0.95"/>
+  <polygon points="150,93 128,78 98,64 108,58 134,70 158,92" fill="#4A1220" opacity="0.85"/>
+  <polygon points="150,99 128,114 98,128 108,134 134,122 158,100" fill="#4A1220" opacity="0.85"/>
+ </g>
+ <g id="layer.highlight.frame_2">
+  <polyline points="154,94 130,79 100,64" fill="none" stroke="#7A1E30" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polyline points="154,98 130,113 100,128" fill="none" stroke="#7A1E30" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
+  <polyline points="104,84 128,94" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.70"/>
+  <polyline points="66,80 84,84" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
+  <polyline points="70,112 86,108" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.45"/>
+  <circle cx="94" cy="62" r="2.6" fill="#7A1E30"/>
+  <circle cx="94" cy="130" r="2.6" fill="#7A1E30"/>
+  <circle cx="62" cy="52" r="2.6" fill="#7A1E30"/>
+  <circle cx="62" cy="140" r="2.6" fill="#7A1E30"/>
+  <circle cx="120" cy="80" r="2.6" fill="#7A1E30"/>
+  <circle cx="120" cy="112" r="2.6" fill="#7A1E30"/>
+ </g>
+ <g id="layer.edge.frame_2">
+  <polyline points="94,60 94,132" fill="none" stroke="#12060A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="62,47 62,145" fill="none" stroke="#12060A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="150,96 70,96" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="104,76 132,92" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polyline points="104,116 132,100" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="#12060A" stroke-width="13" stroke-linejoin="round" opacity="0.55"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="#FF2D4B" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="url(#g_rim)" stroke-width="5" stroke-linejoin="round"/>
+  <polyline points="116,70 146,32 172,48" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,54 80,20 64,21" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,50 30,30 22,52" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,122 146,162 172,137" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,138 80,170 64,178" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,142 30,164 22,133" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+ </g>
+ <g id="layer.emissive.frame_2">
+  <rect x="55" y="82" width="16" height="28" fill="#12060A" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="miter"/>
+  <rect x="58" y="82" width="10" height="28" fill="#FF6B7E"/>
+  <rect x="61" y="88.3" width="4" height="15.4" fill="#FFC2CC"/>
+  <polygon points="84,70 100,74 98,78 83,74" fill="#FF6B7E"/>
+  <polygon points="124,89 148,91 148,94 124,92" fill="#FF2D4B"/>
+  <polygon points="134,90.5 146,91.5 146,93 134,92" fill="#FFC2CC" opacity="0.90"/>
+ </g>
+</g>
+<g id="slot.frame_3" transform="translate(576,0)">
+ <g id="layer.shadow.frame_3">
+  <ellipse cx="96" cy="98" rx="80" ry="62" fill="url(#g_shadow)" opacity="0.70"/>
+ </g>
+ <g id="layer.base.frame_3">
+  <polyline points="116,70 143,32 167,48" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="116,70 143,32 167,48" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,70 143,32 167,48" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="167" cy="48" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="88,54 83,22 69,14" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="88,54 83,22 69,14" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,54 83,22 69,14" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="69" cy="14" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="56,50 27,30 17,52" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="56,50 27,30 17,52" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,50 27,30 17,52" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="17" cy="52" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="116,122 149,160 177,144" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="116,122 149,160 177,144" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,122 149,160 177,144" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="177" cy="144" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="88,138 77,170 59,178" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="88,138 77,170 59,178" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,138 77,170 59,178" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="59" cy="178" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polyline points="56,142 33,162 27,140" fill="none" stroke="#FF2D4B" stroke-width="12.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.95"/>
+  <polyline points="56,142 33,162 27,140" fill="none" stroke="#12060A" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,142 33,162 27,140" fill="none" stroke="#4A1220" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <circle cx="27" cy="140" r="5.5" fill="#2A0A10" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="url(#g_hull)"/>
+ </g>
+ <g id="layer.light.frame_3">
+  <polygon points="142.7,96 118.2,80.9 92.3,67.2 66.4,58.6 50.6,61.4 46.2,71.5 47.7,85.9 49.1,96 47.7,106.1 46.2,120.5 50.6,130.6 66.4,133.4 92.3,124.8 118.2,111.1" fill="url(#g_plate)"/>
+  <polygon points="122,96 108.4,87.6 94,80 79.6,75.2 70.8,76.8 68.4,82.4 69.2,90.4 70,96 69.2,101.6 68.4,109.6 70.8,115.2 79.6,116.8 94,112 108.4,104.4" fill="url(#g_plate_hi)" opacity="0.95"/>
+  <polygon points="150,93 128,78 98,64 108,58 134,70 158,92" fill="#4A1220" opacity="0.85"/>
+  <polygon points="150,99 128,114 98,128 108,134 134,122 158,100" fill="#4A1220" opacity="0.85"/>
+ </g>
+ <g id="layer.highlight.frame_3">
+  <polyline points="154,94 130,79 100,64" fill="none" stroke="#7A1E30" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polyline points="154,98 130,113 100,128" fill="none" stroke="#7A1E30" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
+  <polyline points="104,84 128,94" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.70"/>
+  <polyline points="66,80 84,84" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.55"/>
+  <polyline points="70,112 86,108" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.45"/>
+  <circle cx="94" cy="62" r="2.6" fill="#7A1E30"/>
+  <circle cx="94" cy="130" r="2.6" fill="#7A1E30"/>
+  <circle cx="62" cy="52" r="2.6" fill="#7A1E30"/>
+  <circle cx="62" cy="140" r="2.6" fill="#7A1E30"/>
+  <circle cx="120" cy="80" r="2.6" fill="#7A1E30"/>
+  <circle cx="120" cy="112" r="2.6" fill="#7A1E30"/>
+ </g>
+ <g id="layer.edge.frame_3">
+  <polyline points="94,60 94,132" fill="none" stroke="#12060A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="62,47 62,145" fill="none" stroke="#12060A" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="150,96 70,96" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="104,76 132,92" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polyline points="104,116 132,100" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity="0.90"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="#12060A" stroke-width="13" stroke-linejoin="round" opacity="0.55"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="#FF2D4B" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="164,96 130,75 94,56 58,44 36,48 30,62 32,82 34,96 32,110 30,130 36,144 58,148 94,136 130,117" fill="none" stroke="url(#g_rim)" stroke-width="5" stroke-linejoin="round"/>
+  <polyline points="116,70 143,32 167,48" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,54 83,22 69,14" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,50 27,30 17,52" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="116,122 149,160 177,144" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88,138 77,170 59,178" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="56,142 33,162 27,140" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+ </g>
+ <g id="layer.emissive.frame_3">
+  <rect x="55" y="82" width="16" height="28" fill="#12060A" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="miter"/>
+  <rect x="58" y="86" width="10" height="20" fill="#FF6B7E"/>
+  <rect x="61" y="90.5" width="4" height="11" fill="#FFC2CC"/>
+  <polygon points="84,70 100,74 98,78 83,74" fill="#FF6B7E"/>
+  <polygon points="124,89 148,91 148,94 124,92" fill="#FF2D4B"/>
+  <polygon points="134,90.5 146,91.5 146,93 134,92" fill="#FFC2CC" opacity="0.90"/>
+ </g>
+</g>
+</svg>

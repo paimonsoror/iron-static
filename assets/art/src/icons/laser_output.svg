@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="g_plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></linearGradient>
+</defs>
+<g id="slot.laser_output">
+<g id="layer.plate"><polygon points="0.5,24.7 24.7,0.5 127.5,0.5 127.5,103.3 103.3,127.5 0.5,127.5" fill="url(#g_plate)"/><polygon points="9,36.7 36.7,9 119,9 119,91.3 91.3,119 9,119" fill="none" stroke="#FFB000" stroke-width="1.5" stroke-linejoin="round" stroke-opacity="0.35"/><polygon points="2,26.8 26.8,2 126,2 126,101.2 101.2,126 2,126" fill="none" stroke="#FFB000" stroke-width="4" stroke-linejoin="round"/><polyline points="94,2 126,2 126,34" fill="none" stroke="#FFD27A" stroke-width="4"/><polyline points="2,94 2,126 34,126" fill="none" stroke="#FFD27A" stroke-width="4"/></g>
+<g id="layer.glyph">
+<polygon points="12,52 50,54 50,74 12,76" fill="#FFB000" fill-opacity="0.28"/><polygon points="80,60 118,34 118,94 80,68" fill="#FFB000" fill-opacity="0.34"/><path d="M66,18 C96,36 96,92 66,110 C36,92 36,36 66,18 Z" fill="#8A5F00"/><path d="M64,27.2 C88,41.6 88,86.4 64,100.8 C40,86.4 40,41.6 64,27.2 Z" fill="#FFB000"/><path d="M64,32 C46,46 46,82 64,96 C53,83 53,45 64,32 Z" fill="#FFE3A3"/><rect x="12" y="57" width="42" height="14" fill="#FFF1C9"/><rect x="12" y="57" width="42" height="4" fill="#FFFFFF"/><polygon points="76,56 118,44 118,84 76,72" fill="#FFB000"/><polygon points="76,59 118,54 118,74 76,69" fill="#FFF1C9"/><rect x="76" y="62" width="42" height="4" fill="#FFFFFF"/><polygon points="98,64 106,50 114,64 106,78" fill="#FFFFFF"/>
+</g>
+</g>
+</svg>

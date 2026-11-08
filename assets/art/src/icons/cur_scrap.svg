@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="g_plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></linearGradient>
+</defs>
+<g id="slot.cur_scrap">
+<g id="layer.plate"><polygon points="0.5,24.7 24.7,0.5 127.5,0.5 127.5,103.3 103.3,127.5 0.5,127.5" fill="url(#g_plate)"/><polygon points="9,36.7 36.7,9 119,9 119,91.3 91.3,119 9,119" fill="none" stroke="#D6B36A" stroke-width="1.5" stroke-linejoin="round" stroke-opacity="0.35"/><polygon points="2,26.8 26.8,2 126,2 126,101.2 101.2,126 2,126" fill="none" stroke="#D6B36A" stroke-width="4" stroke-linejoin="round"/><polyline points="94,2 126,2 126,34" fill="none" stroke="#F0D9A0" stroke-width="4"/><polyline points="2,94 2,126 34,126" fill="none" stroke="#F0D9A0" stroke-width="4"/></g>
+<g id="layer.glyph">
+<polygon points="28.8,88 64,105.6 64,115.3 28.8,97.7" fill="#7A6232"/><polygon points="64,105.6 99.2,88 99.2,97.7 64,115.3" fill="#54421F"/><polygon points="64,70.4 99.2,88 64,105.6 28.8,88" fill="#B3955A"/><polyline points="28.8,88 64,70.4 99.2,88" fill="none" stroke="#F0D9A0" stroke-width="2.5" stroke-linejoin="round" stroke-opacity="0.9"/><polygon points="28.8,71 64,88.6 64,98.3 28.8,80.7" fill="#8C7240"/><polygon points="64,88.6 99.2,71 99.2,80.7 64,98.3" fill="#665028"/><polygon points="64,53.4 99.2,71 64,88.6 28.8,71" fill="#C8A662"/><polyline points="28.8,71 64,53.4 99.2,71" fill="none" stroke="#F0D9A0" stroke-width="2.5" stroke-linejoin="round" stroke-opacity="0.9"/><polygon points="28.8,54 64,71.6 64,81.3 28.8,63.7" fill="#B3955A"/><polygon points="64,71.6 99.2,54 99.2,63.7 64,81.3" fill="#8C7240"/><polygon points="64,36.4 64,71.6 28.8,54" fill="#E2C37E"/><polygon points="64,36.4 99.2,46.1 65.8,68.1 64,71.6" fill="#E9CB88"/><polygon points="64,36.4 99.2,46.1 69.3,38.2" fill="#F6E6BC"/><line x1="64" y1="36.4" x2="64" y2="71.6" stroke="#8C7240" stroke-width="2"/><polyline points="28.8,54 64,36.4" fill="none" stroke="#F6E6BC" stroke-width="2.5" stroke-linejoin="round"/><circle cx="46" cy="98" r="3" fill="#F0D9A0"/><circle cx="82" cy="100" r="2.5" fill="#F0D9A0"/>
+</g>
+</g>
+</svg>

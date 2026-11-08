@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="864" height="224" viewBox="0 0 864 224">
+<defs>
+  <radialGradient id="g_hull" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#2A0A10"/><stop offset="0.6" stop-color="#1B080D"/><stop offset="1" stop-color="#12060A"/></radialGradient>
+  <radialGradient id="g_plate" cx="0.5" cy="0.45" r="0.65"><stop offset="0" stop-color="#4A1220"/><stop offset="0.7" stop-color="#2A0A10"/><stop offset="1" stop-color="#1B080D"/></radialGradient>
+  <radialGradient id="g_plate_hi" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stop-color="#7A1E30"/><stop offset="0.6" stop-color="#4A1220"/><stop offset="1" stop-color="#2A0A10"/></radialGradient>
+  <linearGradient id="g_dark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A0A10"/><stop offset="1" stop-color="#12060A"/></linearGradient>
+  <radialGradient id="g_shadow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#12060A" stop-opacity="0.85"/><stop offset="0.6" stop-color="#12060A" stop-opacity="0.5"/><stop offset="1" stop-color="#12060A" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo_red" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF6B7E" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF2D4B" stop-opacity="0.6"/><stop offset="0.65" stop-color="#FF2D4B" stop-opacity="0.2"/><stop offset="1" stop-color="#FF2D4B" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo_mag" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF4FD8" stop-opacity="0.6"/><stop offset="0.65" stop-color="#FF4FD8" stop-opacity="0.2"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo_amb" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFD27A" stop-opacity="0.7"/><stop offset="0.4" stop-color="#FFB000" stop-opacity="0.4"/><stop offset="1" stop-color="#FFB000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_lens" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFE0F8"/><stop offset="0.35" stop-color="#FF9AE8"/><stop offset="0.7" stop-color="#FF4FD8"/><stop offset="1" stop-color="#8A1F78"/></radialGradient>
+  <radialGradient id="g_vent" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFC2CC"/><stop offset="0.5" stop-color="#FF6B7E"/><stop offset="1" stop-color="#FF2D4B"/></radialGradient>
+  <linearGradient id="g_rim" gradientUnits="userSpaceOnUse" x1="90" y1="0" x2="202" y2="0"><stop offset="0" stop-color="#FFB000" stop-opacity="0"/><stop offset="0.5" stop-color="#FFB000" stop-opacity="0.45"/><stop offset="1" stop-color="#FFD27A"/></linearGradient>
+  <linearGradient id="g_barrel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A1E30"/><stop offset="0.35" stop-color="#4A1220"/><stop offset="0.7" stop-color="#2A0A10"/><stop offset="1" stop-color="#12060A"/></linearGradient>
+  <linearGradient id="g_flash" gradientUnits="userSpaceOnUse" x1="238" y1="0" x2="266" y2="0"><stop offset="0" stop-color="#FFE0F8" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF4FD8" stop-opacity="0.8"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></linearGradient>
+</defs>
+<g id="slot.frame_0" transform="translate(0,0)">
+ <g id="layer.shadow.frame_0">
+  <ellipse cx="120" cy="114" rx="108" ry="80" fill="url(#g_shadow)" opacity="0.60"/>
+ </g>
+ <g id="layer.base.frame_0">
+  <polygon points="88,66 62,52 14,38 44,68" fill="url(#g_hull)"/>
+  <polygon points="88,158 62,172 14,186 44,156" fill="url(#g_hull)"/>
+  <polygon points="106,52 114,36 140,40 144,66" fill="url(#g_hull)"/>
+  <polyline points="170,99 214,99" fill="none" stroke="#2A0A10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="170,125 214,125" fill="none" stroke="#2A0A10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="172" y="100" width="46" height="24" fill="url(#g_barrel)"/>
+  <polygon points="214,92 232,95 232,129 214,132" fill="url(#g_dark)"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="url(#g_hull)"/>
+ </g>
+ <g id="layer.light.frame_0">
+  <polygon points="57.3,105.9 74,84.6 101.4,63.4 130.2,78.6 153,98.3 162.2,102.9 162.2,121.1 153,125.7 130.2,145.4 101.4,160.6 74,139.4 57.3,118.1" fill="url(#g_plate)"/>
+  <polygon points="85.2,108.6 94.5,96.9 109.6,85.1 125.6,93.5 138.2,104.4 143.2,107 143.2,117 138.2,119.6 125.6,130.5 109.6,138.9 94.5,127.1 85.2,115.4" fill="url(#g_plate_hi)" opacity="0.95"/>
+  <polygon points="118,44 124,40 136,44 138,60 122,56" fill="#4A1220" opacity="0.90"/>
+ </g>
+ <g id="layer.highlight.frame_0">
+  <polyline points="60,82 98,54 134,72 166,98" fill="none" stroke="#7A1E30" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
+  <polyline points="176,103 212,103" fill="none" stroke="#7A1E30" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="118,58 138,62" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.70"/>
+  <circle cx="78" cy="72" r="2.6" fill="#7A1E30"/>
+  <circle cx="78" cy="152" r="2.6" fill="#7A1E30"/>
+  <circle cx="118" cy="62" r="2.6" fill="#7A1E30"/>
+  <circle cx="118" cy="162" r="2.6" fill="#7A1E30"/>
+  <circle cx="58" cy="104" r="2.6" fill="#7A1E30"/>
+  <circle cx="58" cy="120" r="2.6" fill="#7A1E30"/>
+ </g>
+ <g id="layer.edge.frame_0">
+  <polyline points="98,54 98,170" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="136,70 136,154" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="70,112 168,112" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="186,101 186,123" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="198,101 198,123" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="208,101 208,123" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polygon points="88,66 62,52 14,38 44,68" fill="none" stroke="#FF2D4B" stroke-width="5" stroke-linejoin="round"/>
+  <polygon points="88,158 62,172 14,186 44,156" fill="none" stroke="#FF2D4B" stroke-width="5" stroke-linejoin="round"/>
+  <polygon points="106,52 114,36 140,40 144,66" fill="none" stroke="#FF2D4B" stroke-width="5" stroke-linejoin="round"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="none" stroke="#12060A" stroke-width="13" stroke-linejoin="round" opacity="0.50"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="none" stroke="#FF2D4B" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="none" stroke="url(#g_rim)" stroke-width="5" stroke-linejoin="round"/>
+  <rect x="172" y="100" width="46" height="24" fill="none" stroke="#FF2D4B" stroke-width="3" stroke-linejoin="miter"/>
+  <polygon points="214,92 232,95 232,129 214,132" fill="none" stroke="#FF2D4B" stroke-width="3.5" stroke-linejoin="round"/>
+  <polyline points="214,94 232,97" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+ </g>
+ <g id="layer.emissive.frame_0">
+  <polygon points="70,92 88,84 90,88 72,96" fill="#FF6B7E"/>
+  <polygon points="70,132 88,140 90,136 72,128" fill="#FF6B7E"/>
+  <rect x="41" y="106" width="6" height="12" fill="#FF6B7E"/>
+  <polygon points="130,90 146,98 144,101 129,94" fill="#FF2D4B"/>
+  <circle cx="233" cy="112" r="12.5" fill="#12060A" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="233" cy="112" r="9" fill="url(#g_lens)"/>
+ </g>
+</g>
+<g id="slot.frame_1" transform="translate(288,0)">
+ <g id="layer.shadow.frame_1">
+  <ellipse cx="120" cy="114" rx="108" ry="80" fill="url(#g_shadow)" opacity="0.60"/>
+ </g>
+ <g id="layer.base.frame_1">
+  <polygon points="88,66 62,52 14,38 44,68" fill="url(#g_hull)"/>
+  <polygon points="88,158 62,172 14,186 44,156" fill="url(#g_hull)"/>
+  <polygon points="106,52 114,36 140,40 144,66" fill="url(#g_hull)"/>
+  <polyline points="167,99 211,99" fill="none" stroke="#2A0A10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="167,125 211,125" fill="none" stroke="#2A0A10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="169" y="100" width="46" height="24" fill="url(#g_barrel)"/>
+  <polygon points="211,92 229,95 229,129 211,132" fill="url(#g_dark)"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="url(#g_hull)"/>
+ </g>
+ <g id="layer.light.frame_1">
+  <polygon points="57.3,105.9 74,84.6 101.4,63.4 130.2,78.6 153,98.3 162.2,102.9 162.2,121.1 153,125.7 130.2,145.4 101.4,160.6 74,139.4 57.3,118.1" fill="url(#g_plate)"/>
+  <polygon points="85.2,108.6 94.5,96.9 109.6,85.1 125.6,93.5 138.2,104.4 143.2,107 143.2,117 138.2,119.6 125.6,130.5 109.6,138.9 94.5,127.1 85.2,115.4" fill="url(#g_plate_hi)" opacity="0.95"/>
+  <polygon points="118,44 124,40 136,44 138,60 122,56" fill="#4A1220" opacity="0.90"/>
+ </g>
+ <g id="layer.highlight.frame_1">
+  <polyline points="60,82 98,54 134,72 166,98" fill="none" stroke="#7A1E30" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
+  <polyline points="173,103 209,103" fill="none" stroke="#7A1E30" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="118,58 138,62" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.70"/>
+  <circle cx="78" cy="72" r="2.6" fill="#7A1E30"/>
+  <circle cx="78" cy="152" r="2.6" fill="#7A1E30"/>
+  <circle cx="118" cy="62" r="2.6" fill="#7A1E30"/>
+  <circle cx="118" cy="162" r="2.6" fill="#7A1E30"/>
+  <circle cx="58" cy="104" r="2.6" fill="#7A1E30"/>
+  <circle cx="58" cy="120" r="2.6" fill="#7A1E30"/>
+ </g>
+ <g id="layer.edge.frame_1">
+  <polyline points="98,54 98,170" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="136,70 136,154" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="70,112 168,112" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="183,101 183,123" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="195,101 195,123" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="205,101 205,123" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polygon points="88,66 62,52 14,38 44,68" fill="none" stroke="#FF2D4B" stroke-width="5" stroke-linejoin="round"/>
+  <polygon points="88,158 62,172 14,186 44,156" fill="none" stroke="#FF2D4B" stroke-width="5" stroke-linejoin="round"/>
+  <polygon points="106,52 114,36 140,40 144,66" fill="none" stroke="#FF2D4B" stroke-width="5" stroke-linejoin="round"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="none" stroke="#12060A" stroke-width="13" stroke-linejoin="round" opacity="0.50"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="none" stroke="#FF2D4B" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="none" stroke="url(#g_rim)" stroke-width="5" stroke-linejoin="round"/>
+  <rect x="169" y="100" width="46" height="24" fill="none" stroke="#FF2D4B" stroke-width="3" stroke-linejoin="miter"/>
+  <polygon points="211,92 229,95 229,129 211,132" fill="none" stroke="#FF2D4B" stroke-width="3.5" stroke-linejoin="round"/>
+  <polyline points="211,94 229,97" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+ </g>
+ <g id="layer.emissive.frame_1">
+  <polyline points="177,102 177,122" fill="none" stroke="#FF4FD8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="189,102 189,122" fill="none" stroke="#FF4FD8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="200,102 200,122" fill="none" stroke="#FF4FD8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="209,102 209,122" fill="none" stroke="#FF4FD8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polygon points="70,92 88,84 90,88 72,96" fill="#FF6B7E"/>
+  <polygon points="70,132 88,140 90,136 72,128" fill="#FF6B7E"/>
+  <rect x="41" y="106" width="6" height="12" fill="#FF6B7E"/>
+  <polygon points="130,90 146,98 144,101 129,94" fill="#FF2D4B"/>
+  <circle cx="230" cy="112" r="15" fill="#12060A" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="230" cy="112" r="11.5" fill="url(#g_lens)"/>
+ </g>
+</g>
+<g id="slot.frame_2" transform="translate(576,0)">
+ <g id="layer.shadow.frame_2">
+  <ellipse cx="120" cy="114" rx="108" ry="80" fill="url(#g_shadow)" opacity="0.60"/>
+ </g>
+ <g id="layer.base.frame_2">
+  <polygon points="88,66 62,52 14,38 44,68" fill="url(#g_hull)"/>
+  <polygon points="88,158 62,172 14,186 44,156" fill="url(#g_hull)"/>
+  <polygon points="106,52 114,36 140,40 144,66" fill="url(#g_hull)"/>
+  <polyline points="161,99 205,99" fill="none" stroke="#2A0A10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="161,125 205,125" fill="none" stroke="#2A0A10" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="163" y="100" width="46" height="24" fill="url(#g_barrel)"/>
+  <polygon points="205,92 223,95 223,129 205,132" fill="url(#g_dark)"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="url(#g_hull)"/>
+ </g>
+ <g id="layer.light.frame_2">
+  <polygon points="57.3,105.9 74,84.6 101.4,63.4 130.2,78.6 153,98.3 162.2,102.9 162.2,121.1 153,125.7 130.2,145.4 101.4,160.6 74,139.4 57.3,118.1" fill="url(#g_plate)"/>
+  <polygon points="85.2,108.6 94.5,96.9 109.6,85.1 125.6,93.5 138.2,104.4 143.2,107 143.2,117 138.2,119.6 125.6,130.5 109.6,138.9 94.5,127.1 85.2,115.4" fill="url(#g_plate_hi)" opacity="0.95"/>
+  <polygon points="118,44 124,40 136,44 138,60 122,56" fill="#4A1220" opacity="0.90"/>
+ </g>
+ <g id="layer.highlight.frame_2">
+  <polyline points="60,82 98,54 134,72 166,98" fill="none" stroke="#7A1E30" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
+  <polyline points="167,103 203,103" fill="none" stroke="#7A1E30" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="118,58 138,62" fill="none" stroke="#7A1E30" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.70"/>
+  <circle cx="78" cy="72" r="2.6" fill="#7A1E30"/>
+  <circle cx="78" cy="152" r="2.6" fill="#7A1E30"/>
+  <circle cx="118" cy="62" r="2.6" fill="#7A1E30"/>
+  <circle cx="118" cy="162" r="2.6" fill="#7A1E30"/>
+  <circle cx="58" cy="104" r="2.6" fill="#7A1E30"/>
+  <circle cx="58" cy="120" r="2.6" fill="#7A1E30"/>
+ </g>
+ <g id="layer.edge.frame_2">
+  <polyline points="98,54 98,170" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="136,70 136,154" fill="none" stroke="#12060A" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="70,112 168,112" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="177,101 177,123" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="189,101 189,123" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="199,101 199,123" fill="none" stroke="#12060A" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <polygon points="88,66 62,52 14,38 44,68" fill="none" stroke="#FF2D4B" stroke-width="5" stroke-linejoin="round"/>
+  <polygon points="88,158 62,172 14,186 44,156" fill="none" stroke="#FF2D4B" stroke-width="5" stroke-linejoin="round"/>
+  <polygon points="106,52 114,36 140,40 144,66" fill="none" stroke="#FF2D4B" stroke-width="5" stroke-linejoin="round"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="none" stroke="#12060A" stroke-width="13" stroke-linejoin="round" opacity="0.50"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="none" stroke="#FF2D4B" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="40,104 62,76 98,48 136,68 166,94 178,100 178,124 166,130 136,156 98,176 62,148 40,120" fill="none" stroke="url(#g_rim)" stroke-width="5" stroke-linejoin="round"/>
+  <rect x="163" y="100" width="46" height="24" fill="none" stroke="#FF2D4B" stroke-width="3" stroke-linejoin="miter"/>
+  <polygon points="205,92 223,95 223,129 205,132" fill="none" stroke="#FF2D4B" stroke-width="3.5" stroke-linejoin="round"/>
+  <polyline points="205,94 223,97" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+ </g>
+ <g id="layer.emissive.frame_2">
+  <rect x="167" y="106" width="40" height="12" fill="#FF6B7E" opacity="0.85"/>
+  <polygon points="70,92 88,84 90,88 72,96" fill="#FF6B7E"/>
+  <polygon points="70,132 88,140 90,136 72,128" fill="#FF6B7E"/>
+  <rect x="41" y="106" width="6" height="12" fill="#FF6B7E"/>
+  <polygon points="130,90 146,98 144,101 129,94" fill="#FF2D4B"/>
+  <circle cx="224" cy="112" r="13.5" fill="#12060A" stroke="#FF2D4B" stroke-width="2.5" stroke-linejoin="round"/>
+  <circle cx="224" cy="112" r="10" fill="url(#g_lens)"/>
+ </g>
+</g>
+</svg>

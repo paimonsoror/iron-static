@@ -12,6 +12,9 @@ var _controller: RunController
 
 
 func _ready() -> void:
+	if Game.style_frame:
+		get_tree().change_scene_to_file.call_deferred("res://src/debug/style_frame.tscn")
+		return
 	Log.info("boot ok")
 	_controller = Game.controller
 	_hud.speed_changed.connect(_on_speed_changed)
@@ -34,7 +37,7 @@ func _ready() -> void:
 
 @warning_ignore("unused_parameter")
 func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
-	if _controller.world == null:
+	if _controller == null or _controller.world == null:
 		return
 	if _controller.load_wave == 0:
 		_battle.render(_controller.driver.acc / TickDriver.DT)

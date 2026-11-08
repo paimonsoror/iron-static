@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="824" height="560" viewBox="0 0 824 560">
+  <defs>
+    <linearGradient id="lg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF2D4B"/><stop offset="1" stop-color="#FFB000"/></linearGradient>
+    <linearGradient id="lg_us" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="100"><stop offset="0" stop-color="#FFE3A3"/><stop offset="1" stop-color="#8A1F78"/></linearGradient>
+    <linearGradient id="lg_gt" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0" gradientTransform="translate(10,0) scale(80,1)"><stop offset="0" stop-color="#FFB000"/><stop offset="1" stop-color="#5BC8FF"/></linearGradient>
+    <radialGradient id="rg" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFB000" stop-opacity="1"/><stop offset="1" stop-color="#FFB000" stop-opacity="0"/></radialGradient>
+    <radialGradient id="rg_fx" cx="0.5" cy="0.5" r="0.5" fx="0.3" fy="0.3"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FF2D4B"/></radialGradient>
+    <radialGradient id="rg_us" gradientUnits="userSpaceOnUse" cx="50" cy="50" r="45"><stop offset="0" stop-color="#FFF1C9"/><stop offset="0.5" stop-color="#FFB000" stop-opacity="0.8"/><stop offset="1" stop-color="#FF3B30" stop-opacity="0"/></radialGradient>
+    <clipPath id="cp"><circle cx="50" cy="50" r="38"/></clipPath>
+    <linearGradient id="mg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#FFF"/></linearGradient>
+    <mask id="mk" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><rect x="0" y="0" width="100" height="100" fill="url(#mg)"/></mask>
+    <filter id="bl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+    <pattern id="pt" patternUnits="userSpaceOnUse" width="20" height="20"><rect width="20" height="20" fill="#222B38"/><circle cx="10" cy="10" r="6" fill="#FFB000"/></pattern>
+    <g id="shape_u"><rect x="0" y="0" width="30" height="30" fill="#FF4FD8"/><circle cx="30" cy="30" r="12" fill="#5BC8FF"/></g>
+    <symbol id="sym" viewBox="0 0 10 10"><rect width="10" height="10" fill="#5BC8FF"/><circle cx="5" cy="5" r="3" fill="#07090C"/></symbol>
+    <style>.cls{fill:#FFB000;stroke:#FF2D4B;stroke-width:6}</style>
+  </defs>
+  <rect width="824" height="560" fill="#1B222B"/>
+
+  <!-- t00 linear gradient (objectBoundingBox): red to amber, left to right -->
+  <g transform="translate(8,8)"><rect width="128" height="128" fill="#07090C"/><rect x="14" y="14" width="100" height="100" fill="url(#lg)"/></g>
+  <!-- t01 radial gradient + stop-opacity: amber glow fading to transparent -->
+  <g transform="translate(144,8)"><rect width="128" height="128" fill="#07090C"/><circle cx="64" cy="64" r="60" fill="url(#rg)"/></g>
+  <!-- t02 group opacity: two overlapping circles flattened at 50% (no darker lens) -->
+  <g transform="translate(280,8)"><rect width="128" height="128" fill="#07090C"/><g opacity="0.5"><circle cx="48" cy="64" r="34" fill="#FFB000"/><circle cx="80" cy="64" r="34" fill="#FFB000"/></g></g>
+  <!-- t03 clipPath: square clipped to circle -->
+  <g transform="translate(416,8)"><rect width="128" height="128" fill="#07090C"/><g transform="translate(14,14)"><g clip-path="url(#cp)"><rect width="100" height="100" fill="#FFB000"/><rect y="40" width="100" height="20" fill="#FF2D4B"/></g></g></g>
+  <!-- t04 mask: amber square fading in left to right -->
+  <g transform="translate(552,8)"><rect width="128" height="128" fill="#07090C"/><g transform="translate(14,14)"><rect width="100" height="100" fill="#FFB000" mask="url(#mk)"/></g></g>
+  <!-- t05 filter feGaussianBlur: soft blurred amber disc -->
+  <g transform="translate(688,8)"><rect width="128" height="128" fill="#07090C"/><circle cx="64" cy="64" r="28" fill="#FFB000" filter="url(#bl)"/></g>
+
+  <!-- t10 pattern: dot grid -->
+  <g transform="translate(8,144)"><rect width="128" height="128" fill="#07090C"/><rect x="14" y="14" width="100" height="100" fill="url(#pt)"/></g>
+  <!-- t11 use: two copies of a group -->
+  <g transform="translate(144,144)"><rect width="128" height="128" fill="#07090C"/><use xlink:href="#shape_u" x="14" y="14"/><use href="#shape_u" x="60" y="60"/></g>
+  <!-- t12 stroke-dasharray -->
+  <g transform="translate(280,144)"><rect width="128" height="128" fill="#07090C"/><circle cx="64" cy="64" r="44" fill="none" stroke="#FFB000" stroke-width="6" stroke-dasharray="12 8"/><line x1="14" y1="120" x2="114" y2="120" stroke="#5BC8FF" stroke-width="4" stroke-dasharray="2 6" stroke-linecap="round"/></g>
+  <!-- t13 transform rotate + scale -->
+  <g transform="translate(416,144)"><rect width="128" height="128" fill="#07090C"/><rect x="-25" y="-15" width="50" height="30" fill="#FFB000" transform="translate(64,64) rotate(30) scale(1.5,1)"/><circle r="3" fill="#FFFFFF" transform="translate(64,64)"/></g>
+  <!-- t14 inline style attribute -->
+  <g transform="translate(552,144)"><rect width="128" height="128" fill="#07090C"/><rect x="14" y="14" width="100" height="100" style="fill:#FFB000;stroke:#FF2D4B;stroke-width:8;opacity:0.7"/></g>
+  <!-- t15 gradientTransform (translate+scale): amber to blue across x=10..90 -->
+  <g transform="translate(688,144)"><rect width="128" height="128" fill="#07090C"/><g transform="translate(14,14)"><rect width="100" height="100" fill="url(#lg_gt)"/></g></g>
+
+  <!-- t20 userSpaceOnUse linear gradient (vertical cream to purple) -->
+  <g transform="translate(8,280)"><rect width="128" height="128" fill="#07090C"/><g transform="translate(14,14)"><rect width="100" height="100" fill="url(#lg_us)"/></g></g>
+  <!-- t21 radial gradient with focal point -->
+  <g transform="translate(144,280)"><rect width="128" height="128" fill="#07090C"/><circle cx="64" cy="64" r="50" fill="url(#rg_fx)"/></g>
+  <!-- t22 userSpace radial with mid stop-opacity -->
+  <g transform="translate(280,280)"><rect width="128" height="128" fill="#07090C"/><g transform="translate(14,14)"><rect width="100" height="100" fill="url(#rg_us)"/></g></g>
+  <!-- t23 stroke linecap / linejoin / fill-rule evenodd -->
+  <g transform="translate(416,280)"><rect width="128" height="128" fill="#07090C"/><polyline points="14,50 40,14 66,50" fill="none" stroke="#FFB000" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/><polyline points="70,50 96,14 122,50" fill="none" stroke="#FF2D4B" stroke-width="10" stroke-linejoin="miter" stroke-linecap="butt"/><path d="M20 120 L64 62 L108 120 Z M44 108 L64 80 L84 108 Z" fill="#5BC8FF" fill-rule="evenodd"/></g>
+  <!-- t24 fill-opacity / stroke-opacity -->
+  <g transform="translate(552,280)"><rect width="128" height="128" fill="#07090C"/><rect x="14" y="14" width="70" height="70" fill="#FFB000" fill-opacity="0.4" stroke="#FF2D4B" stroke-width="12" stroke-opacity="0.4"/><circle cx="84" cy="84" r="30" fill="#5BC8FF" fill-opacity="0.5"/></g>
+  <!-- t25 gradient on stroke -->
+  <g transform="translate(688,280)"><rect width="128" height="128" fill="#07090C"/><path d="M14 64 Q64 -10 114 64" fill="none" stroke="url(#lg_us)" stroke-width="14" stroke-linecap="round"/><rect x="14" y="90" width="100" height="14" fill="none" stroke="url(#lg)" stroke-width="6"/></g>
+
+  <!-- t30 symbol + use with width/height -->
+  <g transform="translate(8,416)"><rect width="128" height="128" fill="#07090C"/><use href="#sym" x="14" y="14" width="40" height="40"/><use href="#sym" x="64" y="40" width="50" height="50"/></g>
+  <!-- t31 mix-blend-mode screen -->
+  <g transform="translate(144,416)"><rect width="128" height="128" fill="#07090C"/><circle cx="50" cy="64" r="34" fill="#FF2D4B"/><circle cx="78" cy="64" r="34" fill="#5BC8FF" style="mix-blend-mode:screen"/></g>
+  <!-- t32 text -->
+  <g transform="translate(280,416)"><rect width="128" height="128" fill="#07090C"/><text x="14" y="70" font-size="40" fill="#FFB000">AB12</text></g>
+  <!-- t33 CSS class from style block -->
+  <g transform="translate(416,416)"><rect width="128" height="128" fill="#07090C"/><circle class="cls" cx="64" cy="64" r="40"/></g>
+  <!-- t34 skewX + matrix transform -->
+  <g transform="translate(552,416)"><rect width="128" height="128" fill="#07090C"/><rect x="14" y="14" width="50" height="40" fill="#FFB000" transform="skewX(25)"/><rect x="0" y="0" width="40" height="40" fill="#5BC8FF" transform="matrix(1,0.3,0,1,60,60)"/></g>
+  <!-- t35 primitives: ellipse, line, polygon, rounded rect, path arc/curve -->
+  <g transform="translate(688,416)"><rect width="128" height="128" fill="#07090C"/><ellipse cx="40" cy="30" rx="30" ry="14" fill="#FFB000"/><line x1="10" y1="60" x2="118" y2="60" stroke="#5BC8FF" stroke-width="3"/><polygon points="20,118 50,70 80,118" fill="#FF2D4B"/><rect x="86" y="74" width="34" height="44" rx="8" ry="8" fill="#FF4FD8"/><path d="M90 20 A20 20 0 0 1 120 40 C110 50 100 30 90 40 Z" fill="#FFF1C9"/></g>
+</svg>

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="80" viewBox="0 0 512 80">
+<defs>
+  <radialGradient id="g_hull" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#2A0A10"/><stop offset="0.6" stop-color="#1B080D"/><stop offset="1" stop-color="#12060A"/></radialGradient>
+  <radialGradient id="g_plate" cx="0.5" cy="0.45" r="0.65"><stop offset="0" stop-color="#4A1220"/><stop offset="0.7" stop-color="#2A0A10"/><stop offset="1" stop-color="#1B080D"/></radialGradient>
+  <radialGradient id="g_plate_hi" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stop-color="#7A1E30"/><stop offset="0.6" stop-color="#4A1220"/><stop offset="1" stop-color="#2A0A10"/></radialGradient>
+  <linearGradient id="g_dark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2A0A10"/><stop offset="1" stop-color="#12060A"/></linearGradient>
+  <radialGradient id="g_shadow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#12060A" stop-opacity="0.85"/><stop offset="0.6" stop-color="#12060A" stop-opacity="0.5"/><stop offset="1" stop-color="#12060A" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo_red" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF6B7E" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF2D4B" stop-opacity="0.6"/><stop offset="0.65" stop-color="#FF2D4B" stop-opacity="0.2"/><stop offset="1" stop-color="#FF2D4B" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo_mag" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.95"/><stop offset="0.3" stop-color="#FF4FD8" stop-opacity="0.6"/><stop offset="0.65" stop-color="#FF4FD8" stop-opacity="0.2"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_halo_amb" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFD27A" stop-opacity="0.7"/><stop offset="0.4" stop-color="#FFB000" stop-opacity="0.4"/><stop offset="1" stop-color="#FFB000" stop-opacity="0"/></radialGradient>
+  <radialGradient id="g_lens" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFE0F8"/><stop offset="0.35" stop-color="#FF9AE8"/><stop offset="0.7" stop-color="#FF4FD8"/><stop offset="1" stop-color="#8A1F78"/></radialGradient>
+  <radialGradient id="g_vent" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#FFC2CC"/><stop offset="0.5" stop-color="#FF6B7E"/><stop offset="1" stop-color="#FF2D4B"/></radialGradient>
+  <linearGradient id="g_rim" gradientUnits="userSpaceOnUse" x1="45" y1="0" x2="109" y2="0"><stop offset="0" stop-color="#FFB000" stop-opacity="0"/><stop offset="0.5" stop-color="#FFB000" stop-opacity="0.5"/><stop offset="1" stop-color="#FFD27A"/></linearGradient>
+  <linearGradient id="g_flame" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="3" y2="0"><stop offset="0" stop-color="#FFE0F8" stop-opacity="0.95"/><stop offset="0.25" stop-color="#FF4FD8" stop-opacity="0.9"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></linearGradient>
+  <linearGradient id="g_wake" gradientUnits="userSpaceOnUse" x1="17" y1="0" x2="8" y2="0"><stop offset="0" stop-color="#FF9AE8" stop-opacity="0.9"/><stop offset="0.4" stop-color="#FF4FD8" stop-opacity="0.55"/><stop offset="1" stop-color="#FF4FD8" stop-opacity="0"/></linearGradient>
+</defs>
+<g id="slot.frame_0" transform="translate(0,0)">
+ <g id="layer.emissive.frame_0">
+  <circle cx="23" cy="40" r="13" fill="url(#g_halo_mag)"/>
+  <circle cx="19" cy="40" r="6" fill="url(#g_halo_mag)"/>
+  <circle cx="44" cy="27.5" r="7.5" fill="url(#g_halo_mag)" opacity="0.80"/>
+  <polyline points="17,40 10,40" fill="none" stroke="url(#g_wake)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="butt"/>
+  <polyline points="17,34 11.4,34" fill="none" stroke="url(#g_wake)" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" opacity="0.80"/>
+  <polyline points="17,46 10.7,46" fill="none" stroke="url(#g_wake)" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" opacity="0.80"/>
+  <polyline points="93,37 107,40 93,43" fill="none" stroke="url(#g_rim)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.30"/>
+  <polygon points="108,40 91,36 71,31 50,29 31,30 22,32.5 19,36 19,44 22,47.5 31,50 50,51 71,49 91,44" fill="none" stroke="url(#g_rim)" stroke-width="3.5" stroke-linejoin="round" opacity="0.40"/>
+  <polygon points="82,33 34,8 22,9 30,18 49,29 58,31.5" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" opacity="0.30"/>
+  <polygon points="82,47 34,72 22,71 30,62 49,51 58,48.5" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" opacity="0.30"/>
+ </g>
+</g>
+<g id="slot.frame_1" transform="translate(128,0)">
+ <g id="layer.emissive.frame_1">
+  <circle cx="23" cy="40" r="16.5" fill="url(#g_halo_mag)"/>
+  <circle cx="19" cy="40" r="6" fill="url(#g_halo_mag)"/>
+  <circle cx="44" cy="27.5" r="7.5" fill="url(#g_halo_mag)" opacity="0.80"/>
+  <polyline points="17,40 8,40" fill="none" stroke="url(#g_wake)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="butt"/>
+  <polyline points="17,34 9.8,34" fill="none" stroke="url(#g_wake)" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" opacity="0.80"/>
+  <polyline points="17,46 8.9,46" fill="none" stroke="url(#g_wake)" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" opacity="0.80"/>
+  <polyline points="93,37 107,40 93,43" fill="none" stroke="url(#g_rim)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.30"/>
+  <polygon points="108,40 91,36 71,31 50,29 31,30 22,32.5 19,36 19,44 22,47.5 31,50 50,51 71,49 91,44" fill="none" stroke="url(#g_rim)" stroke-width="3.5" stroke-linejoin="round" opacity="0.40"/>
+  <polygon points="82,33 34,10.5 22,11.5 30,18 49,29 58,31.5" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" opacity="0.30"/>
+  <polygon points="82,47 34,69.5 22,68.5 30,62 49,51 58,48.5" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" opacity="0.30"/>
+ </g>
+</g>
+<g id="slot.frame_2" transform="translate(256,0)">
+ <g id="layer.emissive.frame_2">
+  <circle cx="23" cy="40" r="14" fill="url(#g_halo_mag)"/>
+  <circle cx="19" cy="40" r="6" fill="url(#g_halo_mag)"/>
+  <circle cx="44" cy="27.5" r="7.5" fill="url(#g_halo_mag)" opacity="0.80"/>
+  <polyline points="17,40 11,40" fill="none" stroke="url(#g_wake)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="butt"/>
+  <polyline points="17,34 12.2,34" fill="none" stroke="url(#g_wake)" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" opacity="0.80"/>
+  <polyline points="17,46 11.6,46" fill="none" stroke="url(#g_wake)" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" opacity="0.80"/>
+  <polyline points="93,37 107,40 93,43" fill="none" stroke="url(#g_rim)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.30"/>
+  <polygon points="108,40 91,36 71,31 50,29 31,30 22,32.5 19,36 19,44 22,47.5 31,50 50,51 71,49 91,44" fill="none" stroke="url(#g_rim)" stroke-width="3.5" stroke-linejoin="round" opacity="0.40"/>
+  <polygon points="82,33 34,8 22,9 30,18 49,29 58,31.5" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" opacity="0.30"/>
+  <polygon points="82,47 34,72 22,71 30,62 49,51 58,48.5" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" opacity="0.30"/>
+ </g>
+</g>
+<g id="slot.frame_3" transform="translate(384,0)">
+ <g id="layer.emissive.frame_3">
+  <circle cx="23" cy="40" r="16" fill="url(#g_halo_mag)"/>
+  <circle cx="19" cy="40" r="6" fill="url(#g_halo_mag)"/>
+  <circle cx="44" cy="27.5" r="7.5" fill="url(#g_halo_mag)" opacity="0.80"/>
+  <polyline points="17,40 9,40" fill="none" stroke="url(#g_wake)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="butt"/>
+  <polyline points="17,34 10.6,34" fill="none" stroke="url(#g_wake)" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" opacity="0.80"/>
+  <polyline points="17,46 9.8,46" fill="none" stroke="url(#g_wake)" stroke-width="2" stroke-linejoin="round" stroke-linecap="butt" opacity="0.80"/>
+  <polyline points="93,37 107,40 93,43" fill="none" stroke="url(#g_rim)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" opacity="0.30"/>
+  <polygon points="108,40 91,36 71,31 50,29 31,30 22,32.5 19,36 19,44 22,47.5 31,50 50,51 71,49 91,44" fill="none" stroke="url(#g_rim)" stroke-width="3.5" stroke-linejoin="round" opacity="0.40"/>
+  <polygon points="82,33 34,5.5 22,6.5 30,18 49,29 58,31.5" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" opacity="0.30"/>
+  <polygon points="82,47 34,74.5 22,73.5 30,62 49,51 58,48.5" fill="none" stroke="url(#g_rim)" stroke-width="3" stroke-linejoin="round" opacity="0.30"/>
+ </g>
+</g>
+</svg>

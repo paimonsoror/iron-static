@@ -10,10 +10,13 @@ extends Node
 const VERSION: String = "0.0.1"
 const ARG_DEBUG_LOAD: String = "--debug-load"
 const ARG_DEBUG_PERF: String = "--debug-perf"
+const ARG_STYLE_FRAME: String = "--style-frame"
 
 var controller: RunController = RunController.new()
 var debug_load: bool = false
 var debug_perf: bool = false
+## True when the V1-01 style frame scene replaces the game at boot (debug builds, `--style-frame`).
+var style_frame: bool = false
 ## In-memory best death wave of sector 1 (lives in the controller; persistence arrives in M3).
 var best_wave_s1: int:
 	get:
@@ -28,6 +31,7 @@ func _ready() -> void:
 		var args: PackedStringArray = OS.get_cmdline_user_args()
 		debug_load = args.has(ARG_DEBUG_LOAD)
 		debug_perf = args.has(ARG_DEBUG_PERF)
+		style_frame = args.has(ARG_STYLE_FRAME)
 
 
 func _process(delta: float) -> void:
