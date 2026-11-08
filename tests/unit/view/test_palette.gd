@@ -11,8 +11,8 @@ func _same(a: Color, hex: String) -> bool:
 func test_gdd_hex_spot_checks() -> void:
 	assert_bool(_same(Palette.VOID, "#07090C")).is_true()
 	assert_bool(_same(Palette.AMBER, "#FFB000")).is_true()
-	assert_bool(_same(Palette.SKIN, "#D9A383")).is_true()
-	assert_bool(_same(Palette.CHAR, "#3A2A22")).is_true()
+	assert_bool(_same(Palette.ARMOR_BASE, "#6B7882")).is_true()
+	assert_bool(_same(Palette.CHARRED_BASE, "#3A2A22")).is_true()
 	assert_bool(_same(Palette.ENEMY_OUTLINE, "#FF2D4B")).is_true()
 	assert_bool(_same(Palette.ENEMY_FILL, "#2A0A10")).is_true()
 	assert_bool(_same(Palette.ENEMY_FIRE, "#FF4FD8")).is_true()

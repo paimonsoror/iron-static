@@ -17,6 +17,8 @@ var _px_per_m: float = ViewMath.px_per_m(1080.0)
 var _viewport_size := Vector2(1080.0, 1920.0)
 var _aim: float = -PI * 0.5
 var _events := EventCursor.new()
+var _particles: ParticleRenderer
+var _fx := FxSpawner.new()
 
 @onready var _background: ArenaBackground = $Background
 @onready var _enemies: EnemyRenderer = $Enemies
@@ -28,8 +30,10 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_on_viewport_resized)
 	# Looked up by path: scripts that compile this class without autoloads (capture tools) must still load.
 	var settings: VisualSettings = _game_visual()
+	_cinder.visual = settings
 	if settings != null:
 		_background.setup_visual(settings)
+	_setup_particles(settings)
 	layout(get_viewport_rect().size)
 
 
@@ -45,6 +49,7 @@ func layout(viewport_size: Vector2) -> void:
 		arena_m = _world.config.tuning.arena_radius
 	_background.setup(_px_per_m, arena_m, rect)
 	_cinder.radius_px = cinder_radius_px()
+	_fx.emitter.cinder_radius_px = cinder_radius_px()
 	if _world != null:
 		_setup_enemy_renderer()
 
@@ -80,6 +85,32 @@ func render(alpha: float) -> void:
 	_enemies.render(_world, alpha)
 	var emitter: Vector2 = Vector2.from_angle(_aim) * _cinder.radius_px
 	_beams.update(_world, now_s, _px_per_m, emitter, _enemies)
+	_fx.update(_world, alpha, _game_visual(), band)
+
+
+## The particle effect spawner (V1-12 impacts/muzzle through `fx().emitter`, V1-14 big-event counters).
+func fx() -> FxSpawner:
+	return _fx
+
+
+func _setup_particles(settings: VisualSettings) -> void:
+	_particles = ParticleRenderer.new()
+	_particles.name = "Particles"
+	add_child(_particles)
+	_particles.setup(settings.quality.particle_cap if settings != null else 400)
+	_fx.setup(_particles, _enemies)
+	_fx.emitter.cinder_radius_px = cinder_radius_px()
+	if settings != null:
+		settings.quality_changed.connect(_on_quality_changed)
+
+
+@warning_ignore("unused_parameter")
+func _on_quality_changed(tier: int) -> void:  # gdlint: ignore=unused-argument
+	var settings: VisualSettings = _game_visual()
+	if settings != null:
+		_particles.setup(settings.quality.particle_cap)
+		_fx.setup(_particles, _enemies)
+		_fx.emitter.cinder_radius_px = cinder_radius_px()
 
 
 ## Exposed for the debug overlay (M1-24) to override the displayed band.
@@ -95,8 +126,12 @@ func _update_aim() -> void:
 	var store: EnemyStore = _world.enemies
 	while _events.poll(_world.events) > 0:
 		for i: int in _events.count:
-			if _events.kind_at(i) != SimEventKind.SHOT_FIRED:
+			var kind: int = _events.kind_at(i)
+			if kind == SimEventKind.CINDER_HIT:
+				_cinder.notify_hit()
+			if kind != SimEventKind.SHOT_FIRED:
 				continue
+			_cinder.notify_shot()
 			var idx: int = _events.a_at(i)
 			if idx >= 0 and idx < store.high_water:
 				_aim = atan2(store.pos_y[idx], store.pos_x[idx])

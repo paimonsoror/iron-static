@@ -23,8 +23,6 @@ const UNAFFORDABLE := Color("#5C5546")
 # Player
 const CORE := Color("#FFE3A3")
 const FRAME := Color("#8FA3B0")
-const SKIN := Color("#D9A383")
-const CHAR := Color("#3A2A22")
 const EMITTER := Color("#FFFFFF")
 
 # Player shots
@@ -60,17 +58,12 @@ const MERIT := Color("#FFD84D")
 const ENEMY_FILL_ALPHA: float = 0.8
 
 # Material ramps, art bible section 3.2 (V1-02). Sprites bake these values; code-drawn parts and tests use them.
-# Cinder skin plates (base and light/shadow ramp; SKIN is the base) and charred plates (CHAR is the base)
-const SKIN_SHADOW := Color("#8A5A44")
-const SKIN_LIGHT := Color("#F0C4A0")
-const SKIN_HIGHLIGHT := Color("#FFE6CC")
-const CHAR_SHADOW := Color("#1F1612")
-const CHAR_LIGHT := Color("#5A4034")
-const CHAR_HIGHLIGHT := Color("#7A5A48")
+# Charred plate base (the former CHAR constant) for code-drawn scorch marks
+const CHARRED_BASE := Color("#3A2A22")
 const EMBER_EDGE := Color("#FF8A1F")
 const SPARK := Color("#FFD27A")
 # Cinder armor plates (gunmetal / ceramic, V1-GATE decision 4).
-# They replace the tan SKIN ramp, which stays only for legacy code/tests until V1-11 migrates them.
+# They replaced the tan SKIN ramp (removed in V1-11).
 const ARMOR_SHADOW := Color("#38434B")
 const ARMOR_BASE := Color("#6B7882")
 const ARMOR_LIGHT := Color("#9AA8B3")
