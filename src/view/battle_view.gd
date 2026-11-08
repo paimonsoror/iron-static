@@ -19,6 +19,10 @@ var _aim: float = -PI * 0.5
 var _events := EventCursor.new()
 var _particles: ParticleRenderer
 var _fx := FxSpawner.new()
+var _impact := ImpactDriver.new()
+## Game speed (1-4) the host reports for the slow-mo rule (no slow-mo above 2x).
+var _speed_hint: int = 1
+var _base_position := Vector2.ZERO
 
 @onready var _background: ArenaBackground = $Background
 @onready var _enemies: EnemyRenderer = $Enemies
@@ -42,7 +46,8 @@ func _ready() -> void:
 func layout(viewport_size: Vector2) -> void:
 	_viewport_size = viewport_size
 	_px_per_m = ViewMath.px_per_m(viewport_size.x, camera_width_m)
-	position = ViewMath.cinder_center(viewport_size)
+	_base_position = ViewMath.cinder_center(viewport_size)
+	position = _base_position
 	var rect: Rect2 = ViewMath.battle_rect(viewport_size)
 	rect.position -= position
 	var arena_m: float = 52.0
@@ -65,6 +70,8 @@ func bind(world: SimWorld) -> void:
 	_world = world
 	_events.sync_to(world.events)
 	_beams.bind(world)
+	_impact.bind(world)
+	apply_shake(Vector2.ZERO)
 	_aim = -PI * 0.5
 	layout(_viewport_size)
 
@@ -88,6 +95,26 @@ func render(alpha: float) -> void:
 	_enemies.render(_world, alpha)
 	_beams.update(_world, now_s, _px_per_m, _cinder.emitter_position(), _enemies)
 	_fx.update(_world, alpha, _game_visual(), band)
+	apply_shake(_impact.update(_world, now_s, _game_visual(), _speed_hint, _viewport_size.x / 1080.0))
+
+
+## Moves the battlefield root by `offset` px from its layout position (screen shake). The HUD is a separate
+## scene and never moves.
+func apply_shake(offset: Vector2) -> void:
+	position = _base_position + offset
+
+
+## Slow-mo factor for the host to multiply into the run controller's frame delta (view-only pacing).
+func time_scale() -> float:
+	return _impact.time_scale
+
+
+func set_speed_hint(speed: int) -> void:
+	_speed_hint = speed
+
+
+func impact() -> ImpactDriver:
+	return _impact
 
 
 ## The particle effect spawner (V1-12 impacts/muzzle through `fx().emitter`, V1-14 big-event counters).

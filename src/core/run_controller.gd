@@ -33,6 +33,9 @@ var seed_value: int = 0
 ## Game speed multiplier and pause flag (set from the HUD signals).
 var speed: int = 1
 var paused: bool = false
+## View-only pacing factor (slow-mo, V1-14) multiplied into the frame delta given to the driver: fewer ticks per
+## wall second, identical tick content. 1.0 = normal. Never read by the sim; reset to 1.0 at run start.
+var time_scale: float = 1.0
 ## Wave the debug load mode is still fast-forwarding to (0 = not loading).
 var load_wave: int = 0
 ## Ticks run and wall microseconds spent by the last update() (debug overlay reads these).
@@ -55,6 +58,7 @@ func start_run(new_seed: int, invulnerable: bool = false, load_target: int = 0) 
 	world = SimWorld.new(cfg)
 	driver = TickDriver.new()
 	load_wave = load_target
+	time_scale = 1.0
 	_load_run = invulnerable or load_target > 0
 	_pending_buys.clear()
 	last_ticks = 0
@@ -89,7 +93,7 @@ func update(delta: float) -> int:
 	elif paused:
 		ran = 0
 	else:
-		ran = driver.advance(world, delta, speed)
+		ran = driver.advance(world, delta * time_scale, speed)
 	last_ticks = ran
 	last_usec = Time.get_ticks_usec() - start_usec
 	_check_over()

@@ -48,7 +48,9 @@ func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
 	if _controller == null or _controller.world == null:
 		return
 	if _controller.load_wave == 0:
+		_battle.set_speed_hint(_controller.speed)
 		_battle.render(_controller.driver.acc / TickDriver.DT)
+		_controller.time_scale = _battle.time_scale()  # slow-mo: view-only pacing for the next frame
 	_hud.refresh(_controller.world, Time.get_ticks_msec() / 1000.0)
 
 
