@@ -34,5 +34,5 @@ Thumbs.db
 ~lib*.dll
 ~lib*.so
 
-# Stray files from Windows paths with stripped backslashes (e.g. C:\dev	oweruild\x.png -> devtowerbuildx.png)
+# Stray files from Windows paths whose backslashes were stripped (C:/dev/tower/build/x.png -> devtowerbuildx.png)
 /devtower*
