@@ -101,3 +101,4 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - Parallel test runs can collide on Sentry's GDExtension DLL copy at import; `test_runner.py` retries that transient error twice. Write large `.gd` files with the Write tool, not shell heredocs.
 - Godot imports every `.csv` as a translation (fails with Invalid locale): every data CSV folder needs a `.gdignore` (`data/` has one); `FileAccess` still reads `res://data/...`.
 - Passing a Variant (`dict[k]`, `arr[i]`) to a typed param or `float()`/`int()` fails compile: assign to a typed local first. `Resource.duplicate()` skips non-exported vars (clone field by field).
+- `HashingContext.update()` errors on an empty `PackedByteArray` (skip empty slices). A param named like a method (e.g. `capacity`) shadows it (error). Unused args: `@warning_ignore("unused_parameter")` + `# gdlint: ignore=unused-argument` (underscore prefix is not enough).
