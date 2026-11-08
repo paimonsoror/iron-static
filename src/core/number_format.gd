@@ -7,6 +7,10 @@ extends RefCounted
 
 enum { SHORT, SCIENTIFIC, ENGINEERING }
 
+## Default of the `style_id` arg of the format calls: to use the global `style`.
+const USE_DEFAULT: int = -1
+const STYLE_NAMES: Array[String] = ["short", "scientific", "engineering"]
+
 const SUFFIX_CSV: String = "res://data/number_suffixes.csv"
 const SUFFIX_GEN: String = "res://src/data_gen/number_suffixes.tres"
 const DEFAULT_SUFFIXES: Array[String] = ["K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc"]
@@ -16,6 +20,13 @@ const EPS: float = 1.0e-12  # relative nudge so 12.4 stored as 12.39999999999999
 
 static var _suffixes: Array[String] = []
 static var _cache: Dictionary = {}
+## Global style used by callers that pass none (set from the player settings; changing it clears the cache).
+static var style: int = SHORT:
+	set(value):
+		var v: int = clampi(value, SHORT, ENGINEERING)
+		if v != style:
+			style = v
+			_cache.clear()
 
 
 ## Suffix for 10^(3*group), group 1..11 (empty when out of range).
@@ -31,14 +42,15 @@ static func suffix_count() -> int:
 	return _suffixes.size()
 
 
-static func format(value: BigNum, style: int = SHORT) -> String:
+static func format(value: BigNum, style_id: int = USE_DEFAULT) -> String:
+	var st: int = style if style_id == USE_DEFAULT else style_id
 	if value.is_zero():
 		return "0"
-	var key: String = "%d|%s" % [style, value.to_text()]
+	var key: String = "%d|%s" % [st, value.to_text()]
 	if _cache.has(key):
 		var hit: String = _cache[key]
 		return hit
-	var out: String = _format_uncached(value, style, false)
+	var out: String = _format_uncached(value, st, false)
 	_cache_put(key, out)
 	return out
 
@@ -88,7 +100,8 @@ static func _fixed(v: float, decimals: int) -> String:
 
 
 ## Multiplier text: x1.25, x12.4, x1.24K. Accepts float or BigNum.
-static func format_mult(v: Variant, style: int = SHORT) -> String:
+static func format_mult(v: Variant, style_id: int = USE_DEFAULT) -> String:
+	var st: int = style if style_id == USE_DEFAULT else style_id
 	var big: BigNum = null
 	if v is BigNum:
 		big = v
@@ -99,7 +112,7 @@ static func format_mult(v: Variant, style: int = SHORT) -> String:
 		return "x0"
 	if big.is_zero():
 		return "x0"
-	return "x" + _format_uncached(big, style, true)
+	return "x" + _format_uncached(big, st, true)
 
 
 ## Seconds to 45s / 12m 30s / 3h 05m / 1d 4h.
@@ -115,14 +128,14 @@ static func format_time(seconds: int) -> String:
 
 
 ## `small_decimals`: below 1000 keep 3 significant digits (multipliers) instead of an integer.
-static func _format_uncached(value: BigNum, style: int, small_decimals: bool) -> String:
+static func _format_uncached(value: BigNum, style_id: int, small_decimals: bool) -> String:
 	if value.e < 3:
 		if small_decimals:
 			return _sig3(value.to_float())
 		return str(floori(value.to_float()))
-	if style == SCIENTIFIC:
+	if style_id == SCIENTIFIC:
 		return _sig3(value.m) + "e" + str(value.e)
-	if style == ENGINEERING:
+	if style_id == ENGINEERING:
 		var rem: int = value.e % 3
 		return _sig3(value.m * pow(10.0, float(rem))) + "e" + str(value.e - rem)
 	if value.e > SHORT_MAX_EXP:

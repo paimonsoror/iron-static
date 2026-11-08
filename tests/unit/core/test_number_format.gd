@@ -150,3 +150,17 @@ func test_generated_suffix_table_ships_and_matches_csv() -> void:
 	for r: int in csv.rows.size():
 		assert_int(gen.exps[r]).is_equal(csv.get_value(r, "exp").to_int())
 		assert_str(gen.suffixes[r]).is_equal(csv.get_value(r, "suffix"))
+
+
+func test_global_style_default_and_cache() -> void:
+	var v: BigNum = BigNum.parse("1234567")
+	NumberFormat.style = NumberFormat.SHORT
+	assert_str(NumberFormat.format(v)).is_equal("1.23M")
+	NumberFormat.style = NumberFormat.SCIENTIFIC
+	assert_str(NumberFormat.format(v)).is_equal("1.23e6")
+	assert_str(NumberFormat.format(v, NumberFormat.SHORT)).is_equal("1.23M")
+	assert_str(NumberFormat.format_mult(v)).is_equal("x1.23e6")
+	NumberFormat.style = NumberFormat.ENGINEERING
+	assert_str(NumberFormat.format(v)).is_equal("1.23e6")
+	NumberFormat.style = NumberFormat.SHORT
+	assert_str(NumberFormat.format(v)).is_equal("1.23M")
