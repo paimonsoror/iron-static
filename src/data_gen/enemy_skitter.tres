@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/enemy_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "skitter"
+group = "normal"
+shape = "skitter"
+hp_mult = 1.0
+dmg_mult = 1.0
+speed = 3.5
+radius = 0.6
+slots = 1
+scrap_mult = 1.0
+data_base = 1.0
+spawn_weight = 100.0
+first_wave = 1
+behavior_id = "melee"
+tag = "MVP"

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/enemy_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "lancer"
+group = "normal"
+shape = "lancer"
+hp_mult = 1.0
+dmg_mult = 1.2
+speed = 4.2
+radius = 0.7
+slots = 1
+scrap_mult = 1.5
+data_base = 2.0
+spawn_weight = 22.0
+first_wave = 6
+behavior_id = "ranged"
+tag = "MVP"

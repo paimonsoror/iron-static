@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/enemy_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "dart"
+group = "normal"
+shape = "dart"
+hp_mult = 0.8
+dmg_mult = 0.8
+speed = 7.35
+radius = 0.5
+slots = 1
+scrap_mult = 1.5
+data_base = 2.0
+spawn_weight = 30.0
+first_wave = 4
+behavior_id = "melee"
+tag = "MVP"

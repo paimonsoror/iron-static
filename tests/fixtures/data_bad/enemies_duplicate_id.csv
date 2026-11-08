@@ -1,0 +1,3 @@
+id,group,shape,hp_mult,dmg_mult,speed,radius,slots,scrap_mult,data_base,spawn_weight,first_wave,behavior_id,tag
+skitter,normal,skitter,1.0,1.0,3.5,0.6,1,1.0,1,100,1,melee,MVP
+skitter,normal,skitter,1.0,1.0,3.5,0.6,1,1.0,1,100,1,melee,MVP

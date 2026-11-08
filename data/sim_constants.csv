@@ -1,0 +1,58 @@
+# One row per simulation tunable. Keys map 1:1 to the typed vars in src/data_defs/sim_tuning.gd.
+# source: gdd:<doc section> or impl (implementation-chosen first-pass value, tracked for the GDD).
+key,value,source,note
+tick_rate,30,impl,Fixed sim ticks per second (TECH_ARCHITECTURE 2.2)
+wave_seconds,24,gdd:02 s6,Wave length in game seconds
+spawn_seconds,18,gdd:02 s6,Spawn phase length
+lull_seconds,6,gdd:02 s6,Lull phase length
+arena_radius,52,gdd:02 s2,Spawn ring radius in meters
+cinder_radius,2.0,gdd:02 s2,Cinder hit radius in meters
+melee_range,2.0,gdd:02 s2,Melee enemies stop at this distance
+melee_interval_s,1.0,gdd:03 s1.1,Seconds between melee hits
+bite_gain,0.03,gdd:02 s6,Melee overclock bite per consecutive hit
+bite_cap,2.0,gdd:02 s6,Melee overclock bite multiplier cap
+hp0,14,gdd:03 s2,Base enemy HP at level 1
+d0,2,gdd:03 s2,Base enemy damage per hit at level 1
+g_hp_1,1.063,gdd:03 s4.2,HP growth per level up to phase_1_end
+g_hp_2,1.032,gdd:03 s4.2,HP growth per level up to phase_2_end
+g_hp_3,1.022,gdd:03 s4.2,HP growth per level beyond phase_2_end
+g_atk_1,1.058,gdd:03 s4.2,Attack growth per level up to phase_1_end
+g_atk_2,1.028,gdd:03 s4.2,Attack growth per level up to phase_2_end
+g_atk_3,1.018,gdd:03 s4.2,Attack growth per level beyond phase_2_end
+phase_1_end,200,gdd:03 s4.2,Last level of growth phase 1
+phase_2_end,600,gdd:03 s4.2,Last level of growth phase 2
+sector_offset_step,25,gdd:03 s4.1,Enemy level offset per sector
+n_base,6,gdd:03 s4.4,Spawn slots N(w) = min(n_cap; floor(n_base + n_coef * w^n_exp))
+n_coef,2.4,gdd:03 s4.4,See n_base
+n_exp,0.6,gdd:03 s4.4,See n_base
+n_cap,200,gdd:03 s4.4,Maximum spawn slots per wave
+boss_interval,10,gdd:03 s7,Boss every this many waves (S1-S6)
+boss_slot_fraction,0.6,gdd:03 s7,Normal slots on a boss wave as fraction of N(w)
+boss_spawn_s,2.0,gdd:03 s7,Boss spawn time in the wave (S1-S6)
+flank_fraction,0.4,gdd:02 s6,Fraction of enemies that start a flank group
+flank_min,3,gdd:02 s6,Minimum flank group size
+flank_max,6,gdd:02 s6,Maximum flank group size
+flank_half_angle_deg,10,gdd:02 s6,Flank group spread (plus or minus degrees)
+ramp_waves,10,gdd:03 s5,Waves for a type weight to ramp in after first_wave
+slot_overflow,2,gdd:02 s6,Allowed slot overflow when filling a wave
+reject_limit,3,gdd:03 s5,Redraws of a too-expensive type before a skitter is used
+alive_cap_normal,160,gdd:02 s2,Maximum alive normal enemies
+alive_cap_boss,8,gdd:02 s2,Maximum alive bosses
+stale_wave_ends,3,gdd:02 s6,Wave ends after which an enemy is stale
+stale_payout,0.5,gdd:02 s6,Reward fraction for stale enemies
+scrap_k,2,gdd:03 s3,Scrap per kill = max(1; round(scrap_k * G_hp^scrap_exp))
+scrap_exp,0.55,gdd:03 s3,See scrap_k
+data_level_coef,0.04,gdd:03 s3,Data per kill level factor (1 + coef * level)
+reward_growth,1.6,gdd:03 s8,Sector reward R(s) = reward_growth^(s-1)
+start_scrap,20,gdd:02 s7.4,Scrap at deployment start
+lancer_range_min,16,gdd:03 s1.1,Lancer stand-off minimum in meters
+lancer_range_factor,0.85,gdd:03 s1.1,Lancer stand-off as fraction of optic_range
+lancer_range_cap,48,gdd:03 s1.1,Lancer stand-off cap in meters
+lancer_fire_s,2.0,gdd:03 s1.1,Seconds between lancer bolts
+lancer_bolt_speed,18.0,impl,GDD gives no bolt speed; first pass in meters per second
+plating_pct_cap,0.90,gdd:02 s12,Damage reduction percent hard cap
+min_damage_floor,0.05,gdd:02 s12,Minimum damage as fraction of R1 after flat plating
+exposure_t1,0.75,gdd:02 s12.1,Integrity fraction at or below which band 1 starts
+exposure_t2,0.50,gdd:02 s12.1,Integrity fraction at or below which band 2 starts
+exposure_t3,0.25,gdd:02 s12.1,Integrity fraction at or below which band 3 starts
+exposure_hysteresis,0.05,gdd:02 s12.1,Fraction a band is left only after f exceeds threshold plus this

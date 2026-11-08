@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EnemyTable" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/enemy_table.gd" id="1_script"]
+[ext_resource type="Script" path="res://src/data_defs/enemy_def.gd" id="2_item"]
+[ext_resource type="Resource" path="res://src/data_gen/enemy_skitter.tres" id="item_0"]
+[ext_resource type="Resource" path="res://src/data_gen/enemy_dart.tres" id="item_1"]
+[ext_resource type="Resource" path="res://src/data_gen/enemy_walker.tres" id="item_2"]
+[ext_resource type="Resource" path="res://src/data_gen/enemy_lancer.tres" id="item_3"]
+[ext_resource type="Resource" path="res://src/data_gen/enemy_boss_hulk.tres" id="item_4"]
+
+[resource]
+script = ExtResource("1_script")
+defs = Array[ExtResource("2_item")]([ExtResource("item_0"), ExtResource("item_1"), ExtResource("item_2"), ExtResource("item_3"), ExtResource("item_4")])

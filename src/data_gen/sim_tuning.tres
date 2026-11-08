@@ -1,0 +1,61 @@
+[gd_resource type="Resource" script_class="SimTuning" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/sim_tuning.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+alive_cap_boss = 8
+alive_cap_normal = 160
+arena_radius = 52.0
+bite_cap = 2.0
+bite_gain = 0.03
+boss_interval = 10
+boss_slot_fraction = 0.6
+boss_spawn_s = 2.0
+cinder_radius = 2.0
+d0 = 2.0
+data_level_coef = 0.04
+exposure_hysteresis = 0.05
+exposure_t1 = 0.75
+exposure_t2 = 0.5
+exposure_t3 = 0.25
+flank_fraction = 0.4
+flank_half_angle_deg = 10.0
+flank_max = 6
+flank_min = 3
+g_atk_1 = 1.058
+g_atk_2 = 1.028
+g_atk_3 = 1.018
+g_hp_1 = 1.063
+g_hp_2 = 1.032
+g_hp_3 = 1.022
+hp0 = 14.0
+lancer_bolt_speed = 18.0
+lancer_fire_s = 2.0
+lancer_range_cap = 48.0
+lancer_range_factor = 0.85
+lancer_range_min = 16.0
+lull_seconds = 6
+melee_interval_s = 1.0
+melee_range = 2.0
+min_damage_floor = 0.05
+n_base = 6.0
+n_cap = 200
+n_coef = 2.4
+n_exp = 0.6
+phase_1_end = 200
+phase_2_end = 600
+plating_pct_cap = 0.9
+ramp_waves = 10
+reject_limit = 3
+reward_growth = 1.6
+scrap_exp = 0.55
+scrap_k = 2.0
+sector_offset_step = 25
+slot_overflow = 2
+spawn_seconds = 18
+stale_payout = 0.5
+stale_wave_ends = 3
+start_scrap = 20.0
+tick_rate = 30
+wave_seconds = 24

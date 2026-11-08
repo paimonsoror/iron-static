@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/enemy_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "boss_hulk"
+group = "boss"
+shape = "boss_hulk"
+hp_mult = 25.0
+dmg_mult = 3.0
+speed = 1.4
+radius = 3.0
+slots = 1
+scrap_mult = 5.0
+data_base = 15.0
+spawn_weight = 0.0
+first_wave = 10
+behavior_id = "melee_boss"
+tag = "MVP"

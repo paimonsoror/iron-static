@@ -47,11 +47,12 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 |---|---|---|
 | Tests (import, run, parse output) | `.\tools\test.ps1` (`-Canary` proves the wrapper detects failures) | done (M0-05) |
 | Lint (gdformat, gdlint, layer rules, BOM, warnings-as-errors compile) | `.\tools\lint.ps1` | done (M0-06) |
+| Format GDScript (gdformat + CRLF->LF; never run gdformat directly) | `.\tools\format.ps1 [paths]` | done |
 | Start emulator (AVD `tower_phone`, wait 25 s after cold boot; `-ColdBoot`, `-PublicDns`) | `.\tools\run_emulator.ps1` | done |
 | Install/repair Gradle build template (untracked; after clone or Godot upgrade) | `.\tools\setup_android_template.ps1` (`-Force` reinstalls) | done (M0-09) |
 | Export, install, launch on emulator | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic` | done (M0-07) |
 | Emulator smoke test (log scan + screenshot check) | `.\tools\smoke_android.ps1` (`-SkipDeploy`; `-MinFps`) | done (M0-08) |
-| CSV to `.tres` importer | `.\tools\import_data.ps1` | created in M1-02 |
+| CSV to `.tres` importer | `.\tools\import_data.ps1` | done (M1-02; flags -DataDir -OutDir -SkipImport) |
 | Headless sim runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | created in M1-16 |
 | Sim perf bench | `.\tools\perf_bench.ps1 [-Check]` | created in M1-17 |
 | Balance run vs targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` | created in M2-14 |
@@ -95,3 +96,8 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - The AdMob rewarded unit id in `ads_android.gd` is Google's test id; real ad ids must come from an ignored config before release (M7). The billing/ads boot probe in `services.gd` runs only with `--probe-services` in a debug build (how: `docs/setup/DEV_ENVIRONMENT.md`).
 - Plugin verdict (M0): Billing 3.3.0, AdMob 5.1.0 + UMP, Nakama 3.4.0, Sentry 2.4.0 work on 4.7.2 (`docs/setup/plugin_matrix.md`, `godot_pin_decision.md`); Firebase and Play Games wait on the user's Firebase/Play Console project (Q37).
 - `x.call(...) as SomeClass` trips `unsafe_cast`; assign to a `Variant` var first, then to a typed var.
+- GDScript: `int / int` is an error (integer_division): use `floori(float(a) / float(b))` or shifts. Hex literals above 0x7FFFFFFFFFFFFFFF overflow: write signed decimals.
+- gdlint rejects underscore-prefixed locals/params (`var _i`, `exp_`); `PackedXArray[-1]` silently reads the last element, so check `alloc()` results for -1 before indexing.
+- Parallel test runs can collide on Sentry's GDExtension DLL copy at import; `test_runner.py` retries that transient error twice. Write large `.gd` files with the Write tool, not shell heredocs.
+- Godot imports every `.csv` as a translation (fails with Invalid locale): every data CSV folder needs a `.gdignore` (`data/` has one); `FileAccess` still reads `res://data/...`.
+- Passing a Variant (`dict[k]`, `arr[i]`) to a typed param or `float()`/`int()` fails compile: assign to a typed local first. `Resource.duplicate()` skips non-exported vars (clone field by field).

@@ -21,6 +21,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
+# Import errors that only mean another Godot process held a GDExtension library copy.
+TRANSIENT_IMPORT_RE = re.compile(r"~lib\S*\.(dll|so)|\.(dll|so)\b|GDExtension|dynamic library", re.IGNORECASE)
 ERROR_PATTERNS = [
     re.compile(p)
     for p in (
@@ -176,8 +178,17 @@ def run_pipeline(godot: str, project: Path, res_path: str, suite: str | None, ti
         return finish(zero, 4)
 
     rc, imp = run_godot(godot, project, ["--import"], timeout)
-    (build_dir / "last_import.txt").write_text(imp, encoding="utf-8")
     errs = scan_errors(imp, allow)
+    # Parallel runs can collide on the temp copy Godot makes of GDExtension DLLs (e.g.
+    # "Failed to open ...~libsentry...dll"); that is transient, so retry the import.
+    for attempt in range(2):
+        if not errs or not all(TRANSIENT_IMPORT_RE.search(e) for e in errs):
+            break
+        print(f"Transient GDExtension copy error during import; retrying ({attempt + 1}/2)")
+        time.sleep(15)
+        rc, imp = run_godot(godot, project, ["--import"], timeout)
+        errs = scan_errors(imp, allow)
+    (build_dir / "last_import.txt").write_text(imp, encoding="utf-8")
     if errs:
         print("Import step reported errors:")
         for e in errs[:20]:
@@ -262,6 +273,12 @@ def self_test() -> int:
         ("pass", evaluate("all good\n0 errors", ok_xml, allow)[1], 0),
         ("failure", evaluate("FAILED", fail_xml, allow)[1], 1),
         ("parse error", evaluate("SCRIPT ERROR: Parse Error: x (Warning treated as error.)", ok_xml, allow)[1], 2),
+        (
+            "transient dll copy matches",
+            int(bool(TRANSIENT_IMPORT_RE.search("ERROR: Failed to open 'res://addons/sentry/bin/~libsentry.dll'."))),
+            1,
+        ),
+        ("parse error is not transient", int(bool(TRANSIENT_IMPORT_RE.search("Parse Error: Expected ')'"))), 0),
         ("zero tests xml", evaluate("fine", zero_xml, allow)[1], 3),
         ("zero tests no report", evaluate("No test cases found, abort test run!", None, allow)[1], 3),
         ("allowlisted error", evaluate("ERROR: known benign thing happened", ok_xml, allow)[1], 0),

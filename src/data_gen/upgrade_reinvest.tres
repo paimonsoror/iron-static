@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="RunUpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/run_upgrade_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "reinvest"
+tab = "systems"
+kind = "C"
+base = 0.0
+step = 0.0006
+l_cap = 99
+has_hard_cap = true
+hard_cap = 0.0594
+c0 = 300.0
+g = 1.11
+gate_best_wave = 12
+tag = "MVP"
