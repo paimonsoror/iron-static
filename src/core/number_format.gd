@@ -47,7 +47,7 @@ static func format(value: BigNum, style: int = SHORT) -> String:
 static func format_float(v: float, max_decimals: int) -> String:
 	if is_nan(v) or is_inf(v):
 		return "0"
-	var txt: String = ("%." + str(clampi(max_decimals, 0, 9)) + "f") % v
+	var txt: String = _fixed(v, max_decimals)
 	if txt.contains("."):
 		txt = txt.rstrip("0").rstrip(".")
 	if txt == "-0":
@@ -61,8 +61,30 @@ static func format_percent(fraction: float) -> String:
 		return "0%"
 	var p: float = fraction * 100.0
 	if absf(p) < 9.95:
-		return "%.1f%%" % p
+		return _fixed(p, 1) + "%"
 	return "%d%%" % roundi(p)
+
+
+## Fixed-point text with exactly `decimals` digits, rounding halves away from zero.
+## Done with integer math because printf-style "%.2f" rounds ties differently per platform
+## (0.125 -> "0.13" on Windows, different on Linux CI). The 1e-12 nudge makes values stored
+## just below a written tie (1.005 as 1.00499999...) round as written.
+static func _fixed(v: float, decimals: int) -> String:
+	var d: int = clampi(decimals, 0, 9)
+	var p10: int = 1
+	for _step: int in d:
+		p10 *= 10
+	var magnitude: float = absf(v) * float(p10) * (1.0 + 1e-12)
+	if magnitude >= 9.0e15:
+		return str(roundi(v))
+	var scaled: int = roundi(magnitude)
+	var whole: int = floori(float(scaled) / float(p10))
+	var txt: String = str(whole)
+	if d > 0:
+		txt += "." + str(scaled - whole * p10).lpad(d, "0")
+	if v < 0.0 and scaled != 0:
+		txt = "-" + txt
+	return txt
 
 
 ## Multiplier text: x1.25, x12.4, x1.24K. Accepts float or BigNum.
