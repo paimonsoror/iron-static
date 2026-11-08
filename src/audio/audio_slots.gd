@@ -74,6 +74,11 @@ static func load_text(text: String, source: String = "<text>") -> int:
 	return _order.size()
 
 
+## Forgets the loaded streams (slot rows stay); called on shutdown so statics hold no resources at exit.
+static func release_streams() -> void:
+	_streams = {}
+
+
 static func reset() -> void:
 	_slots = {}
 	_order = PackedStringArray()

@@ -26,6 +26,12 @@ func setup() -> void:
 	add_child(music)
 
 
+## Drops the cached streams on shutdown so no audio resource outlives the engine (the CI exit-leak check).
+func _exit_tree() -> void:
+	_pools.clear()
+	AudioSlots.release_streams()
+
+
 ## Plays sound `sfx_id`. `pitch_jitter` < 0 uses the slot's `pitch_var`; `semitones` shifts the pitch (buy ramp).
 ## Returns false when the sound was skipped (unknown id, missing file, cooldown, all voices busy, paused).
 func play_sfx(sfx_id: String, pitch_jitter: float = -1.0, semitones: float = 0.0) -> bool:

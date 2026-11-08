@@ -69,6 +69,13 @@ func stop() -> void:
 	_started = false
 
 
+## Stops and releases the synchronized stream on shutdown (no playback may hold it at engine exit).
+func _exit_tree() -> void:
+	stop()
+	if _player != null:
+		_player.stream = null
+
+
 func set_state(s: MusicState) -> void:
 	state = s
 	if _started:

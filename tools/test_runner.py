@@ -228,6 +228,8 @@ def run_pipeline(godot: str, project: Path, res_path: "str | list[str]", suite: 
         "-c",
         "-rd",
         f"res://build/test/runs/{run_name}/report",
+        "--",
+        "--mute",  # user arg: Game.audio stays silent, no music stream is playing at exit
     ]
     rc, out = run_godot(godot, project, args, timeout)
     (build_dir / "last_output.txt").write_text(out, encoding="utf-8")
