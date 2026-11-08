@@ -27,7 +27,7 @@ func _ready() -> void:
 	_hud.speed_changed.connect(_on_speed_changed)
 	_hud.pause_toggled.connect(_on_pause_toggled)
 	_hud.buy_requested.connect(Game.request_buy)
-	_hud.field_insets_changed.connect(_battle.set_field_insets)  # Cinder centers in the open field (V1-25)
+	_hud.field_rect_changed.connect(_battle.set_field_rect)  # Cinder centers in the open field (V1-25, V1-28)
 	_results.redeploy_pressed.connect(_on_redeploy_pressed)
 	_debug.band_forced.connect(_on_band_forced)
 	_debug.load_requested.connect(_on_load_requested)

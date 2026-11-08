@@ -129,14 +129,16 @@ static func contact_standoff_px(
 ## battle area, so the limiting dimension is the smaller of the viewport width and the battle height (portrait: the
 ## width on tall phones, nearly equal at 1080x1920). The radius fit is clamped to [MIN_FIT_WIDTH_M, spawn ring
 ## diameter 2 x (arena_radius_m + margin)] before the aspect adjustment.
-## `field_size` is the unobstructed field (between the HUD and the panel); Vector2.ZERO = the whole battle rect.
+## `field_size` is the unobstructed field (between the HUD and the panel, V1-28: and left of a side panel);
+## Vector2.ZERO = the whole battle rect. The limiting dimension is the smaller of the field's width and height.
 static func fit_width_m(
 	optic_range_m: float, arena_radius_m: float, viewport_size: Vector2, field_size: Vector2 = Vector2.ZERO
 ) -> float:
 	var w: float = 2.0 * (maxf(optic_range_m, 0.0) + FIT_MARGIN_M)
 	w = clampf(w, MIN_FIT_WIDTH_M, maxf(2.0 * (arena_radius_m + FIT_MARGIN_M), MIN_FIT_WIDTH_M))
 	var fh: float = field_size.y if field_size.y > 0.0 else battle_height(viewport_size.y)
-	var limit: float = minf(viewport_size.x, fh)
+	var fw: float = field_size.x if field_size.x > 0.0 else viewport_size.x
+	var limit: float = minf(minf(viewport_size.x, fw), fh)
 	if limit <= 0.0 or viewport_size.x <= 0.0:
 		return w
 	return w * viewport_size.x / limit
@@ -164,14 +166,28 @@ static func battle_rect(viewport_size: Vector2) -> Rect2:
 	return Rect2(0.0, 0.0, viewport_size.x, battle_height(viewport_size.y))
 
 
-## The unobstructed field (V1-23): x spans the viewport, y runs from `top_px` (bottom edge of the HUD, viewport px)
-## to `viewport_height - bottom_inset_px` (top edge of the upgrade panel). Negative arguments fall back to the old
-## battle rect (top 0, bottom BATTLE_FRACTION).
-static func field_rect(viewport_size: Vector2, top_px: float = -1.0, bottom_inset_px: float = -1.0) -> Rect2:
+## The unobstructed field (V1-23): y runs from `top_px` (bottom edge of the HUD, viewport px) to
+## `viewport_height - bottom_inset_px` (top edge of the upgrade panel); negative top/bottom fall back to the old
+## battle rect (top 0, bottom BATTLE_FRACTION). V1-28: `left_px` / `right_px` shrink it horizontally (side panel);
+## the default 0 spans the viewport.
+static func field_rect(
+	viewport_size: Vector2,
+	top_px: float = -1.0,
+	bottom_inset_px: float = -1.0,
+	left_px: float = 0.0,
+	right_px: float = 0.0
+) -> Rect2:
 	var top: float = maxf(top_px, 0.0)
 	var bottom: float = viewport_size.y - bottom_inset_px if bottom_inset_px >= 0.0 else battle_height(viewport_size.y)
 	bottom = maxf(bottom, top + 1.0)
-	return Rect2(0.0, top, viewport_size.x, bottom - top)
+	var left: float = maxf(left_px, 0.0)
+	var right: float = maxf(viewport_size.x - maxf(right_px, 0.0), left + 1.0)
+	return Rect2(left, top, right - left, bottom - top)
+
+
+## Camera width normalized for sprite sizing: the field's limiting dimension relative to the viewport width.
+static func sprite_cam_m(camera_m: float, viewport_width: float, field_size: Vector2) -> float:
+	return camera_m * minf(field_size.x, minf(viewport_width, field_size.y)) / viewport_width
 
 
 ## Cinder's screen position: center of the battle area.

@@ -20,10 +20,9 @@ var _px_per_m: float = ViewMath.px_per_m(1080.0, ViewMath.BASE_FIT_WIDTH_M)
 var _sprite_ppm: float = ViewMath.sprite_ppm(1080.0, ViewMath.BASE_FIT_WIDTH_M)
 var _sprite_factor: float = ViewMath.SPRITE_BASE_FACTOR
 var _battle_local := Rect2()
-var _sprite_cam_m: float = ViewMath.BASE_FIT_WIDTH_M
-## Unobstructed field edges in viewport px (HUD bottom, panel height); negative = old battle rect fallback.
-var _inset_top: float = -1.0
-var _inset_bottom: float = -1.0
+## Unobstructed field edges in viewport px (HUD bottom, panel height, side panel); negative top/bottom = fallback.
+var _inset_tb := Vector2(-1.0, -1.0)
+var _inset_lr := Vector2.ZERO
 var _viewport_size := Vector2(1080.0, 1920.0)
 var _aim: float = -PI * 0.5
 var _events := EventCursor.new()
@@ -72,19 +71,22 @@ func layout(viewport_size: Vector2) -> void:
 		_setup_enemy_renderer()
 
 
-## Tells the view which part of the viewport the HUD and the upgrade panel leave open (V1-23): `top_px` = bottom edge
-## of the HUD in viewport px, `bottom_px` = height of the upgrade panel. Cinder is centered in that field and the
-## camera fits the optic range into it. Call whenever either changes (resize, safe-area, HUD layout); the floor still
-## fills the whole area behind the HUD. Negative values restore the fallback (top 0, bottom 56 percent).
+## Vertical open field (V1-23): `top_px` = HUD bottom edge, `bottom_px` = panel height, in viewport px; negative =
+## fallback (top 0, bottom 56 percent). Keeps the horizontal insets (`set_field_rect`).
 func set_field_insets(top_px: float, bottom_px: float) -> void:
-	_inset_top = top_px
-	_inset_bottom = bottom_px
+	_inset_tb = Vector2(top_px, bottom_px)
 	layout(_viewport_size)
+
+
+## V1-28: the open field as a rect in viewport px (wide layout: left of the side panel), stored as insets.
+func set_field_rect(rect: Rect2) -> void:
+	_inset_lr = Vector2(maxf(rect.position.x, 0.0), maxf(_viewport_size.x - rect.end.x, 0.0))
+	set_field_insets(rect.position.y, _viewport_size.y - rect.end.y)
 
 
 ## The unobstructed field in viewport px.
 func field_rect() -> Rect2:
-	return ViewMath.field_rect(_viewport_size, _inset_top, _inset_bottom)
+	return ViewMath.field_rect(_viewport_size, _inset_tb.x, _inset_tb.y, _inset_lr.x, _inset_lr.y)
 
 
 ## Events lost by this view's cursors (aim + beams) since start; 0 unless the view fell behind the ring.
@@ -242,12 +244,10 @@ func _update_zoom(now_s: float) -> void:
 
 func _update_scales() -> void:
 	_px_per_m = ViewMath.px_per_m(_viewport_size.x, camera_width_m)
-	# sprite size follows the zoom, not the aspect: normalize by the field's limiting dimension
-	_sprite_cam_m = camera_width_m
-	if auto_fit:
-		_sprite_cam_m = camera_width_m * minf(_viewport_size.x, field_rect().size.y) / _viewport_size.x
-	_sprite_ppm = ViewMath.sprite_ppm(_viewport_size.x, _sprite_cam_m)
-	_sprite_factor = ViewMath.sprite_factor(_sprite_cam_m)
+	var fs: Vector2 = field_rect().size if auto_fit else Vector2.INF  # sprites follow the zoom, not the aspect
+	var cam: float = ViewMath.sprite_cam_m(camera_width_m, _viewport_size.x, fs)
+	_sprite_ppm = ViewMath.sprite_ppm(_viewport_size.x, cam)
+	_sprite_factor = ViewMath.sprite_factor(cam)
 
 
 ## Pushes the sprite-sized values to Cinder, the beams and the particle emitter.

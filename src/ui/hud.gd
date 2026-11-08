@@ -4,8 +4,8 @@ extends Control
 ## hud_scrap amber, hud_data_run blue) plus the bottom `UpgradePanel` (M2-10), styled per art bible 7.2 (V1-16) and
 ## compacted in V1-25: line 1 wave + time left + speed + 80 px speed/pause icons (126 px touch rects), line 2 24 px
 ## timer bar, line 3 integrity bar, line 4 currency chips (about 250 px tall). Base resolution 1080 wide.
-## `field_insets_changed(top_px, bottom_px)` reports the HUD bottom edge and the panel's cover so main can call
-## `BattleView.set_field_insets`; it fires (deferred, coalesced) on ready, resize, safe-area and panel size changes.
+## `field_rect_changed(rect)` (V1-28) and `field_insets_changed(top_px, bottom_px)` report the open field for
+## `BattleView.set_field_rect` (deferred, coalesced). Aspect below 0.72 = PORTRAIT, from 0.78 = WIDE (`LayoutMode`).
 ## Signals only; the owner feeds values with refresh(world, now_s) at any rate. Counter text comes from `HudModel`
 ## (10 Hz throttle, `NumberFormat`); a label is rewritten only when its text changed. Scrap and data roll to new
 ## values over 0.25 s (`NumberRoll`, stepped by the same 10 Hz refresh; instant under reduce motion). The panel is
@@ -15,6 +15,7 @@ signal speed_changed(multiplier: int)
 signal pause_toggled(paused: bool)
 signal buy_requested(upgrade_index: int, count: int)
 signal field_insets_changed(top_px: float, bottom_px: float)
+signal field_rect_changed(rect: Rect2)
 
 const SPEEDS: Array[int] = [1, 2]
 ## Counter plate icon size and offset (inside the 92 px plate).
@@ -38,6 +39,9 @@ var _scrap_roll: NumberRoll = NumberRoll.new()
 var _data_roll: NumberRoll = NumberRoll.new()
 var _insets_dirty: bool = false
 var _last_insets: Vector2 = Vector2(-1.0, -1.0)
+var _last_rect := Rect2()
+var _mode: LayoutMode.Mode = LayoutMode.Mode.PORTRAIT
+var _safe := Vector4.ZERO
 
 @onready var _wave_label: Label = %WaveLabel
 @onready var _timer_bar: SegmentedBar = %TimerBar
@@ -88,33 +92,47 @@ func upgrade_panel() -> UpgradePanel:
 	return _panel
 
 
-## Insets the top bar and the bottom panel by the OS safe area (`SafeArea.margins`: left, top, right, bottom in
-## viewport px; cutouts, rounded corners). Zero margins restore the scene layout.
+## Insets the top bar and the panel by the OS safe area (`SafeArea.margins`: left, top, right, bottom in viewport
+## px; cutouts, rounded corners) in either layout. Zero margins restore the scene layout.
 func apply_safe_margins(m: Vector4) -> void:
-	_top_bar.offset_left = m.x
-	_top_bar.offset_top = m.y
-	_top_bar.offset_right = -m.z
-	_panel.offset_left = m.x
-	_panel.offset_right = -m.z
-	_panel.offset_bottom = -m.w
-	_panel.reflow()
-	_mark_insets_dirty()
+	_safe = m
+	_apply_layout()
 
 
-## The field the HUD leaves open, in this control's pixels: `x` = HUD bottom edge (lowest chip plate),
-## `y` = how far the panel reaches up from the bottom of the screen (screen height minus panel top).
+## The active layout (V1-28): PORTRAIT below aspect 0.72, WIDE from 0.78, with hysteresis (`LayoutMode`).
+func layout_mode() -> LayoutMode.Mode:
+	return _mode
+
+
+## Open field insets in this control's pixels: `x` = HUD bottom edge, `y` = screen height minus panel top (WIDE: only
+## the bottom safe margin, the panel is a side column).
 func field_insets() -> Vector2:
 	var top: float = 0.0
 	for plate: Control in [%ScrapPlate, %DataPlate, %TopPlate, %IntegrityBar]:
 		top = maxf(top, plate.global_position.y + plate.size.y - global_position.y)
+	if _mode == LayoutMode.Mode.WIDE:
+		return Vector2(top, _safe.w)
 	var bottom: float = size.y - (_panel.global_position.y - global_position.y)
 	return Vector2(top, bottom)
 
 
-func _on_resized() -> void:
-	_panel.max_height_px = size.y * PANEL_MAX_SHARE
-	_panel.reflow()
+## The open field as a rect (V1-28): portrait spans the width between HUD and panel; wide is left of the side panel.
+func field_rect() -> Rect2:
+	var v: Vector2 = field_insets()
+	if _mode == LayoutMode.Mode.WIDE:
+		return LayoutRects.field(size, _safe, v.x)
+	return ViewMath.field_rect(size, v.x, v.y)
+
+
+func _apply_layout() -> void:
+	HudLayout.apply(_mode, size, _safe, _top_bar, _panel, _banner)
 	_mark_insets_dirty()
+
+
+func _on_resized() -> void:
+	_mode = LayoutMode.pick(size, _mode)
+	_panel.max_height_px = size.y * PANEL_MAX_SHARE
+	_apply_layout()
 
 
 func _mark_insets_dirty() -> void:
@@ -127,9 +145,13 @@ func _mark_insets_dirty() -> void:
 func _flush_insets() -> void:
 	_insets_dirty = false
 	var v: Vector2 = field_insets()
+	var rect: Rect2 = field_rect()
 	if v != _last_insets:
 		_last_insets = v
 		field_insets_changed.emit(v.x, v.y)
+	if rect != _last_rect:
+		_last_rect = rect
+		field_rect_changed.emit(rect)
 
 
 ## The wave banner (tests).

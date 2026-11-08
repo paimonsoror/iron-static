@@ -13,11 +13,20 @@ const REFRESH_S: float = 0.1
 const PANEL_MARGIN_H: float = 20.0
 const PANEL_MARGIN_V: float = 16.0
 const TAB_ICON_PX: int = 56
+## Wide layout: tab label size (the side column is narrower than four portrait tabs) and cost button min width.
+const WIDE_TAB_FONT: int = 34
+const WIDE_COST_MIN_W: float = 204.0
+const ROW_COST_MIN_W: float = 316.0
 const ROW_SCENE: PackedScene = preload("res://src/ui/upgrade_row.tscn")
 
 var model: UpgradePanelModel = UpgradePanelModel.new()
 ## Height cap in px (the HUD sets 36 percent of its height); 0 = 36 percent of the viewport.
 var max_height_px: float = 0.0
+## Wide layout (V1-28): the panel is a full-height side column; the list fills it and scrolls inside.
+var wide: bool = false:
+	set(value):
+		wide = value
+		_apply_wide()
 
 var _world: SimWorld = null
 var _defs: Array[RunUpgradeDef] = []
@@ -85,6 +94,9 @@ func set_tab(tab_id: String) -> bool:
 func reflow() -> void:
 	if not is_node_ready():
 		return
+	if wide:
+		_scroll.custom_minimum_size.y = 0.0
+		return
 	var cap: float = max_height_px
 	if cap <= 0.0:
 		cap = get_viewport_rect().size.y * 0.36
@@ -148,6 +160,7 @@ func _build_rows(defs: Array[RunUpgradeDef]) -> void:
 		row.visible = false
 		_rows_box.add_child(row)
 		_rows_box.move_child(row, i)
+		_compact_row(row)
 		row.buy_pressed.connect(_on_row_buy)
 		_rows.append(row)
 
@@ -203,3 +216,21 @@ func _on_tab_pressed(tab_id: String) -> void:
 func _show_selected_tab() -> void:
 	for tab_id: String in _tab_buttons:
 		_tab_buttons[tab_id].set_pressed_no_signal(tab_id == model.active_tab)
+
+
+## Tab font and cost button width for the wide side column (portrait values restored otherwise).
+func _apply_wide() -> void:
+	if not is_node_ready():
+		return
+	for b: Button in _tab_buttons.values():
+		if wide:
+			b.add_theme_font_size_override("font_size", WIDE_TAB_FONT)
+		else:
+			b.remove_theme_font_size_override("font_size")
+	for row: UpgradeRow in _rows:
+		_compact_row(row)
+
+
+func _compact_row(row: UpgradeRow) -> void:
+	var buy: Control = row.get_node("%BuyButton")
+	buy.custom_minimum_size.x = WIDE_COST_MIN_W if wide else ROW_COST_MIN_W
