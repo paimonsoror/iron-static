@@ -133,16 +133,42 @@ def ensure_build_root(project: Path) -> None:
     (root / ".gdignore").touch(exist_ok=True)
 
 
+def prune_old_runs(runs_root: Path, keep: Path, max_age_s: float = 6 * 3600) -> None:
+    """Delete per-run folders older than max_age_s (never the current one)."""
+    now = time.time()
+    for d in runs_root.iterdir():
+        if d == keep or not d.is_dir():
+            continue
+        try:
+            if now - d.stat().st_mtime > max_age_s:
+                shutil.rmtree(d, ignore_errors=True)
+        except OSError:
+            pass
+
+
 def run_pipeline(godot: str, project: Path, res_path: str, suite: str | None, timeout: int, quiet: bool = False) -> int:
     """Import, run GdUnit4, parse. Prints the summary line last. Returns the exit code."""
     ensure_build_root(project)
-    build_dir = project / "build" / "test"
+    # Each invocation gets its own folder so parallel agents never clobber each other's
+    # report; the latest results are also copied to build/test/ (last writer wins).
+    latest_dir = project / "build" / "test"
+    runs_root = latest_dir / "runs"
+    run_name = f"{os.getpid()}_{int(time.time() * 1000)}"
+    build_dir = runs_root / run_name
     build_dir.mkdir(parents=True, exist_ok=True)
+    prune_old_runs(runs_root, keep=build_dir)
     zero = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
     allow = load_allowlist()
 
     def finish(counts: dict[str, int], code: int) -> int:
         print(write_summary(build_dir, counts, code))
+        for name in ("summary.json", "last_import.txt", "last_output.txt"):
+            src = build_dir / name
+            if src.is_file():
+                try:
+                    shutil.copyfile(src, latest_dir / name)
+                except OSError:
+                    pass  # another run is copying at the same moment; its copy is as good
         return code
 
     if not Path(godot).is_file():
@@ -173,7 +199,7 @@ def run_pipeline(godot: str, project: Path, res_path: str, suite: str | None, ti
         target,
         "-c",
         "-rd",
-        "res://build/test/report",
+        f"res://build/test/runs/{run_name}/report",
     ]
     rc, out = run_godot(godot, project, args, timeout)
     (build_dir / "last_output.txt").write_text(out, encoding="utf-8")
