@@ -1,7 +1,7 @@
 class_name StatBlock
 extends RefCounted
-## Final stat values the sim reads (M1 shared contract). M1 fills level-0 base values from the run upgrade
-## rows; M2 replaces `from_base` with StatResolver but keeps this interface.
+## Final stat values the sim reads (M1 shared contract). `from_base` gives level-0 values; `from_resolver`
+## (M2-03) resolves levels, Foundry and external multipliers through StatResolver.
 
 var laser_output: float = 0.0
 var cycle_rate: float = 0.0
@@ -21,25 +21,41 @@ var reinvest: float = 0.0
 static func from_base(cfg: SimConfig) -> StatBlock:
 	var s: StatBlock = StatBlock.new()
 	for def: RunUpgradeDef in cfg.upgrades:
-		match def.id:
-			"laser_output":
-				s.laser_output = def.base
-			"cycle_rate":
-				s.cycle_rate = def.base
-			"crit_chance":
-				s.crit_chance = def.base
-			"crit_mult":
-				s.crit_mult = def.base
-			"optic_range":
-				s.optic_range = def.base
-			"hull_integrity":
-				s.hull_integrity = def.base
-			"nano_repair":
-				s.nano_repair = def.base
-			"plating_pct":
-				s.plating_pct = def.base
-			"scrap_yield":
-				s.scrap_yield = def.base
-			"reinvest":
-				s.reinvest = def.base
+		s.set_stat(def.id, def.base)
 	return s
+
+
+## Resolved stats from run levels, Foundry levels and external multipliers (M2-03). Empty Foundry arrays = 0.
+static func from_resolver(
+	defs: Array[RunUpgradeDef],
+	run_levels: PackedInt32Array,
+	foundry_levels: PackedInt32Array = PackedInt32Array(),
+	foundry_f: PackedFloat64Array = PackedFloat64Array(),
+	mults: ExternalMults = null
+) -> StatBlock:
+	return StatResolver.resolve(defs, run_levels, foundry_levels, foundry_f, mults)
+
+
+## Sets the field named by an upgrade row id; unknown ids are ignored.
+func set_stat(id: String, value: float) -> void:
+	match id:
+		"laser_output":
+			laser_output = value
+		"cycle_rate":
+			cycle_rate = value
+		"crit_chance":
+			crit_chance = value
+		"crit_mult":
+			crit_mult = value
+		"optic_range":
+			optic_range = value
+		"hull_integrity":
+			hull_integrity = value
+		"nano_repair":
+			nano_repair = value
+		"plating_pct":
+			plating_pct = value
+		"scrap_yield":
+			scrap_yield = value
+		"reinvest":
+			reinvest = value
