@@ -6,10 +6,10 @@ IRON STATIC (code name `ironstatic`, provisional applicationId `com.ironstatic.g
 
 | What | Where |
 |---|---|
-| Game rules, terms, numbers, ids (source of truth for the game) | `docs/design/00..09_*.md` (GDD). Start with `00_overview.md` section 8 glossary |
+| Game rules, terms, numbers, ids (source of truth for the game) | `docs/design/00..09_*.md` (GDD; plus `10_art_bible.md`, `11_title_and_frames.md`). Start with `00_overview.md` section 8 glossary |
 | Technical decisions (source of truth for technology) | `docs/TECH_ARCHITECTURE.md` |
 | Milestones M0-M7, P1, P2, critical path, Play timeline | `docs/ROADMAP.md` |
-| Agent-ready tasks | `docs/tasks/M0.md`, `M1.md`, `M2.md`, `V1.md`, `A1.md` (later files are written when the previous milestone closes) |
+| Agent-ready tasks | `docs/tasks/M0.md`, `M1.md`, `M2.md`, `V1.md`, `A1.md`, `M3.md` (meta loop, persistence, title screen and frames; planning done, 32 tasks) (later files are written when the previous milestone closes) |
 | Toolchain, emulator, troubleshooting | `docs/setup/DEV_ENVIRONMENT.md` (+ other `docs/setup/*.md` written in M0) |
 | Open questions (ONE list) | `docs/design/09_open_questions.md` |
 | Background research on The Tower | `docs/research/` (comparison only) |
