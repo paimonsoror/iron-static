@@ -10,6 +10,7 @@ extends Node
 ##   --debug-hold  pause the sim when the load wave is reached (static crowd: render cost without sim cost)
 ##   --debug-novsync  disable vsync so fps shows uncapped render throughput (V1-03 bench)
 ## Quality args (all builds): --quality=high|mid|low, --shake=off|low|normal (VisualSettings, V1-03).
+## Audio arg (all builds): --mute runs silent (no SFX, no music; benches and captures).
 
 const VERSION: String = "0.0.1"
 const ARG_DEBUG_LOAD: String = "--debug-load"
@@ -57,6 +58,9 @@ func _ready() -> void:
 			visual.fps_cap = 0  # the bench measures uncapped throughput
 	visual.apply_fps_cap()
 	add_child(audio)
+	if AudioSettings.is_mute_arg(args):
+		audio.disabled = true
+		audio.settings.muted = true
 	audio.setup()
 
 

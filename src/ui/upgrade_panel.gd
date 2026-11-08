@@ -193,6 +193,8 @@ func _touch_style(b: Button, normal: StyleBox, hover: StyleBox, on: StyleBox, ho
 
 
 func _on_tab_pressed(tab_id: String) -> void:
+	AudioHooks.tap()
+	@warning_ignore("return_value_discarded")
 	set_tab(tab_id)
 
 

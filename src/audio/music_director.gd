@@ -13,10 +13,18 @@ var _levels: PackedFloat32Array = PackedFloat32Array()
 var _targets: PackedFloat32Array = PackedFloat32Array()
 var _slot_db: PackedFloat32Array = PackedFloat32Array()
 var _started: bool = false
+var _setup_done: bool = false
+
+
+## `setup()` once (a failed setup is not retried, so its error is logged a single time).
+func ensure_setup() -> void:
+	if not _setup_done:
+		setup()
 
 
 ## Loads the layer rules and the layer streams (a missing file leaves that layer silent and logs an error).
 func setup() -> void:
+	_setup_done = true
 	model = MusicIntensity.load_default()
 	if not model.error.is_empty():
 		push_error("MusicDirector: " + model.error)

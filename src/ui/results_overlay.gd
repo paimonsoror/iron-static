@@ -154,6 +154,7 @@ func _set_cause(world: SimWorld) -> void:
 
 
 func _on_pressed() -> void:
+	AudioHooks.tap()
 	redeploy_pressed.emit()
 
 

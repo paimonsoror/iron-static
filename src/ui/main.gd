@@ -8,6 +8,8 @@ var _controller: RunController
 var _hold: bool = false
 ## Back gesture, app lifecycle and safe area (V1-24).
 var _mobile: MobileShell
+## Sim events -> sounds and adaptive music (A1-05, A1-07).
+var _audio: AudioEventRouter
 
 @onready var _battle: BattleView = %BattleView
 @onready var _hud: Hud = %Hud
@@ -21,6 +23,7 @@ func _ready() -> void:
 		return
 	Log.info("boot ok")
 	_controller = Game.controller
+	_audio = AudioEventRouter.new(Game.audio)
 	_hud.speed_changed.connect(_on_speed_changed)
 	_hud.pause_toggled.connect(_on_pause_toggled)
 	_hud.buy_requested.connect(Game.request_buy)
@@ -58,15 +61,20 @@ func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
 		_battle.set_speed_hint(_controller.speed)
 		_battle.render(_controller.driver.acc / TickDriver.DT)
 		_controller.time_scale = _battle.time_scale()  # slow-mo: view-only pacing for the next frame
+		_audio.update()
+	else:
+		_audio.skip()  # debug load fast-forward: no sound for the unrendered ticks
 	_hud.refresh(_controller.world, Time.get_ticks_msec() / 1000.0)
 
 
 func _on_run_started(world: SimWorld) -> void:
 	_results.hide_results()
 	_battle.bind(world)
+	_audio.bind(world)  # in-run music state and music start; a redeploy resets the cursor and the menu flag
 
 
 func _on_run_ended(world: SimWorld) -> void:
+	_audio.in_menu = true  # results screen: menu mix (the death sound still comes through update())
 	_results.show_results(world)
 
 

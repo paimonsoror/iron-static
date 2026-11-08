@@ -224,6 +224,7 @@ func _reduced() -> bool:
 
 
 func _on_speed_pressed() -> void:
+	AudioHooks.tap()
 	_speed_index = (_speed_index + 1) % SPEEDS.size()
 	_update_speed_text()
 	speed_changed.emit(SPEEDS[_speed_index])
@@ -232,6 +233,14 @@ func _on_speed_pressed() -> void:
 func _on_pause_pressed() -> void:
 	_paused = not _paused
 	_update_pause_text()
+	# (impl) The HUD pause stops audio like the app pause: voices and music freeze. The tap sounds before the
+	# freeze and after the thaw, because a paused director plays nothing.
+	if _paused:
+		AudioHooks.tap()
+		AudioHooks.pause_audio()
+	else:
+		AudioHooks.resume_audio()
+		AudioHooks.tap()
 	pause_toggled.emit(_paused)
 
 

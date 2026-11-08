@@ -8,10 +8,16 @@ const DEFAULT_SFX: float = 1.0
 ## Volume at or below this (linear) counts as silent.
 const SILENT: float = 0.001
 const SILENT_DB: float = -80.0
+## Debug arg: run silent (benches, captures). Honoured in every build; never saved.
+const ARG_MUTE: String = "--mute"
 
 var music_volume: float = DEFAULT_MUSIC
 var sfx_volume: float = DEFAULT_SFX
 var muted: bool = false
+
+
+static func is_mute_arg(args: PackedStringArray) -> bool:
+	return args.has(ARG_MUTE)
 
 
 static func linear_to_db_safe(v: float) -> float:

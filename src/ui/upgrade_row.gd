@@ -260,6 +260,8 @@ func _on_button_up() -> void:
 
 
 func _stop_hold() -> void:
+	if _holding:
+		AudioHooks.buy_end()  # release, cancel (drag, scroll, hidden) or a capped hold: the pitch streak ends
 	_holding = false
 	set_process(false)
 
@@ -283,6 +285,7 @@ func advance_hold(delta: float) -> void:
 	_repeated = true
 	if _state != CostState.AFFORDABLE:
 		_stop_hold()  # capped or out of scrap: the hold ends
+		AudioHooks.deny()
 		return
 	for step: int in due.x:
 		assert(step >= 0)
@@ -292,4 +295,7 @@ func advance_hold(delta: float) -> void:
 func _request(count: int) -> void:
 	if _state == CostState.AFFORDABLE:
 		_fx.play_flash()
+		AudioHooks.buy_step()
+	else:
+		AudioHooks.deny()
 	buy_pressed.emit(_index, count)

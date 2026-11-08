@@ -19,7 +19,6 @@ var _hud: Hud = null
 var _results: Control = null
 var _debug: Control = null
 var _overlay: PauseOverlay = null
-var _audio_muted_by_us: bool = false
 
 
 ## Wires the shell to the main scene's parts and adds the pause overlay as a child (topmost when added last).
@@ -57,7 +56,7 @@ func handle_back() -> BackPolicy.Action:
 	return action
 
 
-## Stops ticking, mirrors the state on the HUD button, shows the overlay and silences audio.
+## Stops ticking, mirrors the state on the HUD button, shows the overlay and pauses audio.
 func pause() -> void:
 	_controller.paused = true
 	_hud.set_paused(true)
@@ -70,6 +69,7 @@ func resume() -> void:
 	_hud.set_paused(false)
 	_overlay.hide()
 	_set_audio_paused(false)
+	AudioHooks.tap()
 
 
 ## The app went to the background or lost focus. A running battle pauses behind the overlay.
@@ -97,11 +97,9 @@ func _notification(what: int) -> void:
 		on_app_suspended()
 
 
-## No audio exists yet (M5); this keeps the rule in place: mute the master bus while paused, undo only our own mute.
+## Freezes every voice and the music while paused (AudioDirector.pause_all / resume_all; idempotent).
 func _set_audio_paused(paused: bool) -> void:
-	if paused and not AudioServer.is_bus_mute(0):
-		AudioServer.set_bus_mute(0, true)
-		_audio_muted_by_us = true
-	elif not paused and _audio_muted_by_us:
-		AudioServer.set_bus_mute(0, false)
-		_audio_muted_by_us = false
+	if paused:
+		AudioHooks.pause_audio()
+	else:
+		AudioHooks.resume_audio()

@@ -11,6 +11,9 @@ var settings: AudioSettings = AudioSettings.new()
 var music: MusicDirector = null
 var buy_ramp: BuyPitchRamp = BuyPitchRamp.new()
 
+## Debug `--mute`: no sound and no music at all (benches, captures); see AudioSettings.is_mute_arg.
+var disabled: bool = false
+
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _pools: Dictionary = {}
 var _paused: bool = false
@@ -26,7 +29,7 @@ func setup() -> void:
 ## Plays sound `sfx_id`. `pitch_jitter` < 0 uses the slot's `pitch_var`; `semitones` shifts the pitch (buy ramp).
 ## Returns false when the sound was skipped (unknown id, missing file, cooldown, all voices busy, paused).
 func play_sfx(sfx_id: String, pitch_jitter: float = -1.0, semitones: float = 0.0) -> bool:
-	if _paused:
+	if _paused or disabled:
 		return false
 	var slot: AudioSlot = AudioSlots.slot(sfx_id)
 	if not slot.valid:
@@ -57,6 +60,20 @@ func play_buy_step() -> bool:
 ## The buy button was released: the next buy starts again at the base pitch.
 func end_buy_hold() -> void:
 	buy_ramp.reset()
+
+
+## Loads the music layers on first use and starts them (no-op when already started or `disabled`).
+func start_music() -> void:
+	if music == null or disabled:
+		return
+	music.ensure_setup()
+	music.start()
+
+
+## Feeds the adaptive music model (view-side snapshot of the run).
+func set_music_state(state: MusicState) -> void:
+	if music != null:
+		music.set_state(state)
 
 
 ## App pause: freezes every voice and the music.
