@@ -21,5 +21,9 @@ func is_music() -> bool:
 	return file.begins_with("music/")
 
 
+func is_ambience() -> bool:
+	return file.begins_with("amb/")
+
+
 func is_reserved() -> bool:
 	return file.is_empty()

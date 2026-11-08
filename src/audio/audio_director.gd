@@ -9,6 +9,7 @@ const JITTER_SEED: int = 0x5EED
 
 var settings: AudioSettings = AudioSettings.new()
 var music: MusicDirector = null
+var ambience: AmbienceDirector = null
 var buy_ramp: BuyPitchRamp = BuyPitchRamp.new()
 
 ## Debug `--mute`: no sound and no music at all (benches, captures); see AudioSettings.is_mute_arg.
@@ -24,6 +25,8 @@ func setup() -> void:
 	settings.apply()
 	music = MusicDirector.new()
 	add_child(music)
+	ambience = AmbienceDirector.new()
+	add_child(ambience)
 
 
 ## Drops the cached streams on shutdown so no audio resource outlives the engine (the CI exit-leak check).
@@ -76,10 +79,38 @@ func start_music() -> void:
 	music.start()
 
 
-## Feeds the adaptive music model (view-side snapshot of the run).
+## Feeds the adaptive music model (view-side snapshot of the run). A state with `in_menu == false` (battle start)
+## also fades the title ambience out; it is never started from here (see `start_menu_audio`).
 func set_music_state(state: MusicState) -> void:
 	if music != null:
 		music.set_state(state)
+	if ambience != null and not state.in_menu:
+		ambience.stop()
+
+
+## Title and Home (M3-28, M3-15): starts the stripped menu music (pad only, `in_menu` state) and fades the wind and
+## metal ambience in. Safe to call again on every screen entry. No-op under `--mute` (`disabled`).
+func start_menu_audio() -> void:
+	if disabled:
+		return
+	start_music()
+	set_music_state(MusicState.make(0, false, 0, true))
+	if ambience != null:
+		ambience.start()
+		if _paused:
+			ambience.pause()
+
+
+## Fades the ambience out (leaving Home for a screen without it). The music keeps following the music state, so
+## starting a run needs no call: the run's first `set_music_state` leaves the menu state and stops the ambience.
+func stop_menu_audio() -> void:
+	if ambience != null:
+		ambience.stop()
+
+
+## True while the title ambience is wanted (between `start_menu_audio` and its stop).
+func is_menu_ambience_active() -> bool:
+	return ambience != null and ambience.is_active()
 
 
 ## App pause: freezes every voice and the music.
@@ -89,6 +120,8 @@ func pause_all() -> void:
 		pool.set_paused(true)
 	if music != null:
 		music.pause()
+	if ambience != null:
+		ambience.pause()
 
 
 func resume_all() -> void:
@@ -97,6 +130,8 @@ func resume_all() -> void:
 		pool.set_paused(false)
 	if music != null:
 		music.resume()
+	if ambience != null:
+		ambience.resume()
 
 
 func is_paused() -> bool:

@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I mode ignores the script dir
+import amb  # noqa: E402
 import analyze  # noqa: E402
 import sfx  # noqa: E402
 from dsp import SR  # noqa: E402
@@ -46,6 +47,12 @@ CATEGORY = {
 }
 # Per-id target overrides (same unit): a crit must read over plain hits, a deny over a tap, the wave start over music.
 OVERRIDE = {"sfx_crit": -24.0, "sfx_ui_deny": -24.0, "sfx_wave_start": -22.0}
+# Ambience loops (M3-31) are their own category: far below the music (menu pad = -26.4 LUFS-ish x 0.8 menu level), so
+# together they sit at least 6 dB under the lowest layer that plays with them, in RMS and in LUFS-ish (checked in main()).
+AMB_TARGETS = {"amb_wasteland_wind": -37.0, "amb_metal_creak": -40.0}
+AMB_MARGIN_DB = 6.0
+PAD_MENU_RMS_DB = -24.0 + 20 * np.log10(0.8)  # music_pad RMS (music.LAYER_RMS_DB) at its menu_level
+PAD_MENU_LUFS_DB = -26.4 + 20 * np.log10(0.8)  # music_pad file loudness (A1-01 sketch) at its menu_level
 CEILING_DB = -1.0  # peak after the trim, before the Master limiter (-0.5 dB ceiling)
 
 _BY_ID = {sid: cat for cat, ids in CATEGORY.items() for sid in ids}
@@ -53,10 +60,12 @@ assert sorted(_BY_ID) == sorted(sfx.SFX), "every SFX id needs exactly one catego
 
 
 def category(sid):
-    return _BY_ID[sid]
+    return "ambience" if sid in AMB_TARGETS else _BY_ID[sid]
 
 
 def target(sid):
+    if sid in AMB_TARGETS:
+        return AMB_TARGETS[sid]
     return OVERRIDE.get(sid, TARGETS[_BY_ID[sid]])
 
 
@@ -73,7 +82,19 @@ def _all():
     for sid in sfx.ORDER:
         y = sfx.render(sid)
         out[sid] = (y, trim_db(sid, y))
+    for aid, (fn, _) in amb.LOOPS.items():
+        y = fn()
+        out[aid] = (y, trim_db(aid, y))
     return out
+
+
+def check_ambience(rendered):
+    """Raises when an ambience loop is not at least AMB_MARGIN_DB under the menu pad (RMS and LUFS-ish)."""
+    for aid in amb.LOOPS:
+        y, v = rendered[aid]
+        st = analyze.stats(y, loop=False)
+        assert st["rms_dbfs"] + v <= PAD_MENU_RMS_DB - AMB_MARGIN_DB, (aid, st["rms_dbfs"] + v)
+        assert st["lufs_ish"] + v <= PAD_MENU_LUFS_DB - AMB_MARGIN_DB, (aid, st["lufs_ish"] + v)
 
 
 def write_slots(rendered):
@@ -98,6 +119,16 @@ def table(rendered):
             f"| `{sid}` | {category(sid)} | {st['lufs_ish']:.1f} | {v:g} | {st['lufs_ish'] + v:.1f} | {st['peak_dbfs'] + v:.1f} |"
         )
     return "\n".join(rows)
+
+
+def amb_summary(rendered):
+    rows = []
+    for aid in amb.LOOPS:
+        y, v = rendered[aid]
+        st = analyze.stats(y, loop=True)
+        rows.append(f"{aid}: file rms {st['rms_dbfs']} lufs {st['lufs_ish']} peak {st['peak_dbfs']} volume_db {v:g} -> "
+                    f"rms {st['rms_dbfs'] + v:.1f} lufs {st['lufs_ish'] + v:.1f} seam {st['seam_jump_ratio']}")
+    return chr(10).join(rows)
 
 
 def load_sim(rendered, seconds=12.0, seed=60):
@@ -139,11 +170,13 @@ def load_sim(rendered, seconds=12.0, seed=60):
 
 def main():
     rendered = _all()
+    check_ambience(rendered)
     if "--write-slots" in sys.argv:
         write_slots(rendered)
         print("slots.csv volume_db rewritten")
     if "--table" in sys.argv:
         print(table(rendered))
+        print(amb_summary(rendered))
         for name, st in zip(("sfx only", "music only", "sum"), load_sim(rendered)):
             print(name, st)
 

@@ -14,6 +14,7 @@ import numpy as np
 import soundfile as sf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # -I mode ignores the script dir
+import amb  # noqa: E402
 import analyze  # noqa: E402
 import dsp  # noqa: E402,F401
 import mix  # noqa: E402
@@ -100,6 +101,17 @@ def main():
         st["decoded_seam_jump_ratio"] = analyze.seam_ratio(dec)
         report[f"{lid}.ogg"] = st
         print("music", lid, f"{len(y) / SR:.2f}s")
+    for aid, (fn, expected) in amb.LOOPS.items():  # M3-31 title ambience loops (stereo OGG, exact length)
+        y = fn()
+        assert len(y) == expected, aid
+        write_ogg(assets / "amb" / f"{aid}.ogg", y)
+        st = analyze.stats(y, loop=True)
+        dec, _ = sf.read(str(assets / "amb" / f"{aid}.ogg"))
+        st["decoded_samples"] = int(len(dec))
+        st["expected_samples"] = int(expected)
+        st["decoded_seam_jump_ratio"] = analyze.seam_ratio(dec)
+        report[f"{aid}.ogg"] = st
+        print("amb", aid, f"{len(y) / SR:.2f}s")
     prev = music.preview(layers)
     write_ogg(sketch / "music_preview.ogg", prev)
     report["music_preview.ogg"] = analyze.stats(prev, loop=False)

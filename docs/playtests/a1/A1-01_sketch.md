@@ -208,3 +208,25 @@ Checks: all 40 SFX files and the 4 music layers: 0 clipped samples; DC offset at
 ## Full reel
 `sfx_reel_full.ogg` (58.5 s, 334 KB OGG Vorbis; was a 5.2 MB WAV): all 40 SFX with their slot trims applied, 0.45 s gaps, in the id order of 07 s7: laser_shot, hit_metal, crit, overcrit, enemy_death_small, enemy_death_heavy, player_hit, integrity_warn, skin_burn, wave_start, boss_warn, boss_death, upgrade_buy, milestone_x15, draft_open, draft_pick, cache_open, pod_heal, razor_spin, shock_ring, mine_beep, arc, emp, missile_launch, singularity, dilation, nanite, overdrive_on, overdrive_off, aegis_break, reboot, meltdown, purge, ui_tap, ui_deny, lab_complete, firmware_pick, gauntlet_rank_up, death, results_tally. Peak -2.0 dBFS, LUFS-ish -21.3. The original 14 s `sfx_reel.wav` (the 12 core sounds, raw levels) stays for the gate record.
 Sizes: `assets/audio` 4.8 MB (SFX 3.4 MB for 40 WAVs, music 1.2 MB); `docs/playtests/a1` 9.1 MB including the 5.2 MB full reel.
+
+## M3-31 Title and Home ambience (`tools/audio_gen/amb.py`)
+Two seamless stereo loops of the same family (cold, low, nothing tonal), for the title screen and Home (design 11 s4). Slots `amb_wasteland_wind` and `amb_metal_creak` in `assets/audio/slots.csv` (files `assets/audio/amb/*.ogg`, bus SFX, voice cap 1, no pitch jitter; there is no separate Ambience bus, the SFX bus carries them and the Music bus side-chain stays below its -24 dB threshold because the loops are at about -40 dB RMS). `AmbienceDirector` plays them together, fade in 4 s, fade out 2.5 s, on the `in_menu` state only (see "API" below). Both render deterministically (fixed seeds 311-321, second render byte-identical, sha256 checked), every modulator has an integer number of cycles per loop and every filter or reverb runs on a tiled copy, so the seam is clean. Lengths differ on purpose (LCM 468 s): the layered result does not audibly repeat.
+
+| File | Length | Recipe |
+|---|---|---|
+| `amb_wasteland_wind.ogg` | 36 s = 1587600 samples | White noise per ear through a time-varying low-pass (180-700 Hz, a gust every 4-18 s from a sum of integer-cycle sines, left and right 0.35 s apart), a faint band-passed air layer (750-1250 Hz, only in gusts), and a very quiet high-Q (14) whistle drifting around 540 Hz in the strongest gusts; 30 Hz high-pass; peak -12 dBFS |
+| `amb_metal_creak.ogg` | 52 s = 2293200 samples | 7 distant groans (1.8-3.4 s, saw 70-190 Hz gliding up or down by up to 28% with a random wobble, stick-slip amplitude, two band-pass resonances at 260-520 and 900-1700 Hz, friction hiss, tanh drive, low-pass 2.6 kHz) at irregular times (gaps 5-11 s) and 7 clink clusters of 1-3 settling clinks (noise burst into an inharmonic four-resonator bank, 780-2300 Hz, 0.07-0.16 s decay, gaps 0.11-0.95 s), random pan, a long dark reverb (size 2.4, decay 0.9, tail wraps); peak -12 dBFS |
+
+IP: no melody, motif, pulse or meter (events are irregular and the groan pitches random), no samples, nothing that echoes a film theme.
+
+Loudness (mix.py category `ambience`, `--write-slots` owns the `volume_db`; targets wind -37, creak -40 effective LUFS-ish; `mix.py` asserts both loops are at least 6 dB under the menu pad (music_pad at its 0.8 menu level, -24 dB RMS and -26.4 LUFS-ish before the level) in RMS and in LUFS-ish):
+
+| id | file RMS | file LUFS-ish | volume_db | effective RMS | effective LUFS-ish | peak after trim | seam jump ratio (source / decoded OGG) |
+|---|---|---|---|---|---|---|---|
+| `amb_wasteland_wind` | -29.2 | -27.0 | -10 | -39.2 | -37.0 | -22.0 | 0.382 / 0.244 |
+| `amb_metal_creak` | -35.1 | -32.8 | -7 | -42.1 | -39.8 | -19.0 | 0.005 / 0.002 |
+
+Against the menu pad (effective RMS -25.9, LUFS-ish -28.3) the wind is 13.3 dB lower in RMS and 8.7 dB lower in LUFS-ish; both loops summed are about -35 LUFS-ish (7 dB under the pad). 0 clipped samples, DC 0.00000, decoded length equals source length for both (1587600 and 2293200). The limiter is never reached (peaks at -22 and -19 dBFS after the trim). Whether the loops are audible enough on the phone speaker (which reproduces little below 200 Hz) is for the user's listen to judge: raise `AMB_TARGETS` in `mix.py` and re-run `--write-slots`.
+
+API (`AudioDirector`, reached as `Game.audio`; M3-28 title and M3-15 Home): `start_menu_audio()` starts the menu music (pad only, `in_menu` state) and fades the ambience in, safe to call on every screen entry, no-op under `--mute`; `stop_menu_audio()` fades the ambience out; `is_menu_ambience_active()`. Battle start needs no call: the run's first `set_music_state` with `in_menu == false` (what `AudioEventRouter.bind` already sends) fades the ambience out, and the results screen (`in_menu = true`) neither stops nor restarts it, so the ambience plays on the title and Home only. A NEW GAME stinger was not requested by M3-31 and was not made.
+

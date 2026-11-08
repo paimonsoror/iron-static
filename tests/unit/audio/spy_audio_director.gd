@@ -11,6 +11,8 @@ var pauses: int = 0
 var resumes: int = 0
 var music_starts: int = 0
 var states: Array[MusicState] = []
+var menu_audio_starts: int = 0
+var menu_audio_stops: int = 0
 ## Order of the calls, e.g. ["pause", "sfx_ui_tap"].
 var log: Array[String] = []
 
@@ -50,6 +52,20 @@ func start_music() -> void:
 
 func set_music_state(state: MusicState) -> void:
 	states.append(state)
+
+
+func start_menu_audio() -> void:
+	menu_audio_starts += 1
+	log.append("menu_audio_start")
+
+
+func stop_menu_audio() -> void:
+	menu_audio_stops += 1
+	log.append("menu_audio_stop")
+
+
+func is_menu_ambience_active() -> bool:
+	return menu_audio_starts > menu_audio_stops
 
 
 func count(sfx_id: String) -> int:

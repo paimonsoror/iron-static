@@ -48,3 +48,5 @@ music_pad,music/music_pad.ogg,Music,0,0,1,0
 music_pulse,music/music_pulse.ogg,Music,0,0,1,0
 music_perc,music/music_perc.ogg,Music,0,0,1,0
 music_lead,music/music_lead.ogg,Music,0,0,1,0
+amb_wasteland_wind,amb/amb_wasteland_wind.ogg,SFX,-10,0,1,0
+amb_metal_creak,amb/amb_metal_creak.ogg,SFX,-7,0,1,0

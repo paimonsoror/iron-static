@@ -1,4 +1,32 @@
 {
+ "amb_metal_creak.ogg": {
+  "channels": 2,
+  "clipped_samples": 0,
+  "dc_offset": 0.0,
+  "decoded_samples": 2293200,
+  "decoded_seam_jump_ratio": 0.001971991125571544,
+  "expected_samples": 2293200,
+  "lufs_ish": -32.84,
+  "peak_dbfs": -12.0,
+  "rms_dbfs": -35.1,
+  "samples": 2293200,
+  "seam_jump_ratio": 0.005,
+  "seconds": 52.0
+ },
+ "amb_wasteland_wind.ogg": {
+  "channels": 2,
+  "clipped_samples": 0,
+  "dc_offset": 0.0,
+  "decoded_samples": 1587600,
+  "decoded_seam_jump_ratio": 0.24383710145010606,
+  "expected_samples": 1587600,
+  "lufs_ish": -26.96,
+  "peak_dbfs": -12.0,
+  "rms_dbfs": -29.16,
+  "samples": 1587600,
+  "seam_jump_ratio": 0.382,
+  "seconds": 36.0
+ },
  "music_lead.ogg": {
   "channels": 2,
   "clipped_samples": 0,
@@ -395,7 +423,7 @@
   "samples": 620707,
   "seconds": 14.075
  },
- "sfx_reel_full.wav": {
+ "sfx_reel_full.ogg": {
   "channels": 1,
   "clipped_samples": 0,
   "dc_offset": 2e-06,
