@@ -1,8 +1,5 @@
 # What burns away
 
-!!! draft "Draft lore: pending creator approval"
-    This page interprets the game's central image. The mechanics are canon; the reading of them is a <span class="badge draft">Draft</span> extension awaiting approval.
-
 > Hold the last relay. **Burn away what is left of being human.** Go deeper every time.
 
 ## The image
@@ -22,6 +19,6 @@ Integrity is the skin. Fighting well means losing it.
 
 ## The question the game never answers
 
-<span class="badge draft">Draft</span> The design documents give Cinder an organic core but never say whose it was, or whether anything of that person remains. The directive "Hold the Relay" is all that was written over it. The theme is deliberately left open: *what is left of being human* is a quantity the player watches fall, band by band, and the game does not say what it was worth. There is no gore and no flashback; Cinder shows only light, ember and metal.
+The design documents give Cinder an organic core but never say whose it was, or whether anything of that person remains. The directive "Hold the Relay" is all that was written over it. The theme is deliberately left open: *what is left of being human* is a quantity the player watches fall, band by band, and the game does not say what it was worth. There is no gore and no flashback; Cinder shows only light, ember and metal.
 
 Back to the [Lore overview](index.md), or on to [Characters](../characters/index.md).

@@ -86,3 +86,12 @@ There is no ending screen at launch. Sector 12's last milestone unlocks a messag
 - Player systems use hardware/firmware vocabulary (Foundry, Lab, Arsenal, Patches).
 - Never use words: Terminator, Skynet, Cyberdyne, Judgment, Resistance (capitalized), Connor, Reese, HK, T-.
 - Currency icons: scrap = bent metal plate, data = stacked hex cell, flux = teal diamond, cipher = key-notch ring, merit = amber star chevron.
+
+## Canon additions (approved by the creator, 2026-11-09)
+First written for the player codex (`site/docs/lore/`) as draft extensions; the creator approved all of them ("keep all the draft lore"). They are now canon and the codex no longer marks them as draft.
+1. **The relay network:** "Relay six" is one node of a numbered network of relay stations, most of them dark.
+2. **Sectors:** each sector is ground that the Relay's reach grows across as Cinder "goes deeper".
+3. **Frames:** BULWARK, STRIKER (and later frames) are chassis refits done by Lantern Cell; it is still the same Warden.
+4. **What burns away:** whose organic core Cinder carries is never answered; Cinder grows stronger as it becomes less human (the skin-burn theme).
+5. **Cinder's optics:** everything on screen is seen through Cinder's optics, the in-world reason for the targeting-display look.
+6. **Boss nodes:** a boss node is CHORUS gathering itself to answer Cinder.

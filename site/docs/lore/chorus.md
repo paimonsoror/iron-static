@@ -1,8 +1,5 @@
 # CHORUS and the swarms
 
-!!! draft "Draft lore: pending creator approval"
-    Canon facts come from the design documents. Passages tagged <span class="badge draft">Draft</span> are extensions awaiting approval.
-
 ## CHORUS
 
 CHORUS is the hostile intelligence: a distributed controller formed when the Orrery Combine's logistics and defense grid was joined into one system. It has no face. In the interface it appears as a flickering amber-white waveform.
@@ -38,6 +35,6 @@ This is the story behind the [adaptive swarm](../systems/novel-mechanics.md#adap
 
 Each sector ends in a boss node on a rotating schedule: the **hulk**, the **hive**, the **lance** and the **null**. The hulk is in the game today; the others are <span class="badge planned">Planned</span>. See [Bosses](../characters/enemies.md#bosses-nodes).
 
-<span class="badge draft">Draft</span> Read together, the logs suggest a node is where CHORUS gathers itself to answer Cinder. The banner "1 of 1 will pass" is a count: one node, one attempt, one crossing. The game never shows what happens to a node after it falls.
+Read together, the logs suggest a node is where CHORUS gathers itself to answer Cinder. The banner "1 of 1 will pass" is a count: one node, one attempt, one crossing. The game never shows what happens to a node after it falls.
 
 Next: [The Relay and the sectors](relay-and-sectors.md).

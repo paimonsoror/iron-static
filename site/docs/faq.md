@@ -60,7 +60,7 @@
     Not at launch. Clearing sector 12 shows one message and sets up further sectors. See [The world](lore/world.md).
 
 ??? question "Is the lore final?"
-    No. The lore pages are marked as draft where they go beyond the design documents, and wait for the creator's approval.
+    The published lore is canon: the creator approved the extensions beyond the design documents on 2026-11-09. Future updates may add to it.
 
 ## Development
 

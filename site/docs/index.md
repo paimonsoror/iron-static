@@ -42,7 +42,7 @@ This codex is the player-facing guide to the game: its story, its characters and
 
 ## Status badges
 
-<span class="badge live">Implemented</span> is in the current build. <span class="badge planned">Planned</span> is designed but not playable yet; the milestone is named next to it. <span class="badge draft">Draft lore</span> is story text that goes beyond the design documents and is waiting for the creator to approve it. See [Development status](status.md).
+<span class="badge live">Implemented</span> is in the current build. <span class="badge planned">Planned</span> is designed but not playable yet; the milestone is named next to it. See [Development status](status.md).
 
 ## Where to start
 

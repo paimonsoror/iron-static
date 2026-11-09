@@ -1,8 +1,5 @@
 # Cinder and the Wardens
 
-!!! draft "Draft lore: pending creator approval"
-    Canon facts come from the design documents. Passages tagged <span class="badge draft">Draft</span> are extensions awaiting approval.
-
 ## Designation
 
 **Warden-class cybernetic organism, serial ASH-07.** The human callsign is **Cinder**. Serials use the `ASH-` prefix.
@@ -39,6 +36,6 @@ That is the whole origin. Everything about Cinder's past before the rewrite is w
 
 ## The frames
 
-<span class="badge draft">Draft</span> Cinder can deploy in different chassis configurations, called [frames](../characters/frames.md). The design documents describe them as sidegrades chosen between deployments. In story terms, the reading offered here is that Lantern Cell refit ASH-07 for different jobs: a heavier bastion build, a lighter and faster one. The frames are the same Warden, not different people.
+Cinder can deploy in different chassis configurations, called [frames](../characters/frames.md). The design documents describe them as sidegrades chosen between deployments. In story terms, the reading offered here is that Lantern Cell refit ASH-07 for different jobs: a heavier bastion build, a lighter and faster one. The frames are the same Warden, not different people.
 
 Next: [What burns away](burning-away.md).

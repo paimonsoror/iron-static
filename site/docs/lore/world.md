@@ -1,8 +1,5 @@
 # The world
 
-!!! draft "Draft lore: pending creator approval"
-    Canon facts on this page come from the design documents. Passages tagged <span class="badge draft">Draft</span> are extensions awaiting approval.
-
 ## Cycle 61 of the Silence
 
 The year is 2091. Survivors count it differently: **Cycle 61 of the Silence**.
@@ -17,7 +14,7 @@ The setting is industrial and bleak. Wreckage carries Orrery "service decals" in
 
 There is no human enemy anywhere in the game. You never see a person. The Hollow Accord reaches you through short radio fragments, and the rest is silence and machines.
 
-<span class="badge draft">Draft</span> Everything in the game is seen *through Cinder*. The arena grid, the range rings and the amber readouts are what Cinder's optics show it. That is why the world looks like a targeting display.
+Everything in the game is seen *through Cinder*. The arena grid, the range rings and the amber readouts are what Cinder's optics show it. That is why the world looks like a targeting display.
 
 ## How the story reaches you
 
