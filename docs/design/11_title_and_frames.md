@@ -57,7 +57,7 @@ A smoky wasteland of metal and machine at dusk, portrait first, drawn with Claud
 
 ### 2.2 Buttons and flow
 - Buttons (V1 plates, touch targets at least 148 px): **CONTINUE** (shown only when a save exists with progress), **NEW GAME**, **SETTINGS**.
-- Flow: boot -> TITLE -> NEW GAME -> (confirm dialog when it would overwrite progress) -> **frame bay** -> HOME -> DEPLOY. CONTINUE -> HOME, or straight into the resumed run (paused behind the overlay) when a run snapshot exists (05/TECH 5.3). SETTINGS opens the settings screen and returns to the title.
+- Flow: boot -> TITLE -> NEW GAME -> (confirm dialog when it would overwrite progress) -> **frame bay** -> HOME -> DEPLOY (M4-26: on a fresh profile the bay's CONFIRM goes to the **cold open** (07 s3) and then straight into run 1; only the bay opened from the title does this). CONTINUE -> HOME, or straight into the resumed run (paused behind the overlay) when a run snapshot exists (05/TECH 5.3). SETTINGS opens the settings screen and returns to the title.
 - A save exists when the loaded profile has `runs_total > 0`, any Foundry level, or `run_counter > 0`. A fresh install shows only NEW GAME and SETTINGS.
 - The CONTINUE / resume destination is decided by `AppFlow` (M3-14 extended by M3-30); the title never starts a run itself.
 

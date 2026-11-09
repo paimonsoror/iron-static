@@ -128,7 +128,7 @@ func _apply(event: AppFlow.Event) -> bool:
 	if to == AppFlow.NONE:
 		return false
 	# DEPLOY starts a run; CONTINUE reaches BATTLE only with a pending snapshot, which start_run() resumes (paused)
-	var starts: bool = event == AppFlow.Event.DEPLOY or event == AppFlow.Event.CONTINUE
+	var starts: bool = event in [AppFlow.Event.DEPLOY, AppFlow.Event.CONTINUE, AppFlow.Event.COLD_OPEN_DONE]
 	_present(to as AppFlow.Screen, to == AppFlow.Screen.BATTLE and starts, from)
 	if event == AppFlow.Event.PROFILE_RESET:
 		show_toast(Strings.get_text("settings.reset_done"), TOAST_S)
@@ -138,6 +138,7 @@ func _apply(event: AppFlow.Event) -> bool:
 func refresh_unlocks() -> void:
 	flow.foundry_unlocked = Game.saves != null and MetaUnlocks.foundry_screen_unlocked(Game.profile())
 	flow.resume_pending = Game.has_pending_resume()
+	flow.cold_open_pending = Game.saves != null and FtueState.cold_open_for(Game.profile())
 
 
 ## The back gesture on a non-battle screen: decides with `BackPolicy.decide_screen` and performs it. A returned

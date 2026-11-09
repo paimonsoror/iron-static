@@ -17,6 +17,8 @@ var _audio: AudioEventRouter
 var _haptic_hooks: HapticHooks
 ## Patch draft overlay (M4-16): opened while the sim has a draft open, closed by a pick or a run ending behind it.
 var _draft: DraftOverlay
+## FTUE pointers and labels (M4-26): above the router screens, below the draft and the pause overlay.
+var _ftue: FtueOverlay
 
 @onready var _battle: BattleView = %BattleView
 @onready var _hud: Hud = %Hud
@@ -57,6 +59,11 @@ func _ready() -> void:
 	add_child(_router)  # before MobileShell: the pause overlay stays topmost
 	_router.setup(_controller, _battle, _hud, _results)
 	_router.battle_entered.connect(_on_battle_entered)
+	_ftue = FtueOverlay.new()
+	add_child(_ftue)
+	_ftue.target_resolver = _ftue_rect
+	_ftue.persist = _persist_ftue
+	_router.screen_changed.connect(_on_screen_changed)
 	_draft = (load("res://src/ui/draft/draft_overlay.tscn") as PackedScene).instantiate() as DraftOverlay
 	add_child(_draft)  # above the router screens, below the pause overlay (back opens the pause menu over a draft)
 	_draft.picked.connect(_on_draft_picked)
@@ -78,6 +85,8 @@ func _ready() -> void:
 @warning_ignore("unused_parameter")
 func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
 	_sync_draft()
+	if _ftue != null:
+		_results.ftue_pulse = _ftue.foundry_pulse_wanted()
 	if _controller == null or _controller.world == null or AppFlow.is_menu(_router.current_screen()):
 		return
 	if _controller.load_wave == 0:
@@ -97,12 +106,15 @@ func _on_run_started(world: SimWorld) -> void:
 	_battle.bind(world)
 	_haptic_hooks.bind(world)
 	_audio.bind(world)  # in-run music state and music start; a redeploy resets the cursor and the menu flag
+	if Game.saves != null and not Game.debug_load:
+		_ftue.start_run(world, Game.profile())
 
 
 func _on_run_ended(world: SimWorld) -> void:
 	_audio.in_menu = true  # results screen: menu mix (the death sound still comes through update())
 	_audio.play_results_tally(not Game.visual.reduce_motion)
 	_results.show_results(world)
+	_ftue.on_results_shown()
 
 
 func _on_speed_changed(multiplier: int) -> void:
@@ -212,3 +224,21 @@ func _sync_draft() -> void:
 func _on_draft_picked(_slot: int) -> void:
 	_haptic_hooks.draft_pick()
 	_hud.set_paused(_controller.paused)
+
+
+func _on_screen_changed(screen: AppFlow.Screen) -> void:
+	_ftue.set_screen(screen)
+	if screen == AppFlow.Screen.FOUNDRY:
+		_ftue.on_foundry_opened()
+
+
+func _ftue_rect(target: String) -> Rect2:
+	return FtueTargets.resolve(target, _hud.upgrade_panel(), _results, _router.active_screen())
+
+
+## Writes the FTUE progress into the profile and asks for a save.
+func _persist_ftue() -> void:
+	if _ftue.state == null or Game.saves == null:
+		return
+	_ftue.state.store_to(Game.profile())
+	Game.saves.request_save()

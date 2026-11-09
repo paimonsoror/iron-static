@@ -22,6 +22,8 @@ const ROW_COUNT: int = ResultsBody.SECTION_COUNT
 
 ## Set true to force reduce motion (it is also read from `Game.visual.reduce_motion`).
 var reduce_motion: bool = false
+## FTUE hook (M4-26): the FOUNDRY button pulses like the "can afford" pulse while the hint is up.
+var ftue_pulse: bool = false
 
 var _model: ResultsModel = null
 var _world: SimWorld = null
@@ -89,6 +91,11 @@ func hide_results() -> void:
 func advance(delta: float) -> void:
 	_t += delta
 	_apply(_t)
+
+
+## Global rect of the FOUNDRY button (the FTUE pointer target); Rect2() while it is hidden.
+func foundry_rect() -> Rect2:
+	return _foundry_button.get_global_rect() if _foundry_button.is_visible_in_tree() else Rect2()
 
 
 func is_settled() -> bool:
@@ -161,7 +168,7 @@ func _apply(t: float) -> void:
 		_body.set_scrap(_num(_roll(_scrap_final, 2, t, red)))
 	var pulse: float = ResultsAnim.pulse(t, red)
 	_button.self_modulate = Color(1.0 + pulse, 1.0 + pulse * 0.7, 1.0 + pulse * 0.3, 1.0)
-	var fp: float = pulse if _model.foundry_pulse else 0.0
+	var fp: float = pulse if (_model.foundry_pulse or ftue_pulse) else 0.0
 	_foundry_button.self_modulate = Color(1.0 + fp, 1.0 + fp * 0.7, 1.0 + fp * 0.3, 1.0)
 
 

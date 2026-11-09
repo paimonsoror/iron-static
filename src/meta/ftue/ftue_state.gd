@@ -52,6 +52,11 @@ static func load_from(new_script: FtueScript, profile: PlayerProfile) -> FtueSta
 	return s
 
 
+## True when NEW GAME on `profile` should show the cold open (a fresh profile that has not seen it).
+static func cold_open_for(profile: PlayerProfile) -> bool:
+	return FtueState.load_from(FtueScript.load_default(), profile).cold_open_due()
+
+
 func store_to(profile: PlayerProfile) -> void:
 	profile.extra[KEY] = to_dict()
 	dirty = false
@@ -148,6 +153,14 @@ func row_bought(upgrade_id: String) -> bool:
 	if _active != null and FtueScript.row_id(_active) == upgrade_id:
 		return complete(_active.id)
 	return false
+
+
+## Drops the active beat and the queue without marking them done (the run ended: in-run hints do not carry over to
+## the Results screen; they can fire again in run 2).
+func drop_pending() -> void:
+	_active = null
+	_queue.clear()
+	_age_s = 0.0
 
 
 ## Ends every beat, now and for good (the SKIP HINTS button).

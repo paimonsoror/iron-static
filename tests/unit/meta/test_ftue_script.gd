@@ -208,3 +208,14 @@ func test_targets_parse() -> void:
 	assert_bool(FtueScript.is_silent(_script.beat("first_kill"))).is_true()
 	assert_bool(FtueScript.is_silent(_script.beat("dart_label"))).is_false()
 	assert_object(_script.beat("nope")).is_null()
+
+
+func test_drop_pending_clears_the_hints_without_finishing_them() -> void:
+	var s: FtueState = _fresh()
+	@warning_ignore("return_value_discarded")
+	s.on_event(FtueScript.FIRST_DAMAGE_TAKEN)
+	s.drop_pending()
+	assert_object(s.active()).is_null()
+	assert_int(s.queued_count()).is_equal(0)
+	assert_bool(s.is_done("upgrade_hull")).is_false()
+	assert_array(_ids(s.on_event(FtueScript.FIRST_DAMAGE_TAKEN))).is_equal(["upgrade_hull", "hold_hint"])

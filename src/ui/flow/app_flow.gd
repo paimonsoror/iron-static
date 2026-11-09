@@ -6,7 +6,9 @@ extends RefCounted
 ## Flow:  boot -> SAVE_PROBLEM (damaged or too-new save) | TITLE | (title off: BATTLE for a run snapshot, else HOME)
 ##        (`TITLE_ENABLED`: TITLE first, design 11; CONTINUE -> HOME, or BATTLE (the snapshot resumes, paused) while
 ##        `resume_pending`; NEW GAME -> FRAME_BAY (the router asks a confirm first
-##        when the profile has progress), FRAME_BAY -confirm-> HOME, TITLE <-> SETTINGS,
+##        when the profile has progress), FRAME_BAY -confirm-> HOME, or -> COLD_OPEN when it was opened from the
+##        title and `cold_open_pending` (a fresh profile, M4-26; COLD_OPEN -COLD_OPEN_DONE-> BATTLE starts run 1;
+##        the tap, the timer and back all end it), TITLE <-> SETTINGS,
 ##        SETTINGS -PROFILE_RESET-> TITLE); HOME -FRAMES-> FRAME_BAY (confirm and back both return to HOME: the
 ##        bay's back goes to its `OPENER`, TITLE after NEW GAME)
 ##        SAVE_PROBLEM -START_NEW-> HOME;  HOME -DEPLOY-> BATTLE;  HOME <-> FOUNDRY (after the first death) and
@@ -15,7 +17,7 @@ extends RefCounted
 ##        -OPEN_FOUNDRY-> FOUNDRY;  FOUNDRY -DEPLOY-> BATTLE;  FOUNDRY and SETTINGS return to the screen they were
 ##        opened from (`OPENER`).
 
-enum Screen { SAVE_PROBLEM, HOME, FOUNDRY, SETTINGS, BATTLE, RESULTS, TITLE, FRAME_BAY }
+enum Screen { SAVE_PROBLEM, HOME, FOUNDRY, SETTINGS, BATTLE, RESULTS, TITLE, FRAME_BAY, COLD_OPEN }
 enum Event {
 	DEPLOY,
 	OPEN_FOUNDRY,
@@ -31,6 +33,7 @@ enum Event {
 	PROFILE_RESET,
 	OPEN_FRAMES,
 	ABORT_MISSION,
+	COLD_OPEN_DONE,
 }
 
 ## Boot into the title screen (flipped on by M3-30).
@@ -44,6 +47,7 @@ const TABLE: Dictionary = {
 	Screen.SAVE_PROBLEM: {Event.START_NEW_PROFILE: Screen.HOME},
 	Screen.TITLE: {Event.CONTINUE: Screen.HOME, Event.NEW_GAME: Screen.FRAME_BAY, Event.OPEN_SETTINGS: Screen.SETTINGS},
 	Screen.FRAME_BAY: {Event.FRAME_CONFIRMED: Screen.HOME, Event.FRAME_BAY_BACK: OPENER},
+	Screen.COLD_OPEN: {Event.COLD_OPEN_DONE: Screen.BATTLE},
 	Screen.HOME:
 	{
 		Event.DEPLOY: Screen.BATTLE,
@@ -65,6 +69,7 @@ const MENU_SCREENS: Array[Screen] = [
 	Screen.SETTINGS,
 	Screen.TITLE,
 	Screen.FRAME_BAY,
+	Screen.COLD_OPEN,
 ]
 
 var current: Screen = Screen.HOME
@@ -74,6 +79,8 @@ var opener: Screen = Screen.HOME
 var foundry_unlocked: bool = false
 ## Set by the caller from `Game.has_pending_resume()`: TITLE's CONTINUE then resumes the interrupted run.
 var resume_pending: bool = false
+## Set by the caller from `FtueState.cold_open_due`: confirming the frame bay opened from the title shows the cold open.
+var cold_open_pending: bool = false
 
 
 ## First screen. `save_problem` is `Game.save_problem != NONE`, `resumed` is a pending run snapshot. With the title
@@ -100,6 +107,8 @@ func target(event: AppFlow.Event) -> int:
 		to = opener
 	if current == Screen.TITLE and event == Event.CONTINUE and resume_pending:
 		to = Screen.BATTLE
+	if current == Screen.FRAME_BAY and event == Event.FRAME_CONFIRMED and opener == Screen.TITLE and cold_open_pending:
+		to = Screen.COLD_OPEN
 	if to == Screen.FOUNDRY and not foundry_unlocked:
 		return NONE
 	return to

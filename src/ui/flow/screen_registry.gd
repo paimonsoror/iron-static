@@ -46,4 +46,9 @@ const ENTRIES: Array[Dictionary] = [
 		"scene": "res://src/ui/frames/frame_bay.tscn",
 		"signals": {&"confirmed": AppFlow.Event.FRAME_CONFIRMED, &"back_pressed": AppFlow.Event.FRAME_BAY_BACK},
 	},
+	{
+		"screen": AppFlow.Screen.COLD_OPEN,
+		"scene": "res://src/ui/ftue/cold_open.tscn",
+		"signals": {&"finished": AppFlow.Event.COLD_OPEN_DONE},
+	},
 ]
