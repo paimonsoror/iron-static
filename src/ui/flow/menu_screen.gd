@@ -36,6 +36,9 @@ func _ready() -> void:
 	heading.visible = title_key() != ""
 	content.add_child(heading)
 	resized.connect(_layout)
+	# Autowrap labels first measured at a tiny width inflate the column's minimum height (M3-32: ~5700 px, the
+	# save-problem screen drew blank); re-fit whenever that minimum changes so the box shrinks back.
+	content.minimum_size_changed.connect(_layout)
 	_build()
 	_layout()
 

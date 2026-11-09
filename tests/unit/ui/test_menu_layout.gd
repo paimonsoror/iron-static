@@ -82,6 +82,27 @@ func test_every_menu_screen_builds_with_its_title() -> void:
 	assert_int(Strings.missing_count).is_equal(before)
 
 
+## M3-32 emulator bug: the CORRUPT save-problem screen drew blank. Its autowrap body was first measured at a tiny
+## width, the content box grew to ~5700 px and never shrank, so heading, body and START NEW PROFILE sat off-screen.
+func test_save_problem_screen_fits_the_view_after_wrapping() -> void:
+	var root: Control = auto_free(Control.new())
+	root.size = Vector2(1080.0, 2400.0)
+	add_child(root)
+	var s: MenuScreen = (load("res://src/ui/flow/save_problem_screen.tscn") as PackedScene).instantiate()
+	root.add_child(s)
+	s.size = root.size
+	s.apply_safe_margins(Vector4.ZERO)
+	for i: int in 3:
+		await await_idle_frame()
+	var view := Rect2(Vector2.ZERO, root.size)
+	assert_float(s.content.size.y).is_less_equal(2400.0)
+	assert_bool(view.encloses(_title_rect(s))).is_true()
+	var buttons: Array[Node] = s.content.find_children("*", "Button", true, false)
+	assert_int(buttons.size()).is_greater(0)
+	var b: Button = buttons[0] as Button
+	assert_bool(view.encloses(Rect2(b.position + s.content.position, b.size))).is_true()
+
+
 ## The heading rect in the screen's pixels (content position plus the heading's own rect).
 func _title_rect(s: MenuScreen) -> Rect2:
 	var r: Rect2 = s.heading.get_rect()
