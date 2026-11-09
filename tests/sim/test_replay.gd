@@ -3,14 +3,19 @@ extends GdUnitTestSuite
 ## InputLog, RunRecord, ConfigHash and Replay (M2-07).
 
 const MAX_TICKS: int = 60000
-const GOLDEN_SIM_VERSION: int = 3
-const GOLDEN_CONFIG_HASH: String = "8291a16da68c01b972b84a201d9ac4fc8ce4c7e03f19b0552286942849a2c8ac"
+const GOLDEN_SIM_VERSION: int = 4
+const GOLDEN_CONFIG_HASH: String = "5e8c00f974d442707d6927bdd03404c8488aec3f03f2d4706b6b44f8ed1af2a4"
 const GOLDEN_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 ## SimVersion 2 final hash: unchanged by the 2 to 3 bump (M4-04), asserted separately.
 const SIM_V2_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 ## PURGE twin (M4-04): seed 7, invulnerable, same buys, real data via SimConfigLoader.apply_mode("purge").
-const GOLDEN_PURGE_CONFIG_HASH: String = "9dbd36a8e349c3613f859c35c4bcd5e7b9baff0988d482ae9ac5e783a5ed1ddb"
+const GOLDEN_PURGE_CONFIG_HASH: String = "ee2d9937d40876d9cba8bb896fa96eab6475cd22f91e53123258c51b5ccb544d"
 const GOLDEN_PURGE_FINAL_HASH: String = "636348079d070790fd9139a8c72177f6931c9a237afcf06d09e3bea16dcd75f5"
+## SimVersion 4 (M4-15): the config hashes changed (draft tuning and patch defs are hashed); the final hashes did not
+## (3000 ticks end before the wave 10 draft, no patch picked).
+## Draft twin: seed 7, invulnerable, same buys, the first offer picked at waves 10 and 20, 16000 ticks.
+const GOLDEN_DRAFT_TICKS: int = 16000
+const GOLDEN_DRAFT_FINAL_HASH: String = "12c0f234f8ea439eb408fcc94ac52ed00f445a2a1629cc2d5fd17405d328e6f4"
 const GOLDEN_TICKS: int = 3000
 const NO_BUDGET_LIMIT: int = 1_000_000_000
 
@@ -33,6 +38,8 @@ func _scripted(cfg: SimConfig, limit: int, marks: PackedInt32Array = PackedInt32
 		if w.tick % 45 == 0:
 			@warning_ignore("return_value_discarded")
 			w.command_buy(floori(float(w.tick) / 45.0) % 4, 1)
+		@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+		PolicyBot.settle_draft(w)
 		w.step()
 	_marks = seen
 	return w
@@ -240,3 +247,15 @@ func test_record_without_mode_replays_as_timed() -> void:
 	rcfg.debug_invulnerable = true
 	assert_str(Replay.run(rcfg, back, GOLDEN_TICKS)).is_equal(GOLDEN_FINAL_HASH)
 	assert_str(back.final_hash).is_equal(GOLDEN_FINAL_HASH)
+
+
+func test_draft_golden_run_hash_and_replay() -> void:
+	var cfg: SimConfig = _cfg(7)
+	cfg.debug_invulnerable = true
+	var w: SimWorld = _scripted(cfg, GOLDEN_DRAFT_TICKS)
+	assert_int(w.patches.total_picks).is_equal(2)
+	assert_str(w.state_hash()).is_equal(GOLDEN_DRAFT_FINAL_HASH)
+	var rec: RunRecord = RunRecord.from_world(w)
+	var rcfg: SimConfig = _cfg(99)
+	rcfg.debug_invulnerable = true
+	assert_str(Replay.run(rcfg, rec, GOLDEN_DRAFT_TICKS)).is_equal(GOLDEN_DRAFT_FINAL_HASH)

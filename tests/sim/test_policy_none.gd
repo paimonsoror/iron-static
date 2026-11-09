@@ -15,6 +15,8 @@ func test_idle_run_has_no_purchases_and_is_deterministic() -> void:
 	for _pass: int in 2:
 		var world: SimWorld = SimWorld.new(BalanceSetup.make_config(7, 1, 0, {}, "vanguard"))
 		while not world.is_over() and world.wave <= 30:
+			@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+			PolicyBot.settle_draft(world)
 			world.step()
 		assert_int(world.input_log.size()).is_equal(0)
 		assert_bool(hashes.append(world.state_hash())).is_false()
@@ -27,5 +29,7 @@ func test_greedy_buys_where_none_does_not() -> void:
 	while not world.is_over() and world.wave <= 5:
 		if world.tick % PolicyBot.THINK_INTERVAL == 0:
 			bot.think(world)
+		@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+		PolicyBot.settle_draft(world)
 		world.step()
 	assert_int(world.input_log.size()).is_greater(0)

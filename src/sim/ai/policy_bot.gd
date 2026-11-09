@@ -24,6 +24,18 @@ func _init(policy_name: String = "greedy4") -> void:
 	policy = policy_name
 
 
+## Draft policy hook (M4-15): the offer slot every headless policy takes (the first offer). Deterministic, so a bot run
+## that picks stays a pure function of (seed, config). Runners call `settle_draft` every iteration, not only on
+## think ticks, because a draft freezes the tick counter.
+static func pick_offer(_world: SimWorld) -> int:
+	return 0
+
+
+## Picks for an open draft (through `command_pick`, so the pick is logged and replayable). True when it picked.
+static func settle_draft(world: SimWorld) -> bool:
+	return world.is_draft_open() and world.command_pick(pick_offer(world))
+
+
 func think(world: SimWorld) -> void:
 	var allowed: PackedInt32Array = _candidates(world)
 	for buy_round: int in MAX_BUYS_PER_THINK:

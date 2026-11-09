@@ -120,6 +120,8 @@ func _run_set(
 		var prev_scrap: float = 0.0
 		var prev_data: float = 0.0
 		while not world.is_over() and world.wave <= args.waves:
+			@warning_ignore("return_value_discarded")  # every policy, also "none", takes the first offer (M4-15)
+			PolicyBot.settle_draft(world)
 			if buys and world.tick % PolicyBot.THINK_INTERVAL == 0:
 				bot.think(world)
 			world.step()

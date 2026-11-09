@@ -19,6 +19,9 @@ static func compute(w: SimWorld) -> String:
 		_put(ctx, PackedInt64Array([w.overclock_kills]).to_byte_array())  # non-neutral frames only
 	if w.patches.total_picks > 0:
 		_put(ctx, w.patches.picks.to_byte_array())  # only once a patch is picked: no picks hash as before M4-14
+	if w.draft.open:  # an open draft is state (its offers decide the pick); a closed one adds nothing
+		_put(ctx, PackedInt64Array([w.draft.wave]).to_byte_array())
+		_put(ctx, w.draft.offers.to_byte_array())
 	return ctx.finish().hex_encode()
 
 

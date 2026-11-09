@@ -17,6 +17,8 @@ func _run(w: SimWorld, policy: String, ticks: int) -> void:
 	while not w.is_over() and w.tick < ticks:
 		if w.tick % PolicyBot.THINK_INTERVAL == 0:
 			bot.think(w)
+		@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+		PolicyBot.settle_draft(w)
 		w.step()
 
 

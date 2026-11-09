@@ -38,6 +38,8 @@ static func capture(world: SimWorld, run_id: int = -1) -> PackedByteArray:
 		"tick_data": world.tick_data,
 		"overclock_kills": world.overclock_kills,
 		"run_levels": world.run_levels,
+		"patch_picks": world.patches.picks,
+		"draft": {"open": world.draft.open, "wave": world.draft.wave, "offers": world.draft.offers},
 		"visible": world.visible,
 		"economy": _economy(eco),
 		"run": _run(world.run),
@@ -135,6 +137,15 @@ static func _apply(w: SimWorld, d: Dictionary) -> bool:
 	w.overclock_kills = d["overclock_kills"]
 	w.run_levels = d["run_levels"]
 	w.visible = d["visible"]
+	var picks: PackedInt32Array = d["patch_picks"]
+	if picks.size() != w.patches.picks.size():
+		return false
+	w.patches.set_picks(picks)  # before resolve_stats: the patches are part of the stat pipeline
+	var draft: Dictionary = _sub(d, "draft")
+	var offers: PackedInt32Array = draft["offers"]
+	w.draft.open = draft["open"]
+	w.draft.wave = draft["wave"]
+	w.draft.offers = offers
 	w.stats = w.resolve_stats()
 	_apply_economy(w.economy, _sub(d, "economy"))
 	_apply_run(w.run, _sub(d, "run"))

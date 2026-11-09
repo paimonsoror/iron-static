@@ -10,6 +10,8 @@ const DEATH_WAVE_MAX: int = 12
 func _play(seed_value: int) -> SimWorld:
 	var w: SimWorld = SimWorld.new(SimConfigLoader.load_default(seed_value))
 	while not w.is_over() and w.tick < MAX_TICKS:
+		@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+		PolicyBot.settle_draft(w)
 		w.step()
 	return w
 
@@ -45,6 +47,8 @@ func _play_purge(seed_value: int) -> SimWorld:
 	assert_int(cfg.purge_backstop_ticks).is_equal(1800)
 	var w: SimWorld = SimWorld.new(cfg)
 	while not w.is_over() and w.tick < MAX_TICKS:
+		@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+		PolicyBot.settle_draft(w)
 		w.step()
 	return w
 

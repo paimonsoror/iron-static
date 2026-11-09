@@ -1,6 +1,6 @@
 # Balance runner (`tools/balance_run.ps1`, M2-14)
 
-Changelog: 2026-11-09 (M4-10: `-Mode timed|purge`, `mode` column in targets.csv, PURGE row) - 2026-11-09 (`--policy only:<row id>`, Q54 retune) - 2026-11-08 (M3-08, M3-24: Foundry profiles, `--frame`, `--policy none`, frames table, mean line, frame tuning log) - 2026-11-07 created (M2-14).
+Changelog: 2026-11-09 (M4-15: the draft pick policy, section "Patch drafts") - 2026-11-09 (M4-10: `-Mode timed|purge`, `mode` column in targets.csv, PURGE row) - 2026-11-09 (`--policy only:<row id>`, Q54 retune) - 2026-11-08 (M3-08, M3-24: Foundry profiles, `--frame`, `--policy none`, frames table, mean line, frame tuning log) - 2026-11-07 created (M2-14).
 
 The standard "did I break the economy" check (TECH_ARCHITECTURE 10.3). Required in the definition of
 done for every economy or sim change: paste the output in the commit message and compare it to
@@ -93,3 +93,14 @@ the Foundry targets. Deaths: lancer 45%, skitter 40%, dart 15%. The result is a 
 - Measured numbers, the frame gate and the `data/frames.csv` tuning log: `docs/playtests/m3/balance_m3.md`
   (fresh 9; `foundry_300` 11 = +2 waves, `foundry_1k` 22 = +13; frames BULWARK +3.2% / STRIKER +7.5% greedy4,
   BULWARK +1.6% idle with parity-tuned option P; gate NOT met inside the identity bounds, see the report).
+
+## Patch drafts (M4-15)
+
+From SimVersion 4 a run opens a patch draft at the end of waves 10, 20, ... (then 75, 100, ...) in both modes, and the
+world does not step until a pick is made. Headless runs would stall, so `balance_run` and `sim_run` settle every
+open draft before each tick with `PolicyBot.settle_draft`: **the first offer (slot 0)**, for every policy including
+`none`. It goes through `world.command_pick`, so the pick is logged (`CMD_PICK`) and the run stays replayable. The
+offers themselves come from the seeded `rng_draft` stream, so the "first offer" is deterministic per seed. The
+bot does not weigh patches (no ranking, no gamble avoidance): median death waves therefore include a random patch
+at wave 10 and 20, which is what the changed medians in the M4-15 commit measure. The game build has no overlay
+until M4-16; until then `RunController` auto-picks the first offer as a stopgap.

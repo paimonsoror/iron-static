@@ -18,6 +18,8 @@ static func run_world(cfg: SimConfig, rec: RunRecord, max_ticks: int) -> SimWorl
 	var limit: int = mini(max_ticks, rec.final_tick) if rec.aborted else max_ticks
 	while not w.is_over() and w.tick < limit:
 		cursor = _apply_due(w, rec.commands, cursor)
+		if w.is_draft_open():
+			break  # a record cut inside a draft has no pick to apply: stop instead of waiting forever
 		w.step()
 	if rec.aborted and w.tick == rec.final_tick:
 		cursor = _apply_due(w, rec.commands, cursor)  # buys logged while paused on the abort tick
@@ -34,6 +36,8 @@ static func checkpoints(cfg: SimConfig, rec: RunRecord, targets: PackedInt32Arra
 		var stop: int = mini(target, rec.final_tick) if rec.aborted else target
 		while not w.is_over() and w.tick < stop:
 			cursor = _apply_due(w, rec.commands, cursor)
+			if w.is_draft_open():
+				break  # see run_world
 			w.step()
 		if out.append(w.state_hash() if w.tick == target else ""):
 			push_error("Replay: append failed")
@@ -47,5 +51,8 @@ static func _apply_due(w: SimWorld, cmds: InputLog, start: int) -> int:
 		if cmds.ticks[i] == w.tick and cmds.kinds[i] == InputLog.CMD_BUY:
 			@warning_ignore("return_value_discarded")  # replay re-derives the result
 			w.command_buy(cmds.arg_a[i], cmds.arg_b[i])
+		elif cmds.ticks[i] == w.tick and cmds.kinds[i] == InputLog.CMD_PICK:
+			@warning_ignore("return_value_discarded")
+			w.command_pick(cmds.arg_a[i])
 		i += 1
 	return i
