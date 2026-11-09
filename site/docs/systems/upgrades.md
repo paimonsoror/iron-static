@@ -31,18 +31,18 @@ Rows you have not unlocked are not shown. A single line at the bottom says "Next
 
 | Upgrade | Tab | What it does | Base | Per level | Level cap | Hard cap | Cost to buy level 1 | Cost growth | Unlocks at best wave |
 |---|---|---|---|---|---|---|---|---|---|
-| Laser Output | ARMS | Damage per shot (type D) | 10 | x(1 + 0.10 L) | 400 | none | 15 | x1.09 | start |
+| Laser Output | ARMS | Damage per shot (type D) | 10 | x(1 + 0.10 L) | 400 | none | 10 | x1.108 | start |
 | Cycle Rate | ARMS | Shots per second (type C) | 1.00 | +0.04 | 100 | 12.0 | 25 | x1.12 | start |
 | Crit Chance | ARMS | Chance a shot crits | 2% | +0.8 points | 98 | 85% | 60 | x1.10 | 5 |
 | Crit Mult | ARMS | Crit damage multiplier | x1.50 | +0.05 | 150 | none | 80 | x1.085 | 8 |
 | Optic Range | ARMS | Firing range in meters | 24 | +0.4 | 100 | 80 | 40 | x1.10 | 10 |
-| Hull Integrity | CHASSIS | Maximum integrity; buying also heals (type D) | 100 | x(1 + 0.10 L) | 400 | none | 15 | x1.09 | start |
-| Nano Repair | CHASSIS | Integrity restored per second (type D) | 1.0 | x(1 + 0.10 L) | 400 | none | 20 | x1.09 | start |
-| Plating | CHASSIS | Percent damage reduction | 0% | +0.5 points | 99 | 90% | 100 | x1.10 | 10 |
+| Hull Integrity | CHASSIS | Maximum integrity; buying also heals (type D) | 100 | x(1 + 0.10 L) | 400 | none | 10 | x1.108 | start |
+| Nano Repair | CHASSIS | Integrity restored per second (type D) | 1.0 | x(1 + 0.60 L) | 400 | none | 20 | x1.09 | start |
+| Plating | CHASSIS | Percent damage reduction | 0% | +6 points | 99 | 90% | 20 | x1.10 | 10 |
 | Scrap Yield | SYSTEMS | Multiplier on all scrap gained | x1.00 | +0.02 | 100 | x3.0 | 50 | x1.10 | 3 |
 | Reinvest | SYSTEMS | Interest on unspent scrap at wave end | 0% | +0.06 points | 99 | 5.94% | 300 | x1.11 | 12 |
 
-(The first-level cost shown is the cost at level 0. Gates use your best wave in Sector 1.)
+(The first-level cost shown is the cost at level 0. Gates use your best wave in Sector 1. You start each deployment with 60 scrap, enough for several early levels.)
 
 ## The formulas
 
@@ -52,7 +52,7 @@ Rows you have not unlocked are not shown. A single line at the bottom says "Next
 cost(level -> level + 1) = ceil(c0 * g ^ level)
 ```
 
-For laser output (c0 15, g 1.09) the first levels cost 15, 17, 18 and so on; level 10 costs 36 and level 25 costs 130. Multi-level buys add the exact costs in sequence, with no discount.
+For laser output (c0 10, g 1.108) the first levels cost 10, 12, 13 and so on; level 10 costs 28 and level 25 costs 130. The early levels are cheap and the curve catches up with the old one around level 25. Multi-level buys add the exact costs in sequence, with no discount.
 
 **Type D (deep) upgrades** scale hard. They grow linearly with each level and also jump by **x1.5 every 25 levels** (the overclock milestone, marked with a gold ring on the row):
 
@@ -68,7 +68,7 @@ run_factor(L) = (1 + 0.10 * L) * 1.5 ^ floor(L / 25)
 | 50 | x13.5 | 135 |
 | 100 | x55.7 | 557 |
 
-Type D applies to Laser Output, Hull Integrity and Nano Repair. **Type C (capped linear)** upgrades add a fixed step per level and stop at a hard cap.
+Type D applies to Laser Output, Hull Integrity and Nano Repair. Laser Output and Hull Integrity gain 0.10 per level in that formula; Nano Repair gains 0.60 per level, so its first levels are felt at once. **Type C (capped linear)** upgrades add a fixed step per level and stop at a hard cap.
 
 Permanent bonuses multiply the final value: `final = base * run factor * Foundry multiplier * frame and other multipliers`. See [The Foundry](foundry.md).
 
@@ -78,7 +78,7 @@ Permanent bonuses multiply the final value: `final = base * run factor * Foundry
 - **Crit Chance and Crit Mult** reward volume. They multiply each other, so neither is worth much without the other.
 - **Optic Range** hits lancers and darts sooner, and lets Cinder shoot while enemies are still far away.
 - **Hull Integrity and Nano Repair** are survival. Hull also heals when bought, so buying armor mid-fight is a small heal.
-- **Plating** is a percentage shield with a hard 90 percent cap, so integrity stays relevant.
+- **Plating** is a percentage shield: 6 points per level up to a hard 90 percent cap (level 15), so integrity stays relevant.
 - **Scrap Yield** raises income. **Reinvest** pays interest on what you have not spent, up to half of that wave's kill scrap, so it rewards saving.
 
 ## Reinvest in detail

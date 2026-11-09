@@ -31,7 +31,7 @@ Terms are listed alphabetically. A badge shows whether the thing is in the build
 | **Exposure band** | One of four integrity bands of skin burn. |
 | **Firmware** | Collectible chips (lanterns) that give permanent effects. <span class="badge planned">Planned</span> |
 | **Flank group** | A clump of 3 to 6 enemies that spawns within a narrow arc. |
-| **Foundry** | Where data buys permanent stat upgrades. <span class="badge planned">Planned M3</span> |
+| **Foundry** | Where data buys permanent stat upgrades. <span class="badge live">Implemented</span> |
 | **Frame** | A chassis configuration Cinder deploys in. See [Frames](../characters/frames.md). |
 | **Gauntlet** | A bracketed tournament. <span class="badge planned">Planned</span> |
 | **Hollow** | A sealed Accord vault. |

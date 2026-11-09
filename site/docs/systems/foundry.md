@@ -1,7 +1,6 @@
 # The Foundry
 
-!!! planned "Planned: milestone M3"
-    The Foundry's rules, data and cost formulas are built, but the Foundry screen and data saving are in production. You cannot buy Foundry levels in today's build.
+<span class="badge live">Implemented</span> The Foundry screen, four rows, and saving your levels. It opens once you have finished your first deployment. More rows are <span class="badge planned">Planned</span> for later milestones.
 
 The **Foundry** is where **data** becomes permanent power. A Foundry level raises a stat's **starting value for every deployment**; you then add temporary run levels on top.
 
@@ -60,10 +59,14 @@ Every 10 Foundry levels is a x1.25 milestone, and the Foundry highlights the che
 
 ## What the screen shows
 
-Each row will show its current value, the next value, the change, the cost, the maximum, and how long it would take to afford at your current earn rate. A "Recommended" glow marks the cheapest milestone-adjacent stat. **Tap** the cost button to buy a level; **hold** to repeat-buy. There is no buy-mode selector.
+![The Foundry with four rows and a RECOMMENDED tag](../assets/img/foundry.jpg){ width="260" }
+
+The top of the screen shows your **DATA** and a preview line, "NEXT RUN PR a -> b", with the Power Rating change your purchases would give. Each row shows its level (`F8`), its current and next value with the change, the next milestone (`F10  x1.25`), the cost, and whether it is affordable now or "~N TO AFFORD" at your current earn rate. A **RECOMMENDED** tag marks the cheapest milestone-adjacent stat. **Tap** the cost button to buy a level; **hold** to repeat-buy, the same way as in a deployment. There is no buy-mode selector. Buying saves your profile.
+
+You reach the Foundry from Home (a chip tells you how many rows you can afford) and from the results screen. DEPLOY on the Foundry starts the next run directly. Back returns to the screen you came from. Until you finish your first deployment the Foundry is hidden.
 
 ## Design target
 
-A new player should be able to spend their first banked data (about 800) on two or three stats and feel the difference on the next run, aiming for about 4 more waves per 300 data.
+A new player should be able to spend their first banked data on two or three stats and feel the difference on the next run, aiming for about 4 more waves per 300 data. In the latest balance run, 300 data spent across Laser Output, Hull Integrity and Cycle Rate raised the median death wave by 4 (12 to 16), and about 1,000 data roughly doubled it.
 
 Next: [Saving and resuming](save-resume.md).

@@ -1,9 +1,8 @@
 # Saving and resuming
 
-!!! planned "Planned: milestone M3"
-    The save format, the crash-safe writer and the run checkpoint are built and tested in the engine. The screens that use them (title, Home, Foundry) are in production, so today's build keeps nothing between launches.
+<span class="badge live">Implemented</span> Profile saving, run checkpoints and resume. <span class="badge planned">Planned M7</span> Cloud save.
 
-## What will be saved
+## What is saved
 
 - **Your profile:** banked data, Foundry levels, best wave, unlocked frames, the selected frame, run counters and settings.
 - **Your current run,** while one is in progress, so it can be resumed.
@@ -21,18 +20,21 @@ If the app is closed or killed in the middle of a deployment, **CONTINUE** on th
 
 A run that is closed with the back gesture or backgrounded is simply paused. See [Controls](controls.md).
 
+!!! note "After a game update"
+    A run that was in progress when the game updated to a version with different rules cannot be resumed and ends instead, because it would no longer play out the same way. Your profile (data, Foundry levels, best wave) is kept.
+
 ## Protecting your save
 
 Saving is built to survive crashes, power loss and bad writes:
 
 - The file is written to a temporary copy first, then swapped into place in one step, so a half-written file cannot replace a good one.
 - The previous good save is kept as a backup. If the main file fails its checks, the game falls back to the backup.
-- Saves carry a checksum and a signature, so corruption and tampering are detected. A damaged save is reported to you; it is not silently discarded.
+- Saves carry a keyed signature (an HMAC), so corruption and tampering are detected. A damaged save is reported on a blocking screen with a START NEW PROFILE button, and the damaged files are renamed `.corrupt`, not deleted. A save written by a newer version of the game is never overwritten.
 - Save files carry a version number and are migrated forward when the game updates.
 
 ## New Game and resetting
 
-- **NEW GAME** on a profile with no progress goes straight to frame selection.
+- **NEW GAME** on a profile with no progress goes straight to the frame bay.
 - On a profile **with** progress it first asks **"START OVER? THIS ERASES YOUR PROGRESS."** If you confirm, the old files are **renamed to `.reset` copies, not deleted**, so an accident can be recovered through support. Your settings (sound, shake and so on) are kept because they are device preferences.
 - **Settings > Data** also has a reset, behind **two** separate confirmations. The second names how much data and which best wave you are about to lose.
 
@@ -44,11 +46,11 @@ title ── CONTINUE ──> Home (or straight back into a resumed run)
       └─ SETTINGS
 ```
 
-CONTINUE only appears when a save with progress exists; a fresh install shows only NEW GAME and SETTINGS. The back gesture on the title opens a **QUIT?** confirmation.
+CONTINUE only appears when a save with progress exists; a fresh install shows only NEW GAME and SETTINGS. The back gesture on the title opens a **QUIT?** confirmation; in the frame bay it returns to the title.
 
-![The title screen with CONTINUE, NEW GAME and SETTINGS](../assets/img/title.jpg){ width="260" }
+![The title screen with CONTINUE, NEW GAME and SETTINGS](../assets/img/title_screen.jpg){ width="260" }
 
-*Title screen artwork from the current production pass, with the selected frame silhouetted on a ridge.*
+*The title screen: the selected frame silhouetted on a ridge, a glitching logo, drifting smoke and embers.*
 
 ## Cloud save <span class="badge planned">Planned M7</span>
 

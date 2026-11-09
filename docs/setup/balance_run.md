@@ -1,6 +1,6 @@
 # Balance runner (`tools/balance_run.ps1`, M2-14)
 
-Changelog: 2026-11-08 (M3-08, M3-24: Foundry profiles, `--frame`, `--policy none`, frames table, mean line, frame tuning log) - 2026-11-07 created (M2-14).
+Changelog: 2026-11-09 (`--policy only:<row id>`, Q54 retune) - 2026-11-08 (M3-08, M3-24: Foundry profiles, `--frame`, `--policy none`, frames table, mean line, frame tuning log) - 2026-11-07 created (M2-14).
 
 The standard "did I break the economy" check (TECH_ARCHITECTURE 10.3). Required in the definition of
 done for every economy or sim change: paste the output in the commit message and compare it to
@@ -18,7 +18,7 @@ done for every economy or sim change: paste the output in the commit message and
 | `-Waves` | 100 | cap: a run that is still alive after this wave reports death wave = cap |
 | `-Runs` | 20 | seeds are `Seed .. Seed+Runs-1` |
 | `-Seed` | 1 | first seed |
-| `-Policy` | `greedy4` | `PolicyBot` policy: `greedy4`, `all` or `none` (never buys: only the starting stats matter, M3-24) |
+| `-Policy` | `greedy4` | `PolicyBot` policy: `greedy4`, `all`, `none` (never buys: only the starting stats matter, M3-24) or `only:<row id>` (buys only that run-upgrade row, e.g. `only:hull_integrity`; used in the Q54 retune to check that early hull, plating and repair purchases extend runs; a gated row such as `plating_pct`, best wave 10, needs a profile whose `best_wave_s1` has unlocked it) |
 | `-Sector` | 1 | sector number (sets `SimConfig.sector`) |
 | `-Frame` | `vanguard` | Cinder frame id from `data/frames.csv` (implemented ones: vanguard, bulwark, striker), or `all` to run every implemented frame on the same seeds and print a frames table (M3-24). Unknown or unimplemented id exits 2. |
 

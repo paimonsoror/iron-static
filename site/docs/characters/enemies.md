@@ -16,7 +16,7 @@ Multipliers apply to the base enemy values at the current enemy level. Speed is 
 | [Dart](#dart) | <span class="chip" style="background:#ff4fd8"></span>pink-magenta | Fast rusher | 7.35 | x0.8 | x0.8 | 1 | 4 |
 | [Lancer](#lancer) | <span class="chip" style="background:#b28cff"></span>violet | Ranged | 4.2 | x1.0 | x1.2 | 1 | 6 |
 | [Walker](#walker) | <span class="chip" style="background:#ff8a1f"></span>orange | Heavy melee | 2.1 | x5.0 | x1.5 | 3 | 8 |
-| [Boss hulk](#boss-hulk) | <span class="chip" style="background:#c8102e"></span>deep red | Boss | 1.4 | x25 | x3.0 | 1 | 10 |
+| [Boss hulk](#boss-hulk) | <span class="chip" style="background:#c8102e"></span>deep red | Boss | 1.4 | x8 | x3.0 | 1 | 10 |
 
 "Slots" is how much of a wave's spawn budget an enemy costs; see [The run loop](../systems/run-loop.md#how-many-enemies-spawn).
 
@@ -48,7 +48,7 @@ A slow siege walker: five times the health, strong hits, and three spawn slots. 
 
 ### Boss hulk
 
-The boss node of Sector 1. A **boss wave comes every 10 waves**, starting at wave 10: the hulk arrives about two seconds into the wave, with the usual swarm at 60 percent size. It has 25 times the health of a base enemy and hits three times as hard. It is a large armored hexagon whose reactor core glows white-hot.
+The boss node of Sector 1. A **boss wave comes every 10 waves**, starting at wave 10: the hulk arrives about two seconds into the wave, with the usual swarm at 60 percent size. It has 8 times the health of a base enemy and hits three times as hard. It is a large armored hexagon whose reactor core glows white-hot.
 
 In the full design the hulk loses a plate every 25 percent of its health, and a fresh loss makes it take 30 percent less damage for 6 seconds. That plate mechanic is <span class="badge planned">Planned M6</span>; today's hulk is the heavy melee boss without plates.
 

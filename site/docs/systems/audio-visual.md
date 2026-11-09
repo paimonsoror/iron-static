@@ -32,11 +32,17 @@ Hit flashes, kill bursts, muzzle and crit flares, embers from burning armor, a l
 
 The game holds 60 frames per second with 165 enemies on screen on a Pixel 11 Pro Fold. Enemies are drawn in batches rather than as individual objects, which is why large swarms stay smooth.
 
-## Title screen <span class="badge planned">Planned M3</span>
+## Title screen <span class="badge live">Implemented</span>
 
-A smoky wasteland of metal and machines at dusk, with the selected frame silhouetted on a ridge with its core glowing, parallax layers, drifting smoke, rising embers, an occasional distant flare and a glitching logo. All motion switches off under reduce motion. The art exists; the scene is in production.
+A smoky wasteland of metal and machines at dusk, with the selected frame silhouetted on a ridge with its core glowing, parallax layers, drifting smoke, rising embers, an occasional distant flare and a glitching logo. All motion switches off under reduce motion, and the lower quality tiers drop the smoke, embers and flare first. A low wind and an occasional distant metal creak play under the menu music on the title and the other menu screens.
 
-![Title artwork](../assets/img/title.jpg){ width="260" }
+![The title screen](../assets/img/title_screen.jpg){ width="260" }
+
+## Home <span class="badge live">Implemented</span>
+
+Between deployments you land on Home: Cinder on the arena floor with the selected frame's name, your Power Rating (PR) and data, your best wave, the next unlock, and DEPLOY. A chip appears when you can afford Foundry upgrades, and a nav bar with HOME and FOUNDRY appears after your first deployment, and a settings button sits in the top corner.
+
+![Home](../assets/img/home.jpg){ width="260" }
 
 ## Audio direction
 

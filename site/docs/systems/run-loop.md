@@ -6,19 +6,21 @@
 
 One attempt at holding the Relay is a **deployment** (a run).
 
-1. **Start.** Cinder appears at the center of the arena with 20 scrap. Every run upgrade is at level 0.
+1. **Start.** Cinder appears at the center of the arena with 60 scrap. Every run upgrade is at level 0.
 2. **Waves.** The game is a sequence of 24-second waves. Enemies spawn at the edge and walk in.
 3. **Combat.** Cinder fires on its own at the nearest enemy in range. Kills pay scrap instantly and add data to the run total.
 4. **Spend.** You buy upgrades from the bottom panel with scrap. See [Run upgrades](upgrades.md).
 5. **End of wave.** Interest is paid and the enemy level rises (see below).
-6. **Death.** When integrity reaches 0 the deployment ends. The results screen shows the wave reached, time survived, kills, cause of death and data banked.
-7. **Redeploy.** One tap starts the next deployment with a new seed.
+6. **Death.** When integrity reaches 0 the deployment ends. The results screen shows the wave reached, time survived, kills, cause of death, the data banked (and your new total), scrap, and your best wave with the gain ("BEST 12 (+3)", plus "NEW BEST" when you beat it).
+7. **Redeploy.** One tap starts the next deployment with a new seed. The results screen also has FOUNDRY (showing how many upgrades you can afford) and HOME, and a "FRAME UNLOCKED" line when your best wave unlocks a frame.
+
+![The results screen with a FRAME UNLOCKED line, NEW BEST, and the REDEPLOY, FOUNDRY and HOME buttons](../assets/img/results_unlock.jpg){ width="260" }
 
 What you keep and lose at death:
 
 | | |
 |---|---|
-| **Data** | Banked in full, even on death. (Persistence between app launches is <span class="badge planned">Planned M3</span>) |
+| **Data** | Banked in full, even on death, and saved to your profile |
 | **Scrap** | Lost |
 | **Run upgrade levels** | Lost; the next run starts at level 0 |
 | **Best wave** | Kept. It decides which upgrades and frames you have unlocked |
@@ -41,10 +43,10 @@ Each wave lasts **24 seconds at 1x speed**: an 18-second spawn phase followed by
 Each wave has a spawn budget of **slots**:
 
 ```text
-slots(w) = min(200, floor(6 + 2.4 * w^0.6))
+slots(w) = min(200, floor(4 + 2.4 * w^0.6))
 ```
 
-Wave 1 has 8, wave 10 has 15, wave 50 has 31 and wave 100 has 44. Enemies cost slots (a walker costs 3), and the game draws enemy types by weight until the budget is spent, allowing an overflow of up to 2 slots.
+Wave 1 has 6, wave 10 has 13, wave 50 has 29 and wave 100 has 42. Enemies cost slots (a walker costs 3), and the game draws enemy types by weight until the budget is spent, allowing an overflow of up to 2 slots.
 
 | Enemy | Spawn weight | First wave |
 |---|---|---|

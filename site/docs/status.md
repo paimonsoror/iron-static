@@ -1,6 +1,6 @@
 # Development status
 
-IRON STATIC is in active development. This page says what you can play today and what is coming. Last updated 2026-11-08.
+IRON STATIC is in active development. This page says what you can play today and what is coming. Last updated 2026-11-09.
 
 ## What is in the build today
 
@@ -11,13 +11,25 @@ IRON STATIC is in active development. This page says what you can play today and
 - Five enemies: skitter, dart, lancer, walker and the boss hulk (without its plate mechanic).
 - Ten run upgrades in three tabs, with tap and hold-to-buy and formula tooltips.
 - Skin burn: four exposure bands with ember particles, a low-integrity haze and a heartbeat.
-- The results screen, redeploy with a new seed, pause, 1x and 2x speed.
+- The results screen with best-wave gain, data banked and its new total, a frame-unlocked line, and REDEPLOY, FOUNDRY and HOME; pause, 1x and 2x speed.
 - Android back gesture handling and automatic pause when the app goes to the background.
 - Synthesized sound effects and adaptive music; an animated machine-vision arena.
 
-## Built in the engine, no screens yet
+## Added by milestone M3
 
-Part of the current milestone (M3) exists in code and data but is not reachable from the game yet, so it is labelled <span class="badge planned">Planned</span> throughout this codex: the Foundry rules and four rows, banking data between deployments, the save format with crash-safe writes and run resume, the three frames in the simulation, and the settings model. The title screen, Home, Foundry and frame bay screens are in production.
+<span class="badge live">Implemented</span>
+
+- The **title screen** (CONTINUE, NEW GAME, SETTINGS) with the selected frame as its hero and a wind-and-metal ambience, and the NEW GAME confirmation that resets your profile.
+- **Home**, between deployments: Cinder, Power Rating, data, best wave and the next unlock.
+- The **Foundry**: four permanent rows bought with data, tap and hold-to-buy, a Recommended tag.
+- **Three frames** (VANGUARD, BULWARK, STRIKER) with the Bastion and Overclock passives, unlocked at best wave 8 and 15, and the **frame bay**.
+- The **Settings screen**, including a Data section with a double-confirmed profile reset.
+- **Saving**: crash-safe writes, a backup copy, tamper detection, resume after the app is killed, and a save when the app goes to the background.
+- An **early-curve rebalance**: more starting scrap, cheaper first upgrade levels and a softer first boss.
+
+## What M3 still needs
+
+All planned M3 features are in. Checking them on a real phone, and the milestone's exit check, remain. Until then M3 stays open and numbers can still move.
 
 ## Roadmap
 
@@ -26,9 +38,9 @@ Part of the current milestone (M3) exists in code and data but is not reachable 
 | M0 Foundation | Project, tests, lint, export, CI | Done |
 | M1 Core combat | Deterministic simulation, auto-battle, five enemies, waves, skin-burn bands | Done |
 | M2 In-run economy | Scrap, ten upgrades, big numbers, panel, results | Done |
-| V1 Visual pass | Illustrated vector art, effects, styled HUD, mobile hardening | Nearly complete |
-| A1 Audio pass | Synthesized sound effects and adaptive music | Sound effects done, wiring in progress |
-| M3 Meta loop | Data banking, Foundry, saving and resume, title screen, frames | In progress |
+| V1 Visual pass | Illustrated vector art, effects, styled HUD, mobile hardening | Done apart from on-device verification |
+| A1 Audio pass | Synthesized sound effects and adaptive music | Done |
+| M3 Meta loop | Data banking, Foundry, saving and resume, title screen, frames | In progress: features are in; on-device verification and the exit check remain |
 | M4 Patches and first-time experience | Patch draft, Intel tab, damage numbers, haptics, tutorial | <span class="badge planned">Planned</span> |
 | M5 MVP validation | Balance, real-device performance, fun checks | <span class="badge planned">Planned</span> |
 | M6 Launch content | Lab, weapon systems, firmware, drones, adaptive swarm, caches, overdrive, more sectors, Standby Patrol, two more frames | <span class="badge planned">Planned</span> |
@@ -37,7 +49,7 @@ Part of the current milestone (M3) exists in code and data but is not reachable 
 
 ## Known numbers
 
-A fresh profile currently dies around wave 9 on average; the design target is about wave 12, and the first balance pass accepts that gap. On a Pixel 11 Pro Fold the game holds 60 frames per second with 165 enemies on screen.
+After the early-curve rebalance, a fresh profile dies around wave 12 in the median in the balance runs, which is the design target. A few Foundry levels add about 4 waves (300 data) and roughly double the run at about 1,000 data. The three frames land within about 10 percent of VANGUARD on a fresh profile. On a Pixel 11 Pro Fold the game holds 60 frames per second with 165 enemies on screen.
 
 ## How this codex is made
 

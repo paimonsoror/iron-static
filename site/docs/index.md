@@ -1,5 +1,5 @@
 ---
-title: IRON STATIC Codex
+title: Player guide
 hide:
   - navigation
   - toc
@@ -21,6 +21,22 @@ This codex is the player-facing guide to the game: its story, its characters and
 
 <div class="shots" markdown>
 <figure markdown>
+![The title screen with CONTINUE, NEW GAME and SETTINGS](assets/img/title_screen.jpg)
+<figcaption>The title screen</figcaption>
+</figure>
+<figure markdown>
+![Home: Cinder, best wave and DEPLOY](assets/img/home.jpg)
+<figcaption>Home, between deployments</figcaption>
+</figure>
+<figure markdown>
+![The Foundry with four permanent upgrade rows](assets/img/foundry.jpg)
+<figcaption>The Foundry spends banked data</figcaption>
+</figure>
+<figure markdown>
+![The frame bay with a locked BULWARK card](assets/img/frame_bay.jpg)
+<figcaption>The frame bay</figcaption>
+</figure>
+<figure markdown>
 ![Wave 1: Cinder at the center, the ARMS tab open](assets/img/wave1.png)
 <figcaption>Wave 1, a calm start</figcaption>
 </figure>
@@ -38,7 +54,7 @@ This codex is the player-facing guide to the game: its story, its characters and
 </figure>
 </div>
 
-*Desktop captures of the current build, downscaled. The wave 20 shot is a debug scenario (invulnerable, fast-forwarded), so its crowd is denser than a real run.*
+*Captures of the current build, downscaled. The menu screens were taken on a 1080 by 2400 phone-sized window with test profiles. The wave 20 shot is a debug scenario (invulnerable, fast-forwarded), so its crowd is denser than a real run.*
 
 ## Status badges
 
@@ -82,4 +98,4 @@ Is it free? Are there ads? What can I do offline?
 | Model | Free to play. Rewarded, opt-in ads only; no forced ads, no interstitials <span class="badge planned">Planned</span> |
 | Wave length | 24 seconds at 1x speed |
 | Your job | Buy upgrades, choose a build, decide when to retry. You never aim |
-| Build today | The in-run loop: waves, five enemy types, ten upgrades, skin burn, results. Permanent progress and saving are the current milestone |
+| Build today | The full loop: title screen, deployments with five enemy types, ten run upgrades and skin burn, results, the Foundry for permanent upgrades, three frames, settings and crash-safe saving with resume |

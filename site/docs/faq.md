@@ -31,7 +31,7 @@
     The deployment ends. You keep the data you earned (banked in full), lose your scrap and run upgrades, and can redeploy at once. Best wave is kept. See [The run loop](systems/run-loop.md).
 
 ??? question "Does my progress save?"
-    Not yet. Saving, the Foundry and resuming a run after the app is killed are the current milestone (M3). When they land, saves are crash-safe and backed up. See [Saving and resuming](systems/save-resume.md).
+    Yes. Your profile saves after every deployment and every Foundry purchase, and when the app goes to the background. If the app is killed mid-run, CONTINUE on the title screen resumes it. Saves are crash-safe and backed up. See [Saving and resuming](systems/save-resume.md).
 
 ??? question "Does the game run while the app is closed?"
     A deployment pauses when you leave the app. A separate, capped offline earning system called Standby Patrol is **Planned**; it will give a fraction of your data rate and nothing else. See [Lab, Arsenal and Standby Patrol](systems/meta-planned.md#standby-patrol).
@@ -43,10 +43,10 @@
     Rows unlock by your best wave, and locked rows stay hidden so the screen is not cluttered. A line at the bottom shows the next unlock.
 
 ??? question "Why did I get stronger after dying?"
-    That is the design. Data from each deployment buys permanent upgrades in the Foundry (Planned M3), so every run starts further ahead.
+    That is the design. Data from each deployment buys permanent upgrades in the Foundry, so every run starts further ahead.
 
 ??? question "Which frame should I pick?"
-    VANGUARD is the baseline. BULWARK is for outlasting with minimal buying; STRIKER is for active buying and fast kills. They are balanced to be close on average. See [Frames](characters/frames.md).
+    VANGUARD is the baseline, and the only one you start with; BULWARK unlocks at best wave 8 and STRIKER at 15. BULWARK is for outlasting with minimal buying; STRIKER is for active buying and fast kills. They are balanced to be close on average. See [Frames](characters/frames.md).
 
 ??? question "Are there human enemies?"
     No. Every enemy is a machine and you never see a person. The game is rated for machine-versus-machine violence with no gore.

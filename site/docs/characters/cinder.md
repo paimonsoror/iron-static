@@ -21,7 +21,7 @@ Every deployment begins here, before any permanent upgrades:
 | Hit radius | 2.0 meters |
 | Scrap | 20 |
 
-A wave 1 skitter has 14 hit points, so it takes two shots. The first upgrade, laser output level 1, costs 15 scrap and is affordable from the starting 20.
+A wave 1 skitter has 14 hit points, so it takes two shots. The first upgrade, laser output level 1, costs 10 scrap and is affordable from the starting 60.
 
 ## Behavior
 

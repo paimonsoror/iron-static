@@ -5,7 +5,7 @@ IRON STATIC uses **five currencies at most**. Each has a clear job, and none is 
 | Currency | Persists? | Used for | Status |
 |---|---|---|---|
 | **Scrap** | Run only | Temporary run upgrades | <span class="badge live">Implemented</span> |
-| **Data** | Permanent | Foundry, research, weapon-system levels | Earned in runs today; spending and saving <span class="badge planned">Planned M3</span> |
+| **Data** | Permanent | Foundry, research, weapon-system levels | <span class="badge live">Implemented</span> for the Foundry (earned in runs, saved, spent between runs); research and weapon systems <span class="badge planned">Planned M6</span> |
 | **Flux** | Permanent | Rushing timers, extra lab and firmware slots, firmware picks, cosmetics | <span class="badge planned">Planned M6</span> |
 | **Cipher** | Permanent | Unlocking weapon systems, companion upgrades | <span class="badge planned">Planned M6</span> |
 | **Merit** | Permanent (shop prices reset each season) | Event, Cell and pass shops | <span class="badge planned">Planned Post-launch</span> |
@@ -14,7 +14,7 @@ IRON STATIC uses **five currencies at most**. Each has a clear job, and none is 
 
 - **Earned** from kills (instantly), from interest (Reinvest), and later from wave bonuses and salvage caches.
 - **Spent** on [run upgrades](upgrades.md).
-- You start each deployment with 20. It is **lost when the run ends**. There is no cap.
+- You start each deployment with 60. It is **lost when the run ends**. There is no cap.
 - Payouts are rounded down to whole scrap with the fraction carried forward.
 
 Scrap per kill follows enemy health, so buying power tracks enemy toughness: `max(1, round(2 * G_hp^0.55)) * type multiplier * scrap yield`.
@@ -25,7 +25,7 @@ Scrap per kill follows enemy health, so buying power tracks enemy toughness: `ma
 - **Banked in full when the run ends**, even on death. Stale kills pay half.
 - **Spent** on the [Foundry](foundry.md), and later research, weapon systems and companions.
 
-Per kill: `data = base * (1 + 0.04 * level) * sector reward * data yield`. A first run banks roughly 190 data.
+Per kill: `data = base * (1 + 0.04 * level) * sector reward * data yield`. Data is saved to your profile as soon as a run ends.
 
 ## Flux, cipher and merit <span class="badge planned">Planned</span>
 
