@@ -33,13 +33,13 @@ var _defs: Array[RunUpgradeDef] = []
 var _rows: Array[UpgradeRow] = []
 var _hint: String = ""
 var _tab_buttons: Dictionary[String, Button] = {}
+var _intel: IntelPanel = IntelPanel.new()
 
 @onready var _tab_bar: HBoxContainer = %TabBar
 @onready var _column: VBoxContainer = %Column
 @onready var _scroll: ScrollContainer = %Scroll
 @onready var _rows_box: VBoxContainer = %RowsBox
 @onready var _hint_label: Label = %HintLabel
-@onready var _intel_label: Label = %IntelLabel
 @onready var _timer: Timer = %RefreshTimer
 
 
@@ -51,10 +51,9 @@ func _ready() -> void:
 	add_child(brackets)
 	UiKit.add_brackets(brackets)
 	_setup_tabs()
-	_intel_label.text = Strings.get_text("panel.intel_stub")
-	_intel_label.add_theme_stylebox_override("normal", UiKit.inset(24, 40))
 	_hint_label.hide()
-	_intel_label.hide()
+	_intel.hide()
+	_rows_box.add_child(_intel)
 	_timer.wait_time = REFRESH_S
 	_timer.timeout.connect(refresh)
 	_timer.start()
@@ -65,11 +64,17 @@ func _ready() -> void:
 ## Binds the world to read (a new run gives a new world). Rows are rebuilt only when the upgrade table differs.
 func bind(world: SimWorld) -> void:
 	_world = world
+	_intel.bind(world)
 	if world == null:
 		return
 	if not _same_defs(world.config.upgrades):
 		_build_rows(world.config.upgrades)
 	refresh()
+
+
+## The INTEL tab content (tests, layout checks).
+func intel_panel() -> IntelPanel:
+	return _intel
 
 
 func bound_world() -> SimWorld:
@@ -122,7 +127,8 @@ func refresh() -> void:
 	if _world == null or _rows.size() != _world.config.upgrades.size():
 		return
 	var intel: bool = model.active_tab == UpgradePanelModel.TAB_INTEL
-	_intel_label.visible = intel
+	if _intel.visible != intel:
+		_intel.visible = intel
 	var shown: PackedInt32Array = PackedInt32Array()
 	if not intel:
 		shown = UpgradePanelModel.rows_for_tab(_defs, _world.visible, model.active_tab)

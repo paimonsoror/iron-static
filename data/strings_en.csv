@@ -222,3 +222,18 @@ pause.abort_body,THE RUN ENDS NOW. DATA EARNED IS KEPT.
 pause.abort_yes,ABORT
 pause.abort_no,CANCEL
 home.aborted,MISSION ABORTED: +{data} DATA
+intel.tab_stats,STATS
+intel.tab_wave,WAVE
+intel.stats.title,CINDER STATS
+intel.stats.dps,DPS (AVERAGE)
+intel.stats.data_yield,DATA YIELD
+intel.stats.enemy_damage,ENEMY DAMAGE
+intel.stats.fmt_rate,{v}/s
+intel.stats.fmt_range,{v} m
+intel.stats.chain_base,BASE {v}
+intel.stats.chain_run,RUN {v}
+intel.stats.chain_foundry,FOUNDRY {v}
+intel.stats.chain_frame,FRAME {v}
+intel.stats.chain_patch,PATCH {v}
+intel.stats.chain_dps,OUTPUT x RATE x CRIT {v}
+intel.stats.chain_none,NO MODIFIERS

@@ -53,7 +53,7 @@ func test_panel_scene_loads_filters_rows_and_shows_hint() -> void:
 	assert_bool(panel.row_at(5).visible).is_true()
 	assert_bool(panel.row_at(0).visible).is_false()
 	panel.set_tab("intel")
-	assert_bool((panel.get_node("%IntelLabel") as Label).visible).is_true()
+	assert_bool(panel.intel_panel().visible).is_true()
 	assert_bool(panel.row_at(5).visible).is_false()
 
 
