@@ -40,7 +40,7 @@ CATEGORY = {
     ],
     "stinger": [
         "sfx_wave_start", "sfx_milestone_x15", "sfx_draft_open", "sfx_lab_complete", "sfx_gauntlet_rank_up",
-        "sfx_results_tally",
+        "sfx_results_tally", "sfx_tier_up",
     ],
     "big": [
         "sfx_emp", "sfx_singularity", "sfx_overdrive_on", "sfx_overdrive_off", "sfx_reboot", "sfx_meltdown",
@@ -48,7 +48,7 @@ CATEGORY = {
     ],
 }
 # Per-id target overrides (same unit): a crit must read over plain hits, a deny over a tap, the wave start over music.
-OVERRIDE = {"sfx_crit": -24.0, "sfx_ui_deny": -24.0, "sfx_wave_start": -22.0}
+OVERRIDE = {"sfx_crit": -24.0, "sfx_ui_deny": -24.0, "sfx_wave_start": -22.0, "sfx_tier_up": -23.0}
 # Ambience loops (M3-31) are their own category: far below the music (menu pad = -26.4 LUFS-ish x 0.8 menu level), so
 # together they sit at least 6 dB under the lowest layer that plays with them, in RMS and in LUFS-ish (checked in main()).
 AMB_TARGETS = {"amb_wasteland_wind": -37.0, "amb_metal_creak": -40.0}

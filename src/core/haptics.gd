@@ -11,10 +11,14 @@ const BUY_MS: int = 15
 const BOSS_MS: int = 80
 const DEATH_MS: int = 250
 const PICK_MS: int = 25
+const TIER_MS: int = 35
+const TIER_TOP_MS: int = 70
 const BUY_AMP: float = 0.4
 const BOSS_AMP: float = 0.7
 const DEATH_AMP: float = 1.0
 const PICK_AMP: float = 0.5
+const TIER_AMP: float = 0.6
+const TIER_TOP_AMP: float = 0.8
 const MIN_GAP_MS: int = 60
 const BUY_REPEAT_EVERY: int = 10
 const BUY_GAP_MS: int = 400
@@ -54,6 +58,18 @@ func buy() -> void:
 	_streak += 1
 	if due:
 		_play(BUY_MS, BUY_AMP, false)
+
+
+## The tier pulse of a purchase that reaches a new visual tier (VT-5): it REPLACES that purchase's buy tick, counts as
+## a buy step of the hold streak and is not dropped by the rate limit (a tick just before it must not eat it).
+## MK II and III: 35 ms at 0.6; the top mark (MK IV): 70 ms at 0.8.
+func tier_up(top: bool) -> void:
+	_last_buy_ms = _now()
+	_streak += 1
+	if top:
+		_play(TIER_TOP_MS, TIER_TOP_AMP, true)
+	else:
+		_play(TIER_MS, TIER_AMP, true)
 
 
 func boss_spawn() -> void:

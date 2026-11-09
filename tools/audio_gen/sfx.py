@@ -192,6 +192,6 @@ ORDER = (
     "sfx_razor_spin", "sfx_shock_ring", "sfx_mine_beep", "sfx_arc", "sfx_emp", "sfx_missile_launch",
     "sfx_singularity", "sfx_dilation", "sfx_nanite", "sfx_overdrive_on", "sfx_overdrive_off", "sfx_aegis_break",
     "sfx_reboot", "sfx_meltdown", "sfx_purge", "sfx_ui_tap", "sfx_ui_deny", "sfx_lab_complete", "sfx_firmware_pick",
-    "sfx_gauntlet_rank_up", "sfx_death", "sfx_results_tally",
+    "sfx_gauntlet_rank_up", "sfx_death", "sfx_results_tally", "sfx_tier_up",
 )
 assert sorted(ORDER) == sorted(SFX), "ORDER must list every SFX id once"

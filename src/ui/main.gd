@@ -19,6 +19,8 @@ var _haptic_hooks: HapticHooks
 var _draft: DraftOverlay
 ## FTUE pointers and labels (M4-26): above the router screens, below the draft and the pause overlay.
 var _ftue: FtueOverlay
+## Tier-up banner (VT-5): "LASER MK II" below the HUD bar; started by the battle view's tier_banner_requested.
+var _tier_banner: TierBanner
 
 @onready var _battle: BattleView = %BattleView
 @onready var _hud: Hud = %Hud
@@ -67,6 +69,10 @@ func _ready() -> void:
 	_draft = (load("res://src/ui/draft/draft_overlay.tscn") as PackedScene).instantiate() as DraftOverlay
 	add_child(_draft)  # above the router screens, below the pause overlay (back opens the pause menu over a draft)
 	_draft.picked.connect(_on_draft_picked)
+	_tier_banner = TierBanner.new()
+	add_child(_tier_banner)  # above the draft overlay, below the pause overlay
+	_battle.tier_banner_requested.connect(_tier_banner.play_moment)
+	_hud.field_rect_changed.connect(_tier_banner.set_field_rect)
 	_mobile = MobileShell.new()
 	add_child(_mobile)  # last child: its pause overlay is topmost
 	_mobile.setup(_controller, _hud, _results, _debug)
@@ -98,11 +104,13 @@ func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
 	else:
 		_audio.skip()  # debug load fast-forward: no sound for the unrendered ticks
 		_haptic_hooks.skip()
+		_battle.skip_tier_ups()
 	_hud.refresh(_controller.world, Time.get_ticks_msec() / 1000.0)
 
 
 func _on_run_started(world: SimWorld) -> void:
 	_results.hide_results()
+	_tier_banner.cancel()
 	_battle.bind(world)
 	_haptic_hooks.bind(world)
 	_audio.bind(world)  # in-run music state and music start; a redeploy resets the cursor and the menu flag
@@ -111,6 +119,7 @@ func _on_run_started(world: SimWorld) -> void:
 
 
 func _on_run_ended(world: SimWorld) -> void:
+	_tier_banner.cancel()
 	_audio.in_menu = true  # results screen: menu mix (the death sound still comes through update())
 	_audio.play_results_tally(not Game.visual.reduce_motion)
 	_results.show_results(world)

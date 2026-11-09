@@ -9,6 +9,11 @@ extends RefCounted
 
 const CHIP_SIZE: int = 34
 const NEXT_SIZE: int = 38
+## The next-look line is teal for this long after the displayed tier rises (VT-5, spec 12 s6.1).
+const TEAL_MS: int = 3000
+
+## Monotonic time in ms; tests replace it.
+var clock: Callable = Time.get_ticks_msec
 
 var _line: Control = null
 var _chip: Label = null
@@ -20,6 +25,8 @@ var _next_text: String = ""
 var _progress: float = -1.0
 var _top: bool = false
 var _tier: int = -1
+var _teal_until_ms: int = -1
+var _next_color: Color = Palette.TEXT_DIM
 var _dim_plate: StyleBox = UiKit.tab(12, 5)
 var _lit_plate: StyleBox = UiKit.tab_active(12, 5)
 
@@ -50,6 +57,8 @@ func apply(model: UpgradeRowModel) -> void:
 		_chip.text = _mark
 		_chip.visible = not _mark.is_empty()
 	if model.tier != _tier:
+		if _tier >= 0 and model.tier > _tier:  # a rise, not the first apply (resume, new run)
+			_teal_until_ms = _now() + TEAL_MS
 		_tier = model.tier
 		var lit: bool = _tier >= 2
 		_chip.add_theme_stylebox_override("normal", _lit_plate if lit else _dim_plate)
@@ -60,10 +69,27 @@ func apply(model: UpgradeRowModel) -> void:
 	if model.tier_top != _top:
 		_top = model.tier_top
 		_bar.visible = not _top
-		_next.add_theme_color_override("font_color", Palette.AMBER_DIM if _top else Palette.TEXT_DIM)
 	if not is_equal_approx(model.tier_progress, _progress):
 		_progress = model.tier_progress
 		_bar.value = _progress
+	_paint_next()
+
+
+## True while the next-look line is in its 3 s teal phase.
+func is_teal() -> bool:
+	return _teal_until_ms >= 0 and _now() < _teal_until_ms
+
+
+func _paint_next() -> void:
+	var color: Color = Palette.TEAL if is_teal() else (Palette.AMBER_DIM if _top else Palette.TEXT_DIM)
+	if color != _next_color:
+		_next_color = color
+		_next.add_theme_color_override("font_color", color)
+
+
+func _now() -> int:
+	var t: int = clock.call()
+	return t
 
 
 func is_chip_visible() -> bool:
