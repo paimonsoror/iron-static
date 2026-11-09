@@ -82,6 +82,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 
 - GDScript `int` is signed 64-bit and `>>` is arithmetic: mask after shifts in the RNG and hashes.
 - Godot 4.7 export targets SDK 36: Build-Tools 36.0.0 must be installed. Project icon is required for export.
+- Godot's editor setting `export/android/shutdown_adb_on_exit` (default true) kills the shared adb server whenever any editor-mode Godot run exits (imports, exports, test/compile runs), which drops the phone and emulator mid-test; it is set to false in `%APPDATA%\Godot\editor_settings-4.7.tres` on this machine (2026-11-08). Re-check it after a Godot reinstall.
 - `adb exec-out screencap` fails from a UNC working directory; use `C:\`. After export Godot restarts adb: `adb start-server`.
 - Emulator needs `hw.gpu.mode=host`; the one-time "Viewing full screen" dialog needs a tap on first launch.
 - Warnings-as-errors print as `Parse Error: <description> (Warning treated as error.)` without the warning's name; Godot output has ANSI escapes (strip before matching).
