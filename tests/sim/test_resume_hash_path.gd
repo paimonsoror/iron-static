@@ -23,6 +23,8 @@ func _step(w: SimWorld) -> void:
 	if w.tick % 45 == 0:
 		@warning_ignore("return_value_discarded")
 		w.command_buy(floori(float(w.tick) / 45.0) % 4, 1)
+	@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+	PolicyBot.settle_draft(w)
 	w.step()
 
 

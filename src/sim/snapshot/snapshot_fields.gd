@@ -23,7 +23,8 @@ const TABLE: Dictionary = {
 		"stats": "DERIVED: resolve_stats() from run_levels, the config's Foundry arrays and the frame",
 		"economy": "SAVED: BigNum mantissa and exponent plus the float shadows",
 		"run_levels": "SAVED: packed array",
-		"patches": "IGNORED: no pick can exist before M4-15, which saves the picks and bumps the snapshot",
+		"patches": "SAVED: the picks array; restore calls PatchState.set_picks before resolve_stats (M4-15)",
+		"draft": "SAVED: open flag, wave and offers (a snapshot taken behind an open draft restores it)",
 		"visible": "SAVED: packed array",
 		"tick_scrap": "SAVED: scalar",
 		"tick_data": "SAVED: scalar",
@@ -59,6 +60,17 @@ const TABLE: Dictionary = {
 		"alive": "SAVED: bool",
 		"invulnerable": "SAVED: bool",
 		"hit_cap_frac": "DERIVED: set by the constructor from the frame passive (Bastion)",
+	},
+	"PatchState":
+	{
+		"picks": "SAVED: packed array (SimWorld.patches)",
+		"total_picks": "DERIVED: set_picks recomputes it",
+	},
+	"DraftState":
+	{
+		"open": "SAVED: bool",
+		"wave": "SAVED: int",
+		"offers": "SAVED: packed array",
 	},
 	"RunStats":
 	{

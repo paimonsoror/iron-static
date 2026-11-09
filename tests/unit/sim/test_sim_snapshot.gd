@@ -19,6 +19,8 @@ func _run(w: SimWorld, ticks: int) -> void:
 		if w.tick % 45 == 0:
 			@warning_ignore("return_value_discarded")
 			w.command_buy(floori(float(w.tick) / 45.0) % 4, 1)
+		@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+		PolicyBot.settle_draft(w)
 		w.step()
 
 
@@ -34,6 +36,8 @@ func test_every_state_variable_is_classified() -> void:
 		"ProjectileStore": w.projectiles,
 		"Rng": w.rng_spawn,
 		"InputLog": w.input_log,
+		"PatchState": w.patches,
+		"DraftState": w.draft,
 		"SpatialGrid": w.grid,
 	}
 	for key: String in checks:

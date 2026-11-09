@@ -48,6 +48,7 @@ var stats: StatBlock
 var economy: EconomyState
 var run_levels: PackedInt32Array
 var patches: PatchState  ## patches picked this deployment (M4-14)
+var draft: DraftState = DraftState.new()  ## the open patch draft, if any (M4-15); step() waits while open
 var visible: PackedByteArray
 var tick_scrap: float = 0.0
 var tick_data: float = 0.0
@@ -128,8 +129,8 @@ func _init(cfg: SimConfig) -> void:
 ## 9 end-of-wave resolution at wave_tick 720, 10 death check (end_run), 11 tick += 1.
 ## ExposureSystem may also call end_run (idempotent).
 func step() -> void:
-	if run.ended:
-		return
+	if run.ended or draft.open:
+		return  # an open patch draft pauses the sim (M4-15): only `command_pick` moves on
 	events.tick = tick
 	if wave_tick == 0:
 		plan.begin(wave, true)  # carry unspawned entries over (GDD 02 section 6: never dropped)
@@ -167,13 +168,26 @@ func _roll_wave() -> void:
 ## Buys up to `count` levels (1, 10, 100, -1 = Max) of upgrade row `upgrade_index`; returns levels bought.
 ## The single entry point for purchases: callers apply commands before `step()` (M2-07 logs them here).
 func command_buy(upgrade_index: int, count: int) -> int:
-	if run.ended:
-		return 0
+	if run.ended or draft.open:
+		return 0  # no buys behind an open draft (the world is frozen; keeps command order unambiguous)
 	var bought: int = UpgradeSystem.buy(self, upgrade_index, count)
 	if bought > 0:
 		# Recorded at `tick` = the tick about to run: applied before its step() in live play and replay.
 		input_log.append(tick, InputLog.CMD_BUY, upgrade_index, count)
 	return bought
+
+
+## Takes offer `slot` of the open draft (M4-15). Logged like a buy, at the tick about to run. False when no draft is
+## open, the run is over or the slot does not exist (nothing logged).
+func command_pick(slot: int) -> bool:
+	if run.ended or not DraftSystem.pick(self, slot):
+		return false
+	input_log.append(tick, InputLog.CMD_PICK, slot, 0)
+	return true
+
+
+func is_draft_open() -> bool:
+	return draft.open
 
 
 func is_over() -> bool:

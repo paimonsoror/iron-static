@@ -40,6 +40,8 @@ func _initialize() -> void:
 		var cfg: SimConfig = BalanceSetup.make_config(run_seed, 1, 0, spec.levels, args.frame, args.mode)
 		var world: SimWorld = SimWorld.new(cfg)
 		while not world.is_over() and world.wave <= args.max_waves:
+			@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+			PolicyBot.settle_draft(world)
 			world.step()
 		var death_wave: int = world.run.death_wave if world.is_over() else args.max_waves
 		death_waves.append(death_wave)

@@ -191,6 +191,8 @@ func test_boss_wave_ends_only_after_the_boss_is_dead() -> void:
 func test_purge_run_to_wave_15_is_identical_at_1_and_4_ticks_per_frame() -> void:
 	var plain: SimWorld = SimWorld.new(_cfg("purge", 5))
 	while plain.wave < 15 and not plain.is_over() and plain.tick < 60000:
+		@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
+		PolicyBot.settle_draft(plain)
 		plain.step()
 	assert_int(plain.wave).is_equal(15)
 	var one: String = _driven_hash(1, plain.tick)
@@ -205,6 +207,8 @@ func _driven_hash(speed: int, limit: int) -> String:
 	driver.tick_limit = limit
 	var guard: int = 0
 	while w.tick < limit and guard < 1_000_000:
+		@warning_ignore("return_value_discarded")
+		PolicyBot.settle_draft(w)
 		@warning_ignore("return_value_discarded")
 		driver.advance(w, SimWorld.DT + 0.0001, speed)
 		guard += 1

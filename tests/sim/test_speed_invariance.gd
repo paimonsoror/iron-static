@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 ## Game speed only changes ticks per frame, never outcomes (M1-15 item 2) and TickDriver limits (item 4).
 
 const TICKS: int = 3000
+const DRAFT_TICKS: int = 8000  ## past the wave 10 draft (tick 7200)
 const FRAME_MIN_S: float = 0.005
 const FRAME_MAX_S: float = 0.040
 const NO_BUDGET_LIMIT: int = 1_000_000_000
@@ -102,3 +103,31 @@ func test_purge_speeds_1_2_4_give_the_same_hash() -> void:
 	assert_str(_purge_driven_hash(2, 12)).is_equal(base)
 	assert_str(_purge_driven_hash(4, 14)).is_equal(base)
 	assert_str(base).is_not_equal(_driven_hash(1, 11))  # PURGE really is a different run than TIMED
+
+
+## Driven past the wave 10 draft; the pick (slot 1) is made between frames, never inside `advance` (M4-15).
+func _draft_driven_hash(speed: int, frame_seed: int) -> String:
+	var w: SimWorld = _world()
+	var driver: TickDriver = TickDriver.new()
+	driver.budget_usec = NO_BUDGET_LIMIT
+	driver.tick_limit = DRAFT_TICKS
+	var frames: Rng = Rng.new(frame_seed, 99)
+	var guard: int = 0
+	var picks: int = 0
+	while w.tick < DRAFT_TICKS and guard < 1_000_000:
+		if w.is_draft_open():
+			assert_bool(w.command_pick(1)).is_true()
+			picks += 1
+		var delta: float = FRAME_MIN_S + frames.next_float() * (FRAME_MAX_S - FRAME_MIN_S)
+		@warning_ignore("return_value_discarded")
+		driver.advance(w, delta, speed)
+		guard += 1
+	assert_int(picks).is_equal(1)
+	assert_int(w.tick).is_equal(DRAFT_TICKS)
+	return w.state_hash()
+
+
+func test_speeds_give_the_same_hash_across_a_draft_pick() -> void:
+	var base: String = _draft_driven_hash(1, 11)
+	assert_str(_draft_driven_hash(2, 12)).is_equal(base)
+	assert_str(_draft_driven_hash(4, 14)).is_equal(base)

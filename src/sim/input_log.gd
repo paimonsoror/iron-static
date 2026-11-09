@@ -1,11 +1,13 @@
 class_name InputLog
 extends RefCounted
 ## Player commands of one run as parallel packed arrays: (tick, kind, a, b). Appended by
-## `SimWorld.command_buy`. A command logged at tick T is applied before `step()` runs tick T, in live play
+## `SimWorld.command_buy` and `command_pick`. A command logged at tick T is applied
+## before `step()` runs tick T, in live play
 ## and in replay alike (`world.tick` is the tick about to run, so recording `world.tick` is the rule).
 ## (impl) Only accepted commands are logged: a rejected buy changes no state, so replay is unaffected.
 
 const CMD_BUY: int = 0  ## a = upgrade row index, b = count requested (1, 10, 100, -1)
+const CMD_PICK: int = 1  ## a = draft offer slot, b = 0 (M4-15); logged by `SimWorld.command_pick`
 
 var ticks: PackedInt32Array = PackedInt32Array()
 var kinds: PackedByteArray = PackedByteArray()

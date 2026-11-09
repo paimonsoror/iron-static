@@ -3,10 +3,7 @@ extends RefCounted
 ## SHA-256 over the field values of tuning, enemies and upgrades (M2-07). Fields come from each def's
 ## script variables (every `@export`), sorted by name, so new fields are included automatically. Floats
 ## are hashed as raw 64-bit values; order of the enemy and upgrade rows matters.
-## Tuning vars starting with `draft_` (M4-13) are left out until the draft exists (M4-15 removes the skip with the
-## SimVersion bump and golden refresh), so the data-only M4-13 change keeps every config hash.
-
-const UNHASHED_PREFIX: String = "draft_"
+## SimVersion 4 (M4-15): the `draft_*` tuning vars and the patch defs (`cfg.patches`, row order) are hashed.
 
 
 static func compute(cfg: SimConfig) -> String:
@@ -21,6 +18,9 @@ static func compute(cfg: SimConfig) -> String:
 	_put_text(ctx, "upgrades:%d" % cfg.upgrades.size())
 	for u: RunUpgradeDef in cfg.upgrades:
 		_put_resource(ctx, u)
+	_put_text(ctx, "patches:%d" % cfg.patches.size())
+	for p: PatchDef in cfg.patches:
+		_put_resource(ctx, p)
 	_put_foundry(ctx, cfg)
 	_put_text(
 		ctx,
@@ -53,8 +53,6 @@ static func _put_resource(ctx: HashingContext, res: Resource) -> void:
 		var usage: int = p["usage"]
 		if usage & PROPERTY_USAGE_SCRIPT_VARIABLE and usage & PROPERTY_USAGE_STORAGE:
 			var prop_name: String = p["name"]
-			if prop_name.begins_with(UNHASHED_PREFIX):
-				continue
 			if names.append(prop_name):
 				push_error("ConfigHash: append failed")
 	names.sort()

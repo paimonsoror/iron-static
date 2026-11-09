@@ -53,6 +53,10 @@ var mode_best_at_start: int = -1
 var last_run_path: String = LAST_RUN_DIR + "/" + LAST_RUN_FILE
 ## Persistent run id (profile run counter, M3-12); 0 for debug and bare test runs.
 var run_id: int = 0
+## STOPGAP until M4-16 (draft overlay): the game has no way to pick yet, so a draft that opens is settled with the
+## first offer between frames (logged like a player pick, so records and replays stay exact). M4-16 sets this false
+## and opens the overlay on DRAFT_OPENED instead.
+var auto_pick_draft: bool = true
 var _pending_buys: Array[Vector2i] = []
 var _load_run: bool = false
 
@@ -146,6 +150,7 @@ func update(delta: float) -> int:
 		ran = 0
 	else:
 		ran = driver.advance(world, delta * time_scale, speed)
+	_settle_draft()
 	last_ticks = ran
 	last_usec = Time.get_ticks_usec() - start_usec
 	_check_over()
@@ -157,6 +162,7 @@ func fast_forward(max_ticks: int) -> int:
 	var ran: int = 0
 	_apply_pending_buys()
 	while ran < max_ticks and state == State.IN_RUN and not world.is_over():
+		_settle_draft()
 		world.step()
 		ran += 1
 	_check_over()
@@ -204,6 +210,7 @@ func _load_step(start_usec: int) -> int:
 	while load_wave > 0 and not world.is_over():
 		var chunk: int = 0
 		while chunk < LOAD_CHUNK_TICKS and world.wave < load_wave and not world.is_over():
+			_settle_draft()
 			world.step()
 			chunk += 1
 		ran += chunk
@@ -255,3 +262,11 @@ func _finish(aborted: bool) -> void:
 	if not _load_run and world.config.wave_mode == SimConfig.MODE_TIMED:
 		best_wave_s1 = maxi(best_wave_s1, wave)
 	_write_last_run(world, aborted)
+
+
+## STOPGAP (M4-16 replaces it): takes the first offer of an open draft. Runs between frames and before each step of
+## the loops above, never inside `driver.advance`.
+func _settle_draft() -> void:
+	if auto_pick_draft and world != null and world.is_draft_open():
+		@warning_ignore("return_value_discarded")
+		world.command_pick(0)

@@ -10,6 +10,7 @@ const UPGRADE_TABLE_PATH: String = "res://src/data_gen/upgrade_table.tres"
 const FOUNDRY_TABLE_PATH: String = "res://src/data_gen/foundry_table.tres"
 const FRAME_TABLE_PATH: String = "res://src/data_gen/frame_table.tres"
 const WAVE_MODE_TABLE_PATH: String = "res://src/data_gen/wave_mode_table.tres"
+const PATCH_TABLE_PATH: String = "res://src/data_gen/patch_table.tres"
 
 
 ## Default M1 config: sector 1, standard ruleset, all enemies and upgrades in CSV row order.
@@ -27,6 +28,10 @@ static func load_default(seed_value: int) -> SimConfig:
 	for def: RunUpgradeDef in upgrade_table.defs:
 		var upgrade_copy: Variant = _clone(def)
 		cfg.upgrades.append(upgrade_copy)
+	var patch_table: PatchTable = load(PATCH_TABLE_PATH)
+	for def: PatchDef in patch_table.defs:
+		var patch_copy: Variant = _clone(def)
+		cfg.patches.append(patch_copy)
 	return cfg
 
 
