@@ -6,7 +6,8 @@ extends RefCounted
 ## Flow:  boot -> SAVE_PROBLEM (damaged or too-new save) | BATTLE (a run snapshot resumed, paused) | HOME
 ##        (`TITLE_ENABLED`: TITLE first; CONTINUE -> HOME, NEW GAME -> FRAME_BAY (the router asks a confirm first
 ##        when the profile has progress), FRAME_BAY -confirm-> HOME, TITLE <-> SETTINGS,
-##        SETTINGS -PROFILE_RESET-> TITLE)
+##        SETTINGS -PROFILE_RESET-> TITLE); HOME -FRAMES-> FRAME_BAY (confirm and back both return to HOME: the
+##        bay's back goes to its `OPENER`, TITLE after NEW GAME)
 ##        SAVE_PROBLEM -START_NEW-> HOME;  HOME -DEPLOY-> BATTLE;  HOME <-> FOUNDRY (after the first death) and
 ##        HOME <-> SETTINGS;  BATTLE -RUN_ENDED-> RESULTS;  RESULTS -DEPLOY-> BATTLE | -GO_HOME-> HOME |
 ##        -OPEN_FOUNDRY-> FOUNDRY;  FOUNDRY -DEPLOY-> BATTLE;  FOUNDRY and SETTINGS return to the screen they were
@@ -26,6 +27,7 @@ enum Event {
 	FRAME_CONFIRMED,
 	FRAME_BAY_BACK,
 	PROFILE_RESET,
+	OPEN_FRAMES,
 }
 
 ## Boot into the title screen (flipped on by M3-30).
@@ -38,9 +40,14 @@ const NONE: int = -1
 const TABLE: Dictionary = {
 	Screen.SAVE_PROBLEM: {Event.START_NEW_PROFILE: Screen.HOME},
 	Screen.TITLE: {Event.CONTINUE: Screen.HOME, Event.NEW_GAME: Screen.FRAME_BAY, Event.OPEN_SETTINGS: Screen.SETTINGS},
-	Screen.FRAME_BAY: {Event.FRAME_CONFIRMED: Screen.HOME, Event.FRAME_BAY_BACK: Screen.TITLE},
+	Screen.FRAME_BAY: {Event.FRAME_CONFIRMED: Screen.HOME, Event.FRAME_BAY_BACK: OPENER},
 	Screen.HOME:
-	{Event.DEPLOY: Screen.BATTLE, Event.OPEN_FOUNDRY: Screen.FOUNDRY, Event.OPEN_SETTINGS: Screen.SETTINGS},
+	{
+		Event.DEPLOY: Screen.BATTLE,
+		Event.OPEN_FOUNDRY: Screen.FOUNDRY,
+		Event.OPEN_SETTINGS: Screen.SETTINGS,
+		Event.OPEN_FRAMES: Screen.FRAME_BAY,
+	},
 	Screen.FOUNDRY: {Event.DEPLOY: Screen.BATTLE, Event.BACK_TO_OPENER: OPENER},
 	Screen.SETTINGS: {Event.BACK_TO_OPENER: OPENER, Event.PROFILE_RESET: Screen.TITLE},
 	Screen.BATTLE: {Event.RUN_ENDED: Screen.RESULTS},

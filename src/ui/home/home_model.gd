@@ -11,6 +11,9 @@ var best_text: String = ""
 var best_known: bool = false
 var frame_id: String = FrameRules.DEFAULT_FRAME
 var frame_text: String = ""
+## The tappable frame chip ("FRAME: VANGUARD >"); shown once the profile has progress (opens the frame bay).
+var frame_button_text: String = ""
+var frame_button_visible: bool = false
 ## `home.next_unlock` for the next locked run row, or `home.all_unlocked`.
 var hint_text: String = ""
 var all_unlocked: bool = false
@@ -61,6 +64,8 @@ static func build(
 	var def: FrameDef = FrameRules.find_def(frame_defs, m.frame_id)
 	if def != null:
 		m.frame_text = Strings.fill1("frame.chip", "name", Strings.get_text(def.name_key))
+		m.frame_button_text = Strings.fill1("home.frame_button", "name", Strings.get_text(def.name_key))
+	m.frame_button_visible = profile.has_progress()
 	var cards: Array[FrameCard] = FrameRules.cards(profile, frame_defs, foundry)
 	var pr: float = 0.0
 	for c: FrameCard in cards:

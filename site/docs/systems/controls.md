@@ -34,7 +34,7 @@ The menu screens have their own back behavior:
 | Screen | Back gesture |
 |---|---|
 | Title | Opens a **QUIT?** confirmation (YES quits, NO or back again closes it) |
-| Frame bay | Returns to the title |
+| Frame bay | Returns to where it was opened: Home, or the title after NEW GAME |
 | Home | Press back twice within about 2 seconds to leave the app; the first press shows a hint |
 | Foundry, Settings | Return to the screen you opened them from |
 | Results | Goes Home |

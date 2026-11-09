@@ -4,8 +4,8 @@ A **frame** is the chassis configuration Cinder deploys in. Frames are **sidegra
 
 <span class="badge live">Implemented</span> VANGUARD, BULWARK and STRIKER, with the frame bay screen. <span class="badge planned">Planned M6</span> SALVAGER and LONGSHOT.
 
-!!! note "Choosing a frame today"
-    The frame bay opens from **NEW GAME** on the title screen. A shortcut to it from Home is not in the build yet, so changing frame after you have unlocked more means starting a new game for now.
+!!! note "Choosing a frame"
+    Tap the **FRAME** chip on Home (it appears after your first deployment) to open the frame bay, pick an unlocked frame and tap SELECT, then CONTINUE or back to return to Home. NEW GAME on the title screen also opens it, but that wipes your progress.
 
 ## The rules
 

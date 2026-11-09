@@ -153,6 +153,7 @@ frame.stat.range,RANGE
 frame.stat.crit,CRIT
 frame.stat.repair,REPAIR
 frame.chip,FRAME {name}
+home.frame_button,FRAME: {name}  >
 settings.data,DATA
 settings.reset,RESET PROFILE
 settings.reset_confirm1,RESET YOUR PROFILE? ALL PROGRESS IS LOST.

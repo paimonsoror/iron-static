@@ -31,7 +31,7 @@ IRON STATIC is an original portrait idle-defense game for Android, built with Go
 - **Title screen:** CONTINUE (only when a save with progress exists), NEW GAME, SETTINGS, with the selected frame as the hero over a smoky wasteland, a glitching logo and a wind-and-metal ambience. NEW GAME on a profile with progress asks "START OVER?" and renames the old save to `.reset` copies (settings are kept).
 - **Home:** Cinder, Power Rating, data, best wave, next unlock and DEPLOY. It shows a chip when Foundry upgrades are affordable.
 - **Foundry** (after the first death): four permanent rows bought with data (Laser Output, Hull Integrity, Nano Repair, Cycle Rate), tap or hold to buy, a RECOMMENDED tag, a next-run Power Rating preview. Numbers live in `data/foundry.csv`.
-- **Frames and the frame bay:** VANGUARD (baseline), BULWARK (tank, unlocks at best wave 8, passive Bastion) and STRIKER (glass cannon, best wave 15, passive Overclock). Frames are sidegrades, unlocked by play, and share the Foundry. The bay shows a stat comparison, the passive and the unlock goal; it opens from NEW GAME for now.
+- **Frames and the frame bay:** VANGUARD (baseline), BULWARK (tank, unlocks at best wave 8, passive Bastion) and STRIKER (glass cannon, best wave 15, passive Overclock). Frames are sidegrades, unlocked by play, and share the Foundry. The bay shows a stat comparison, the passive and the unlock goal; it opens from the FRAME chip on Home and from NEW GAME.
 - **Settings:** sound, music, mute, reduce motion, screen shake, scanlines, number format and FPS cap, plus a Data section with a profile reset behind two confirmations.
 - **Saving:** see "Under the hood". The run is checkpointed every 30 s and resumes paused after an app kill.
 

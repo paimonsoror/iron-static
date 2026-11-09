@@ -17,6 +17,7 @@ const ENTRIES: Array[Dictionary] = [
 		{
 			&"deploy_pressed": AppFlow.Event.DEPLOY,
 			&"foundry_pressed": AppFlow.Event.OPEN_FOUNDRY,
+			&"frames_pressed": AppFlow.Event.OPEN_FRAMES,
 			&"settings_pressed": AppFlow.Event.OPEN_SETTINGS,
 		},
 	},

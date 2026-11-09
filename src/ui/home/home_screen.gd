@@ -4,12 +4,14 @@ extends MenuScreen
 ## gear, a PR plate and the data balance, the diorama (arena floor and Cinder at rest), best wave, sector and the
 ## selected frame, the next-unlock hint, a Foundry hint chip when something is affordable, DEPLOY and the nav.
 ## Locked and not-yet-existing items (Foundry before the first death, flux, cipher, merit, Standby, ads) are
-## hidden, not grayed. Signals are final: deploy_pressed, foundry_pressed, settings_pressed. Menu screens never
+## hidden, not grayed. Signals are final: deploy_pressed, foundry_pressed, settings_pressed, frames_pressed (the
+## frame chip, opens the frame bay). Menu screens never
 ## tick the sim: everything is read from `Game.profile()` (or the profile given to `setup`).
 
 signal deploy_pressed
 signal foundry_pressed
 signal settings_pressed
+signal frames_pressed
 
 const TOP_ROW_H: float = 148.0
 const HEADING_PX: int = 80
@@ -36,7 +38,7 @@ var pr_label: Label
 var data_label: Label
 var best_label: Label
 var sector_label: Label
-var frame_label: Label
+var frame_button: Button
 var hint_label: Label
 var diorama: HomeDiorama
 var model: HomeModel = null
@@ -80,6 +82,8 @@ func _build() -> void:
 	_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(_spacer)
 	content.add_child(_info_panel())
+	frame_button = _plate_button("", _on_frames, ThemeBuilder.VAR_BUTTON_PLATE, CHIP_PX)
+	content.add_child(frame_button)
 	hint_chip = _plate_button("", _on_foundry, ThemeBuilder.VAR_BUTTON_AFFORDABLE, CHIP_PX)
 	content.add_child(hint_chip)
 	deploy_button = _plate_button(
@@ -123,7 +127,8 @@ func refresh() -> void:
 	best_label.text = model.best_text
 	best_label.add_theme_color_override("font_color", Palette.AMBER if model.best_known else Palette.TEXT_DIM)
 	sector_label.text = model.sector_text
-	frame_label.text = model.frame_text
+	frame_button.text = model.frame_button_text
+	frame_button.visible = model.frame_button_visible
 	hint_label.text = model.hint_text
 	hint_chip.text = model.foundry_hint_text
 	hint_chip.visible = model.hint_chip_visible()
@@ -194,11 +199,8 @@ func _info_panel() -> Control:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 40)
 	sector_label = label("", &"LabelDim", Palette.TEXT_DIM, ThemeBuilder.FONT_SIZE_BODY)
-	frame_label = label("", &"LabelNumber", Palette.TEAL, ThemeBuilder.FONT_SIZE_BODY)
 	sector_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	frame_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	row.add_child(sector_label)
-	row.add_child(frame_label)
 	box.add_child(row)
 	hint_label = label("", &"LabelDim", Palette.TEXT_DIM, ThemeBuilder.FONT_SIZE_BODY)
 	box.add_child(hint_label)
@@ -272,3 +274,8 @@ func _on_foundry() -> void:
 func _on_settings() -> void:
 	AudioHooks.tap()
 	settings_pressed.emit()
+
+
+func _on_frames() -> void:
+	AudioHooks.tap()
+	frames_pressed.emit()

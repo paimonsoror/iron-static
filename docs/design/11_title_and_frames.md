@@ -77,7 +77,7 @@ A smoky wasteland of metal and machine at dusk, portrait first, drawn with Claud
 
 ## 3. Frame bay (frame select)
 
-Reached from NEW GAME, and from a frame chip on Home (visible after the first death). One screen, V1 kit, wide layout like the Foundry.
+Reached from NEW GAME, and from a frame chip on Home (visible after the first death). **Implemented (2026-11-09):** the Home chip "FRAME: VANGUARD  >" is a 148 px plate button (`frames_pressed`, `AppFlow` HOME -OPEN_FRAMES-> FRAME_BAY); the bay returns to its opener, so CONFIRM and back go to Home when opened from Home, and back goes to the title after NEW GAME. A "NEW" marker is not built (it needs a profile "seen" field). One screen, V1 kit, wide layout like the Foundry.
 - A carousel or vertical list of frame cards (swipe or tap): silhouette, name, role line, **stat comparison against the selected/current frame** (`hull`, `fire rate`, `damage`, `range`, `crit`, `repair` as arrows and percentages computed from the frame mods, not hand-written), the passive name and one line, and the lock state ("REACH WAVE 8" with progress "BEST W5").
 - SELECT button on an unlocked frame (disabled look and `AudioHooks.deny` on a locked one); the selected frame has a `SELECTED` tag. Selecting persists immediately (`request_save`) and the Home diorama and the title silhouette change. Changing the frame never refunds or costs anything.
 - A preview line shows the Power Rating of the frame with the current Foundry levels (`PowerRating` of the resolved start stats) so the comparison includes permanent progress.

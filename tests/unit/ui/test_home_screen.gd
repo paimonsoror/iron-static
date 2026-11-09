@@ -62,6 +62,20 @@ func test_foundry_and_settings_signals_play_a_tap() -> void:
 	assert_array(_spy.sfx).not_contains("sfx_ui_deny")
 
 
+func test_frame_chip_emits_once_per_tap_with_a_tap_sound_and_hides_on_a_fresh_profile() -> void:
+	var s: HomeScreen = _screen(Vector2(1080.0, 2400.0), Vector4.ZERO, _profile(3, 14, "400"))
+	var seen: Array[int] = [0]
+	s.frames_pressed.connect(func() -> void: seen[0] += 1)
+	assert_bool(s.frame_button.visible).is_true()
+	assert_str(s.frame_button.text).is_equal("FRAME: VANGUARD  >")
+	s.frame_button.pressed.emit()
+	assert_int(seen[0]).is_equal(1)
+	assert_float(s.frame_button.size.y).is_greater_equal(MIN_TOUCH)
+	assert_array(_spy.sfx).contains_exactly(["sfx_ui_tap"])
+	var fresh: HomeScreen = _screen(Vector2(1080.0, 2400.0), Vector4.ZERO, _profile(0, 0, "0"))
+	assert_bool(fresh.frame_button.visible).is_false()
+
+
 func test_fresh_profile_hides_foundry_nav_and_chip() -> void:
 	var s: HomeScreen = _screen(Vector2(1080.0, 2400.0), Vector4.ZERO, _profile(0, 0, "0"))
 	assert_bool(s.nav_foundry.visible).is_false()

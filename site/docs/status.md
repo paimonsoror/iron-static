@@ -22,7 +22,7 @@ IRON STATIC is in active development. This page says what you can play today and
 - The **title screen** (CONTINUE, NEW GAME, SETTINGS) with the selected frame as its hero and a wind-and-metal ambience, and the NEW GAME confirmation that resets your profile.
 - **Home**, between deployments: Cinder, Power Rating, data, best wave and the next unlock.
 - The **Foundry**: four permanent rows bought with data, tap and hold-to-buy, a Recommended tag.
-- **Three frames** (VANGUARD, BULWARK, STRIKER) with the Bastion and Overclock passives, unlocked at best wave 8 and 15, and the **frame bay**.
+- **Three frames** (VANGUARD, BULWARK, STRIKER) with the Bastion and Overclock passives, unlocked at best wave 8 and 15, and the **frame bay**, opened from the FRAME chip on Home (and from NEW GAME).
 - The **Settings screen**, including a Data section with a double-confirmed profile reset.
 - **Saving**: crash-safe writes, a backup copy, tamper detection, resume after the app is killed, and a save when the app goes to the background.
 - An **early-curve rebalance**: more starting scrap, cheaper first upgrade levels and a softer first boss.

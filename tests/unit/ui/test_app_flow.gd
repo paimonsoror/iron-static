@@ -38,7 +38,7 @@ func test_every_spec_row() -> void:
 		[S.TITLE, E.NEW_GAME, S.FRAME_BAY],
 		[S.TITLE, E.OPEN_SETTINGS, S.SETTINGS],
 		[S.FRAME_BAY, E.FRAME_CONFIRMED, S.HOME],
-		[S.FRAME_BAY, E.FRAME_BAY_BACK, S.TITLE],
+		[S.HOME, E.OPEN_FRAMES, S.FRAME_BAY],
 	]
 	for row: Array in rows:
 		var from: AppFlow.Screen = row[0]
@@ -121,3 +121,16 @@ func test_title_cannot_reach_battle_or_other_screens_directly() -> void:
 		assert_int(f.apply(e)).is_equal(AppFlow.NONE)
 		assert_int(f.current).is_equal(S.TITLE)
 	assert_int(_flow(S.FRAME_BAY).apply(E.DEPLOY)).is_equal(AppFlow.NONE)
+
+
+func test_frame_bay_returns_to_the_screen_that_opened_it() -> void:
+	var from_home: AppFlow = _flow(S.HOME)
+	assert_int(from_home.apply(E.OPEN_FRAMES)).is_equal(S.FRAME_BAY)
+	assert_int(from_home.apply(E.FRAME_BAY_BACK)).is_equal(S.HOME)
+	assert_int(from_home.apply(E.OPEN_FRAMES)).is_equal(S.FRAME_BAY)
+	assert_int(from_home.apply(E.FRAME_CONFIRMED)).is_equal(S.HOME)
+	var from_title: AppFlow = _flow(S.TITLE)
+	assert_int(from_title.apply(E.NEW_GAME)).is_equal(S.FRAME_BAY)
+	assert_int(from_title.apply(E.FRAME_BAY_BACK)).is_equal(S.TITLE)
+	assert_int(_flow(S.TITLE).apply(E.OPEN_FRAMES)).is_equal(AppFlow.NONE)
+	assert_int(_flow(S.RESULTS).apply(E.OPEN_FRAMES)).is_equal(AppFlow.NONE)

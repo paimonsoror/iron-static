@@ -216,3 +216,45 @@ func test_settings_reset_cancel_and_back_change_nothing() -> void:
 	assert_bool(_fs.exists("profile.sav.reset")).is_false()
 	var now: Dictionary = _snapshot()
 	assert_str(str(now["profile.sav"])).is_equal(str(before["profile.sav"]))
+
+
+func test_home_frame_chip_opens_the_bay_select_bulwark_confirm_returns_home_saved() -> void:
+	_play()
+	Game.profile().frame_selected = "vanguard"
+	var r: ScreenRouter = _booted()
+	_title(r).continue_pressed.emit()
+	var home: HomeScreen = r.active_screen() as HomeScreen
+	home.frame_button.pressed.emit()
+	assert_int(r.current_screen()).is_equal(AppFlow.Screen.FRAME_BAY)
+	var bay: FrameBay = r.active_screen() as FrameBay
+	bay.page(1)
+	assert_str(bay.shown_card().id).is_equal("bulwark")
+	assert_bool(bay.shown_card().locked).is_false()
+	bay.action_button().pressed.emit()
+	assert_str(Game.profile().frame_selected).is_equal("bulwark")
+	bay.action_button().pressed.emit()  # now SELECTED: CONTINUE
+	assert_int(r.current_screen()).is_equal(AppFlow.Screen.HOME)
+	assert_bool(Game.saves.save_now()).is_true()
+	var reloaded := SaveService.new(_fs, FakeClock.new(2000), "dev")
+	@warning_ignore("return_value_discarded")
+	reloaded.load_profile()
+	assert_str(reloaded.profile.frame_selected).is_equal("bulwark")
+
+
+func test_back_from_a_bay_opened_on_home_returns_home_but_new_game_back_returns_to_the_title() -> void:
+	_play()
+	var r: ScreenRouter = _booted()
+	_title(r).continue_pressed.emit()
+	(r.active_screen() as HomeScreen).frames_pressed.emit()
+	assert_int(r.handle_back(false)).is_equal(BackPolicy.Action.GO_BACK)
+	assert_int(r.current_screen()).is_equal(AppFlow.Screen.HOME)
+	(r.active_screen() as HomeScreen).frames_pressed.emit()
+	(r.active_screen() as FrameBay).back_pressed.emit()
+	assert_int(r.current_screen()).is_equal(AppFlow.Screen.HOME)
+	var r2: ScreenRouter = _booted()
+	r2.flow.enter(AppFlow.Screen.TITLE)
+	assert_bool(r2.dispatch(AppFlow.Event.NEW_GAME)).is_false()  # progress: the confirm opens first
+	r2.dialog().yes_button().pressed.emit()
+	assert_int(r2.current_screen()).is_equal(AppFlow.Screen.FRAME_BAY)
+	assert_int(r2.handle_back(false)).is_equal(BackPolicy.Action.GO_BACK)
+	assert_int(r2.current_screen()).is_equal(AppFlow.Screen.TITLE)
