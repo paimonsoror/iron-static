@@ -42,7 +42,7 @@ func test_title_slots_load_with_spec_sizes() -> void:
 
 
 func _stats(frame: String) -> Vector3:
-	var tex: Texture2D = TitleFrameArt.tex("sil_" + frame)
+	var tex: Texture2D = TitleArt.tex("sil_" + frame)
 	var img: Image = tex.get_image()
 	var minp := Vector2i(img.get_width(), img.get_height())
 	var maxp := Vector2i(-1, -1)
@@ -76,10 +76,10 @@ func test_silhouettes_differ_by_aspect_or_area() -> void:
 
 
 func test_stage_swaps_frames() -> void:
-	var st := TitleFrameStage.new()
+	var st := TitleFx.new()
 	add_child(st)
 	st.build()
 	auto_free(st)
 	for fid: String in FRAMES:
 		st.set_frame(fid)
-		assert_str(st.frame_id_shown).is_equal(fid)
+		assert_str(st.frame_id_shown()).is_equal(fid)

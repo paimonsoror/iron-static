@@ -1,0 +1,12 @@
+high portrait, frame vanguard: draws=15 smoke=3 embers_live=50 tex_mb=11.3
+low portrait, frame vanguard: draws=11 smoke=1 embers_live=0 tex_mb=11.3
+high wide 1990x1920, frame vanguard: draws=15 smoke=3 embers_live=50 tex_mb=11.3
+high portrait, frame bulwark: draws=16 smoke=3 embers_live=49 tex_mb=11.3
+low portrait, frame bulwark: draws=11 smoke=1 embers_live=0 tex_mb=11.3
+high wide 1990x1920, frame bulwark: draws=15 smoke=3 embers_live=50 tex_mb=11.3
+high portrait, frame striker: draws=15 smoke=3 embers_live=50 tex_mb=11.3
+low portrait, frame striker: draws=11 smoke=1 embers_live=0 tex_mb=11.3
+high wide 1990x1920, frame striker: draws=15 smoke=3 embers_live=50 tex_mb=11.3
+mid portrait: draws=13 smoke=2 embers_live=27 tex_mb=11.3
+high portrait, reduce motion, no progress: draws=13 smoke=3 embers_live=0 tex_mb=11.3
+high 1080x2341 with insets: draws=15 smoke=3 embers_live=50 tex_mb=11.3
