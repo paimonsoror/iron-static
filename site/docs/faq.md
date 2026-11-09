@@ -70,3 +70,8 @@
 
 ??? question "Where can I follow progress?"
     On the [Development status](status.md) page.
+
+## Privacy
+
+??? question "What data does the game collect?"
+    None in the beta. Progress is saved on your device only. Read the [privacy policy](privacy.md).

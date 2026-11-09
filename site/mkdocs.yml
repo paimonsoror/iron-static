@@ -76,6 +76,8 @@ nav:
       - Glossary: systems/glossary.md
   - FAQ: faq.md
   - Development status: status.md
+  - Legal:
+      - Privacy policy: privacy.md
   - Under the hood:
       - dev/index.md
       - Architecture: dev/architecture.md

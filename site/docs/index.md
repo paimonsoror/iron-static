@@ -99,3 +99,5 @@ Is it free? Are there ads? What can I do offline?
 | Wave length | 24 seconds at 1x speed |
 | Your job | Buy upgrades, choose a build, decide when to retry. You never aim |
 | Build today | The full loop: title screen, deployments with five enemy types, ten run upgrades and skin burn, results, the Foundry for permanent upgrades, three frames, settings and crash-safe saving with resume |
+
+Privacy: the beta collects no data and stores progress only on your device. See the [privacy policy](privacy.md).
