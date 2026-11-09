@@ -62,3 +62,11 @@ func test_config_with_foundry_and_frame() -> void:
 	var plain: SimConfig = BalanceSetup.make_config(3, 1, 0, {}, "vanguard")
 	assert_int(plain.foundry_levels.size()).is_equal(0)
 	assert_str(plain.frame_id).is_equal("vanguard")
+
+
+func test_config_modes() -> void:
+	assert_str(BalanceSetup.make_config(3, 1, 0, {}, "vanguard").wave_mode).is_equal("timed")
+	assert_str(BalanceSetup.make_config(3, 1, 0, {}, "vanguard", "timed").wave_mode).is_equal("timed")
+	var purge: SimConfig = BalanceSetup.make_config(3, 1, 0, {"laser_output": 2}, "bulwark", "purge")
+	assert_str(purge.wave_mode).is_equal("purge")
+	assert_str(purge.frame_id).is_equal("bulwark")

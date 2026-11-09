@@ -65,3 +65,33 @@ func test_frame_and_policy_none() -> void:
 	assert_str(BalanceRunArgs.parse(PackedStringArray()).frame).is_equal("vanguard")
 	assert_str(BalanceRunArgs.parse(PackedStringArray(["--frame", "all"])).frame).is_equal("all")
 	assert_str(BalanceRunArgs.parse(PackedStringArray(["--frame"])).error).is_not_empty()
+
+
+func test_mode_flag() -> void:
+	assert_str(BalanceRunArgs.parse(PackedStringArray()).mode).is_equal("timed")
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--mode", "purge"])).mode).is_equal("purge")
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--mode", "purge"])).error).is_empty()
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--mode", "bogus"])).error).contains("--mode")
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--mode"])).error).is_not_empty()
+	assert_str(BalanceRunArgs.USAGE).contains("--mode timed|purge")
+
+
+func test_target_rows_read_mode_and_default_to_timed() -> void:
+	var with_col: CsvTable = CsvTable.parse("profile,mode,metric\nfresh,purge,m\nfresh,,m\n")
+	assert_str(BalanceRunArgs.row_mode(with_col, 0)).is_equal("purge")
+	assert_str(BalanceRunArgs.row_mode(with_col, 1)).is_equal("timed")
+	var old: CsvTable = CsvTable.parse("profile,metric\nfresh,m\n")
+	assert_str(BalanceRunArgs.row_mode(old, 0)).is_equal("timed")
+	var real: CsvTable = CsvTable.load_file("res://data/targets.csv")
+	assert_str(real.error).is_empty()
+	var modes: PackedStringArray = PackedStringArray()
+	for i: int in real.rows.size():
+		modes.append(BalanceRunArgs.row_mode(real, i))
+	assert_bool(modes.has("purge")).is_true()
+	assert_bool(modes.has("timed")).is_true()
+
+
+func test_purge_rows_are_info_only() -> void:
+	assert_bool(BalanceRunArgs.info_only("fresh", "purge")).is_true()
+	assert_bool(BalanceRunArgs.info_only("foundry_300", "timed")).is_true()
+	assert_bool(BalanceRunArgs.info_only("fresh", "timed")).is_false()

@@ -2,11 +2,11 @@ class_name SimRunArgs
 extends RefCounted
 ## Argument parsing and summary statistics for tools/sim_run.gd (M1-16). Kept out of the tool script so
 ## it is unit-testable. Flags: --runs N, --seed S, --max-waves W (all integers, N and W at least 1),
-## --foundry id=level,... (M3-08) and --frame ID (M3-24).
+## --foundry id=level,... (M3-08), --frame ID (M3-24) and --mode timed|purge (M4-10).
 
 const USAGE: String = (
 	"usage: sim_run [--runs N] [--seed S] [--max-waves W] [--foundry id=level,...] [--frame ID]"
-	+ "  (defaults: 20, 1, 200, none, vanguard)"
+	+ " [--mode timed|purge]  (defaults: 20, 1, 200, none, vanguard, timed)"
 )
 const DEFAULT_RUNS: int = 20
 const DEFAULT_SEED: int = 1
@@ -18,6 +18,7 @@ var max_waves: int = DEFAULT_MAX_WAVES
 ## `id=level,id=level` as typed (parsed and validated by BalanceSetup in the tool); empty = no Foundry.
 var foundry: String = ""
 var frame: String = "vanguard"
+var mode: String = "timed"
 ## Empty when parsing succeeded, otherwise a one-line reason.
 var error: String = ""
 
@@ -27,15 +28,20 @@ static func parse(args: PackedStringArray) -> SimRunArgs:
 	var i: int = 0
 	while i < args.size():
 		var flag: String = args[i]
-		if not ["--runs", "--seed", "--max-waves", "--foundry", "--frame"].has(flag):
+		if not ["--runs", "--seed", "--max-waves", "--foundry", "--frame", "--mode"].has(flag):
 			out.error = "unknown argument '%s'" % flag
 			return out
-		if flag == "--foundry" or flag == "--frame":
+		if flag == "--foundry" or flag == "--frame" or flag == "--mode":
 			if i + 1 >= args.size() or args[i + 1].is_empty():
 				out.error = "%s needs a value" % flag
 				return out
 			if flag == "--foundry":
 				out.foundry = args[i + 1]
+			elif flag == "--mode":
+				if not BalanceRunArgs.MODES.has(args[i + 1]):
+					out.error = "--mode must be timed or purge"
+					return out
+				out.mode = args[i + 1]
 			else:
 				out.frame = args[i + 1]
 			i += 2

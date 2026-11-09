@@ -23,9 +23,9 @@ tools. The sim is deterministic, so every number here is reproducible from a see
 
 | Input | Source |
 |---|---|
-| Targets | `data/targets.csv` (`profile,metric,target,tolerance,source`); GDD `03_enemies_waves_tiers.md` section 6 (fresh x1 reaches wave 12; x2 24, x4 37, x10 60 once Foundry exists), `08_mvp_scope.md` FC1, FC9, FC10 |
+| Targets | `data/targets.csv` (`profile,mode,metric,target,tolerance,source`; `purge` rows are info only until signed off); GDD `03_enemies_waves_tiers.md` section 6 (fresh x1 reaches wave 12; x2 24, x4 37, x10 60 once Foundry exists), `08_mvp_scope.md` FC1, FC9, FC10 |
 | Formulas and tables | GDD `02_combat_in_run.md` sections 5-7, `03` sections 2-5, `04_economy.md`; `data/enemies.csv`, `data/run_upgrades.csv`, `data/sim_constants.csv` |
-| Bot runs | `.\tools\balance_run.ps1 [-Profile fresh|file.json] [-Waves 100] [-Runs 20] [-Seed 1] [-Policy greedy4|all] [-Sector 1]`; stdout lines start with `BALANCE` (table, `target ... PASS/WARN/FAIL`, `RESULT`), timing on stderr; exit 0 PASS/WARN, 1 FAIL row, 2 bad args/script error; writes `build/balance/curve.csv`, `build/balance/run0_buys.csv`. Capture stdout with `cmd /c "powershell -NoProfile -File tools\balance_run.ps1 > out.txt 2> err.txt"` (PS 5.1 `>` misses `Write-Host`). Reference (2026-11-08, M2): fresh/greedy4 p10 8, p50 9, p90 9 vs target 12 (PASS at -25%) |
+| Bot runs | `.\tools\balance_run.ps1 [-Profile fresh|file.json] [-Waves 100] [-Runs 20] [-Seed 1] [-Policy greedy4|all] [-Sector 1] [-Mode timed|purge]`; stdout lines start with `BALANCE` (table, `target ... PASS/WARN/FAIL`, `RESULT`), timing on stderr; exit 0 PASS/WARN, 1 FAIL row, 2 bad args/script error; writes `build/balance/curve.csv`, `build/balance/run0_buys.csv`. Capture stdout with `cmd /c "powershell -NoProfile -File tools\balance_run.ps1 > out.txt 2> err.txt"` (PS 5.1 `>` misses `Write-Host`). Reference (2026-11-08, M2): fresh/greedy4 p10 8, p50 9, p90 9 vs target 12 (PASS at -25%) |
 | No-upgrade runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` (death wave without purchases) |
 | History | the results log in `docs/setup/balance_run.md` |
 | Formula tests | `.\tools\test.ps1` (`test_curves`, `test_gdd_tables`, `test_stat_resolver`) |
@@ -35,7 +35,7 @@ the expected `.tres` changes.
 
 ## Checks
 
-1. **Targets**: the `balance_run` comparison rows (PASS / WARN / FAIL). FC10 bar: median within
+1. **Targets**: the `balance_run` comparison rows (PASS / WARN / FAIL). Run both `-Mode timed` (default) and `-Mode purge` after a sim or economy change and report mean and median per mode; PURGE rows only ever WARN. FC10 bar: median within
    +-30% of the GDD table for each available profile.
 2. **Before/after**: rerun the same command on the parent commit (use a temporary
    `git worktree add` in the scratchpad, never stash or reset the user's tree) and report the delta of

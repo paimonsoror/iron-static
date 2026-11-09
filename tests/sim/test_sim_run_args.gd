@@ -47,3 +47,10 @@ func test_foundry_and_frame_flags() -> void:
 	assert_str(a.frame).is_equal("striker")
 	assert_str(SimRunArgs.parse(PackedStringArray(["--frame"])).error).is_not_empty()
 	assert_float(SimRunArgs.mean(PackedInt32Array([8, 9, 10, 9]))).is_equal(9.0)
+
+
+func test_mode_flag() -> void:
+	assert_str(SimRunArgs.parse(PackedStringArray()).mode).is_equal("timed")
+	assert_str(SimRunArgs.parse(PackedStringArray(["--mode", "purge"])).mode).is_equal("purge")
+	assert_str(SimRunArgs.parse(PackedStringArray(["--mode", "bogus"])).error).contains("--mode")
+	assert_str(SimRunArgs.parse(PackedStringArray(["--mode"])).error).is_not_empty()

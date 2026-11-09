@@ -1,12 +1,13 @@
 extends SceneTree
 ## Headless balance runner (M2-14). Run through tools\balance_run.ps1.
 ## Usage: godot --headless --path . -s res://tools/balance_run.gd -- [--profile fresh|FILE.json] [--waves W]
-##   [--runs N] [--seed S] [--policy greedy4|all|none] [--sector K] [--frame ID|all]
+##   [--runs N] [--seed S] [--policy greedy4|all|none] [--sector K] [--frame ID|all] [--mode timed|purge]
 ## stdout (deterministic, every line starts with "BALANCE"): header, per-run lines, death wave percentiles and
 ## mean, mean game minutes, cause-of-death histogram, curve excerpt, target comparison, RESULT and "BALANCE OK".
 ## A profile with foundry_levels (M3-08) applies them through SimConfigLoader.apply_foundry and prints a
 ## "BALANCE FOUNDRY delta" line against a silent fresh run on the same seeds. `--frame all` (M3-24) runs every
-## implemented frame in frames.csv and prints a frames table. `--policy none` never buys.
+## implemented frame in frames.csv and prints a frames table. `--policy none` never buys. `--mode purge` (M4-10)
+## runs PURGE waves, labels the header and target lines with the mode and compares the `purge` rows.
 ## Wall-clock info is on a "TIMING" line (the wrapper sends it to stderr).
 ## Files: build/balance/curve.csv (per-wave averages), build/balance/run0_buys.csv (run 0 purchases).
 ## Exit code: 0 ok, 1 when a target row is FAIL, 2 on bad arguments or a script error.
@@ -66,7 +67,7 @@ func _initialize() -> void:
 		if frame_id == BASE_FRAME and args.policy != "none":
 			var p50: int = res["p50"]
 			var measured: Dictionary = {"median_death_wave": float(p50)}
-			overall = BalanceRunArgs.worst(overall, _compare_targets(profile_name, measured))
+			overall = BalanceRunArgs.worst(overall, _compare_targets(profile_name, measured, args.mode))
 	if frames.size() > 1:
 		_print_frames_table(table, args.policy)
 	print("BALANCE RESULT %s" % overall)
@@ -84,9 +85,10 @@ func _run_set(
 ) -> Dictionary:
 	if verbose:
 		var frame_part: String = "" if frame_id == BASE_FRAME else " frame=%s" % frame_id
+		var mode_part: String = "" if args.mode == "timed" else " mode=%s" % args.mode
 		print(
 			(
-				"BALANCE profile=%s policy=%s sector=%d waves=%d runs=%d seed=%d best_wave_s1=%d%s"
+				"BALANCE profile=%s policy=%s sector=%d waves=%d runs=%d seed=%d best_wave_s1=%d%s%s"
 				% [
 					profile_name,
 					args.policy,
@@ -95,7 +97,8 @@ func _run_set(
 					args.runs,
 					args.seed_value,
 					best_wave,
-					frame_part
+					frame_part,
+					mode_part
 				]
 			)
 		)
@@ -110,7 +113,7 @@ func _run_set(
 	var buys: bool = BalanceRunArgs.buys(args.policy)
 	for r: int in range(args.runs):
 		var run_seed: int = args.seed_value + r
-		var cfg: SimConfig = BalanceSetup.make_config(run_seed, args.sector, best_wave, foundry, frame_id)
+		var cfg: SimConfig = BalanceSetup.make_config(run_seed, args.sector, best_wave, foundry, frame_id, args.mode)
 		var world: SimWorld = SimWorld.new(cfg)
 		var bot: PolicyBot = PolicyBot.new(args.policy)
 		var prev_wave: int = world.wave
@@ -156,6 +159,21 @@ func _run_set(
 	print("BALANCE death_wave p10=%d p50=%d p90=%d" % [out["p10"], out["p50"], out["p90"]])
 	print("BALANCE death_wave_mean=%.2f" % out["mean"])
 	print("BALANCE mean_game_minutes=%.2f" % (minutes_sum / float(args.runs)))
+	if args.mode != "timed":
+		# Real time per wave against the fixed 24 s TIMED wave (Q69): only printed for non-TIMED modes.
+		var waves_total: int = 0
+		for dw: int in death_waves:
+			waves_total += dw
+		print(
+			(
+				"BALANCE mode=%s mean_seconds_per_wave=%.1f (timed: %.1f)"
+				% [
+					args.mode,
+					float(total_ticks) / float(Ticks.TICK_RATE) / maxf(float(waves_total), 1.0),
+					float(Ticks.WAVE_TICKS) / float(Ticks.TICK_RATE)
+				]
+			)
+		)
 	var labels: Array[String] = causes.keys()
 	labels.sort()
 	for label: String in labels:
@@ -280,7 +298,7 @@ func _print_curve_excerpt(scrap: PackedFloat64Array, data: PackedFloat64Array, c
 
 
 ## Prints one line per targets.csv row of this profile and returns the worst status (PASS when none).
-func _compare_targets(profile_name: String, measured: Dictionary) -> String:
+func _compare_targets(profile_name: String, measured: Dictionary, mode_id: String) -> String:
 	var table: CsvTable = CsvTable.load_file(TARGETS_PATH)
 	if not table.error.is_empty():
 		print("BALANCE ERROR: %s" % table.error)
@@ -288,7 +306,7 @@ func _compare_targets(profile_name: String, measured: Dictionary) -> String:
 	var overall: String = BalanceRunArgs.STATUS_PASS
 	var found: int = 0
 	for i: int in table.rows.size():
-		if table.get_value(i, "profile") != profile_name:
+		if table.get_value(i, "profile") != profile_name or BalanceRunArgs.row_mode(table, i) != mode_id:
 			continue
 		found += 1
 		var metric: String = table.get_value(i, "metric")
@@ -299,18 +317,19 @@ func _compare_targets(profile_name: String, measured: Dictionary) -> String:
 			continue
 		var value: float = measured[metric]
 		var st: String = BalanceRunArgs.status(value, target, tol)
-		if profile_name != "fresh" and st == BalanceRunArgs.STATUS_FAIL:
-			st = BalanceRunArgs.STATUS_WARN  # (impl) Foundry profile rows are information only
+		if BalanceRunArgs.info_only(profile_name, mode_id) and st == BalanceRunArgs.STATUS_FAIL:
+			st = BalanceRunArgs.STATUS_WARN  # (impl) Foundry profile and PURGE rows are information only
+		var mode_label: String = "" if mode_id == "timed" else "mode=%s " % mode_id
 		overall = BalanceRunArgs.worst(overall, st)
 		var dev: float = 100.0 * (value - target) / maxf(absf(target), 0.000001)
 		print(
 			(
-				"BALANCE target %s %s measured=%.1f target=%.1f tol=%.0f%% dev=%+.1f%% %s (%s)"
-				% [profile_name, metric, value, target, tol * 100.0, dev, st, table.get_value(i, "source")]
+				"BALANCE target %s%s %s measured=%.1f target=%.1f tol=%.0f%% dev=%+.1f%% %s (%s)"
+				% [mode_label, profile_name, metric, value, target, tol * 100.0, dev, st, table.get_value(i, "source")]
 			)
 		)
 	if found == 0:
-		print("BALANCE target no rows for profile '%s' in data/targets.csv" % profile_name)
+		print("BALANCE target no rows for profile '%s' mode '%s' in data/targets.csv" % [profile_name, mode_id])
 	return overall
 
 

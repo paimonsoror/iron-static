@@ -1,7 +1,9 @@
-# Balance targets for tools/balance_run.ps1 (M2-14). profile,metric,target,tolerance (relative),source.
+# Balance targets for tools/balance_run.ps1 (M2-14). profile,mode,metric,target,tolerance (relative),source.
 # Status: PASS within tolerance, WARN within 2x tolerance, FAIL beyond. Metrics measured today: median_death_wave.
-# Foundry profile rows (M3-08) are information only: balance_run reports a FAIL there as WARN (Q54 territory). x4 37 and x10 60 rows follow with the real Foundry profiles.
-profile,metric,target,tolerance,source
-fresh,median_death_wave,12,0.30,gdd:03 s6
-foundry_300,median_death_wave,16,0.30,gdd:04 s3 fresh median 12 + 4 (info only)
-foundry_1k,median_death_wave,24,0.30,gdd:03 s6 x2 impl guess (info only)
+# mode is timed or purge (M4-10); a file without the mode column is read as all timed.
+# Foundry profile rows (M3-08) and every PURGE row (M4-10) are information only: balance_run reports a FAIL there as WARN (Q54 territory; PURGE until the user signs off). x4 37 and x10 60 rows follow with the real Foundry profiles.
+profile,mode,metric,target,tolerance,source
+fresh,timed,median_death_wave,12,0.30,gdd:03 s6
+foundry_300,timed,median_death_wave,16,0.30,gdd:04 s3 fresh median 12 + 4 (info only)
+foundry_1k,timed,median_death_wave,24,0.30,gdd:03 s6 x2 impl guess (info only)
+fresh,purge,median_death_wave,16,0.30,impl
