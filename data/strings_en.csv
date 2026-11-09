@@ -173,17 +173,17 @@ results.best_mode,BEST {name} {n}
 hud.mode_purge_left,{n} LEFT
 home.best_mode,BEST {name} {n}
 patch.overcharge.name,OVERCHARGE
-patch.overcharge.desc,LASER OUTPUT +15% per pick
+patch.overcharge.desc,LASER OUTPUT +15% PER PICK
 patch.plating.name,PLATING
-patch.plating.desc,HULL INTEGRITY +20% per pick
+patch.plating.desc,HULL INTEGRITY +20% PER PICK
 patch.rate.name,RAPID CYCLE
-patch.rate.desc,CYCLE RATE +10% per pick
+patch.rate.desc,CYCLE RATE +10% PER PICK
 patch.extraction.name,EXTRACTION
-patch.extraction.desc,SCRAP AND DATA YIELD +15% per pick
+patch.extraction.desc,SCRAP AND DATA YIELD +15% PER PICK
 patch.regen.name,NANO REGEN
-patch.regen.desc,NANO REPAIR +50% per pick
+patch.regen.desc,NANO REPAIR +50% PER PICK
 patch.ceramic.name,CERAMIC
-patch.ceramic.desc,PLATING +4 points per pick
+patch.ceramic.desc,PLATING +4 POINTS PER PICK
 patch.t_glass.name,GLASS CANNON
 patch.t_glass.desc,LASER OUTPUT x1.5
 patch.t_glass.cost,HULL INTEGRITY x0.7
@@ -194,10 +194,10 @@ patch.t_hardhide.name,HARDHIDE
 patch.t_hardhide.desc,ENEMY DAMAGE x0.6
 patch.t_hardhide.cost,LASER OUTPUT x0.6
 patch.cost_line,COST: {cost}
-draft.title,PATCH DRAFT (wave {n})
+draft.title,PATCH DRAFT: WAVE {n}
 draft.picks,PICKS: {list}
 draft.gamble,GAMBLE
-draft.note,Patches last this deployment
+draft.note,PATCHES LAST THIS DEPLOYMENT
 results.wave_big,WAVE {n}
 results.best_short,BEST {n}
 results.killed_by,DESTROYED BY

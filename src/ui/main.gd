@@ -15,6 +15,8 @@ var _router: ScreenRouter
 var _audio: AudioEventRouter
 ## Sim events -> haptic pulses (M4-22).
 var _haptic_hooks: HapticHooks
+## Patch draft overlay (M4-16): opened while the sim has a draft open, closed by a pick or a run ending behind it.
+var _draft: DraftOverlay
 
 @onready var _battle: BattleView = %BattleView
 @onready var _hud: Hud = %Hud
@@ -30,6 +32,7 @@ func _ready() -> void:
 	_controller = Game.controller
 	_audio = AudioEventRouter.new(Game.audio)
 	_haptic_hooks = HapticHooks.new(Game.haptics)
+	_controller.auto_pick_draft = false  # the player picks (the stopgap stays on for headless runs and the debug load)
 	_hud.speed_changed.connect(_on_speed_changed)
 	_hud.pause_toggled.connect(_on_pause_toggled)
 	_hud.buy_requested.connect(Game.request_buy)
@@ -54,6 +57,9 @@ func _ready() -> void:
 	add_child(_router)  # before MobileShell: the pause overlay stays topmost
 	_router.setup(_controller, _battle, _hud, _results)
 	_router.battle_entered.connect(_on_battle_entered)
+	_draft = (load("res://src/ui/draft/draft_overlay.tscn") as PackedScene).instantiate() as DraftOverlay
+	add_child(_draft)  # above the router screens, below the pause overlay (back opens the pause menu over a draft)
+	_draft.picked.connect(_on_draft_picked)
 	_mobile = MobileShell.new()
 	add_child(_mobile)  # last child: its pause overlay is topmost
 	_mobile.setup(_controller, _hud, _results, _debug)
@@ -71,6 +77,7 @@ func _ready() -> void:
 
 @warning_ignore("unused_parameter")
 func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
+	_sync_draft()
 	if _controller == null or _controller.world == null or AppFlow.is_menu(_router.current_screen()):
 		return
 	if _controller.load_wave == 0:
@@ -178,3 +185,30 @@ func _on_load_finished(world: SimWorld) -> void:
 
 func _on_best_wave_requested(wave: int) -> void:
 	Game.best_wave_s1 = wave
+
+
+## Opens the draft overlay while the battle has an open patch draft (also after a snapshot restore or a return from the
+## background: the state, not an event, decides) and closes it when the draft is gone or the battle is not on screen
+## (abort, run end). While it is open the HUD shows the paused state: the sim does not step behind a draft.
+func _sync_draft() -> void:
+	if _controller == null or _draft == null:
+		return
+	var w: SimWorld = _controller.world
+	var wanted: bool = (
+		w != null
+		and _controller.state == RunController.State.IN_RUN
+		and _controller.load_wave == 0
+		and not AppFlow.is_menu(_router.current_screen())
+		and w.is_draft_open()
+	)
+	if wanted and not _draft.is_open():
+		_draft.open(w)
+	elif not wanted and _draft.is_open():
+		_draft.close()
+	if wanted and not _hud.is_paused():
+		_hud.set_paused(true)
+
+
+func _on_draft_picked(_slot: int) -> void:
+	_haptic_hooks.draft_pick()
+	_hud.set_paused(_controller.paused)

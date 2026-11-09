@@ -33,6 +33,17 @@ static func buy_end() -> void:
 	director().end_buy_hold()
 
 
+## The patch draft overlay opening / a card picked (M4-16).
+static func draft_open() -> void:
+	@warning_ignore("return_value_discarded")
+	director().play_sfx("sfx_draft_open")
+
+
+static func draft_pick() -> void:
+	@warning_ignore("return_value_discarded")
+	director().play_sfx("sfx_draft_pick")
+
+
 static func pause_audio() -> void:
 	director().pause_all()
 

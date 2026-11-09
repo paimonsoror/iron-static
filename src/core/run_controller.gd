@@ -53,9 +53,9 @@ var mode_best_at_start: int = -1
 var last_run_path: String = LAST_RUN_DIR + "/" + LAST_RUN_FILE
 ## Persistent run id (profile run counter, M3-12); 0 for debug and bare test runs.
 var run_id: int = 0
-## STOPGAP until M4-16 (draft overlay): the game has no way to pick yet, so a draft that opens is settled with the
-## first offer between frames (logged like a player pick, so records and replays stay exact). M4-16 sets this false
-## and opens the overlay on DRAFT_OPENED instead.
+## Headless and debug paths: settle an open draft with the first offer between frames (logged like a player pick, so
+## records and replays stay exact). The game turns it OFF (main.gd, M4-16) and shows `DraftOverlay` instead; tests and
+## bare controllers keep it on. The debug load fast-forward settles regardless (nothing renders, nobody could pick).
 var auto_pick_draft: bool = true
 var _pending_buys: Array[Vector2i] = []
 var _load_run: bool = false
@@ -210,7 +210,7 @@ func _load_step(start_usec: int) -> int:
 	while load_wave > 0 and not world.is_over():
 		var chunk: int = 0
 		while chunk < LOAD_CHUNK_TICKS and world.wave < load_wave and not world.is_over():
-			_settle_draft()
+			_settle_draft(true)
 			world.step()
 			chunk += 1
 		ran += chunk
@@ -264,9 +264,9 @@ func _finish(aborted: bool) -> void:
 	_write_last_run(world, aborted)
 
 
-## STOPGAP (M4-16 replaces it): takes the first offer of an open draft. Runs between frames and before each step of
-## the loops above, never inside `driver.advance`.
-func _settle_draft() -> void:
-	if auto_pick_draft and world != null and world.is_draft_open():
+## Takes the first offer of an open draft when `auto_pick_draft` is on (or `force`: the debug load). Runs between
+## frames and before each step of the loops above, never inside `driver.advance`.
+func _settle_draft(force: bool = false) -> void:
+	if (auto_pick_draft or force) and world != null and world.is_draft_open():
 		@warning_ignore("return_value_discarded")
 		world.command_pick(0)
