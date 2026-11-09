@@ -58,7 +58,9 @@ func test_wide_1990x1920_content_is_a_1080_column() -> void:
 	assert_bool(Rect2(455.0, 0.0, 1080.0, 1920.0).encloses(title)).is_true()
 
 
-func test_every_stub_screen_builds_with_its_title() -> void:
+## Every menu screen builds without missing strings; all but the title show a text heading (the title
+## draws its own logo instead, M3-28).
+func test_every_menu_screen_builds_with_its_title() -> void:
 	var paths: Array[String] = [
 		"res://src/ui/foundry/foundry_screen.tscn",
 		"res://src/ui/settings/settings_screen.tscn",
@@ -73,8 +75,10 @@ func test_every_stub_screen_builds_with_its_title() -> void:
 		add_child(root)
 		var s: MenuScreen = (load(p) as PackedScene).instantiate()
 		root.add_child(s)
-		assert_bool(s.heading.visible).is_true()
-		assert_str(s.heading.text).is_not_empty()
+		if p.ends_with("title_screen.tscn"):
+			continue
+		assert_bool(s.heading.visible).override_failure_message(p).is_true()
+		assert_str(s.heading.text).override_failure_message(p).is_not_empty()
 	assert_int(Strings.missing_count).is_equal(before)
 
 
