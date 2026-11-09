@@ -133,13 +133,13 @@ You are CINDER, a reprogrammed combat cyborg at the Relay. Rogue machine swarms 
 IRON STATIC is an idle defense game for your phone. Drop into a deployment, spend scrap on upgrades while the waves roll in, and see how far the line holds. When Cinder falls, the data you recovered makes the next deployment stronger.
 
 WHAT YOU DO
-- Watch Cinder auto-fire a hitscan laser at swarms that close in from all sides.
-- Buy temporary upgrades with scrap during a deployment: damage, rate, range, plating, repair and more.
-- Bank data between deployments and invest it in the Foundry for permanent gains.
-- Choose your wave mode: TIMED waves that keep coming, or PURGE waves that end only when the swarm is destroyed.
-- Pick a patch at wave 10 and shape the rest of the run.
-- Choose a frame (Vanguard, Bulwark, Striker) that changes how Cinder plays.
-- Watch the armor plates burn away as the pressure rises.
+- Watch Cinder auto-fire a laser at swarms that close in from all sides.
+- Buy temporary upgrades with scrap during a deployment: laser output, fire rate, crits, range, hull, repair, plating and more.
+- Bank data between deployments and spend it in the Foundry on permanent upgrades.
+- Play TIMED waves that keep coming on a clock, then unlock PURGE waves that end only when the whole swarm is destroyed.
+- Pick a patch at wave 10 and shape the rest of the deployment.
+- Unlock frames (VANGUARD, BULWARK, STRIKER) that change how Cinder plays.
+- Watch Cinder's synthetic skin burn away as the pressure rises.
 
 THIS IS AN EARLY BETA
 IRON STATIC is still in development. Expect rough edges, changing numbers and the occasional bug. Your feedback shapes the game: use the feedback link in Settings.
@@ -147,10 +147,10 @@ IRON STATIC is still in development. Expect rough edges, changing numbers and th
 NO ADS. NO PURCHASES. NO ACCOUNT.
 This beta has no ads, no in-app purchases and no sign-in. Your progress is saved on your device only. We collect no data.
 
-Portrait, one-handed, short sessions or long idle stretches. Built for phones from Android 7.
+Portrait, one-handed, short sessions or long idle stretches. Built for phones running Android 7 or newer.
 ```
 
-  (The agents check this text against the game before you paste it: B1-09. The mode, frame and patch names are from the GDD.)
+  (Checked against the game in B1-09. The final texts and character counts are in `docs/release/store_listing.md`: paste from that file, it wins over this draft.)
 - [ ] **App category:** Game > **Strategy**. Tags (pick up to 5 offered): Strategy, Idle, Tower defense, Sci-fi, Offline (only those Play offers).
 - [ ] **Contact details:** public email (phase 1), website `https://paimonsoror.github.io/iron-static/` (optional but nice), phone not required.
 - [ ] **Graphics** (AGENTS B1-06 make them in `release/store/`):
@@ -256,7 +256,7 @@ Only available after production access (Path B) or straight away (Path A).
 
 ```
 First beta of IRON STATIC. Play a few deployments and tell us what feels off.
-Try: both wave modes (TIMED, PURGE), the wave-10 patch pick, the Foundry, the three frames.
+Try: both wave modes (TIMED, then PURGE once it unlocks), the wave-10 patch pick, the Foundry, the three frames.
 Known: first launch can show a black screen for up to 30 seconds while shaders compile.
 No ads, no purchases, no account. Progress is saved on this device only.
 ```
