@@ -11,6 +11,8 @@ var sector: int = 1
 var tuning: SimTuning = null
 var enemies: Array[EnemyDef] = []
 var upgrades: Array[RunUpgradeDef] = []
+## In-run patch defs in patches.csv row order (M4-14); empty = no patches exist. Not hashed until M4-15.
+var patches: Array[PatchDef] = []
 var ruleset: String = "standard"
 var debug_invulnerable: bool = false
 ## Best wave reached in sector 1; gates which upgrade rows are visible (M2-04/06).

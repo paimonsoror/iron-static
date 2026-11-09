@@ -16,6 +16,7 @@ const TABLES: PackedStringArray = [
 	"foundry.csv",
 	"frames.csv",
 	"wave_modes.csv",
+	"patches.csv",
 ]
 
 
@@ -98,7 +99,7 @@ func test_importer_is_idempotent() -> void:
 	var b: DataImporter = _import(data_dir, "out_b")
 	assert_str("\n".join(a.errors)).is_empty()
 	assert_str("\n".join(b.errors)).is_empty()
-	assert_int(a.files.size()).is_equal(1 + 5 + 1 + 10 + 1 + 1 + 1 + 5 + 6 + 3)
+	assert_int(a.files.size()).is_equal(1 + 5 + 1 + 10 + 1 + 1 + 1 + 5 + 6 + 3 + 10)
 	for n: String in a.files:
 		var ha: String = FileAccess.get_sha256(SCRATCH.path_join("out_a").path_join(n))
 		var hb: String = FileAccess.get_sha256(SCRATCH.path_join("out_b").path_join(n))

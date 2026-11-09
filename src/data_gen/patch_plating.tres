@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="PatchDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/patch_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "patch_plating"
+kind = "standard"
+stat = "hull_integrity"
+op = "bonus"
+per_pick = 0.2
+max_picks = 5
+cost_stat = ""
+cost_op = ""
+cost_value = 1.0
+name_key = "patch.plating.name"
+desc_key = "patch.plating.desc"
+tag = "MVP"

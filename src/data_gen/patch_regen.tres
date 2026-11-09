@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="PatchDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/patch_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "patch_regen"
+kind = "standard"
+stat = "nano_repair"
+op = "bonus"
+per_pick = 0.5
+max_picks = 5
+cost_stat = ""
+cost_op = ""
+cost_value = 1.0
+name_key = "patch.regen.name"
+desc_key = "patch.regen.desc"
+tag = "MVP"

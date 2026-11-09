@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="PatchDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/patch_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "patch_t_hardhide"
+kind = "gamble"
+stat = "enemy_damage"
+op = "mult"
+per_pick = 0.6
+max_picks = 1
+cost_stat = "laser_output"
+cost_op = "mult"
+cost_value = 0.6
+name_key = "patch.t_hardhide.name"
+desc_key = "patch.t_hardhide.desc"
+tag = "MVP"

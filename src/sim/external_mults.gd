@@ -14,6 +14,9 @@ var nano_repair_mult: float = 1.0
 var plating_pct_mult: float = 1.0
 var scrap_yield_mult: float = 1.0
 var reinvest_mult: float = 1.0
+## Non-row stats (M4-14): kill `data` yield and enemy damage (patches only).
+var data_yield_mult: float = 1.0
+var enemy_damage_mult: float = 1.0
 
 var laser_output_add: float = 0.0
 var cycle_rate_add: float = 0.0
@@ -79,3 +82,68 @@ func add_for(id: String) -> float:
 		"reinvest":
 			v = reinvest_add
 	return v
+
+
+## Field-by-field copy.
+func copy() -> ExternalMults:
+	var c: ExternalMults = ExternalMults.new()
+	for p: Dictionary in get_property_list():
+		var usage: int = p["usage"]
+		if usage & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			var prop_name: String = p["name"]
+			c.set(prop_name, get(prop_name))
+	return c
+
+
+## Multiplies the multiplier of stat `id` by `factor` (unknown ids are ignored).
+func scale_stat(id: String, factor: float) -> void:
+	match id:
+		"laser_output":
+			laser_output_mult *= factor
+		"cycle_rate":
+			cycle_rate_mult *= factor
+		"crit_chance":
+			crit_chance_mult *= factor
+		"crit_mult":
+			crit_mult_mult *= factor
+		"optic_range":
+			optic_range_mult *= factor
+		"hull_integrity":
+			hull_integrity_mult *= factor
+		"nano_repair":
+			nano_repair_mult *= factor
+		"plating_pct":
+			plating_pct_mult *= factor
+		"scrap_yield":
+			scrap_yield_mult *= factor
+		"reinvest":
+			reinvest_mult *= factor
+		"data_yield":
+			data_yield_mult *= factor
+		"enemy_damage":
+			enemy_damage_mult *= factor
+
+
+## Adds `value` to the additive bonus of stat `id` (rows only; other ids are ignored).
+func add_stat(id: String, value: float) -> void:
+	match id:
+		"laser_output":
+			laser_output_add += value
+		"cycle_rate":
+			cycle_rate_add += value
+		"crit_chance":
+			crit_chance_add += value
+		"crit_mult":
+			crit_mult_add += value
+		"optic_range":
+			optic_range_add += value
+		"hull_integrity":
+			hull_integrity_add += value
+		"nano_repair":
+			nano_repair_add += value
+		"plating_pct":
+			plating_pct_add += value
+		"scrap_yield":
+			scrap_yield_add += value
+		"reinvest":
+			reinvest_add += value

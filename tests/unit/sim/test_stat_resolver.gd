@@ -138,3 +138,21 @@ func test_levels_to_next_milestone() -> void:
 	assert_int(StatResolver.levels_to_next_milestone(24)).is_equal(1)
 	assert_int(StatResolver.levels_to_next_milestone(25)).is_equal(25)
 	assert_int(StatResolver.levels_to_next_milestone(26)).is_equal(24)
+
+
+func test_patch_only_stats_are_neutral_without_mults_and_follow_external_mults() -> void:
+	var plain: StatBlock = StatResolver.resolve(
+		_defs, PackedInt32Array(), PackedInt32Array(), PackedFloat64Array(), null
+	)
+	assert_float(plain.data_yield).is_equal(1.0)
+	assert_float(plain.enemy_damage).is_equal(1.0)
+	var m: ExternalMults = ExternalMults.new()
+	m.scale_stat("data_yield", 1.8)
+	m.scale_stat("enemy_damage", 0.6)
+	m.scale_stat("enemy_damage", 0.6)
+	m.add_stat("plating_pct", 0.04)
+	var c: ExternalMults = m.copy()
+	var s: StatBlock = StatResolver.resolve(_defs, PackedInt32Array(), PackedInt32Array(), PackedFloat64Array(), c)
+	assert_float(s.data_yield).is_equal_approx(1.8, 1e-12)
+	assert_float(s.enemy_damage).is_equal_approx(0.36, 1e-12)
+	assert_float(s.plating_pct).is_equal_approx(0.04, 1e-12)

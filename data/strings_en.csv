@@ -174,3 +174,29 @@ results.mode,{name} MODE
 results.best_mode,BEST {name} {n}
 hud.mode_purge_left,{n} LEFT
 home.best_mode,BEST {name} {n}
+patch.overcharge.name,OVERCHARGE
+patch.overcharge.desc,LASER OUTPUT +15% per pick
+patch.plating.name,PLATING
+patch.plating.desc,HULL INTEGRITY +20% per pick
+patch.rate.name,RAPID CYCLE
+patch.rate.desc,CYCLE RATE +10% per pick
+patch.extraction.name,EXTRACTION
+patch.extraction.desc,SCRAP AND DATA YIELD +15% per pick
+patch.regen.name,NANO REGEN
+patch.regen.desc,NANO REPAIR +50% per pick
+patch.ceramic.name,CERAMIC
+patch.ceramic.desc,PLATING +4 points per pick
+patch.t_glass.name,GLASS CANNON
+patch.t_glass.desc,LASER OUTPUT x1.5
+patch.t_glass.cost,HULL INTEGRITY x0.7
+patch.t_greed.name,GREED
+patch.t_greed.desc,DATA YIELD x1.8
+patch.t_greed.cost,HULL INTEGRITY x0.5
+patch.t_hardhide.name,HARDHIDE
+patch.t_hardhide.desc,ENEMY DAMAGE x0.6
+patch.t_hardhide.cost,LASER OUTPUT x0.6
+patch.cost_line,COST: {cost}
+draft.title,PATCH DRAFT (wave {n})
+draft.picks,PICKS: {list}
+draft.gamble,GAMBLE
+draft.note,Patches last this deployment

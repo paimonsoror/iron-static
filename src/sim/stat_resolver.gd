@@ -25,6 +25,8 @@ static func resolve(
 		var fl: int = foundry_levels[i] if i < foundry_levels.size() else 0
 		var ff: float = foundry_f[i] if i < foundry_f.size() else 0.0
 		s.set_stat(def.id, _value(def, lvl, fl, ff, m.mult_for(def.id), m.add_for(def.id)))
+	s.data_yield = m.data_yield_mult
+	s.enemy_damage = m.enemy_damage_mult
 	return s
 
 
