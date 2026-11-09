@@ -101,6 +101,7 @@ func events_lost_total() -> int:
 func bind(world: SimWorld) -> void:
 	_world = world
 	_cinder.set_frame(world.config.frame_id)
+	_cinder.bind_world(world)
 	_events.sync_to(world.events)
 	_beams.bind(world)
 	_numbers.bind(world)

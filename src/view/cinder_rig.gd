@@ -29,6 +29,8 @@ var time_s: float = 0.0
 var ring_rot: float = 0.0
 var visor_rot: float = 0.0
 var states: PackedInt32Array = CinderWedges.states(0)
+## Armor plate tier 0..3 (VT-3, `CinderPlates`); set by `CinderView` when the hull tier changes.
+var plates: int = 0
 
 var _kind := PackedInt32Array()
 var _from := PackedInt32Array()
@@ -193,6 +195,8 @@ func paint_glow(c: CanvasItem) -> void:
 	var g: float = glow_mul
 	if g <= 0.0:
 		return
+	if plates > 0:
+		_paint_plate_glow(c)
 	var boost: float = CinderAnim.hit_boost(time_s - _hit_at)
 	if CinderLayout.has_frame_hot(band):
 		_cell(c, CinderLayout.SLOT_FRAME_HOT, Vector2.ZERO, 0.0, 1.0, _white_a((0.65 + 0.35 * _pulse) * g))
@@ -212,6 +216,38 @@ func paint_glow(c: CanvasItem) -> void:
 	_cell(c, CinderLayout.SLOT_SHOULDER_GLOW, lens, 0.0, 1.0, _white_a((0.9 + 0.6 * shot) * g))
 	_cell(c, CinderLayout.SLOT_TICKS_GLOW, spec.ticks_pos * s, 0.0, spec.ticks_scale, _white_a(0.8 * g))
 	_paint_wedges(c, true, true)
+
+
+## Armor plates (VT-3): docked, below the integrity ring; static (no aim, band or clock), shivering with the rig.
+func paint_plates(c: CanvasItem) -> void:
+	if plates >= 2:
+		for k: int in CinderPlates.BRIDGE_COUNT:
+			_cell(c, CinderPlates.SLOT_BRIDGE, Vector2.ZERO, CinderPlates.bridge_angle(k), 1.0, Color.WHITE)
+	if plates >= 1:
+		for k: int in CinderPlates.CORNER_COUNT:
+			_cell(c, CinderPlates.SLOT_CORNER, Vector2.ZERO, CinderPlates.corner_angle(k), 1.0, Color.WHITE)
+	if plates >= 3:
+		for k: int in CinderPlates.LIP_COUNT:
+			_cell(c, CinderPlates.SLOT_LIP, Vector2.ZERO, CinderPlates.lip_angle(k), 1.0, Color.WHITE)
+		for k: int in CinderPlates.CORNER_COUNT:
+			_cell(c, CinderPlates.SLOT_CAP, Vector2.ZERO, CinderPlates.corner_angle(k), 1.0, Color.WHITE)
+
+
+## Additive trim of the plates: amber on plates and caps, teal diodes on the lip. Painted in the glow layer.
+func _paint_plate_glow(c: CanvasItem) -> void:
+	var white: Color = _white_a(glow_mul)
+	if plates >= 2:
+		for k: int in CinderPlates.BRIDGE_COUNT:
+			_cell(c, CinderPlates.SLOT_BRIDGE_TRIM, Vector2.ZERO, CinderPlates.bridge_angle(k), 1.0, white)
+	if plates >= 1:
+		for k: int in CinderPlates.CORNER_COUNT:
+			_cell(c, CinderPlates.SLOT_CORNER_TRIM, Vector2.ZERO, CinderPlates.corner_angle(k), 1.0, white)
+	if plates >= 3:
+		for k: int in CinderPlates.LIP_COUNT:
+			if CinderPlates.lip_has_diode(k):
+				_cell(c, CinderPlates.SLOT_LIP_DIODE, Vector2.ZERO, CinderPlates.lip_angle(k), 1.0, white)
+		for k: int in CinderPlates.CORNER_COUNT:
+			_cell(c, CinderPlates.SLOT_CAP_TRIM, Vector2.ZERO, CinderPlates.corner_angle(k), 1.0, white)
 
 
 func _white_a(a: float) -> Color:

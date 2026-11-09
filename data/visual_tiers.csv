@@ -8,9 +8,9 @@ laser_2,laser_output,2,MK II,level,5,vt.mark.2,vt.banner.laser,-,glow=54;core=13
 laser_3,laser_output,3,MK III,level,12,vt.mark.3,vt.banner.laser,-,glow=76;core=18;hot=8;flare=104;ring=84;whiten=0.7;rim=0.0;ripple=0;muzzle=1.3
 laser_4,laser_output,4,MK IV,level,25,vt.mark.4,vt.banner.laser,-,glow=100;core=24;hot=11;flare=136;ring=118;whiten=1.0;rim=0.3;ripple=6;muzzle=1.5
 hull_1,hull_integrity,1,MK I,level,0,vt.mark.1,,-,plates=0
-hull_2,hull_integrity,2,MK II,level,5,vt.mark.2,vt.banner.hull,ut_plates:tier_1,plates=1
-hull_3,hull_integrity,3,MK III,level,12,vt.mark.3,vt.banner.hull,ut_plates:tier_2,plates=2
-hull_4,hull_integrity,4,MK IV,level,25,vt.mark.4,vt.banner.hull,ut_plates:tier_3,plates=3
+hull_2,hull_integrity,2,MK II,level,5,vt.mark.2,vt.banner.hull,cinder_plate_corner,plates=1
+hull_3,hull_integrity,3,MK III,level,12,vt.mark.3,vt.banner.hull,cinder_plate_bridge,plates=2
+hull_4,hull_integrity,4,MK IV,level,25,vt.mark.4,vt.banner.hull,cinder_plate_lip,plates=3
 plating_1,plating_pct,1,PLATED I,level,3,vt.plated.1,,-,deflect=1;spark_scale=0.8
 plating_2,plating_pct,2,PLATED II,level,8,vt.plated.2,vt.banner.plating,-,deflect=2;spark_scale=1.0
 plating_3,plating_pct,3,PLATED III,level,16,vt.plated.3,vt.banner.plating,-,deflect=3;spark_scale=1.2
