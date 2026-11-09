@@ -29,7 +29,8 @@ func test_bind_starts_music_with_in_run_state() -> void:
 func test_simple_mapping() -> void:
 	_push(SimEventKind.CINDER_HIT, 5, 0)
 	_push(SimEventKind.WAVE_STARTED, 2)
-	_push(SimEventKind.BOSS_SPAWNED, 3)
+	_push(SimEventKind.BOSS_WARNING, 3, 45)
+	_push(SimEventKind.BOSS_SPAWNED, 3)  # silent: the drone already played at the warning
 	_push(SimEventKind.RUN_ENDED, 4, -1)
 	_push(SimEventKind.SHOT_FIRED, 1, 0)
 	_router.update()

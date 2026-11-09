@@ -217,6 +217,15 @@ func is_boss_wave(w: int) -> bool:
 	return interval > 0 and w % interval == 0
 
 
+## Waves from the current wave to the next boss wave strictly after it: wave 7 gives 3, wave 9 gives 1, wave 10
+## gives 10 (the running boss wave is not "ahead"). -1 when bosses are off.
+func waves_until_boss() -> int:
+	var interval: int = config.tuning.boss_interval
+	if interval <= 0:
+		return -1
+	return interval - wave % interval
+
+
 func alive_boss_count() -> int:
 	var n: int = 0
 	for t: int in config.enemies.size():

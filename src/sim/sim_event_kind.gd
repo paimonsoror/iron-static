@@ -16,4 +16,5 @@ const UPGRADE_BOUGHT: int = 10  ## a = upgrade row index, b = new level
 const WAVE_PURGED: int = 11  ## a = wave number, b = ticks used; before WAVE_ENDED, PURGE clears only
 const DRAFT_OPENED: int = 12  ## a = wave whose end opened it, b = offer count (M4-15); the offers are in world.draft
 const PATCH_PICKED: int = 13  ## a = patch index, b = picks of it now (M4-15)
-const COUNT: int = 14
+const BOSS_WARNING: int = 14  ## a = spawn angle index, b = ticks until the boss is due (M4-17); presentation only
+const COUNT: int = 15

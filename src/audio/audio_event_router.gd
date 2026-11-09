@@ -5,7 +5,7 @@ extends RefCounted
 ## Mapping: SHOT_FIRED -> sfx_laser_shot; ENEMY_HIT -> sfx_hit_metal, or sfx_crit when the paired SHOT_FIRED (the
 ## sim pushes SHOT_FIRED(a = enemy, b = crit) immediately before ENEMY_HIT(a = enemy)) was a crit; ENEMY_KILLED ->
 ## sfx_enemy_death_small (skitter, dart) or sfx_enemy_death_heavy (walker, lancer, bosses); CINDER_HIT ->
-## sfx_player_hit; WAVE_STARTED -> sfx_wave_start; BOSS_SPAWNED -> sfx_boss_warn; RUN_ENDED -> sfx_death.
+## sfx_player_hit; WAVE_STARTED -> sfx_wave_start; BOSS_WARNING -> sfx_boss_warn; RUN_ENDED -> sfx_death.
 ## A1-08 additions: a boss ENEMY_KILLED -> sfx_boss_death (instead of the heavy death); BAND_CHANGED to a worse band ->
 ## sfx_skin_burn; while integrity band 3 lasts, one sfx_integrity_warn per beat of HeartbeatModel (same sim clock as the
 ## overlay and Cinder's core); UPGRADE_BOUGHT reaching a multiple of 25 -> sfx_milestone_x15 (the gold ring level);
@@ -157,7 +157,7 @@ func _route(kind: int, a: int, b: int) -> void:
 			_play(SFX_PLAYER_HIT)
 		SimEventKind.WAVE_STARTED:
 			_play(SFX_WAVE)
-		SimEventKind.BOSS_SPAWNED:
+		SimEventKind.BOSS_WARNING:  # M4-17: the drone plays once, at the warning (45 ticks before the boss)
 			_play(SFX_BOSS)
 		SimEventKind.RUN_ENDED:
 			_play(SFX_RUN_END)

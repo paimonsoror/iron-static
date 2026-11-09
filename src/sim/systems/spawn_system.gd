@@ -6,6 +6,10 @@ extends RefCounted
 ## normal types, alive_cap_boss for bosses) never drop an entry: it waits and is retried every tick, and
 ## `run.spawn_throttled` is incremented once per tick in which at least one due entry was held back (impl).
 ## A full enemy store (spawn_enemy returns -1) is handled the same way.
+## M4-17: BOSS_WARNING (a = angle index, b = lead ticks) is pushed BOSS_WARN_TICKS before a boss entry is due
+## (clamped to wave tick 0). Stateless and presentation-only: events are not hashed and nothing is stored.
+
+const BOSS_WARN_TICKS: int = 45  ## 1.5 s at 30 Hz
 
 
 static func step(world: SimWorld) -> void:
@@ -17,6 +21,8 @@ static func step(world: SimWorld) -> void:
 	var normals: int = world.alive_normal_count()
 	var bosses: int = world.alive_boss_count()
 	var throttled: bool = false
+	if world.is_boss_wave(world.wave):
+		_warn_boss(world)
 	var i: int = plan.cursor
 	while i < plan.count and plan.spawn_tick[i] <= world.wave_tick:
 		if plan.spawned[i] == 0:
@@ -43,3 +49,14 @@ static func step(world: SimWorld) -> void:
 		world.run.spawn_throttled += 1
 	while plan.cursor < plan.count and plan.spawned[plan.cursor] != 0:
 		plan.cursor += 1
+
+
+## Pushes BOSS_WARNING on the tick the boss entry's warning is due (entries are sorted by spawn tick).
+static func _warn_boss(world: SimWorld) -> void:
+	var plan: WavePlanState = world.plan
+	var i: int = plan.cursor
+	while i < plan.count and plan.spawn_tick[i] <= world.wave_tick + BOSS_WARN_TICKS:
+		if plan.spawned[i] == 0 and world.type_is_boss[plan.type_index[i]] != 0:
+			if maxi(plan.spawn_tick[i] - BOSS_WARN_TICKS, 0) == world.wave_tick:
+				world.events.push(SimEventKind.BOSS_WARNING, plan.angle_idx[i], plan.spawn_tick[i] - world.wave_tick)
+		i += 1
