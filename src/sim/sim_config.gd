@@ -3,6 +3,9 @@ extends RefCounted
 ## Plain typed holder for everything a SimWorld is built from (M1 shared contract). Created by
 ## SimConfigLoader (src/core) from the generated data; tests may build one by hand.
 
+const MODE_TIMED: String = "timed"
+const MODE_PURGE: String = "purge"
+
 var seed_value: int = 0
 var sector: int = 1
 var tuning: SimTuning = null
@@ -21,6 +24,6 @@ var frame: FrameMods = null
 var frame_id: String = "vanguard"
 ## Wave mode (M4-02, Q76): "timed" or "purge". The sim reads only these three fields, never the CSV.
 ## `purge_backstop_ticks` 0 = no backstop; `reward_mult` is carried (applied from a later task).
-var wave_mode: String = "timed"
+var wave_mode: String = MODE_TIMED
 var purge_backstop_ticks: int = 0
 var reward_mult: float = 1.0

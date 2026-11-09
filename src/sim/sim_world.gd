@@ -140,14 +140,26 @@ func step() -> void:
 	ProjectileSystem.step(self)
 	ExposureSystem.step(self)
 	wave_tick += 1
-	if wave_tick >= Ticks.WAVE_TICKS:
-		WaveEndSystem.step(self)
-		wave += 1
-		wave_tick = 0
-		events.push(SimEventKind.WAVE_STARTED, wave, 0)
+	if config.wave_mode == SimConfig.MODE_PURGE:
+		# PURGE (M4-03): integer state only, evaluated once per tick here, so game speed cannot change it.
+		if PurgeClock.cleared(self):
+			events.push(SimEventKind.WAVE_PURGED, wave, wave_tick)
+			_roll_wave()
+		elif wave_tick >= PurgeClock.backstop_ticks(self):
+			_roll_wave()
+	elif wave_tick >= Ticks.WAVE_TICKS:
+		_roll_wave()
 	if not cinder.alive:
 		end_run()
 	tick += 1
+
+
+## Ends the current wave and starts the next (shared by the TIMED clock and the PURGE rule).
+func _roll_wave() -> void:
+	WaveEndSystem.step(self)
+	wave += 1
+	wave_tick = 0
+	events.push(SimEventKind.WAVE_STARTED, wave, 0)
 
 
 ## Buys up to `count` levels (1, 10, 100, -1 = Max) of upgrade row `upgrade_index`; returns levels bought.
