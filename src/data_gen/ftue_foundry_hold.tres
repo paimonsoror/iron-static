@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="FtueBeatDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/ftue_beat_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "foundry_hold"
+trigger = "foundry_first"
+target = "foundry_row:laser_output"
+text_key = "ftue.hold"
+max_runs = 2

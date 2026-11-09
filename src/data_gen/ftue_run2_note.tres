@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="FtueBeatDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/ftue_beat_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "run2_note"
+trigger = "run2_start"
+target = "field"
+text_key = "ftue.run2"
+max_runs = 2

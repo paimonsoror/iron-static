@@ -245,6 +245,7 @@ func _build_meta_tables(data_dir: String, upgrades_csv: CsvTable) -> void:
 		DataMetaTables.wave_modes(data_dir.path_join("wave_modes.csv")),
 		DataPatchTable.patches(data_dir.path_join("patches.csv")),
 		DataVisualTierTable.visual_tiers(data_dir.path_join("visual_tiers.csv"), kinds, data_dir),
+		DataFtueTable.ftue(data_dir.path_join("ftue.csv"), kinds, data_dir),
 	]
 	for b: Dictionary in built:
 		var errs: PackedStringArray = b["errors"]
@@ -303,6 +304,7 @@ func _remove_stale(out_dir: String) -> void:
 			or n.begins_with("frame_")
 			or n.begins_with("patch_")
 			or n.begins_with("visual_tier_")
+			or n.begins_with("ftue_")
 		)
 		if ours and n.ends_with(".tres") and not files.has(n):
 			var rm: Error = dir.remove(n)
