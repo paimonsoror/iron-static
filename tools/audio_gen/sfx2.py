@@ -376,6 +376,21 @@ def firmware_pick():
     return fade(dsp.reverb(y, 0.5, 0.65, 0.16), 0.0005, 0.1)
 
 
+def tier_up():
+    """Tier-up sting (VT-5): two rising servo notes (D4 -> A4, a fifth) on a soft attack, a low latch thud and a dry
+    relay tick underneath; dark and mechanical, short (about 0.45 s), much plainer than the gold milestone chime."""
+    n = _n(0.45)
+    y = np.zeros(n)
+    _put(y, _thud(120, 62, 0.18, 0.05) * 0.55, 0.0)
+    _put(y, _tick(1800, 0.02, 261, 1.4, 0.004) * 0.5, 0.0)
+    for f, t0, amp, dur in ((293.7, 0.02, 0.8, 0.2), (440.0, 0.15, 1.0, 0.3)):
+        m = _n(dur)
+        env = np.minimum(1.0, dsp.t_axis(m) / 0.03) * exp_decay(m, dur * 0.4, 0.0)
+        tone = saw(f, m) * 0.5 + sine(f * 2.0, m) * 0.25 + fm(f, 1.0, 1.2, m, exp_decay(m, 0.08)) * 0.35
+        _put(y, biquad(tone, "lp", f * 5.0, 0.9) * env * amp, t0)
+    return fade(dsp.reverb(drive(y, 1.3), 0.35, 0.55, 0.12), 0.002, 0.08)
+
+
 def gauntlet_rank_up():
     n = _n(1.8)
     t = dsp.t_axis(n)
@@ -435,4 +450,5 @@ SFX2 = {
     "sfx_firmware_pick": (firmware_pick, -10.0),
     "sfx_gauntlet_rank_up": (gauntlet_rank_up, -6.0),
     "sfx_results_tally": (results_tally, -12.0),
+    "sfx_tier_up": (tier_up, -8.0),
 }

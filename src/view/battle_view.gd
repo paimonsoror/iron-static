@@ -8,6 +8,9 @@ extends Node2D
 ## Cinder's aim angle follows the target of the latest SHOT_FIRED event (own EventCursor);
 ## it keeps the last angle between shots (initially straight up).
 
+## A tier-up banner starts (VT-5); the host owns the banner control (`TierBanner`) and plays the moment.
+signal tier_banner_requested(moment: TierUpMoment)
+
 ## View-only override of the displayed exposure band (debug overlay, M1-24); -1 shows the sim's band.
 var band_override: int = -1
 ## Camera width in meters. With `auto_fit` (default, V1-23) it follows Cinder's optic range: ViewMath.fit_width_m,
@@ -29,6 +32,8 @@ var _events := EventCursor.new()
 var _particles: ParticleRenderer
 var _fx := FxSpawner.new()
 var _impact := ImpactDriver.new()
+var _tier_up := TierUpDirector.new()
+var _tier_flash := TierUpFlash.new()
 ## Game speed (1-4) the host reports for the slow-mo rule (no slow-mo above 2x).
 var _speed_hint: int = 1
 var _base_position := Vector2.ZERO
@@ -50,6 +55,7 @@ func _ready() -> void:
 	if settings != null:
 		_background.setup_visual(settings)
 	_setup_particles(settings)
+	add_child(_tier_flash)  # VT-5: Cinder's tier-up flash, above the particles
 	move_child(_numbers, -1)  # numbers read on top of the particles
 	layout(get_viewport_rect().size)
 
@@ -104,6 +110,7 @@ func bind(world: SimWorld) -> void:
 	_cinder.bind_world(world)
 	_events.sync_to(world.events)
 	_beams.bind(world)
+	_tier_up.bind(world)
 	_numbers.bind(world)
 	_impact.bind(world)
 	apply_shake(Vector2.ZERO)
@@ -134,6 +141,29 @@ func render(alpha: float) -> void:
 	_fx.update(_world, alpha, _game_visual(), band)
 	_numbers.update(_enemies, now_s, alpha)
 	apply_shake(_impact.update(_world, now_s, _game_visual(), _speed_hint, _viewport_size.x / 1080.0))
+	_update_tier_up(now_s)
+
+
+## Adopts the current upgrade levels without a tier-up moment (debug fast-forward, hidden frames).
+func skip_tier_ups() -> void:
+	if _world != null:
+		_tier_up.sync(_world)
+
+
+## VT-5: polls the upgrade levels, starts Cinder's flash and asks the host for the banner.
+func _update_tier_up(now_s: float) -> void:
+	var settings: VisualSettings = _game_visual()
+	var reduce: bool = settings != null and settings.reduce_motion
+	var tier: int = settings.quality.tier if settings != null else VisualQuality.Tier.HIGH
+	_tier_up.update(_world, now_s, reduce or tier == VisualQuality.Tier.LOW)
+	var flash: TierUpMoment = _tier_up.take_flash()
+	if flash != null:
+		_tier_flash.radius_px = cinder_radius_px()
+		_tier_flash.start(now_s, TierUpFlash.mode_for(tier, reduce))
+	_tier_flash.update(now_s)
+	var banner: TierUpMoment = _tier_up.take_banner()
+	if banner != null:
+		tier_banner_requested.emit(banner)
 
 
 ## Moves the battlefield root by `offset` px from its layout position (screen shake). The HUD is a separate

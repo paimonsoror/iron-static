@@ -87,3 +87,22 @@ func progress(stat: String, level: int) -> float:
 	var def: VisualTierDef = def_for(stat, level)
 	var from: int = 0 if def == null else def.threshold
 	return clampf(float(level - from) / float(next - from), 0.0, 1.0)
+
+
+## Banner key of tier `tier` of `stat` ("" = no banner: MK I, the first PLATED mark, or an unknown tier).
+func banner_key(stat: String, tier: int) -> String:
+	if not _by_stat.has(stat):
+		return ""
+	var tiers: Array[VisualTierDef] = _by_stat[stat]
+	if tier < 1 or tier > tiers.size():
+		return ""
+	return tiers[tier - 1].banner_key
+
+
+## The tier-up a level change announces (VT-5): the tier reached when `new_level` is a higher tier than `old_level`
+## and that tier has a banner, else 0. A multi-buy crossing several tiers announces only the final one.
+func tier_up(stat: String, old_level: int, new_level: int) -> int:
+	var tier: int = tier_for(stat, new_level)
+	if tier <= tier_for(stat, old_level):
+		return 0
+	return tier if not banner_key(stat, tier).is_empty() else 0

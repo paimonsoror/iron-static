@@ -9,7 +9,10 @@ extends RefCounted
 ## A1-08 additions: a boss ENEMY_KILLED -> sfx_boss_death (instead of the heavy death); BAND_CHANGED to a worse band ->
 ## sfx_skin_burn; while integrity band 3 lasts, one sfx_integrity_warn per beat of HeartbeatModel (same sim clock as the
 ## overlay and Cinder's core); UPGRADE_BOUGHT reaching a multiple of 25 -> sfx_milestone_x15 (the gold ring level);
-## play_results_tally() from the results screen. Not wired (no sim event yet): sfx_overcrit and the feature sounds.
+## VT-5: a purchase that reaches a new visual tier with a banner plays exactly ONE sting: sfx_tier_up for MK II and III,
+## the milestone chime for the top mark (MK IV, the x25 overclock; also when a multi-buy skips past it); other
+## purchases keep the multiple-of-25 rule. play_results_tally() from the results screen.
+## Not wired (no sim event yet): sfx_overcrit and the feature sounds.
 ## Load control: at most CAP_PER_FRAME starts per id per update, at most MAX_BATCHES * 64 events read per update;
 ## a reader further behind skips the oldest events (no backlog; voice caps and cooldowns do the rest).
 ## Music: `MusicState` from the world (wave, a boss alive, integrity band) every update, pushed only on change.
@@ -27,6 +30,7 @@ const SFX_BOSS_DEATH: String = "sfx_boss_death"
 const SFX_SKIN_BURN: String = "sfx_skin_burn"
 const SFX_HEARTBEAT: String = "sfx_integrity_warn"
 const SFX_MILESTONE: String = "sfx_milestone_x15"
+const SFX_TIER_UP: String = "sfx_tier_up"
 const SFX_TALLY: String = "sfx_results_tally"
 ## Pitch spread of the laser tick (fraction; the slot default is used for the other sounds).
 const SHOT_JITTER: float = 0.02
@@ -54,6 +58,8 @@ var _last_boss: bool = false
 var _last_band: int = -1
 ## Index of the last heartbeat that sounded (NO_BEAT = none yet since entering band 3 or after a skip).
 var _last_beat: int = NO_BEAT
+## Per-row last level, to tell which purchase crossed a visual tier (VT-5).
+var _tiers: TierRowTracker = TierRowTracker.new()
 
 
 func _init(director: AudioDirector = null) -> void:
@@ -68,6 +74,7 @@ func bind(world: SimWorld) -> void:
 	_heavy = heavy_table(world.config.enemies)
 	_boss = boss_table(world.config.enemies)
 	_last_beat = NO_BEAT
+	_tiers.bind(world)
 	in_menu = false
 	_last_wave = -1
 	_feed_music()
@@ -89,6 +96,7 @@ func update() -> void:
 	var window: int = MAX_BATCHES * EventCursor.BATCH
 	if _world.events.total_pushed - _events.cursor > window:
 		_events.cursor = _world.events.total_pushed - window
+		_tiers.sync(_world)
 	while _events.poll(_world.events) > 0:
 		for i: int in _events.count:
 			_route(_events.kind_at(i), _events.a_at(i), _events.b_at(i))
@@ -102,6 +110,7 @@ func skip() -> void:
 		_events.sync_to(_world.events)
 		_crit_enemy = -1
 		_last_beat = NO_BEAT
+		_tiers.sync(_world)
 
 
 ## The tally ticks of the results screen (call when it is shown; not in reduce-motion, where the numbers do not roll).
@@ -165,7 +174,10 @@ func _route(kind: int, a: int, b: int) -> void:
 			if b > a:
 				_play(SFX_SKIN_BURN)
 		SimEventKind.UPGRADE_BOUGHT:
-			if b > 0 and b % StatResolver.MILESTONE_STEP == 0:
+			var tier: int = _tiers.observe(a, b)
+			if tier > 0:
+				_play(SFX_MILESTONE if _tiers.is_top(a, tier) else SFX_TIER_UP)
+			elif b > 0 and b % StatResolver.MILESTONE_STEP == 0:
 				_play(SFX_MILESTONE)
 
 

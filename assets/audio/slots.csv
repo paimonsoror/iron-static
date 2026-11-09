@@ -44,6 +44,7 @@ sfx_lab_complete,sfx/sfx_lab_complete.wav,UI,1.5,0,1,500
 sfx_firmware_pick,sfx/sfx_firmware_pick.wav,UI,-3,0,1,300
 sfx_gauntlet_rank_up,sfx/sfx_gauntlet_rank_up.wav,UI,2.5,0,1,800
 sfx_results_tally,sfx/sfx_results_tally.wav,UI,4,0,1,500
+sfx_tier_up,sfx/sfx_tier_up.wav,UI,-0.5,0,1,300
 music_pad,music/music_pad.ogg,Music,0,0,1,0
 music_pulse,music/music_pulse.ogg,Music,0,0,1,0
 music_perc,music/music_perc.ogg,Music,0,0,1,0
