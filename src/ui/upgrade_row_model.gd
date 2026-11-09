@@ -27,6 +27,14 @@ var maxed: bool = false
 var milestone_glow: bool = false
 var tooltip_text: String = ""
 var icon_color: Color = Palette.TEXT_DIM
+## Visual tier mark (VT-6): `tier` 0 = no tiers or below the first mark; `mark_text` "" = no chip; `next_text` is
+## "NEXT LOOK AT L12" or "TOP MARK" ("" = no tiers); `tier_progress` 0..1 toward the next mark, `tier_top` at the last.
+var tier: int = 0
+var tier_has: bool = false
+var mark_text: String = ""
+var next_text: String = ""
+var tier_progress: float = 0.0
+var tier_top: bool = false
 
 
 static func from_preview(
@@ -56,6 +64,7 @@ static func from_preview(
 		var nxt: String = format_value(def.id, preview.next_value)
 		m.value_text = Strings.fill("row.value", {"a": cur, "b": nxt})
 		m.cost_text = NumberFormat.format(preview.cost)
+	m._apply_tier(def.id, lvl)
 	# The strings CSV holds a literal backslash-n; make it a real line break.
 	m.tooltip_text = tooltip_for(def, foundry_level, foundry_f).replace("\\n", "\n")
 	return m
@@ -136,3 +145,18 @@ static func foundry_text(def: RunUpgradeDef, f_level: int, f: float) -> String:
 	if def.kind == "D":
 		return lead + "  " + NumberFormat.format_mult(Curves.foundry_mult(f_level, f))
 	return lead + "  " + _delta_text(def, def.step * float(f_level))
+
+
+## Fills the VT-6 mark fields for run upgrade `id` at `lvl` (no-op for rows without visual tiers).
+func _apply_tier(id: String, lvl: int) -> void:
+	var tiers: VisualTierModel = VisualTierModel.shared()
+	if not tiers.has_tiers(id):
+		return
+	tier_has = true
+	tier = tiers.tier_for(id, lvl)
+	var key: String = tiers.mark_key(id, lvl)
+	mark_text = "" if key.is_empty() else Strings.get_text(key)
+	var next: int = tiers.next_threshold(id, lvl)
+	tier_top = next < 0
+	tier_progress = tiers.progress(id, lvl)
+	next_text = Strings.get_text("vt.top") if tier_top else Strings.fill1("vt.next", "n", str(next))

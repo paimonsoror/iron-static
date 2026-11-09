@@ -268,3 +268,21 @@ intel.wave.stale,STALE ENEMIES
 intel.wave.chain_stale,PAY {v} OF NORMAL
 intel.wave.chain_type,HP {hp}  ATK {atk}  SPD {spd} m/s  SLOTS {slots}
 intel.wave.boss_tag,BOSS
+vt.mark.1,MK I
+vt.mark.2,MK II
+vt.mark.3,MK III
+vt.mark.4,MK IV
+vt.plated.1,PLATED I
+vt.plated.2,PLATED II
+vt.plated.3,PLATED III
+vt.plated.4,PLATED IV
+vt.banner.laser,LASER
+vt.banner.hull,HULL
+vt.banner.plating,PLATING
+vt.banner.nano,REPAIR
+vt.sub.laser,BEAM OUTPUT TIER UP
+vt.sub.hull,ARMOR TIER UP
+vt.sub.plating,DEFLECTION TIER UP
+vt.sub.nano,REPAIR TIER UP
+vt.next,NEXT LOOK AT L{n}
+vt.top,TOP MARK

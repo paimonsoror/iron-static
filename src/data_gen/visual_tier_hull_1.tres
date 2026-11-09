@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="VisualTierDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/visual_tier_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "hull_1"
+upgrade = "hull_integrity"
+tier = 1
+mark = "MK I"
+threshold_kind = "level"
+threshold = 0
+label_key = "vt.mark.1"
+banner_key = ""
+art_slot = "-"
+params = "plates=0"
