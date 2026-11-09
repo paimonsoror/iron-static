@@ -110,19 +110,25 @@ func _on_results_event(event: AppFlow.Event) -> void:
 	_router.dispatch(event)
 
 
-## A resumed run starts paused: show the PAUSED overlay (V1-24 style) behind which the player taps to continue.
+## A resumed run starts paused: show the PAUSED overlay (V1-24 style) behind which the player taps to continue,
+## with the pending notice ("RUN RESTORED") on it.
 func _on_battle_entered() -> void:
 	if _controller.paused:
 		_mobile.pause()
+		var text: String = _router.take_notice()
+		if text != "":
+			_mobile.overlay().set_notice(text)
 
 
-## `Game.notice` once: on the PAUSED overlay when the boot lands in a paused battle, else as a toast.
+## `Game.notice` once, as a toast on the boot screen. A paused boot battle already put it on the overlay; with a
+## run waiting behind the title's CONTINUE, "RUN RESTORED" waits for that battle instead.
 func _show_boot_notice() -> void:
-	if _router.current_screen() == AppFlow.Screen.BATTLE and _controller.paused:
-		_mobile.overlay().set_notice(_router.take_notice())
-	else:
-		@warning_ignore("return_value_discarded")
-		_router.show_notice_toast()
+	if _router.current_screen() == AppFlow.Screen.BATTLE:
+		return
+	if Game.has_pending_resume() and Game.notice == "save.resumed":
+		return
+	@warning_ignore("return_value_discarded")
+	_router.show_notice_toast()
 
 
 func _on_band_forced(band: int) -> void:

@@ -17,9 +17,22 @@ func test_boot_screen_table() -> void:
 	# [save_problem, resumed] -> screen
 	assert_int(AppFlow.boot_screen(true, false)).is_equal(S.SAVE_PROBLEM)
 	assert_int(AppFlow.boot_screen(true, true)).is_equal(S.SAVE_PROBLEM)
-	assert_int(AppFlow.boot_screen(false, true)).is_equal(S.BATTLE)
+	var resumed: int = S.TITLE if AppFlow.TITLE_ENABLED else S.BATTLE
+	assert_int(AppFlow.boot_screen(false, true)).is_equal(resumed)
 	var plain: int = S.TITLE if AppFlow.TITLE_ENABLED else S.HOME
 	assert_int(AppFlow.boot_screen(false, false)).is_equal(plain)
+
+
+## Design 11: a run snapshot waits behind the title; CONTINUE resumes it (BATTLE), otherwise CONTINUE goes HOME.
+func test_title_continue_resumes_a_pending_run() -> void:
+	var f: AppFlow = _flow(S.TITLE)
+	f.resume_pending = true
+	assert_int(f.apply(E.CONTINUE)).is_equal(S.BATTLE)
+	var g: AppFlow = _flow(S.TITLE)
+	assert_int(g.apply(E.CONTINUE)).is_equal(S.HOME)
+	var h: AppFlow = _flow(S.HOME)
+	h.resume_pending = true
+	assert_int(h.apply(E.CONTINUE)).is_equal(AppFlow.NONE)  # only the title's CONTINUE resumes
 
 
 func test_every_spec_row() -> void:
@@ -110,7 +123,7 @@ func test_every_event_target_is_a_known_screen() -> void:
 func test_title_flow_rows_and_the_profile_reset_return() -> void:
 	assert_bool(AppFlow.TITLE_ENABLED).is_true()
 	assert_int(AppFlow.boot_screen(false, false)).is_equal(S.TITLE)
-	assert_int(AppFlow.boot_screen(false, true)).is_equal(S.BATTLE)  # a resumed run skips the title
+	assert_int(AppFlow.boot_screen(false, true)).is_equal(S.TITLE)  # a resumed run waits behind CONTINUE
 	assert_int(_flow(S.SETTINGS).apply(E.PROFILE_RESET)).is_equal(S.TITLE)
 	assert_int(_flow(S.FRAME_BAY).apply(E.BACK_TO_OPENER)).is_equal(AppFlow.NONE)
 

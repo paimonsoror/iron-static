@@ -195,8 +195,8 @@ func test_notice_shows_once_as_a_toast_on_home() -> void:
 	assert_str(Game.notice).is_equal("")
 
 
-func test_resumed_run_boots_into_a_paused_battle_with_the_notice() -> void:
-	# an interrupted run: checkpoint a world on the fs, then boot a service that resumes it
+## An interrupted run (checkpoint on the fs) found by a second boot. Returns with `_pending_resume` set.
+func _boot_with_a_snapshot() -> void:
 	var first: SaveService = SaveService.new(_fs, FakeClock.new(1000), "dev")
 	@warning_ignore("return_value_discarded")
 	first.load_profile()
@@ -214,8 +214,17 @@ func test_resumed_run_boots_into_a_paused_battle_with_the_notice() -> void:
 	assert_int(res.status).is_equal(ResumeResult.Status.RESUMED)
 	Game.set("_pending_resume", res)
 	Game.notice = second.notice
+
+
+## Design 11 (M3-32 finding): boot shows the title with CONTINUE; CONTINUE lands in the paused, resumed battle
+## with the notice on the overlay.
+func test_resumed_run_waits_on_the_title_then_continue_resumes_paused() -> void:
+	_boot_with_a_snapshot()
 	var main: Control = _main()
 	var r: ScreenRouter = _router(main)
+	assert_int(r.current_screen()).is_equal(AppFlow.Screen.TITLE)
+	assert_bool(r.toast_visible()).is_false()  # "RUN RESTORED" waits for the battle
+	assert_bool(r.dispatch(AppFlow.Event.CONTINUE)).is_true()
 	assert_int(r.current_screen()).is_equal(AppFlow.Screen.BATTLE)
 	assert_int(Game.controller.state).is_equal(RunController.State.IN_RUN)
 	assert_bool(Game.controller.paused).is_true()
@@ -225,6 +234,19 @@ func test_resumed_run_boots_into_a_paused_battle_with_the_notice() -> void:
 	shell.resume()
 	assert_bool(Game.controller.paused).is_false()
 	assert_str(shell.overlay().notice_text()).is_equal("")
+
+
+## NEW GAME (and Settings > Data) archive the snapshot files; the in-memory resume must go too, or the new game's
+## first DEPLOY would resume the old run.
+func test_profile_reset_drops_the_pending_resume() -> void:
+	_boot_with_a_snapshot()
+	var r: ScreenRouter = _router(_main())
+	assert_bool(Game.has_pending_resume()).is_true()
+	assert_bool(ProfileReset.run(Game.saves)).is_true()
+	assert_bool(Game.has_pending_resume()).is_false()
+	r.refresh_unlocks()
+	assert_bool(r.flow.resume_pending).is_false()
+	assert_int(r.flow.target(AppFlow.Event.CONTINUE)).is_equal(AppFlow.Screen.HOME)
 
 
 func test_menu_audio_follows_the_screen() -> void:

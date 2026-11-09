@@ -9,6 +9,9 @@ extends RefCounted
 static func run(saves: SaveService) -> bool:
 	if saves == null or not saves.reset_profile():
 		return false
+	# The snapshot files were archived with the profile; the in-memory resume must go too, or the first DEPLOY of
+	# the new game would resume the old run (boot now waits on the title with a resume pending).
+	Game.discard_pending_resume()
 	@warning_ignore("return_value_discarded")  # a failed write is retried by the scheduler; the reset itself held
 	saves.save_now()
 	return true

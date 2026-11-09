@@ -3,8 +3,9 @@ extends RefCounted
 ## Screen flow state machine (M3-14). Pure: no nodes, no autoloads; the router feeds it events and performs the
 ## screen swap. The flow is a DATA TABLE (`TABLE`): adding a screen or a transition is a table edit.
 ##
-## Flow:  boot -> SAVE_PROBLEM (damaged or too-new save) | BATTLE (a run snapshot resumed, paused) | HOME
-##        (`TITLE_ENABLED`: TITLE first; CONTINUE -> HOME, NEW GAME -> FRAME_BAY (the router asks a confirm first
+## Flow:  boot -> SAVE_PROBLEM (damaged or too-new save) | TITLE | (title off: BATTLE for a run snapshot, else HOME)
+##        (`TITLE_ENABLED`: TITLE first, design 11; CONTINUE -> HOME, or BATTLE (the snapshot resumes, paused) while
+##        `resume_pending`; NEW GAME -> FRAME_BAY (the router asks a confirm first
 ##        when the profile has progress), FRAME_BAY -confirm-> HOME, TITLE <-> SETTINGS,
 ##        SETTINGS -PROFILE_RESET-> TITLE); HOME -FRAMES-> FRAME_BAY (confirm and back both return to HOME: the
 ##        bay's back goes to its `OPENER`, TITLE after NEW GAME)
@@ -69,15 +70,18 @@ var current: Screen = Screen.HOME
 var opener: Screen = Screen.HOME
 ## Set by the caller from `MetaUnlocks.foundry_screen_unlocked(profile)`.
 var foundry_unlocked: bool = false
+## Set by the caller from `Game.has_pending_resume()`: TITLE's CONTINUE then resumes the interrupted run.
+var resume_pending: bool = false
 
 
-## First screen. `save_problem` is `Game.save_problem != NONE`, `resumed` is a pending run snapshot.
+## First screen. `save_problem` is `Game.save_problem != NONE`, `resumed` is a pending run snapshot. With the title
+## on, a snapshot waits behind CONTINUE (design 11: boot -> TITLE, CONTINUE -> the resumed run, paused).
 static func boot_screen(save_problem: bool, resumed: bool) -> Screen:
 	if save_problem:
 		return Screen.SAVE_PROBLEM
-	if resumed:
-		return Screen.BATTLE
-	return Screen.TITLE if TITLE_ENABLED else Screen.HOME
+	if TITLE_ENABLED:
+		return Screen.TITLE
+	return Screen.BATTLE if resumed else Screen.HOME
 
 
 static func is_menu(screen: AppFlow.Screen) -> bool:
@@ -92,6 +96,8 @@ func target(event: AppFlow.Event) -> int:
 	var to: int = row[event]
 	if to == OPENER:
 		to = opener
+	if current == Screen.TITLE and event == Event.CONTINUE and resume_pending:
+		to = Screen.BATTLE
 	if to == Screen.FOUNDRY and not foundry_unlocked:
 		return NONE
 	return to

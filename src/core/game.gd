@@ -132,6 +132,11 @@ func has_pending_resume() -> bool:
 	return _pending_resume != null and _pending_resume.status == ResumeResult.Status.RESUMED
 
 
+## Drops the interrupted run found at boot (profile reset: NEW GAME, Settings > Data).
+func discard_pending_resume() -> void:
+	_pending_resume = null
+
+
 ## Hook after a run was banked and its profile save returned true (the snapshot is already cleared by
 ## `SaveService.bank_run`, in that order); M3-14/17 may extend it.
 func on_run_banked() -> void:
