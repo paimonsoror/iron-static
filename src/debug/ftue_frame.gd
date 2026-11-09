@@ -41,6 +41,13 @@ func _ready() -> void:
 	Game.controller.world.events.push(SimEventKind.CINDER_HIT, 3, 0)
 	await _wait(0.8)
 	_shot("5_run1_hull_tab_pointer")
+	Game.controller.world.end_run()
+	await _wait(2.5)
+	_shot("6_results_foundry_hint")
+	Game.profile().data = BigNum.from_float(500.0)
+	(_find(ResultsOverlay) as ResultsOverlay).foundry_pressed.emit()
+	await _wait(1.2)
+	_shot("7_foundry_row_hint")
 	get_tree().quit()
 
 

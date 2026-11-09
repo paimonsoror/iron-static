@@ -15,7 +15,7 @@ var level_text: String = ""
 var value_text: String = ""
 ## `+1.2`: start-value gain of the next level ("" at the cap).
 var delta_text: String = ""
-## NEXT MILESTONE F10  x1.25 (Type D) or MAX; "" for a Type C row that is not capped.
+## MILESTONE F10  x1.25 (Type D) or MAX; "" for a Type C row that is not capped.
 var milestone_text: String = ""
 ## AFFORDABLE / ~12m 30s TO AFFORD; "" when unknown (no farm rate yet) or maxed.
 var afford_text: String = ""

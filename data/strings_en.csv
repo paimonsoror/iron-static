@@ -14,7 +14,7 @@ tab.arms,ARMS
 tab.chassis,CHASSIS
 tab.systems,SYSTEMS
 tab.intel,INTEL
-panel.next_unlock,Next unlock at wave {n}
+panel.next_unlock,Next unlock at best wave {n}
 panel.intel_stub,INTEL: coming in a later update
 row.max,MAX
 row.level,L{n}
@@ -62,7 +62,7 @@ foundry.data,DATA {v}
 foundry.level,F{n}
 foundry.value,{a} -> {b}
 foundry.value_start,STARTS AT {v}
-foundry.milestone,NEXT MILESTONE F{n}  x1.25
+foundry.milestone,MILESTONE F{n}  x1.25
 foundry.max,MAX
 foundry.recommended,RECOMMENDED
 foundry.afford_now,AFFORDABLE
@@ -194,7 +194,7 @@ patch.t_hardhide.name,HARDHIDE
 patch.t_hardhide.desc,ENEMY DAMAGE x0.6
 patch.t_hardhide.cost,LASER OUTPUT x0.6
 patch.cost_line,COST: {cost}
-draft.title,PATCH DRAFT: WAVE {n}
+draft.title,WAVE {n} CLEARED
 draft.picks,PICKS: {list}
 draft.gamble,GAMBLE
 draft.note,PATCHES LAST THIS DEPLOYMENT

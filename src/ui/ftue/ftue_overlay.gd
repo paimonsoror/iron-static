@@ -13,13 +13,10 @@ extends Control
 
 signal skipped
 
-const PLATE_FONT_PX: int = 46
+const PLATE_FONT_PX: int = 40
 const SKIP_FONT_PX: int = 38
-const SKIP_MIN_W: float = 300.0
-const EDGE_GAP: float = 24.0
+const SKIP_MIN_W: float = 260.0
 const FIELD_Y_FRAC: float = 0.235
-## A beat above this much free height (px) puts its label above the arrow; otherwise the label goes below.
-const TOP_LIMIT: float = 260.0
 
 ## Set true to force reduce motion (it is also read from `Game.visual.reduce_motion`).
 var reduce_motion: bool = false:
@@ -31,6 +28,8 @@ var reduce_motion: bool = false:
 var state: FtueState = null
 var target_resolver: Callable = Callable()
 var persist: Callable = Callable()
+## Maps a target string to the GLOBAL rect its plate sits next to (`FtueTargets.anchor`); optional.
+var anchor_resolver: Callable = Callable()
 
 var _screen: AppFlow.Screen = AppFlow.Screen.HOME
 var _world: SimWorld = null
@@ -193,16 +192,9 @@ func _sync() -> void:
 		_pointer.clear()
 		_plate.position = Vector2((size.x - _plate.size.x) * 0.5, size.y * FIELD_Y_FRAC)
 		return
-	var above: bool = rect.position.y - (_plate.size.y + FtuePointer.ARROW_H + 40.0) >= TOP_LIMIT * 0.5
-	_pointer.point_at(rect, above)
-	var cx: float = clampf(
-		rect.get_center().x - _plate.size.x * 0.5,
-		UiKit.MENU_SIDE_MARGIN,
-		maxf(size.x - UiKit.MENU_SIDE_MARGIN - _plate.size.x, UiKit.MENU_SIDE_MARGIN)
-	)
-	var reach: float = FtuePointer.ARROW_H + FtuePointer.BOB_PX + FtuePointer.PAD + EDGE_GAP
-	var y: float = rect.position.y - _plate.size.y - reach if above else rect.end.y + reach
-	_plate.position = Vector2(cx, clampf(y, EDGE_GAP, maxf(size.y - _plate.size.y - EDGE_GAP, EDGE_GAP)))
+	var kind: FtuePlacement.Kind = FtuePlacement.kind_of(beat.target)
+	_pointer.point_at(rect, FtuePlacement.arrow_from_above(kind), FtuePlacement.arrow_x(kind, rect))
+	_plate.position = FtuePlacement.plate_pos(kind, rect, _anchor_rect(beat), _plate.size, size, UiKit.MENU_SIDE_MARGIN)
 
 
 ## The beat's target in this control's coordinates; Rect2() when it has none or the resolver does not know it.
@@ -210,6 +202,16 @@ func _target_rect(beat: FtueBeatDef) -> Rect2:
 	if beat.target == FtueScript.TARGET_FIELD or not target_resolver.is_valid():
 		return Rect2()
 	var global: Rect2 = target_resolver.call(beat.target)
+	if global.size == Vector2.ZERO:
+		return Rect2()
+	return Rect2(global.position - global_position, global.size)
+
+
+## The rect the plate goes next to (see `FtuePlacement`), in this control's coordinates; Rect2() when unknown.
+func _anchor_rect(beat: FtueBeatDef) -> Rect2:
+	if not anchor_resolver.is_valid():
+		return Rect2()
+	var global: Rect2 = anchor_resolver.call(beat.target)
 	if global.size == Vector2.ZERO:
 		return Rect2()
 	return Rect2(global.position - global_position, global.size)

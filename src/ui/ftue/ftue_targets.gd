@@ -16,6 +16,20 @@ static func resolve(target: String, panel: UpgradePanel, results: ResultsOverlay
 	return Rect2()
 
 
+## The GLOBAL rect the label plate of `target` goes next to (`FtuePlacement`): the upgrade panel (plate above it), the
+## Results card (plate below it) or the free band under the Foundry rows (plate in it); Rect2() when unknown.
+static func anchor(target: String, panel: UpgradePanel, results: ResultsOverlay, screen: MenuScreen) -> Rect2:
+	match FtuePlacement.kind_of(target):
+		FtuePlacement.Kind.ROW:
+			return panel.get_global_rect() if panel != null else Rect2()
+		FtuePlacement.Kind.RESULTS:
+			return results.card_rect() if results != null else Rect2()
+		FtuePlacement.Kind.FOUNDRY:
+			var foundry: FoundryScreen = screen as FoundryScreen
+			return _foundry_band(foundry)
+	return Rect2()
+
+
 ## Rect of the Foundry row of `foundry_id` when `screen` is the Foundry screen (rows follow data/foundry.csv order).
 static func foundry_row_rect(screen: MenuScreen, foundry_id: String) -> Rect2:
 	var foundry: FoundryScreen = screen as FoundryScreen
@@ -29,3 +43,13 @@ static func foundry_row_rect(screen: MenuScreen, foundry_id: String) -> Rect2:
 		return Rect2()
 	var row: FoundryRow = foundry.row_at(i)
 	return row.get_global_rect() if row.is_visible_in_tree() else Rect2()
+
+
+## The free band of the Foundry screen between the last row and DEPLOY (the hint plate sits in it); Rect2() when the
+## screen is not the Foundry.
+static func _foundry_band(foundry: FoundryScreen) -> Rect2:
+	if foundry == null or foundry.list == null:
+		return Rect2()
+	var top: float = minf(foundry.list.get_global_rect().end.y, foundry.scroll.get_global_rect().end.y)
+	var bottom: float = foundry.deploy_button.get_global_rect().position.y
+	return Rect2(foundry.list.global_position.x, top, foundry.list.size.x, maxf(bottom - top, 1.0))

@@ -87,6 +87,13 @@ func is_playing() -> bool:
 	return visible
 
 
+## Global y of the bottom edge of the plate while a banner is up (the tier-up banner sits below it), else 0.
+func occupied_bottom() -> float:
+	if not visible or _plate == null:
+		return 0.0
+	return global_position.y + _plate.size.y
+
+
 func stop() -> void:
 	if _tween != null:
 		_tween.kill()

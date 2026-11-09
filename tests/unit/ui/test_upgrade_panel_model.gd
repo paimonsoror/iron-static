@@ -36,8 +36,8 @@ func test_best_wave_zero_shows_four_starting_rows_and_wave_3_hint() -> void:
 	assert_int(total).is_equal(4)
 	var arms: Array[String] = _ids(defs, UpgradePanelModel.rows_for_tab(defs, vis, "arms"))
 	assert_array(arms).is_equal(["laser_output", "cycle_rate"])
-	assert_str(UpgradePanelModel.hint_text(defs, 0)).is_equal("Next unlock at wave 3")
-	assert_str(UpgradePanelModel.hint_text(defs, 3)).is_equal("Next unlock at wave 5")
+	assert_str(UpgradePanelModel.hint_text(defs, 0)).is_equal("Next unlock at best wave 3")
+	assert_str(UpgradePanelModel.hint_text(defs, 3)).is_equal("Next unlock at best wave 5")
 
 
 func test_tab_state_toggle() -> void:

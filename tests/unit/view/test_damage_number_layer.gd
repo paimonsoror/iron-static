@@ -59,3 +59,11 @@ func test_low_tier_caps_live_numbers_at_12() -> void:
 	layer.visual = settings
 	view.render(0.5)
 	assert_int(layer.model.live_cap).is_equal(12)
+
+
+func test_cinder_damage_gets_the_heavy_outline() -> void:
+	# M4-27 F6: red Cinder numbers sit on the bright hit flash.
+	assert_int(DamageNumberLayer.outline_px(DamageNumberModel.Kind.CINDER)).is_greater(
+		DamageNumberLayer.outline_px(DamageNumberModel.Kind.NORMAL)
+	)
+	assert_int(DamageNumberLayer.outline_px(DamageNumberModel.Kind.NORMAL)).is_greater(0)

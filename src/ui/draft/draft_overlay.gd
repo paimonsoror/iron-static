@@ -1,7 +1,7 @@
 class_name DraftOverlay
 extends Control
 ## The patch draft overlay (07 s2.9, M4-16): a 60% dim over the frozen battle, one plate with the title
-## ("PATCH DRAFT (wave 10)"), the first-draft note, three `DraftCard`s (gamble cards: dashed amber border, benefit and
+## ("WAVE 10 CLEARED", M4-27), the first-draft note, three `DraftCard`s (gamble cards: dashed amber border, benefit and
 ## cost) and the picks so far. `open(world)` shows it for the open draft; a completed tap on a card calls
 ## `world.command_pick(slot)`, closes, plays the pick sound and emits `picked(slot)` (main.gd turns that into the
 ## haptic pulse). It runs from an input event, so the pick always lands between frames, never inside

@@ -15,7 +15,7 @@ theme_override_constants/separation = 16
 
 [node name="Icon" type="TextureRect" parent="Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 96)
+custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 size_flags_vertical = 4
 mouse_filter = 2
@@ -73,11 +73,18 @@ size_flags_horizontal = 3
 mouse_filter = 2
 clip_text = true
 
-[node name="BuyButton" type="Button" parent="Content"]
+[node name="BuyColumn" type="VBoxContainer" parent="Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(288, 148)
 layout_mode = 2
 size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="BuyButton" type="Button" parent="Content/BuyColumn"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(244, 148)
+layout_mode = 2
 focus_mode = 0
 clip_text = true
 

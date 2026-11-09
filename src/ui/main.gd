@@ -64,12 +64,14 @@ func _ready() -> void:
 	_ftue = FtueOverlay.new()
 	add_child(_ftue)
 	_ftue.target_resolver = _ftue_rect
+	_ftue.anchor_resolver = _ftue_anchor
 	_ftue.persist = _persist_ftue
 	_router.screen_changed.connect(_on_screen_changed)
 	_draft = (load("res://src/ui/draft/draft_overlay.tscn") as PackedScene).instantiate() as DraftOverlay
 	add_child(_draft)  # above the router screens, below the pause overlay (back opens the pause menu over a draft)
 	_draft.picked.connect(_on_draft_picked)
 	_tier_banner = TierBanner.new()
+	_tier_banner.avoid_bottom = _hud.wave_banner().occupied_bottom
 	add_child(_tier_banner)  # above the draft overlay, below the pause overlay
 	_battle.tier_banner_requested.connect(_tier_banner.play_moment)
 	_hud.field_rect_changed.connect(_tier_banner.set_field_rect)
@@ -239,6 +241,10 @@ func _on_screen_changed(screen: AppFlow.Screen) -> void:
 	_ftue.set_screen(screen)
 	if screen == AppFlow.Screen.FOUNDRY:
 		_ftue.on_foundry_opened()
+
+
+func _ftue_anchor(target: String) -> Rect2:
+	return FtueTargets.anchor(target, _hud.upgrade_panel(), _results, _router.active_screen())
 
 
 func _ftue_rect(target: String) -> Rect2:

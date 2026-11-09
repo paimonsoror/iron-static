@@ -8,7 +8,7 @@ const STANDARD: Array[String] = ["patch_overcharge", "patch_plating", "patch_rat
 func test_standard_cards_and_title() -> void:
 	var c: RunController = DraftTestWorld.controller_with_draft(STANDARD)
 	var m: DraftModel = DraftModel.from_world(c.world)
-	assert_str(m.title()).is_equal("PATCH DRAFT: WAVE 10")
+	assert_str(m.title()).is_equal("WAVE 10 CLEARED")
 	assert_int(m.cards.size()).is_equal(3)
 	assert_str(m.cards[0].title).is_equal("OVERCHARGE")
 	assert_str(m.cards[0].benefit).is_equal("LASER OUTPUT +15% PER PICK")

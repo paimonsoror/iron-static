@@ -39,7 +39,8 @@ func _ready() -> void:
 	_tag.custom_minimum_size.y = 46.0
 	_tag.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_tag.hide()
-	_afford_label.get_parent().add_child(_tag)
+	_tag.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_buy_button.get_parent().add_child(_tag)  # under the cost button: the info lines keep the full width (M4-27)
 
 
 ## Copies the model into the nodes (the base row for icon, name, level, cost state and ring).
