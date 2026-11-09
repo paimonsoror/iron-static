@@ -5,7 +5,19 @@ extends GdUnitTestSuite
 
 func test_order_and_label_keys_exist() -> void:
 	assert_array(SettingsModel.ORDER).is_equal(
-		["sfx", "music", "muted", "reduce_motion", "shake", "scanlines", "number_format", "fps_cap"]
+		[
+			"sfx",
+			"music",
+			"muted",
+			"reduce_motion",
+			"shake",
+			"scanlines",
+			"number_format",
+			"fps_cap",
+			"haptics",
+			"colorblind",
+			"high_contrast"
+		]
 	)
 	for setting: String in SettingsModel.ORDER:
 		assert_bool(Strings.has_key(SettingsModel.label_key(setting))).is_true()
@@ -16,11 +28,12 @@ func test_option_lists() -> void:
 	assert_array(SettingsModel.options("scanlines")).is_equal(["off", "low", "normal"])
 	assert_array(SettingsModel.options("number_format")).is_equal(["short", "scientific", "engineering"])
 	assert_array(SettingsModel.options("fps_cap")).is_equal(["30", "60"])
+	assert_array(SettingsModel.options("colorblind")).is_equal(["off", "deuteranopia", "protanopia", "tritanopia"])
 	assert_array(SettingsModel.options("sfx")).is_empty()
 
 
 func test_every_option_key_is_a_string_key() -> void:
-	for setting: String in ["shake", "scanlines", "number_format", "fps_cap"]:
+	for setting: String in ["shake", "scanlines", "number_format", "fps_cap", "colorblind"]:
 		for k: String in SettingsModel.option_keys(setting):
 			assert_bool(Strings.has_key(k)).is_true()
 	assert_str(SettingsModel.option_key("fps_cap", "30")).is_equal("settings.opt.fps30")

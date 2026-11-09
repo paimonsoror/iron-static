@@ -96,3 +96,35 @@ func test_shake_and_quality_args_win() -> void:
 	assert_str(visual.quality.tier_name()).is_equal("low")
 	assert_bool(applier.is_overridden("quality")).is_true()
 	assert_str(applier.capture(visual, audio).shake).is_equal("low")
+
+
+func test_accessibility_applies_hook_and_haptics() -> void:
+	var visual: VisualSettings = VisualSettings.new()
+	var audio: AudioSettings = AudioSettings.new()
+	var applier: SettingsApplier = SettingsApplier.new()
+	var h: Haptics = Haptics.new()
+	applier.haptics = h
+	var changes: Array[int] = [0]
+	visual.accessibility_changed.connect(func() -> void: changes[0] += 1)
+	var s: PlayerSettings = PlayerSettings.new()
+	s.haptics = false
+	s.colorblind = "deuteranopia"
+	s.high_contrast = true
+	applier.apply(s, visual, audio, PackedStringArray())
+	assert_bool(h.enabled).is_false()
+	assert_str(visual.colorblind).is_equal("deuteranopia")
+	assert_bool(visual.high_contrast).is_true()
+	assert_int(changes[0]).is_equal(1)
+	var back: PlayerSettings = applier.capture(visual, audio)
+	assert_bool(back.haptics).is_false()
+	assert_str(back.colorblind).is_equal("deuteranopia")
+	assert_bool(back.high_contrast).is_true()
+	applier.apply(PlayerSettings.new(), visual, audio, PackedStringArray())
+	assert_bool(h.enabled).is_true()
+	assert_str(visual.colorblind).is_equal("off")
+
+
+func test_set_accessibility_rejects_unknown_mode() -> void:
+	var visual: VisualSettings = VisualSettings.new()
+	visual.set_accessibility("bogus", false)
+	assert_str(visual.colorblind).is_equal("off")

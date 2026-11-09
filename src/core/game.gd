@@ -126,6 +126,7 @@ func setup_persistence(fs: SaveFs, args: PackedStringArray) -> void:
 		ModeUnlockFlag.mark(saves.profile, saves.last_unlocked_modes)
 		saves.request_save()
 	Log.info("[SAVE] boot load status=%s problem=%s" % [LoadResult.Status.keys()[status], str(save_problem)])
+	settings_applier.haptics = haptics
 	settings_applier.apply(PlayerSettings.from_dict(saves.profile.settings), visual, audio.settings, args)
 	if save_problem == SaveService.Problem.NONE and not debug_load and not style_frame:
 		_pending_resume = saves.try_resume(_resume_config)
