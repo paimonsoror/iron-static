@@ -292,7 +292,9 @@ func test_feedback_button_opens_the_exact_url_through_the_injected_opener() -> v
 
 
 func test_feedback_link_constant_is_the_codex_page() -> void:
-	assert_str(FeedbackLink.URL).is_equal("https://paimonsoror.github.io/iron-static/feedback/")
+	# Hidden ("") until the open beta, then the codex Feedback page.
+	var page: String = "https://paimonsoror.github.io/iron-static/feedback/"
+	assert_bool(FeedbackLink.URL in ["", page]).is_true()
 	assert_bool(FeedbackLink.open("")).is_false()
 
 

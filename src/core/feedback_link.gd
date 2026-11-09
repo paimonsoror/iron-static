@@ -1,10 +1,13 @@
 class_name FeedbackLink
 extends RefCounted
 ## B1-08: the one place the feedback URL lives. It is the codex Feedback page, which links to the feedback form
-## (the form link is edited in `site/docs/feedback.md`, not here). Set `URL` to "" to hide the Settings button.
+## (the form link goes in that page; its draft is docs/release/drafts/feedback_page.md).
+## Set `URL` to "" to hide the Settings button.
 ## Opening goes through `OS.shell_open` (no INTERNET permission needed); tests inject an opener. No data is sent.
 
-const URL: String = "https://paimonsoror.github.io/iron-static/feedback/"
+## Empty until the open beta starts and the feedback form exists. Then publish the page draft
+## (docs/release/drafts/feedback_page.md) on the codex and set this to the codex /feedback/ page URL.
+const URL: String = ""
 
 
 static func is_set(url: String) -> bool:
