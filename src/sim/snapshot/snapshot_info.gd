@@ -15,4 +15,5 @@ var frame_id: String = "vanguard"
 var sector: int = 1
 var best_wave_s1: int = 0
 var ruleset: String = "standard"
+var wave_mode: String = "timed"  ## M4-05: absent in pre-M4 snapshots = timed
 var debug_invulnerable: bool = false

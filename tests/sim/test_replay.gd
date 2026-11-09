@@ -209,3 +209,34 @@ func test_purge_scripted_run_replays_identically() -> void:
 	var rcfg: SimConfig = _purge_cfg(99)
 	rcfg.debug_invulnerable = true
 	assert_str(Replay.run(rcfg, rec, GOLDEN_TICKS)).is_equal(GOLDEN_PURGE_FINAL_HASH)
+
+
+func test_purge_record_round_trips_through_json_and_replays() -> void:
+	var cfg: SimConfig = _purge_cfg(7)
+	cfg.debug_invulnerable = true
+	var rec: RunRecord = RunRecord.from_world(_scripted(cfg, GOLDEN_TICKS))
+	assert_str(rec.mode).is_equal("purge")
+	assert_str(rec.final_hash).is_equal(GOLDEN_PURGE_FINAL_HASH)
+	var text: String = rec.to_json()
+	assert_bool(text.contains('"mode":"purge"')).is_true()
+	var back: RunRecord = RunRecord.from_json(text)
+	assert_str(back.mode).is_equal("purge")
+	assert_str(back.to_json()).is_equal(text)
+	var rcfg: SimConfig = _purge_cfg(99)
+	rcfg.debug_invulnerable = true
+	assert_str(Replay.run(rcfg, back, GOLDEN_TICKS)).is_equal(back.final_hash)
+
+
+func test_record_without_mode_replays_as_timed() -> void:
+	var cfg: SimConfig = _cfg(7)
+	cfg.debug_invulnerable = true
+	var rec: RunRecord = RunRecord.from_world(_scripted(cfg, GOLDEN_TICKS))
+	var text: String = rec.to_json()
+	assert_bool(text.contains('"mode"')).is_false()  # timed records stay byte-compatible with pre-M4
+	var back: RunRecord = RunRecord.from_json(text)
+	assert_str(back.mode).is_equal("timed")
+	# Even a PURGE-built config is put back to timed by the record (the mode is a recorded run input).
+	var rcfg: SimConfig = _purge_cfg(99)
+	rcfg.debug_invulnerable = true
+	assert_str(Replay.run(rcfg, back, GOLDEN_TICKS)).is_equal(GOLDEN_FINAL_HASH)
+	assert_str(back.final_hash).is_equal(GOLDEN_FINAL_HASH)

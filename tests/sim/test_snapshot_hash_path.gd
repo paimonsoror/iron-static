@@ -44,3 +44,33 @@ func test_hash_path_matches_for_seeds_and_capture_ticks() -> void:
 	for seed_value: int in [1, 2, 3]:
 		for t: int in ticks:
 			_check(seed_value, t)
+
+
+func _purge_cfg(seed_value: int) -> SimConfig:
+	var cfg: SimConfig = _cfg(seed_value)
+	assert_int(SimConfigLoader.apply_mode(cfg, "purge").size()).is_equal(0)
+	return cfg
+
+
+## M4-05: a snapshot taken at a random tick of a PURGE run, restored and run to wave 12, ends on the same hash.
+func test_purge_snapshot_at_random_ticks_reaches_wave_12_on_the_same_hash() -> void:
+	var rng: Rng = Rng.new(2026, 5)
+	for seed_value: int in [1, 2]:
+		var ticks: PackedInt32Array = PackedInt32Array()
+		for k: int in 3:
+			@warning_ignore("return_value_discarded")
+			ticks.append(rng.range_int(1, 5000))
+		for capture_tick: int in ticks:
+			var w: SimWorld = SimWorld.new(_purge_cfg(seed_value))
+			while w.tick < capture_tick:
+				_step(w)
+			var back: SimWorld = SimSnapshot.restore(_purge_cfg(seed_value), SimSnapshot.capture(w, 1))
+			assert_object(back).is_not_null()
+			assert_str(back.state_hash()).is_equal(w.state_hash())
+			var guard: int = 0
+			while w.wave < 12 and not w.is_over() and guard < 60000:
+				_step(w)
+				_step(back)
+				guard += 1
+			assert_int(w.wave).is_equal(12)
+			assert_str(back.state_hash()).is_equal(w.state_hash())

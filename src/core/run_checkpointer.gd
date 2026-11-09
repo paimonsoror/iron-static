@@ -54,7 +54,9 @@ func clear() -> bool:
 
 
 ## Decodes the snapshot and rebuilds the world. `cfg_factory` is `func(info: SnapshotInfo) -> SimConfig`
-## (the run inputs recorded in the header: seed, best wave, frame). A snapshot of a run that was already
+## (the run inputs recorded in the header: seed, best wave, frame, wave_mode). Build the mode with
+## `SimConfigLoader.apply_mode`: a mode the data lacks falls back to timed, restore then fails and the run is
+## banked as ENDED_BY_UPDATE (Q62). A snapshot of a run that was already
 ## banked (`run_id <= last_banked_run`) or a damaged one is deleted; a `sim_version` or `config_hash`
 ## mismatch reports ENDED_BY_UPDATE with the header's `data_run` for the caller to bank. Never throws.
 func try_resume(cfg_factory: Callable, last_banked_run: int) -> ResumeResult:
