@@ -1,7 +1,7 @@
 class_name UpgradePanelModel
 extends RefCounted
 ## Pure state of the upgrade panel (M2-10): active tab, tab filtering by visibility and the
-## "next unlock" hint. GDD 07 section 2.1/2.2, 08 section 1.3. INTEL is a stub until M4.
+## "next unlock" hint. GDD 07 section 2.1/2.2, 08 section 1.3. INTEL hosts the M4-18 Stats panel (`IntelPanel`).
 
 const TAB_IDS: PackedStringArray = ["arms", "chassis", "systems", "intel"]
 const TAB_INTEL: String = "intel"
@@ -17,7 +17,7 @@ func set_tab(tab_id: String) -> bool:
 	return true
 
 
-## Upgrade row indices shown in `tab_id`: table order, visible rows only. Empty for the INTEL stub.
+## Upgrade row indices shown in `tab_id`: table order, visible rows only. Empty for INTEL (its content is `IntelPanel`).
 static func rows_for_tab(defs: Array[RunUpgradeDef], visible: PackedByteArray, tab_id: String) -> PackedInt32Array:
 	var out: PackedInt32Array = PackedInt32Array()
 	for i: int in defs.size():
