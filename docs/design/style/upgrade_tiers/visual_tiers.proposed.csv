@@ -1,0 +1,21 @@
+# PROPOSED data/visual_tiers.csv (spec 12 s6). One row per (element, tier). The style-frame harness reads this file.
+# threshold_kind: level = run level of the upgrade row; cap_frac = fraction of the row's level cap (type C rows).
+# params: key=value pairs separated by ";" (the view reads only the keys it knows; unknown keys are ignored).
+# Beam px values are at 1080 width and are multiplied by the view's sprite factor. art_slot "-" = procedural.
+id,upgrade,tier,mark,threshold_kind,threshold,label_key,banner_key,art_slot,params
+laser_1,laser_output,1,MK I,level,0,VT_LASER_1,,-,glow=36;core=8;hot=3;flare=0;ring=0;whiten=0.0;rim=0.0;ripple=0;muzzle=1.0
+laser_2,laser_output,2,MK II,level,5,VT_LASER_2,VT_BANNER_LASER_2,-,glow=54;core=13;hot=5;flare=70;ring=0;whiten=0.35;rim=0.0;ripple=0;muzzle=1.15
+laser_3,laser_output,3,MK III,level,12,VT_LASER_3,VT_BANNER_LASER_3,-,glow=76;core=18;hot=8;flare=104;ring=84;whiten=0.7;rim=0.0;ripple=0;muzzle=1.3
+laser_4,laser_output,4,MK IV,level,25,VT_LASER_4,VT_BANNER_LASER_4,-,glow=100;core=24;hot=11;flare=136;ring=118;whiten=1.0;rim=0.3;ripple=6;muzzle=1.5
+hull_1,hull_integrity,1,MK I,level,0,VT_HULL_1,,-,plates=0
+hull_2,hull_integrity,2,MK II,level,5,VT_HULL_2,VT_BANNER_HULL_2,ut_plates:tier_1,plates=1
+hull_3,hull_integrity,3,MK III,level,12,VT_HULL_3,VT_BANNER_HULL_3,ut_plates:tier_2,plates=2
+hull_4,hull_integrity,4,MK IV,level,25,VT_HULL_4,VT_BANNER_HULL_4,ut_plates:tier_3,plates=3
+plating_1,plating_pct,1,PLATED I,level,3,VT_PLATING_1,,-,deflect=1;spark_scale=0.8
+plating_2,plating_pct,2,PLATED II,level,8,VT_PLATING_2,VT_BANNER_PLATING_2,-,deflect=2;spark_scale=1.0
+plating_3,plating_pct,3,PLATED III,level,16,VT_PLATING_3,VT_BANNER_PLATING_3,-,deflect=3;spark_scale=1.2
+plating_4,plating_pct,4,PLATED IV,level,30,VT_PLATING_4,VT_BANNER_PLATING_4,-,deflect=4;spark_scale=1.4
+nano_1,nano_repair,1,MK I,level,0,VT_NANO_1,,-,motes=0;speed=0;size=0
+nano_2,nano_repair,2,MK II,level,5,VT_NANO_2,VT_BANNER_NANO_2,-,motes=5;speed=70;size=14
+nano_3,nano_repair,3,MK III,level,12,VT_NANO_3,VT_BANNER_NANO_3,-,motes=10;speed=85;size=15
+nano_4,nano_repair,4,MK IV,level,25,VT_NANO_4,VT_BANNER_NANO_4,-,motes=16;speed=100;size=16
