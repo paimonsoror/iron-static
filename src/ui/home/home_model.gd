@@ -86,14 +86,12 @@ static func build(
 	return m
 
 
-## The Home best line of one mode (M4-09): TIMED "BEST  W14" (as before), other modes "BEST PURGE 31",
+## The Home best line of one mode (M4-09): every mode "BEST {name} {n}" ("BEST TIMED 14", "BEST PURGE 31"),
 ## "NO DEPLOYMENT YET" when that mode was never played.
 static func best_line(profile: PlayerProfile, mode_id: String) -> String:
 	var best: int = profile.best_wave_of_mode(mode_id, 1)
 	if best <= 0:
 		return Strings.get_text("home.best_none")
-	if mode_id == SimConfig.MODE_TIMED:
-		return Strings.fill1("home.best", "n", str(best))
 	var name_key: String = "mode." + mode_id
 	return Strings.fill("home.best_mode", {"name": Strings.get_text(name_key), "n": str(best)})
 

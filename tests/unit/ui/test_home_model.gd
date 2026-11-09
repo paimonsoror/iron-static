@@ -23,7 +23,7 @@ func test_best_zero_uses_the_none_text() -> void:
 func test_best_14_text_and_texts_have_no_missing_keys() -> void:
 	var before: int = Strings.missing_count
 	var m: HomeModel = _model(3, 14, "400")
-	assert_str(m.best_text).is_equal("BEST  W14")
+	assert_str(m.best_text).is_equal("BEST TIMED 14")
 	assert_str(m.sector_text).is_equal("SECTOR 1")
 	assert_str(m.data_text).is_equal("DATA 400")
 	assert_str(m.frame_text).is_equal("FRAME VANGUARD")
@@ -109,7 +109,7 @@ func test_locked_last_mode_is_never_preselected_and_chip_follows_the_flag() -> v
 func test_best_line_per_mode() -> void:
 	var p: PlayerProfile = PlayerProfile.fresh(0, "t")
 	p.best_wave["1"] = 14
-	assert_str(HomeModel.best_line(p, "timed")).is_equal("BEST  W14")
+	assert_str(HomeModel.best_line(p, "timed")).is_equal("BEST TIMED 14")
 	assert_str(HomeModel.best_line(p, "purge")).is_equal(Strings.get_text("home.best_none"))
 	@warning_ignore("return_value_discarded")
 	p.unlock_mode("purge")
