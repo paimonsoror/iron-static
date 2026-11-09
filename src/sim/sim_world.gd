@@ -226,6 +226,23 @@ func waves_until_boss() -> int:
 	return interval - wave % interval
 
 
+## Waves from the current wave to the end of the next draft wave (0 = the end of this wave opens one); -1 when the
+## config has no patches or no draft is ever due. Read-only (M4-19).
+func waves_until_draft() -> int:
+	if config.patches.is_empty():
+		return -1
+	return DraftSystem.waves_until(config.tuning, wave)
+
+
+## Living enemies marked stale (they passed the third wave end after spawning and pay half). Read-only (M4-19).
+func stale_count() -> int:
+	var n: int = 0
+	for i: int in enemies.high_water:
+		if enemies.alive[i] != 0 and enemies.stale[i] != 0:
+			n += 1
+	return n
+
+
 func alive_boss_count() -> int:
 	var n: int = 0
 	for t: int in config.enemies.size():

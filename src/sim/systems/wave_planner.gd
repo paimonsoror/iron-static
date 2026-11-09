@@ -35,7 +35,7 @@ static func build(world: SimWorld) -> int:
 	var wave: int = plan.wave
 	plan.count = plan.carried  # carried-over entries (if any) lead the plan
 	plan.cursor = 0
-	var n_total: int = Curves.slots_for_wave(wave, t.n_base, t.n_coef, t.n_exp, t.n_cap)
+	var n_total: int = slots_for_wave(world, wave)
 	var budget: int = n_total
 	var boss_type: int = -1
 	if world.is_boss_wave(wave):
@@ -54,6 +54,31 @@ static func build(world: SimWorld) -> int:
 	var grouped: int = _assign_angles(world)
 	plan.built = true
 	return grouped
+
+
+## Slot budget N(w) of wave `wave` (read-only; `build` uses the same formula).
+static func slots_for_wave(world: SimWorld, wave: int) -> int:
+	var t: SimTuning = world.config.tuning
+	return Curves.slots_for_wave(wave, t.n_base, t.n_coef, t.n_exp, t.n_cap)
+
+
+## Effective spawn weight per enemy type index for `wave` (0 for bosses and types not yet unlocked): the table
+## `_fill_normals` draws from. Read-only; a new array each call.
+static func weights_for_wave(world: SimWorld, wave: int) -> PackedFloat64Array:
+	var t: SimTuning = world.config.tuning
+	var defs: Array[EnemyDef] = world.config.enemies
+	var weights: PackedFloat64Array = PackedFloat64Array()
+	if weights.resize(defs.size()) != OK:
+		push_error("WavePlanner: weights resize failed")
+		return weights
+	for i: int in defs.size():
+		var d: EnemyDef = defs[i]
+		var w: float = 0.0
+		if world.type_is_boss[i] == 0 and d.spawn_weight > 0.0 and d.first_wave <= wave:
+			var ramp: float = float(wave - d.first_wave + 1) / float(maxi(1, t.ramp_waves))
+			w = d.spawn_weight * minf(1.0, ramp)
+		weights[i] = w
+	return weights
 
 
 static func _boss_type(world: SimWorld) -> int:
@@ -75,19 +100,10 @@ static func _fill_normals(world: SimWorld, wave: int, budget: int) -> void:
 	var t: SimTuning = world.config.tuning
 	var rng: Rng = world.rng_spawn
 	var defs: Array[EnemyDef] = world.config.enemies
-	var weights: PackedFloat64Array = PackedFloat64Array()
-	if weights.resize(defs.size()) != OK:
-		push_error("WavePlanner: weights resize failed")
-		return
+	var weights: PackedFloat64Array = weights_for_wave(world, wave)
 	var total_w: float = 0.0
-	for i: int in defs.size():
-		var d: EnemyDef = defs[i]
-		var w: float = 0.0
-		if world.type_is_boss[i] == 0 and d.spawn_weight > 0.0 and d.first_wave <= wave:
-			var ramp: float = float(wave - d.first_wave + 1) / float(maxi(1, t.ramp_waves))
-			w = d.spawn_weight * minf(1.0, ramp)
-		weights[i] = w
-		total_w += w
+	for i: int in weights.size():
+		total_w += weights[i]
 	var skitter: int = _skitter_type(world)
 	var remaining: int = budget
 	var used: int = 0

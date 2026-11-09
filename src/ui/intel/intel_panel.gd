@@ -27,7 +27,7 @@ func _ready() -> void:
 	add_theme_constant_override("separation", 8)
 	_title = Label.new()
 	_title.theme_type_variation = ThemeBuilder.VAR_LABEL_HEADING
-	_title.text = Strings.get_text("intel.stats.title")
+	_title.text = Strings.get_text(_title_key())
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title.add_theme_color_override("font_color", Palette.AMBER)
 	add_child(_title)
@@ -49,7 +49,7 @@ func bind(world: SimWorld) -> void:
 func refresh() -> void:
 	if _world == null or not is_visible_in_tree():
 		return
-	var rows: Array[IntelRow] = IntelModel.build(_world)
+	var rows: Array[IntelRow] = _build_rows()
 	while _cards.size() < rows.size():
 		_add_card()
 	for i: int in _cards.size():
@@ -107,3 +107,13 @@ func _add_card() -> void:
 	_names.append(name_label)
 	_values.append(value_label)
 	_chains.append(chain_label)
+
+
+## Subclass hook: string key of the heading.
+func _title_key() -> String:
+	return "intel.stats.title"
+
+
+## Subclass hook: the rows to show for the bound world.
+func _build_rows() -> Array[IntelRow]:
+	return IntelModel.build(_world)

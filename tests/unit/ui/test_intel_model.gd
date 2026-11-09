@@ -100,16 +100,13 @@ func test_intel_tab_hosts_the_stats_panel() -> void:
 	var w: SimWorld = _world()
 	panel.bind(w)
 	assert_bool(panel.set_tab("intel")).is_true()
-	var intel: IntelPanel = null
-	for n: Node in panel.find_children("*", "VBoxContainer", true, false):
-		if n is IntelPanel:
-			intel = n
+	var intel: IntelPanel = panel.intel_panel()
 	assert_object(intel).is_not_null()
-	assert_bool(intel.visible).is_true()
+	assert_bool(intel.is_visible_in_tree()).is_true()
 	assert_int(intel.card_count()).is_greater(5)
 	assert_str(intel.card_texts(0)[0]).is_equal("LASER OUTPUT")
 	assert_bool(panel.set_tab("arms")).is_true()
-	assert_bool(intel.visible).is_false()
+	assert_bool(intel.is_visible_in_tree()).is_false()
 
 
 func test_stub_key_is_unused_in_code() -> void:
