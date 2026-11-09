@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="VisualTierDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/visual_tier_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "laser_2"
+upgrade = "laser_output"
+tier = 2
+mark = "MK II"
+threshold_kind = "level"
+threshold = 5
+label_key = "vt.mark.2"
+banner_key = "vt.banner.laser"
+art_slot = "-"
+params = "glow=54;core=13;hot=5;flare=70;ring=0;whiten=0.35;rim=0.0;ripple=0;muzzle=1.15"

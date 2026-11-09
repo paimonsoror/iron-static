@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="VisualTierDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/visual_tier_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "nano_2"
+upgrade = "nano_repair"
+tier = 2
+mark = "MK II"
+threshold_kind = "level"
+threshold = 5
+label_key = "vt.mark.2"
+banner_key = "vt.banner.nano"
+art_slot = "-"
+params = "motes=5;speed=70;size=14"

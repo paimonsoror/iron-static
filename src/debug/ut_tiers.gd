@@ -1,32 +1,18 @@
 class_name UtTiers
 extends RefCounted
-## Reader of the PROPOSED visual tier table (docs/design/12_upgrade_visual_tiers.md s6) for the style-frame harness.
-## Debug only. Rows are `{id, upgrade, tier, mark, kind, threshold, banner, params: Dictionary}`.
-
-const PATH: String = "res://docs/design/style/upgrade_tiers/visual_tiers.proposed.csv"
+## Reader of the visual tier table for the style-frame harness (debug only; was a reader of the proposed CSV, now
+## the real generated `VisualTierTable`, VT-1). Rows are `{id, upgrade, tier, mark, kind, threshold, banner,
+## params: Dictionary}`; the API of the old reader is kept.
 
 var rows: Array[Dictionary] = []
 
 
 static func load_default() -> UtTiers:
 	var t := UtTiers.new()
-	var f: FileAccess = FileAccess.open(PATH, FileAccess.READ)
-	if f == null:
-		push_error("visual tiers csv missing: " + PATH)
-		return t
-	var header_seen: bool = false
-	while not f.eof_reached():
-		var line: String = f.get_line().strip_edges()
-		if line.is_empty() or line.begins_with("#"):
-			continue
-		if not header_seen:
-			header_seen = true
-			continue
-		var c: PackedStringArray = line.split(",")
-		if c.size() < 10:
-			continue
+	var table: VisualTierTable = load(VisualTierModel.TABLE_PATH)
+	for d: VisualTierDef in table.defs:
 		var p: Dictionary = {}
-		for kv: String in c[9].split(";"):
+		for kv: String in d.params.split(";", false):
 			var pair: PackedStringArray = kv.split("=")
 			if pair.size() == 2:
 				p[pair[0]] = pair[1].to_float()
@@ -35,13 +21,13 @@ static func load_default() -> UtTiers:
 			. rows
 			. append(
 				{
-					"id": c[0],
-					"upgrade": c[1],
-					"tier": c[2].to_int(),
-					"mark": c[3],
-					"kind": c[4],
-					"threshold": c[5].to_float(),
-					"banner": c[7],
+					"id": d.id,
+					"upgrade": d.upgrade,
+					"tier": d.tier,
+					"mark": d.mark,
+					"kind": d.threshold_kind,
+					"threshold": float(d.threshold),
+					"banner": d.banner_key,
 					"params": p,
 				}
 			)
@@ -66,7 +52,7 @@ func mark(upgrade: String, tier: int) -> String:
 	return ""
 
 
-## Tier (1-based) reached at `value` (a level, or a fraction of the cap for cap_frac rows).
+## Tier (1-based) reached at `value` (a level); 1 when below every threshold.
 func tier_for(upgrade: String, value: float) -> int:
 	var best: int = 1
 	for r: Dictionary in rows:

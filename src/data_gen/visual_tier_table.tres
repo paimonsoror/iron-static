@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="VisualTierTable" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/visual_tier_table.gd" id="1_script"]
+[ext_resource type="Script" path="res://src/data_defs/visual_tier_def.gd" id="2_item"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_laser_1.tres" id="item_0"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_laser_2.tres" id="item_1"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_laser_3.tres" id="item_2"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_laser_4.tres" id="item_3"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_hull_1.tres" id="item_4"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_hull_2.tres" id="item_5"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_hull_3.tres" id="item_6"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_hull_4.tres" id="item_7"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_plating_1.tres" id="item_8"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_plating_2.tres" id="item_9"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_plating_3.tres" id="item_10"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_plating_4.tres" id="item_11"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_nano_1.tres" id="item_12"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_nano_2.tres" id="item_13"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_nano_3.tres" id="item_14"]
+[ext_resource type="Resource" path="res://src/data_gen/visual_tier_nano_4.tres" id="item_15"]
+
+[resource]
+script = ExtResource("1_script")
+defs = Array[ExtResource("2_item")]([ExtResource("item_0"), ExtResource("item_1"), ExtResource("item_2"), ExtResource("item_3"), ExtResource("item_4"), ExtResource("item_5"), ExtResource("item_6"), ExtResource("item_7"), ExtResource("item_8"), ExtResource("item_9"), ExtResource("item_10"), ExtResource("item_11"), ExtResource("item_12"), ExtResource("item_13"), ExtResource("item_14"), ExtResource("item_15")])

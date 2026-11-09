@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="VisualTierDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/visual_tier_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "plating_1"
+upgrade = "plating_pct"
+tier = 1
+mark = "PLATED I"
+threshold_kind = "level"
+threshold = 3
+label_key = "vt.plated.1"
+banner_key = ""
+art_slot = "-"
+params = "deflect=1;spark_scale=0.8"
