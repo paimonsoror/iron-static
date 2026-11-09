@@ -253,3 +253,60 @@ func test_accessibility_rows_apply_and_persist() -> void:
 	for b: Button in (s.choices["colorblind"] as SettingsChoice).buttons:
 		assert_float(b.custom_minimum_size.y).is_greater_equal(148.0)
 	Game.haptics.enabled = old_haptics
+
+
+func test_about_version_label_equals_the_single_source() -> void:
+	var s: SettingsScreen = _screen()
+	var v: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://release/version.json"))
+	var major: int = v["major"]
+	var minor: int = v["minor"]
+	var patch: int = v["patch"]
+	var build: int = v["build"]
+	var code: int = major * 1000000 + minor * 10000 + patch * 100 + build
+	assert_str(s.version_label.text).is_equal("VERSION %s (%d)" % [Game.VERSION, code])
+	assert_str(VersionInfo.text()).is_equal("%s (%d)" % [Game.VERSION, code])
+
+
+func test_feedback_button_hidden_when_url_empty_and_shown_when_set() -> void:
+	var s: SettingsScreen = _screen()
+	assert_bool(s.feedback_button.visible).is_equal(FeedbackLink.is_set(FeedbackLink.URL))
+	s.set_feedback_url("")
+	assert_bool(s.feedback_button.visible).is_false()
+	assert_bool(s.feedback_hint.visible).is_false()
+	s.set_feedback_url("https://example.invalid/feedback/")
+	assert_bool(s.feedback_button.visible).is_true()
+	assert_bool(s.feedback_hint.visible).is_true()
+	assert_float(s.feedback_button.custom_minimum_size.y).is_greater_equal(148.0)
+
+
+func test_feedback_button_opens_the_exact_url_through_the_injected_opener() -> void:
+	var s: SettingsScreen = _screen()
+	var opened: Array[String] = []
+	s.feedback_opener = func(url: String) -> void: opened.append(url)
+	s.set_feedback_url("https://example.invalid/feedback/")
+	s.feedback_button.pressed.emit()
+	assert_array(opened).is_equal(["https://example.invalid/feedback/"])
+	s.set_feedback_url("")
+	s.feedback_button.pressed.emit()
+	assert_int(opened.size()).is_equal(1)
+
+
+func test_feedback_link_constant_is_the_codex_page() -> void:
+	assert_str(FeedbackLink.URL).is_equal("https://paimonsoror.github.io/iron-static/feedback/")
+	assert_bool(FeedbackLink.open("")).is_false()
+
+
+func test_choice_option_texts_are_not_clipped_at_1080x2400() -> void:
+	var s: SettingsScreen = _screen()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	for key: String in s.choices:
+		for b: Button in (s.choices[key] as SettingsChoice).buttons:
+			var px: int = b.get_theme_font_size("font_size")
+			assert_int(px).is_greater_equal(SettingsChoice.MIN_FONT_PX)
+			var w: float = b.get_theme_font("font").get_string_size(b.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x
+			var room: float = b.size.x - b.get_theme_stylebox("normal").get_minimum_size().x
+			assert_float(w).override_failure_message("%s '%s' needs %f has %f" % [key, b.text, w, room]).is_less_equal(
+				room
+			)
+			assert_float(b.custom_minimum_size.y).is_greater_equal(148.0)
