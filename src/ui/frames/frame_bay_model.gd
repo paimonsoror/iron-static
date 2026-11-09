@@ -9,6 +9,15 @@ enum Action { LOCKED, SELECT, CONFIRM }
 
 ## A bar is full at this percent change.
 const BAR_FULL_PCT: float = 100.0
+## Label key per FrameCard.STAT_KEYS entry (full literal keys so the string-key scan can verify them).
+const STAT_LABEL_KEYS: Dictionary = {
+	"hull": "frame.stat.hull",
+	"rate": "frame.stat.rate",
+	"damage": "frame.stat.damage",
+	"range": "frame.stat.range",
+	"crit": "frame.stat.crit",
+	"repair": "frame.stat.repair",
+}
 
 
 ## Signed whole percent: "+60%", "-25%", "0%" (ASCII minus).
@@ -32,7 +41,7 @@ static func bar_fraction(pct: float) -> float:
 
 
 static func stat_label(key: String) -> String:
-	return Strings.get_text("frame.stat." + key)
+	return Strings.get_text(str(STAT_LABEL_KEYS.get(key, "")))
 
 
 ## "HULL +60%".
