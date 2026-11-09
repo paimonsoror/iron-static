@@ -46,6 +46,7 @@ var _down_y: float = 0.0
 var _hazard: Panel = null
 var _scrap_icon: Texture2D = null
 var _tip: RowTooltip = RowTooltip.new()
+var _tier_mark: RowTierMark = RowTierMark.new()
 
 @onready var _icon: TextureRect = %Icon
 @onready var _name_label: Label = %NameLabel
@@ -53,6 +54,11 @@ var _tip: RowTooltip = RowTooltip.new()
 @onready var _value_label: Label = %ValueLabel
 @onready var _buy_button: Button = %BuyButton
 @onready var _fx: RowFx = %Fx
+## VT-6 nodes exist in upgrade_row.tscn only (the Foundry row scene reuses this script without them).
+@onready var _tier_line: HBoxContainer = get_node_or_null("%TierLine")
+@onready var _mark_label: Label = get_node_or_null("%MarkLabel")
+@onready var _next_label: Label = get_node_or_null("%NextLabel")
+@onready var _tier_bar: ProgressBar = get_node_or_null("%TierBar")
 
 
 func _ready() -> void:
@@ -60,6 +66,8 @@ func _ready() -> void:
 	add_theme_stylebox_override("panel", UiKit.inset(16, 8))
 	_style_labels()
 	_style_cost_button()
+	if _tier_line != null:
+		_tier_mark.setup(_tier_line, _mark_label, _next_label, _tier_bar)
 	_tip.setup(self)
 	_fx.button = _buy_button
 	_buy_button.button_down.connect(_on_button_down)
@@ -95,6 +103,8 @@ func apply(model: UpgradeRowModel) -> void:
 		_cost = model.cost_text
 		_buy_button.text = _cost
 	_tip.set_text(model.tooltip_text)
+	if _tier_line != null:
+		_tier_mark.apply(model)
 	var state: int = (
 		CostState.MAXED if model.maxed else (CostState.AFFORDABLE if model.affordable else CostState.LOCKED)
 	)
@@ -115,6 +125,11 @@ func upgrade_index() -> int:
 
 func is_tooltip_visible() -> bool:
 	return _tip.visible
+
+
+## The VT-6 tier readout (tests).
+func tier_mark() -> RowTierMark:
+	return _tier_mark
 
 
 func cost_state() -> int:

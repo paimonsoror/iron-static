@@ -55,6 +55,38 @@ mouse_filter = 2
 theme_type_variation = &"LabelNumber"
 clip_text = true
 
+[node name="TierLine" type="HBoxContainer" parent="Content/Info"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="MarkLabel" type="Label" parent="Content/Info/TierLine"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+
+[node name="NextLabel" type="Label" parent="Content/Info/TierLine"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+clip_text = true
+
+[node name="TierBar" type="ProgressBar" parent="Content/Info"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+mouse_filter = 2
+max_value = 1.0
+step = 0.001
+show_percentage = false
+
 [node name="BuyButton" type="Button" parent="Content"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(316, 148)
