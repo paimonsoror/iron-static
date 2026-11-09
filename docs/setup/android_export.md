@@ -67,3 +67,23 @@ py -3.12 -I -c "import zipfile; z = zipfile.ZipFile(r'C:\dev\tower\build\com.iro
 ```
 
 Expect `assets/src/data_gen/*.tres` (and `.gdc` scripts) and no `data/*.csv`.
+
+## Release AAB (B1-01, B1-02, B1-03)
+
+Second preset `IronStaticBeta` (preset.1): Android App Bundle (`gradle_build/export_format=1`), Gradle build, arm64-v8a + x86_64, `target_sdk=36`, `min_sdk=24`, `package/signed=true`, not runnable, export path `build/release/ironstatic-beta.aab`. No keystore path or password is stored in the preset. The debug preset `IronStatic` is unchanged (target SDK left at Godot's default), so `tools\deploy_android.ps1 -Preset IronStatic` keeps working.
+
+Build: `.\tools\release_build.ps1` (clean git tree required; `-RunTests`, `-AllowDirty`, `-TestKey`). Steps: check tree, load signing, `release_version.ps1 -Apply` (version from `release/version.json`, see `docs/release/versioning.md`), template check, import, `--export-release IronStaticBeta`, verify a fresh AAB exists, reject debug-signed output, copy to `build/release/ironstatic-<versionName>-<versionCode>.aab` plus `.sha256` and a `.txt` with size, top files and signer SHA-1/SHA-256.
+
+Signing fields in `secrets.local.json` (gitignored; template `secrets.local.json.example`):
+
+| Field | Meaning |
+|---|---|
+| `android_release_keystore_path` | absolute path of the upload keystore, OUTSIDE the repo (the script refuses a path inside it) |
+| `android_release_keystore_user` | key alias |
+| `android_release_keystore_password` | keystore password; the key password must be equal (Godot uses one) |
+
+The script exports them as `GODOT_ANDROID_KEYSTORE_RELEASE_PATH/_USER/_PASSWORD` for the Godot child process only and never prints the password.
+
+`-TestKey` generates a throwaway keystore in `build/testkey/` (`NOT-FOR-UPLOAD-test.keystore`) and names the output `...-TESTKEY.aab` with a red warning. Such a bundle is only for local checks (`aab_check.ps1`); never upload it.
+
+Check the bundle: `.\tools\aab_check.ps1 build\release\<file>.aab` (manifest, 16 KB page alignment, size; exit 0 PASS / 1 FAIL / 2 error). Result record: `docs/release/aab_audit.md`.
