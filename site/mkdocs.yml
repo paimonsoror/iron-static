@@ -74,6 +74,7 @@ nav:
       - Controls: systems/controls.md
       - Look and sound: systems/audio-visual.md
       - Glossary: systems/glossary.md
+  - Send feedback: feedback.md
   - FAQ: faq.md
   - Development status: status.md
   - Under the hood:

@@ -21,6 +21,12 @@ var toggles: Dictionary[String, SettingsToggle] = {}
 var choices: Dictionary[String, SettingsChoice] = {}
 var back_button: Button
 var version_label: Label
+var about_heading: Label
+var feedback_button: Button
+var feedback_hint: Label
+## B1-08: the URL the SEND FEEDBACK button opens (empty hides the button) and how it is opened (tests inject).
+var feedback_url: String = FeedbackLink.URL
+var feedback_opener: Callable = Callable()
 var reset_button: Button
 var example_label: Label
 var _value_labels: Dictionary[String, Label] = {}
@@ -48,9 +54,16 @@ func _build() -> void:
 	list.add_child(label("settings.data", &"LabelHeading", Palette.AMBER, 64))
 	reset_button = make_button("settings.reset", _on_reset_pressed)
 	list.add_child(reset_button)
+	about_heading = label("settings.about", &"LabelHeading", Palette.AMBER, 64)
+	list.add_child(about_heading)
 	version_label = label("", &"LabelDim", Palette.TEXT_DIM, NOTE_PX)
-	version_label.text = Strings.fill1("settings.version", "v", Game.VERSION)
+	version_label.text = Strings.fill1("settings.version", "v", VersionInfo.text())
 	list.add_child(version_label)
+	feedback_button = make_button("settings.feedback", _on_feedback_pressed)
+	list.add_child(feedback_button)
+	feedback_hint = label("settings.feedback_hint", &"LabelDim", Palette.TEXT_DIM, NOTE_PX)
+	list.add_child(feedback_hint)
+	set_feedback_url(feedback_url)
 	back_button = make_button("settings.back", _on_back)
 	content.add_child(back_button)
 	_dialog = ConfirmDialog.new()
@@ -104,6 +117,20 @@ func dialog() -> ConfirmDialog:
 
 func reset_step() -> int:
 	return _reset_step
+
+
+## Shows the SEND FEEDBACK button and its hint only when `url` is set.
+func set_feedback_url(url: String) -> void:
+	feedback_url = url
+	var on: bool = FeedbackLink.is_set(url)
+	feedback_button.visible = on
+	feedback_hint.visible = on
+
+
+func _on_feedback_pressed() -> void:
+	AudioHooks.tap()
+	@warning_ignore("return_value_discarded")
+	FeedbackLink.open(feedback_url, feedback_opener)
 
 
 func _on_reset_pressed() -> void:

@@ -2,7 +2,7 @@
 
 ## Settings
 
-<span class="badge live">Implemented</span> The **Settings screen**, reachable from the title and from Home, with version number at the bottom. Haptics, colorblind mode and high contrast are the newest rows.
+<span class="badge live">Implemented</span> The **Settings screen**, reachable from the title and from Home, with an About section at the bottom (version name and build code, and a SEND FEEDBACK button that opens the [feedback page](../feedback.md)). Haptics, colorblind mode and high contrast are the newest rows.
 
 | Setting | Options | Default | Status |
 |---|---|---|---|
