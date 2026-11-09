@@ -33,7 +33,7 @@ var _defs: Array[RunUpgradeDef] = []
 var _rows: Array[UpgradeRow] = []
 var _hint: String = ""
 var _tab_buttons: Dictionary[String, Button] = {}
-var _intel: IntelPanel = IntelPanel.new()
+var _intel: IntelHub = IntelHub.new()
 
 @onready var _tab_bar: HBoxContainer = %TabBar
 @onready var _column: VBoxContainer = %Column
@@ -74,6 +74,11 @@ func bind(world: SimWorld) -> void:
 
 ## The INTEL tab content (tests, layout checks).
 func intel_panel() -> IntelPanel:
+	return _intel.stats_panel()
+
+
+## The INTEL tab hub with its STATS / WAVE sub-tabs (tests, layout checks).
+func intel_hub() -> IntelHub:
 	return _intel
 
 

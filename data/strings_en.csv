@@ -248,3 +248,23 @@ settings.cb.deuteranopia,DEUTERANOPIA
 settings.cb.protanopia,PROTANOPIA
 settings.cb.tritanopia,TRITANOPIA
 hud.boss_incoming,BOSS INCOMING
+intel.wave.title,WAVE INTEL
+intel.wave.wave,CURRENT WAVE
+intel.wave.time_left,TIME LEFT
+intel.wave.chain_timed,LEFTOVERS CARRY OVER
+intel.wave.quota,QUOTA
+intel.wave.chain_backstop,BACKSTOP IN {n}s
+intel.wave.boss,NEXT BOSS
+intel.wave.chain_boss,EVERY {n} WAVES
+intel.wave.draft,NEXT DRAFT
+intel.wave.chain_draft,AT THE END OF WAVE {n}
+intel.wave.now,NOW
+intel.wave.in_one,IN 1 WAVE
+intel.wave.in_many,IN {n} WAVES
+intel.wave.slots,ENEMY SLOTS
+intel.wave.chain_slots,NEXT WAVE {n}
+intel.wave.chain_boss_slots,{n} FOR NORMALS AND ONE BOSS
+intel.wave.stale,STALE ENEMIES
+intel.wave.chain_stale,PAY {v} OF NORMAL
+intel.wave.chain_type,HP {hp}  ATK {atk}  SPD {spd} m/s  SLOTS {slots}
+intel.wave.boss_tag,BOSS
