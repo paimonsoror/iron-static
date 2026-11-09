@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="FtueTable" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/ftue_table.gd" id="1_script"]
+[ext_resource type="Script" path="res://src/data_defs/ftue_beat_def.gd" id="2_item"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_cold_open.tres" id="item_0"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_upgrade_laser.tres" id="item_1"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_first_kill.tres" id="item_2"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_upgrade_rate.tres" id="item_3"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_dart_label.tres" id="item_4"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_upgrade_hull.tres" id="item_5"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_hold_hint.tres" id="item_6"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_draft_note.tres" id="item_7"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_death_note.tres" id="item_8"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_results_foundry.tres" id="item_9"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_foundry_hold.tres" id="item_10"]
+[ext_resource type="Resource" path="res://src/data_gen/ftue_run2_note.tres" id="item_11"]
+
+[resource]
+script = ExtResource("1_script")
+defs = Array[ExtResource("2_item")]([ExtResource("item_0"), ExtResource("item_1"), ExtResource("item_2"), ExtResource("item_3"), ExtResource("item_4"), ExtResource("item_5"), ExtResource("item_6"), ExtResource("item_7"), ExtResource("item_8"), ExtResource("item_9"), ExtResource("item_10"), ExtResource("item_11")])

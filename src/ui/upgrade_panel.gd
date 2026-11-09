@@ -127,6 +127,34 @@ func row_at(index: int) -> UpgradeRow:
 	return _rows[index]
 
 
+## Global rect of the on-screen row of upgrade `upgrade_id` (FTUE pointer, M4-26); Rect2() when the id is unknown,
+## the row is hidden (other tab, locked) or scrolled out of the list.
+func row_rect(upgrade_id: String) -> Rect2:
+	for i: int in _defs.size():
+		if _defs[i].id != upgrade_id or i >= _rows.size():
+			continue
+		var row: UpgradeRow = _rows[i]
+		if not row.is_visible_in_tree():
+			return Rect2()
+		var r: Rect2 = row.get_global_rect()
+		return r if r.intersects(_scroll.get_global_rect()) else Rect2()
+	return Rect2()
+
+
+## Global rect of the tab button that holds upgrade `upgrade_id` (Rect2() for an unknown id).
+func tab_rect(upgrade_id: String) -> Rect2:
+	for def: RunUpgradeDef in _defs:
+		if def.id == upgrade_id and _tab_buttons.has(def.tab):
+			return _tab_buttons[def.tab].get_global_rect()
+	return Rect2()
+
+
+## What the FTUE pointer aims at for upgrade `upgrade_id`: its row, or its tab while another tab is selected.
+func pointer_rect(upgrade_id: String) -> Rect2:
+	var r: Rect2 = row_rect(upgrade_id)
+	return r if r.size != Vector2.ZERO else tab_rect(upgrade_id)
+
+
 ## Re-reads the world and updates the active tab. Called by the timer; safe to call directly.
 func refresh() -> void:
 	if _world == null or _rows.size() != _world.config.upgrades.size():

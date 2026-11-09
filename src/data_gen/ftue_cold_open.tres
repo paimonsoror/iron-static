@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="FtueBeatDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/ftue_beat_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "cold_open"
+trigger = "cold_open"
+target = "cold_open"
+text_key = "ftue.cold.1"
+max_runs = 1

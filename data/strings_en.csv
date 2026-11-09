@@ -286,3 +286,13 @@ vt.sub.plating,DEFLECTION TIER UP
 vt.sub.nano,REPAIR TIER UP
 vt.next,NEXT LOOK AT L{n}
 vt.top,TOP MARK
+ftue.cold.1,RELAY 06 ONLINE
+ftue.cold.2,HOSTILE SWARM DETECTED
+ftue.cold.3,HOLD THE RELAY
+ftue.cold.skip,TAP TO SKIP
+ftue.upgrade,UPGRADE
+ftue.dart,DART - FAST
+ftue.hold,HOLD TO BUY SEVERAL
+ftue.foundry,FOUNDRY - UPGRADES STAY
+ftue.run2,FOUNDRY LEVELS CARRY OVER
+ftue.skip,SKIP HINTS

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="FtueBeatDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/ftue_beat_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "upgrade_laser"
+trigger = "run1_start"
+target = "row:laser_output"
+text_key = "ftue.upgrade"
+max_runs = 1

@@ -95,14 +95,14 @@ func test_played_profile_shows_continue_and_continue_goes_home() -> void:
 	assert_int(r.current_screen()).is_equal(AppFlow.Screen.HOME)
 
 
-func test_new_game_without_progress_goes_to_the_bay_then_home_then_deploys_vanguard() -> void:
+func test_new_game_without_progress_goes_to_the_bay_then_the_cold_open_then_run_1_with_vanguard() -> void:
 	var r: ScreenRouter = _booted()
 	_title(r).new_game_pressed.emit()
 	assert_bool(r.dialog().is_open()).is_false()
 	assert_int(r.current_screen()).is_equal(AppFlow.Screen.FRAME_BAY)
 	(r.active_screen() as FrameBay).confirmed.emit()
-	assert_int(r.current_screen()).is_equal(AppFlow.Screen.HOME)
-	(r.active_screen() as HomeScreen).deploy_pressed.emit()
+	assert_int(r.current_screen()).is_equal(AppFlow.Screen.COLD_OPEN)  # M4-26: a fresh profile sees the cold open
+	(r.active_screen() as ColdOpen).skip()
 	assert_int(r.current_screen()).is_equal(AppFlow.Screen.BATTLE)
 	assert_str(Game.controller.world.config.frame_id).is_equal("vanguard")
 
@@ -137,7 +137,7 @@ func test_new_game_confirm_yes_resets_keeps_settings_and_opens_the_bay() -> void
 	assert_bool(p.settings["muted"]).is_true()
 	assert_bool(_fs.exists("profile.sav")).is_true()  # the fresh profile (with the settings) is saved at once
 	(r.active_screen() as FrameBay).confirmed.emit()
-	assert_int(r.current_screen()).is_equal(AppFlow.Screen.HOME)
+	assert_int(r.current_screen()).is_equal(AppFlow.Screen.COLD_OPEN)  # NEW GAME resets the FTUE too
 
 
 func test_back_on_the_title_asks_quit_and_a_second_back_closes_it() -> void:
