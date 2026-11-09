@@ -22,6 +22,7 @@ var reduce_motion: bool = false:
 var _target: Rect2 = Rect2()
 var _has_target: bool = false
 var _from_above: bool = true
+var _tip_x: float = NAN
 var _t: float = 0.0
 
 
@@ -45,10 +46,12 @@ static func outline_alpha(t: float, reduced: bool) -> float:
 	return 0.775 + 0.225 * sin(TAU * PULSE_HZ * t)
 
 
-## Points at `rect` (this control's coordinates); `from_above` puts the arrow above the rect pointing down.
-func point_at(rect: Rect2, from_above: bool) -> void:
+## Points at `rect` (this control's coordinates); `from_above` puts the arrow above the rect pointing down. `tip_x`
+## (NAN = the rect's center) moves the arrow along the rect to a blank spot so it covers no text (M4-27).
+func point_at(rect: Rect2, from_above: bool, tip_x: float = NAN) -> void:
 	_target = rect
 	_from_above = from_above
+	_tip_x = tip_x
 	_has_target = true
 	_sync_processing()
 	queue_redraw()
@@ -85,7 +88,7 @@ func _draw() -> void:
 	var edge: Color = Color(col, outline_alpha(_t, red))
 	draw_rect(_target.grow(PAD), edge, false, OUTLINE_W)
 	var bob: float = bob_offset(_t, red)
-	var cx: float = _target.get_center().x
+	var cx: float = _target.get_center().x if is_nan(_tip_x) else _tip_x
 	var tip_y: float
 	var base_y: float
 	if _from_above:

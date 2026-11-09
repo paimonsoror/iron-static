@@ -26,7 +26,7 @@ func test_laser_f0_to_f1_texts() -> void:
 	assert_str(m.value_text).is_equal("x1.00 -> x1.06")
 	assert_bool(m.delta_text.begins_with("+")).is_true()
 	assert_str(m.cost_text).is_equal("20")
-	assert_str(m.milestone_text).is_equal("NEXT MILESTONE F10  x1.25")
+	assert_str(m.milestone_text).is_equal("MILESTONE F10  x1.25")
 	assert_bool(m.affordable).is_false()
 	assert_str(m.value_line()).is_equal(m.value_text + "  " + m.delta_text)
 

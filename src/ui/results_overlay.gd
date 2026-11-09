@@ -98,6 +98,11 @@ func foundry_rect() -> Rect2:
 	return _foundry_button.get_global_rect() if _foundry_button.is_visible_in_tree() else Rect2()
 
 
+## Global rect of the result card (the FTUE plate goes below it); Rect2() while hidden.
+func card_rect() -> Rect2:
+	return _card.get_global_rect() if _card.is_visible_in_tree() else Rect2()
+
+
 func is_settled() -> bool:
 	return _settled
 

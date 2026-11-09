@@ -47,7 +47,7 @@ func test_panel_scene_loads_filters_rows_and_shows_hint() -> void:
 		if panel.row_at(i).visible:
 			visible_rows.append(i)
 	assert_array(visible_rows).is_equal([0, 1])
-	assert_str((panel.get_node("%HintLabel") as Label).text).is_equal("Next unlock at wave 3")
+	assert_str((panel.get_node("%HintLabel") as Label).text).is_equal("Next unlock at best wave 3")
 	assert_bool((panel.get_node("%HintLabel") as Label).visible).is_true()
 	panel.set_tab("chassis")
 	assert_bool(panel.row_at(5).visible).is_true()

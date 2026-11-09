@@ -10,7 +10,13 @@ const PLATE_SIZE: Vector2 = Vector2(640.0, 150.0)
 const SLIDE_PX: float = 44.0
 const LINE_H: float = 4.0
 const BRACKET: Vector2 = Vector2(10.0, 120.0)
-const TOP_FRAC: float = 0.17  # plate top as a fraction of the field height below the HUD bar
+const TOP_GAP: float = 24.0  # plate top below the HUD bar (the field top), M4-27 F8
+const WAVE_GAP: float = 20.0  # gap under a wave or boss banner that is up at the same time
+## Priority with the wave banner (M4-27 F8): both may be up at once. The tier-up banner sits directly under the HUD bar
+## and drops below the wave banner's plate while one is up, so neither hides the other.
+
+## Returns the global y of the bottom of the wave banner plate while it is up, else 0 (set by the host).
+var avoid_bottom: Callable = Callable()
 
 var _plate: Control = null
 var _title: Label = null
@@ -23,6 +29,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_build()
 	visible = false
+	set_process(false)
 
 
 ## The open field in viewport px (below the HUD bar, above the panel); the plate sits near its top, above Cinder.
@@ -44,6 +51,7 @@ func play(title: String, sub: String, tier: int, flat: bool) -> void:
 	_sub.text = sub
 	_place()
 	visible = true
+	set_process(true)
 	_plate.modulate.a = 1.0 if flat else 0.0
 	_plate.position.y = 0.0 if flat else -SLIDE_PX
 	_tween = create_tween()
@@ -82,13 +90,31 @@ func cancel() -> void:
 
 func _finish() -> void:
 	visible = false
+	set_process(false)
+
+
+func _process(_delta: float) -> void:  # gdlint: ignore=unused-argument
+	# A wave banner that starts while this one is up pushes it down (never back up mid-banner).
+	var y: float = top_y(_field, _avoid())
+	if y > position.y:
+		position.y = y
+
+
+## Top of the plate: just under the HUD bar (field top), or under a wave banner whose plate ends at `avoid_y`.
+static func top_y(field: Rect2, avoid_y: float) -> float:
+	var y: float = field.position.y + TOP_GAP
+	if avoid_y > 0.0:
+		y = maxf(y, avoid_y + WAVE_GAP)
+	return y
+
+
+func _avoid() -> float:
+	return avoid_bottom.call() if avoid_bottom.is_valid() else 0.0
 
 
 func _place() -> void:
 	size = PLATE_SIZE
-	position = Vector2(
-		_field.position.x + (_field.size.x - PLATE_SIZE.x) * 0.5, _field.position.y + _field.size.y * TOP_FRAC
-	)
+	position = Vector2(_field.position.x + (_field.size.x - PLATE_SIZE.x) * 0.5, top_y(_field, _avoid()))
 
 
 func _build() -> void:

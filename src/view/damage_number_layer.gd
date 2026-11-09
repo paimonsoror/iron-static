@@ -10,6 +10,11 @@ extends Node2D
 
 const FONT_PATH: String = "res://assets/fonts/ShareTechMono-Regular.ttf"
 const SHADOW_PX: float = 1.5
+## Dark outline width in px at 1080 wide (M4-27 F6): every number gets one so it reads on bright flashes; Cinder's red
+## numbers sit on the hit flash and get the heavy one.
+const OUTLINE_PX: int = 4
+const OUTLINE_CINDER_PX: int = 9
+const OUTLINE_COLOR: Color = Color(0.02, 0.02, 0.04)
 const FADE_START: float = 0.4  ## fraction of the lifetime after which the alpha ramps to 0
 const PUNCH_S: float = 2.0 / 60.0  ## the 2-frame punch scale-in
 const PUNCH_FROM: float = 0.6
@@ -112,10 +117,18 @@ func _draw_slot(slot: int, reduce: bool, shadow: bool) -> void:
 		var offset := Vector2(SHADOW_PX, SHADOW_PX) * text_scale
 		var shade := Color(0.0, 0.0, 0.0, alpha * 0.8)
 		draw_string(_font, base + offset, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, shade)
+		var line: int = maxi(roundi(float(outline_px(kind)) * text_scale), 1)
+		var edge := Color(OUTLINE_COLOR, alpha * 0.95)
+		draw_string_outline(_font, base, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, line, edge)
 		return
 	var col: Color = DamageNumberModel.color_of(kind)
 	col.a = alpha
 	draw_string(_font, base, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
+
+
+## Outline width in 1080-wide px of a kind (Cinder damage gets the heavy one).
+static func outline_px(kind: int) -> int:
+	return OUTLINE_CINDER_PX if kind == DamageNumberModel.Kind.CINDER else OUTLINE_PX
 
 
 ## Rise in px at lifetime fraction `life`; zero under reduce motion.
