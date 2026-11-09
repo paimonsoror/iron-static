@@ -36,6 +36,7 @@ func _initialize() -> void:
 			quit(2)
 			return
 		print(JSON.stringify(doc, "\t"))
+		print(_mode_summary(doc))
 	else:
 		var info: SnapshotInfo = SimSnapshot.peek(dec.raw)
 		if info == null:
@@ -45,6 +46,21 @@ func _initialize() -> void:
 		print(JSON.stringify(_info_dict(info), "\t"))
 	print("SAVE DUMP OK schema=%d bytes=%d" % [dec.schema, bytes.size()])
 	quit(0)
+
+
+## One line with the wave mode fields of a (v2) profile document; v1 documents print what is there.
+func _mode_summary(doc: Dictionary) -> String:
+	var raw: Variant = doc.get("profile", {})
+	var prof: Dictionary = raw if raw is Dictionary else {}
+	return (
+		"modes: unlocked=%s last=%s best_by_mode=%s best_wave(timed mirror)=%s"
+		% [
+			JSON.stringify(prof.get("modes_unlocked", [])),
+			JSON.stringify(prof.get("last_mode", "")),
+			JSON.stringify(prof.get("best_wave_by_mode", {})),
+			JSON.stringify(prof.get("best_wave", {})),
+		]
+	)
 
 
 func _info_dict(i: SnapshotInfo) -> Dictionary:

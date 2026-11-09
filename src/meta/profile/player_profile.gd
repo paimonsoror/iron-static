@@ -2,7 +2,7 @@ class_name PlayerProfile
 extends RefCounted
 ## Persistent player state and the rules that change it (M3-03). Pure model: no wall time, no RNG, no disk.
 ## Timestamps and the device id come in as arguments. Serialized by `to_dict` / `from_dict` (schema v1 is
-## owned by the save layer; unknown keys survive in `extra`).
+## owned by the save layer, v2 adds the per-mode records; unknown keys survive in `extra`).
 ##
 ## Public API (stable, other tracks build on it):
 ##   static fresh(now_utc, device_id) -> PlayerProfile
@@ -10,7 +10,9 @@ extends RefCounted
 ##   to_dict() -> Dictionary
 ##   begin_run() -> int                           (run id; run_counter + 1)
 ##   bank_run(s: RunSummary) -> bool              (idempotent per run id)
-##   best_wave_s1() -> int, best_wave_of(sector) -> int
+##   best_wave_s1() -> int (TIMED, Q71), best_wave_of(sector) -> int (TIMED)
+##   best_wave_of_mode(mode, sector) -> int, mode_unlocked(id) -> bool, unlock_mode(id) -> bool
+##   select_mode(id) -> bool                      (only an unlocked mode)
 ##   foundry_level(id) -> int, set_foundry_level(id, n)
 ##   is_frame_unlocked(id) -> bool, unlock_frame(id) -> bool, select_frame(id) -> bool
 ##   touch(now_utc)                               (sets last_active_utc)
@@ -20,6 +22,7 @@ const DEFAULT_FRAME: String = "vanguard"
 const FARM_EMA_WEIGHT: float = 0.4
 const TICKS_PER_GAME_MINUTE: float = 1800.0  # 30 Hz * 60 s
 const SECTOR_1: String = "1"
+const MODE_TIMED: String = "timed"
 const KNOWN_KEYS: Array[String] = [
 	"data",
 	"flux",
@@ -27,6 +30,9 @@ const KNOWN_KEYS: Array[String] = [
 	"merit",
 	"foundry",
 	"best_wave",
+	"best_wave_by_mode",
+	"modes_unlocked",
+	"last_mode",
 	"runs_total",
 	"run_counter",
 	"last_banked_run",
@@ -46,8 +52,15 @@ var cipher: int = 0
 var merit: int = 0
 ## Foundry row id -> level; only rows with level > 0 are stored.
 var foundry: Dictionary = {}
-## Sector key ("1") -> best death wave.
+## Sector key ("1") -> best TIMED death wave. Always the same Dictionary as `best_wave_by_mode["timed"]`
+## (aliased), and written to disk as a mirror so a downgrade path stays readable.
 var best_wave: Dictionary = {}
+## Mode id -> {sector key -> best death wave} (schema v2). The "timed" entry is `best_wave`.
+var best_wave_by_mode: Dictionary = {}
+## Unlocked wave mode ids; never empty, always contains "timed".
+var modes_unlocked: Array[String] = [MODE_TIMED]
+## The last chosen mode (preselected on Home, repeated by REDEPLOY); always an unlocked mode.
+var last_mode: String = MODE_TIMED
 var runs_total: int = 0
 var run_counter: int = 0
 var last_banked_run: int = -1
@@ -65,6 +78,10 @@ var created_utc: int = 0
 var extra: Dictionary = {}
 ## Problems found by `from_dict` (empty for a clean read).
 var load_errors: PackedStringArray = PackedStringArray()
+
+
+func _init() -> void:
+	best_wave_by_mode[MODE_TIMED] = best_wave
 
 
 static func fresh(now_utc: int, new_device_id: String) -> PlayerProfile:
@@ -88,10 +105,15 @@ func bank_run(s: RunSummary) -> bool:
 		return false
 	data = data.add(s.data_run)
 	lifetime_data = lifetime_data.add(s.data_run)
+	var mode: String = s.mode if not s.mode.is_empty() else MODE_TIMED
 	if s.sector == 1:
-		best_wave[SECTOR_1] = maxi(best_wave_s1(), s.death_wave)
+		var rec: Dictionary = _mode_record(mode)
+		var old: Variant = rec.get(SECTOR_1, 0)
+		var old_n: int = old if old is int else 0
+		rec[SECTOR_1] = maxi(old_n, s.death_wave)
 	runs_total += 1
-	_update_farm_rate(s)
+	if mode == MODE_TIMED:  # Q70: the offline rate is one number, fed by TIMED runs only
+		_update_farm_rate(s)
 	last_banked_run = s.run_id
 	return true
 
@@ -101,11 +123,50 @@ func best_wave_s1() -> int:
 
 
 func best_wave_of(sector: int) -> int:
-	var v: Variant = best_wave.get(str(sector), 0)
+	return best_wave_of_mode(MODE_TIMED, sector)
+
+
+func best_wave_of_mode(mode: String, sector: int) -> int:
+	var rec: Dictionary = _mode_record(mode, false)
+	var v: Variant = rec.get(str(sector), 0)
 	if v is int:
 		var n: int = v
 		return n
 	return 0
+
+
+func mode_unlocked(id: String) -> bool:
+	return modes_unlocked.has(id)
+
+
+## Adds a mode to the unlocked set. False when it was already unlocked or the id is empty.
+func unlock_mode(id: String) -> bool:
+	if id.is_empty() or modes_unlocked.has(id):
+		return false
+	modes_unlocked.append(id)
+	return true
+
+
+## Remembers the chosen mode (Q75). False (nothing changes) when the mode is not unlocked.
+func select_mode(id: String) -> bool:
+	if not modes_unlocked.has(id):
+		return false
+	last_mode = id
+	return true
+
+
+## The record of one mode; `create` adds it when missing (the timed record is always `best_wave`).
+func _mode_record(mode: String, create: bool = true) -> Dictionary:
+	if mode == MODE_TIMED:
+		return best_wave
+	var v: Variant = best_wave_by_mode.get(mode, null)
+	if v is Dictionary:
+		var rec: Dictionary = v
+		return rec
+	var fresh_rec: Dictionary = {}
+	if create:
+		best_wave_by_mode[mode] = fresh_rec
+	return fresh_rec
 
 
 func foundry_level(id: String) -> int:
@@ -173,6 +234,11 @@ func to_dict() -> Dictionary:
 	d["merit"] = merit
 	d["foundry"] = foundry.duplicate()
 	d["best_wave"] = best_wave.duplicate()
+	var by_mode: Dictionary = best_wave_by_mode.duplicate(true)
+	by_mode[MODE_TIMED] = best_wave.duplicate()
+	d["best_wave_by_mode"] = by_mode
+	d["modes_unlocked"] = modes_unlocked.duplicate()
+	d["last_mode"] = last_mode
 	d["runs_total"] = runs_total
 	d["run_counter"] = run_counter
 	d["last_banked_run"] = last_banked_run
@@ -204,13 +270,69 @@ static func from_dict(d: Dictionary) -> PlayerProfile:
 	p.farm_rate_1x = _read_rate(d, p.load_errors)
 	p.device_id = _read_string(d, "device_id", p.load_errors)
 	p.foundry = _read_level_map(d, "foundry", true, p.load_errors)
-	p.best_wave = _read_level_map(d, "best_wave", false, p.load_errors)
+	p._read_best_waves(d)
 	p.settings = _read_dict(d, "settings", p.load_errors)
 	p._read_frames(d)
+	p._read_modes(d)
 	for key: Variant in d.keys():
 		if not (key is String and KNOWN_KEYS.has(key)):
 			p.extra[key] = d[key]
 	return p
+
+
+## `best_wave_by_mode` (v2); a document without it (a v1 doc read raw) takes `best_wave` as the TIMED record.
+func _read_best_waves(d: Dictionary) -> void:
+	var timed: Dictionary = _read_level_map(d, "best_wave", false, load_errors)
+	var others: Dictionary = {}
+	var raw: Variant = d.get("best_wave_by_mode", null)
+	if raw is Dictionary:
+		var src: Dictionary = raw
+		for key: Variant in src.keys():
+			var inner: Variant = src[key]
+			if not (key is String and inner is Dictionary):
+				load_errors.append("best_wave_by_mode: bad entry dropped")
+				continue
+			var mode: String = key
+			var rec: Dictionary = _read_level_map(src, mode, false, load_errors)
+			if mode == MODE_TIMED:
+				timed = rec
+			else:
+				others[mode] = rec
+	elif d.has("best_wave_by_mode"):
+		load_errors.append("best_wave_by_mode: not a dictionary, using empty")
+	best_wave = timed
+	best_wave_by_mode = others
+	best_wave_by_mode[MODE_TIMED] = best_wave
+
+
+func _read_modes(d: Dictionary) -> void:
+	var list: Array[String] = []
+	if d.has("modes_unlocked"):
+		var raw: Variant = d["modes_unlocked"]
+		if raw is Array:
+			var arr: Array = raw
+			for item: Variant in arr:
+				if item is String:
+					var id: String = item
+					if not id.is_empty() and not list.has(id):
+						list.append(id)
+				else:
+					load_errors.append("modes_unlocked: non-string entry dropped")
+		else:
+			load_errors.append("modes_unlocked: not an array")
+	if not list.has(MODE_TIMED):
+		if d.has("modes_unlocked"):
+			load_errors.append("modes_unlocked: %s missing, restored" % MODE_TIMED)
+		list.push_front(MODE_TIMED)
+	modes_unlocked = list
+	last_mode = MODE_TIMED
+	if d.has("last_mode"):
+		var rawmode: Variant = d["last_mode"]
+		var text: String = rawmode if rawmode is String else ""
+		if list.has(text):
+			last_mode = text
+		else:
+			load_errors.append("last_mode: invalid, using %s" % MODE_TIMED)
 
 
 func _read_frames(d: Dictionary) -> void:

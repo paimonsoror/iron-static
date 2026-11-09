@@ -73,6 +73,31 @@ func test_gap_is_refused() -> void:
 	assert_bool(res2["ok"]).is_false()
 
 
+func test_real_v1_to_v2_copies_best_wave_to_timed() -> void:
+	var src: Dictionary = {"schema_version": 1, "profile": {"best_wave": {"1": 14}, "flux": 3}}
+	var res: Dictionary = SaveSchema.upgrade(src, 1)
+	assert_bool(res["ok"]).is_true()
+	var doc: Dictionary = res["doc"]
+	assert_int(doc["schema_version"]).is_equal(2)
+	var prof: Dictionary = doc["profile"]
+	assert_dict(prof["best_wave_by_mode"]).is_equal({"timed": {"1": 14}})
+	assert_array(prof["modes_unlocked"]).is_equal(["timed"])
+	assert_str(prof["last_mode"]).is_equal("timed")
+	assert_dict(prof["best_wave"]).is_equal({"1": 14})  # kept one version
+	assert_int(prof["flux"]).is_equal(3)
+	var old: Dictionary = src["profile"]
+	assert_bool(old.has("last_mode")).is_false()  # input not mutated
+
+
+func test_real_v1_to_v2_keeps_existing_v2_fields_and_survives_a_bad_profile() -> void:
+	var keep: Dictionary = {"profile": {"last_mode": "purge", "modes_unlocked": ["timed", "purge"]}}
+	var out: Dictionary = MigrateV1ToV2.apply(keep)
+	var prof: Dictionary = out["profile"]
+	assert_str(prof["last_mode"]).is_equal("purge")
+	assert_dict(prof["best_wave_by_mode"]).is_equal({"timed": {}})
+	assert_dict(MigrateV1ToV2.apply({"profile": 5})).is_equal({"profile": 5})
+
+
 func test_real_table_matches_current_version() -> void:
 	assert_int(SaveSchema.migrations().size()).is_equal(SaveSchema.CURRENT - 1)
 	var res: Dictionary = SaveSchema.upgrade({"schema_version": SaveSchema.CURRENT}, SaveSchema.CURRENT)

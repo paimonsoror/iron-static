@@ -1,19 +1,19 @@
 class_name SaveSchema
 extends RefCounted
-## Profile save document, schema v1 (TECH_ARCHITECTURE 5.1/5.2, M3-04).
+## Profile save document, schema v2 (TECH_ARCHITECTURE 5.1/5.2, M3-04).
 ##
-## Document: {"schema_version": 1, "profile": PlayerProfile.to_dict(), "runs_stats": {}, "config_version": 1}.
+## Document: {"schema_version": 2, "profile": PlayerProfile.to_dict(), "runs_stats": {}, "config_version": 1}.
 ## `labs`, `purchase_ledger` and `last_server_time` do not exist yet: their milestone adds them by migration.
 ## Shape changes need CURRENT + 1, a migration in `migrations()` and a fixture (see MigrationChain).
 
-const CURRENT: int = 1
+const CURRENT: int = 2
 const CONFIG_VERSION: int = 1
 const FIXTURE_DIR: String = "res://tests/fixtures/"
 
 
-## The real migration table (empty at v1): `table[i]` migrates `i + 1` to `i + 2`.
+## The real migration table: `table[i]` migrates `i + 1` to `i + 2` (v1 to v2 added the per-mode records).
 static func migrations() -> Array[Callable]:
-	var table: Array[Callable] = []
+	var table: Array[Callable] = [Callable(MigrateV1ToV2, "apply")]
 	return table
 
 

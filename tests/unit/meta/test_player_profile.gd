@@ -183,3 +183,63 @@ func test_fake_clock_drives_last_active() -> void:
 	assert_int(p.last_active_utc).is_equal(1060)
 	assert_int(clk.monotonic_ms()).is_equal(60000)
 	assert_bool(clk.is_trusted()).is_false()
+
+
+func test_v2_fields_default_and_round_trip_both_records() -> void:
+	var p: PlayerProfile = PlayerProfile.fresh(1, "dev")
+	assert_array(p.modes_unlocked).is_equal(["timed"])
+	assert_str(p.last_mode).is_equal("timed")
+	assert_int(p.best_wave_of_mode("purge", 1)).is_equal(0)
+	p.best_wave["1"] = 22
+	@warning_ignore("return_value_discarded")
+	p.unlock_mode("purge")
+	p.best_wave_by_mode["purge"] = {"1": 35}
+	p.last_mode = "purge"
+	var back: PlayerProfile = PlayerProfile.from_dict(p.to_dict())
+	assert_int(back.load_errors.size()).is_equal(0)
+	assert_int(back.best_wave_of_mode("timed", 1)).is_equal(22)
+	assert_int(back.best_wave_of_mode("purge", 1)).is_equal(35)
+	assert_str(back.last_mode).is_equal("purge")
+	assert_dict(back.to_dict()).is_equal(p.to_dict())
+	var d: Dictionary = back.to_dict()
+	assert_dict(d["best_wave"]).is_equal({"1": 22})  # TIMED mirror
+
+
+func test_best_wave_stays_aliased_to_the_timed_record() -> void:
+	var p: PlayerProfile = PlayerProfile.fresh(1, "dev")
+	p.best_wave["1"] = 9
+	assert_int(p.best_wave_s1()).is_equal(9)
+	assert_int(p.best_wave_of_mode("timed", 1)).is_equal(9)
+	var back: PlayerProfile = PlayerProfile.from_dict({"best_wave": {"1": 14}})  # v1-shaped document
+	assert_int(back.best_wave_of_mode("timed", 1)).is_equal(14)
+	back.best_wave["1"] = 15
+	assert_int(back.best_wave_of_mode("timed", 1)).is_equal(15)
+
+
+func test_invalid_last_mode_and_missing_timed_fall_back_with_errors() -> void:
+	var p: PlayerProfile = PlayerProfile.from_dict({"last_mode": "purge"})
+	assert_str(p.last_mode).is_equal("timed")
+	assert_int(p.load_errors.size()).is_equal(1)
+	var q: PlayerProfile = PlayerProfile.from_dict({"modes_unlocked": ["purge", 5], "last_mode": "purge"})
+	assert_array(q.modes_unlocked).is_equal(["timed", "purge"])
+	assert_str(q.last_mode).is_equal("purge")
+	assert_int(q.load_errors.size()).is_equal(2)  # non-string dropped, timed restored
+	var r: PlayerProfile = PlayerProfile.from_dict({"modes_unlocked": [], "best_wave_by_mode": 4})
+	assert_array(r.modes_unlocked).is_equal(["timed"])
+	assert_int(r.load_errors.size()).is_equal(2)
+
+
+func test_farm_rate_is_fed_by_timed_banks_only() -> void:
+	var p: PlayerProfile = PlayerProfile.fresh(1, "dev")
+	var a: RunSummary = RunSummary.make(p.begin_run(), 5, BigNum.from_int(1800), 1800)
+	assert_bool(p.bank_run(a)).is_true()
+	assert_float(p.farm_rate_1x).is_equal_approx(1800.0, 0.01)
+	var b: RunSummary = RunSummary.make(p.begin_run(), 5, BigNum.from_int(90000), 1800)
+	b.mode = "purge"
+	assert_bool(p.bank_run(b)).is_true()
+	assert_float(p.farm_rate_1x).is_equal_approx(1800.0, 0.01)
+	assert_str(p.data.to_text()).is_equal(BigNum.from_int(91800).to_text())
+	var c: RunSummary = RunSummary.make(p.begin_run(), 5, BigNum.from_int(900), 1800)
+	assert_bool(p.bank_run(c)).is_true()
+	assert_float(p.farm_rate_1x).is_equal_approx(0.4 * 900.0 + 0.6 * 1800.0, 0.01)
+	assert_bool(p.bank_run(c)).is_false()  # double bank stays idempotent

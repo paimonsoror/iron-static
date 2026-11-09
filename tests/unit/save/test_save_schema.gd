@@ -1,11 +1,11 @@
 class_name TestSaveSchema
 extends GdUnitTestSuite
-## Schema v1 document, fixtures and the shape guard (M3-04). Fixtures are signed with the built-in key.
+## Schema document, fixtures and the shape guard (M3-04, v2 M4-06). Fixtures are signed with the built-in key.
 
 const FIXTURE_JSON: String = "res://tests/fixtures/save_v%d.json"
-const FIXTURE_SIGNED: String = "res://tests/fixtures/save_v1_signed.sav"
+const FIXTURE_SIGNED: String = "res://tests/fixtures/save_v%d_signed.sav"
 ## Profile keys that hold free-form dictionaries (not compared key by key).
-const FREE_FORM: Array[String] = ["foundry", "best_wave", "settings"]
+const FREE_FORM: Array[String] = ["foundry", "best_wave", "best_wave_by_mode", "settings"]
 
 
 func before_test() -> void:
@@ -89,20 +89,54 @@ func test_fixture_v1_values() -> void:
 	assert_bool(d.has("future_flag")).is_true()
 
 
-func test_signed_fixture_decodes_through_store_and_equals_json() -> void:
-	var f: FileAccess = FileAccess.open(FIXTURE_SIGNED, FileAccess.READ)
+func _load_signed(version: int) -> LoadResult:
+	var f: FileAccess = FileAccess.open(FIXTURE_SIGNED % version, FileAccess.READ)
 	assert_object(f).is_not_null()
 	var bytes: PackedByteArray = f.get_buffer(f.get_length())
 	f.close()
 	var fs: MemorySaveFs = MemorySaveFs.new()
 	fs.files["profile.sav"] = bytes
 	var store: SaveStore = SaveStore.new(fs, "profile", SaveCodec.MAGIC_PROFILE, SaveSchema.CURRENT)
-	var r: LoadResult = store.load()
-	assert_int(r.status).is_equal(LoadResult.Status.OK)
-	assert_int(r.schema).is_equal(1)
-	var from_sav: PlayerProfile = SaveSchema.profile_from_document(SaveSchema.parse_raw(r.raw))
-	var from_json: PlayerProfile = SaveSchema.profile_from_document(_load_fixture(1))
-	assert_dict(from_sav.to_dict()).is_equal(from_json.to_dict())
+	return store.load()
+
+
+func test_signed_fixtures_decode_through_store_and_equal_json() -> void:
+	for n: int in range(1, SaveSchema.CURRENT + 1):
+		var r: LoadResult = _load_signed(n)
+		assert_int(r.status).is_equal(LoadResult.Status.OK)
+		assert_int(r.schema).is_equal(n)
+		var from_sav: PlayerProfile = SaveSchema.profile_from_document(SaveSchema.parse_raw(r.raw))
+		var from_json: PlayerProfile = SaveSchema.profile_from_document(_load_fixture(n))
+		assert_dict(from_sav.to_dict()).is_equal(from_json.to_dict())
+
+
+func test_signed_v1_fixture_migrates_to_v2_timed_record() -> void:
+	var r: LoadResult = _load_signed(1)
+	var up: Dictionary = SaveSchema.upgrade(SaveSchema.parse_raw(r.raw), r.schema)
+	assert_bool(up["ok"]).is_true()
+	var doc: Dictionary = up["doc"]
+	var p: PlayerProfile = SaveSchema.profile_from_document(doc)
+	assert_int(p.best_wave_of_mode("timed", 1)).is_equal(14)
+	assert_int(p.best_wave_of_mode("purge", 1)).is_equal(0)
+	assert_array(p.modes_unlocked).is_equal(["timed"])
+
+
+func test_fixture_v2_values() -> void:
+	var p: PlayerProfile = SaveSchema.profile_from_document(_load_fixture(2))
+	assert_int(p.load_errors.size()).is_equal(0)
+	assert_int(p.best_wave_s1()).is_equal(22)
+	assert_int(p.best_wave_of_mode("purge", 1)).is_equal(35)
+	assert_array(p.modes_unlocked).is_equal(["timed", "purge"])
+	assert_str(p.last_mode).is_equal("purge")
+	assert_bool(p.extra.has("future_flag")).is_true()
+
+
+func test_schema_3_document_is_too_new() -> void:
+	var doc: Dictionary = SaveSchema.document_from_profile(PlayerProfile.fresh(1, "dev"))
+	var fs: MemorySaveFs = MemorySaveFs.new()
+	var store: SaveStore = SaveStore.new(fs, "profile", SaveCodec.MAGIC_PROFILE, SaveSchema.CURRENT)
+	fs.files["profile.sav"] = SaveCodec.encode(SaveCodec.MAGIC_PROFILE, 3, SaveSchema.raw_from_document(doc))
+	assert_int(store.load().status).is_equal(LoadResult.Status.TOO_NEW)
 
 
 func test_document_round_trip_through_raw() -> void:
