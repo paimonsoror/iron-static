@@ -1,6 +1,6 @@
 # 03 - Enemies, Waves, Scaling and Sectors
 
-Changelog: 2026-11-07 (M1-26: section 3 and 1.1 implementation notes: scrap_yield at kill time, lancer bolt speed) - number-type note in section 4.6 updated: BigNum for currency/cost values (09 Q5 resolved); enemy HP and damage stay double.
+Changelog: 2026-11-09 (Q54 early-curve retune, SimVersion 2: `boss_hulk` hp_mult 25 to 8, `n_base` 6 to 4, start scrap 60; section 4.4 and 4.5 samples recomputed, new section 4.7 records the retune and the targets it meets) - 2026-11-07 (M1-26: section 3 and 1.1 implementation notes: scrap_yield at kill time, lancer bolt speed) - number-type note in section 4.6 updated: BigNum for currency/cost values (09 Q5 resolved); enemy HP and damage stay double.
 
 Citations: `[CIS n]` = combat_and_in_run_systems.md. All numbers are first-pass and tunable; formulas (shape) are HARD unless said otherwise. The research found **no published enemy HP/damage formula** [CIS 5 gaps], so everything in section 4 is original design intended to reproduce the feel (exponential growth, partial skips, per-sector rewards) described in [CIS 5 inferences].
 
@@ -34,7 +34,7 @@ Units: speed in m/s; `hp_mult`, `dmg_mult` multiply the base enemy values at the
 ### 1.3 Bosses ("nodes") [CIS 4 Boss]
 | id | Behavior | hp_mult | dmg_mult | speed | radius | scrap_mult | data_base | Notes | Tag |
 |---|---|---|---|---|---|---|---|---|---|
-| `boss_hulk` | Heavy node. Melee. Loses a "plate" every 25% HP lost (plated = -30% damage taken, lasts 6 s after the plate falls). Push force x0.25 | 25 | 3.0 | 1.4 | 3.0 | 5.0 | 15 | S1 | MVP (without plates) |
+| `boss_hulk` | Heavy node. Melee. Loses a "plate" every 25% HP lost (plated = -30% damage taken, lasts 6 s after the plate falls). Push force x0.25 | 8 | 3.0 | 1.4 | 3.0 | 5.0 | 15 | S1 | MVP (without plates) |
 | `boss_hive` | Spawner node. Stays at 30 m; every 8 s emits 6 `dart` (hp_mult x0.5 as drones; no scrap/data) | 22 | 1.0 | 1.2 | 2.6 | 5.0 | 15 | S2 | Launch |
 | `boss_lance` | Artillery node. Stops at 34 m; every 3 s fires a heavy bolt (4 x dmg) with a 1 s warning ring on Cinder; immune to razor | 20 | 4.0 | 1.0 | 2.4 | 5.0 | 15 | S3 | Launch |
 | `boss_null` | EMP node. Walks to 18 m; every 15 s disables all weapon systems and Overdrive for 3 s; takes x0.5 `arc` damage | 24 | 2.0 | 1.5 | 2.8 | 5.0 | 15 | S4 | Launch |
@@ -110,19 +110,19 @@ A later headless simulation should tune `k1,k2,k3,k1a..k3a`, `HP0`, `D0`, N(w), 
 After enemy level exceeds 1500 (i.e. after 1500 - offset(s) waves), each wave end adds `overrun_stacks += 1`. Effects per stack: enemy hp growth rate +0.1% extra per level beyond the curve, enemy spawn count +0.2% (cap +100%), and skip chance reduced by 0.05 percentage points (floor 0). Intended to bound extremely long idle runs and server/device cost. Tunable; may move to level 2500 later.
 
 ### 4.4 Spawn count
-`N(w) = min(200, floor(6 + 2.4 * w^0.6))` slots per wave (independent of sector). Increases with wave number, not level, so enemy density rises slowly and readability is preserved (about 105 slots at wave 500).
+`N(w) = min(200, floor(4 + 2.4 * w^0.6))` slots per wave (independent of sector). Increases with wave number, not level, so enemy density rises slowly and readability is preserved (about 103 slots at wave 500; 6 at wave 1, 13 at wave 10 (n_base 6 to 4 on 2026-11-09, Q54)).
 
 ### 4.5 Sample values (type `skitter`, hp_mult=1; Sector 1 unless noted)
 Per-type values = this x type mult. Level `l = w + offset`.
 
 | Wave | l | Enemy HP | Enemy atk/hit | Slots N(w) | Scrap/kill (base) | Data/kill (base x skitter) | Boss HP (x25) | Boss atk (x3) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | 1 | 14 | 2.0 | 8 | 2 | 1.04 | 350 | 6 |
-| 10 | 10 | 24 | 3.3 | 15 | 3 | 1.40 | 607 | 10 |
-| 50 | 50 | 279 | 32 | 31 | 10 | 3.0 | 6.99e3 | 95 |
-| 100 | 100 | 5.93e3 | 531 | 44 | 56 | 5.0 | 1.48e5 | 1.59e3 |
-| 500 | 500 | 3.39e10 | 5.91e8 | 105 | 2.90e5 | 21 | 8.47e11 | 1.77e9 |
-| 1000 | 1000 | 4.77e15 | 1.17e13 | 157 | 1.97e8 | 41 | 1.19e17 | 3.51e13 |
+| 1 | 1 | 14 | 2.0 | 6 | 2 | 1.04 | 112 | 6 |
+| 10 | 10 | 24 | 3.3 | 13 | 3 | 1.40 | 194 | 10 |
+| 50 | 50 | 279 | 32 | 29 | 10 | 3.0 | 2.23e3 | 95 |
+| 100 | 100 | 5.93e3 | 531 | 42 | 56 | 5.0 | 4.74e4 | 1.59e3 |
+| 500 | 500 | 3.39e10 | 5.91e8 | 103 | 2.90e5 | 21 | 2.71e11 | 1.77e9 |
+| 1000 | 1000 | 4.77e15 | 1.17e13 | 155 | 1.97e8 | 41 | 3.82e16 | 3.51e13 |
 
 Per-sector examples (skitter; HP / atk per hit / scrap per kill / data per kill including R(s)):
 | Sector | offset | R(s) | w=1 | w=100 | w=500 |
@@ -141,11 +141,25 @@ def G(l, k1, k2, k3):
     if l <= 200: return exp(k1*(l-1))
     if l <= 600: return exp(k1*199 + k2*(l-200))
     return exp(k1*199 + k2*400 + k3*(l-600))
-def N(w): return min(200, int(6 + 2.4 * w**0.6))
+def N(w): return min(200, int(4 + 2.4 * w**0.6))
 ```
 Enemy HP and damage use double precision (`G_hp(3000)` is about 1e44 times scaling, far below 1e308). Currency and cost values use the BigNum type from ROADMAP M2 (09 Q5 resolved; TECH_ARCHITECTURE section 3); display via the big-number format in 04.
 
 **(impl, M1)** `lancer_bolt_speed` = 18 m/s (`data/sim_constants.csv`; the GDD gave no bolt speed). It is a first-pass number: a bolt crosses the 48 m maximum range in about 2.7 s. Revisit with the first playtest.
+
+### 4.7 Early-curve retune (Q54, SimVersion 2, 2026-11-09)
+Measured with `tools\balance_run.ps1` (sector 1, seeds 1-40, `greedy4`); full tables and the tuning log are in `docs/playtests/m3/balance_m3.md`. Death waves were walled by the wave-10 boss (kills 45% of the old `foundry_300` runs) and by 2-vs-3-shot kill thresholds; a laser multiplier of x1.4 to x1.8 left the old fresh median stuck at 11 and x2.5 jumped it to 21.
+
+| Change | Old | New |
+|---|---|---|
+| `boss_hulk` hp_mult (1.3) | 25 | 8 |
+| `n_base` (4.4) | 6 | 4 |
+| `start_scrap` (02 section 7.4) | 20 | 60 |
+| `laser_output`, `hull_integrity` c0 / g (02 section 7) | 15 / 1.09 | 10 / 1.108 (cheap early, same price near level 25) |
+| `nano_repair` p | 0.10 | 0.60 |
+| `plating_pct` step / c0 | +0.005 / 100 | +0.06 / 20 |
+
+Results (median, mean over 40 seeds): fresh `greedy4` 9 (8.68) to 12 (11.55), target 12 +-30%; `foundry_300` 11 to 16 (+4 over fresh, target +4); `foundry_1k` 26 to 27 (27.25), roughly x2.3 of fresh (target about x2, inside the 30% tolerance of `data/targets.csv`). Early single-row purchases extend an idle run: hull +0.62, nano repair +0.57, plating +0.47 waves (mean over 40 seeds). The hp curve (`g_hp_*`, `hp0`) and the scrap formula are unchanged.
 
 ## 5. Type weights and slot filling
 

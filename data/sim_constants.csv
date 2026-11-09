@@ -22,7 +22,7 @@ g_atk_3,1.018,gdd:03 s4.2,Attack growth per level beyond phase_2_end
 phase_1_end,200,gdd:03 s4.2,Last level of growth phase 1
 phase_2_end,600,gdd:03 s4.2,Last level of growth phase 2
 sector_offset_step,25,gdd:03 s4.1,Enemy level offset per sector
-n_base,6,gdd:03 s4.4,Spawn slots N(w) = min(n_cap; floor(n_base + n_coef * w^n_exp))
+n_base,4,gdd:03 s4.4,Spawn slots N(w) = min(n_cap; floor(n_base + n_coef * w^n_exp))
 n_coef,2.4,gdd:03 s4.4,See n_base
 n_exp,0.6,gdd:03 s4.4,See n_base
 n_cap,200,gdd:03 s4.4,Maximum spawn slots per wave
@@ -44,7 +44,7 @@ scrap_k,2,gdd:03 s3,Scrap per kill = max(1; round(scrap_k * G_hp^scrap_exp))
 scrap_exp,0.55,gdd:03 s3,See scrap_k
 data_level_coef,0.04,gdd:03 s3,Data per kill level factor (1 + coef * level)
 reward_growth,1.6,gdd:03 s8,Sector reward R(s) = reward_growth^(s-1)
-start_scrap,20,gdd:02 s7.4,Scrap at deployment start
+start_scrap,60,gdd:02 s7.4,Scrap at deployment start
 lancer_range_min,16,gdd:03 s1.1,Lancer stand-off minimum in meters
 lancer_range_factor,0.85,gdd:03 s1.1,Lancer stand-off as fraction of optic_range
 lancer_range_cap,48,gdd:03 s1.1,Lancer stand-off cap in meters

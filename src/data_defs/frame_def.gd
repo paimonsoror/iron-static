@@ -20,4 +20,7 @@ extends Resource
 @export var scrap_mult: float = 1.0
 @export var data_mult: float = 1.0
 @export var passive: String = "none"  ## none, bastion, overclock, scrap_tithe, first_sight
+@export var bastion_cap_frac: float = 0.20  ## Bastion: max share of max hull one hit may take
+@export var overclock_per_kill: float = 0.01  ## Overclock: fire-rate bonus per kill this wave
+@export var overclock_cap: float = 0.20  ## Overclock: total bonus cap
 @export var tag: String = ""

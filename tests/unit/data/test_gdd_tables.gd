@@ -50,7 +50,7 @@ func test_enemies_match_gdd_03() -> void:
 		["dart", "normal", 0.8, 0.8, 7.35, 0.5, 1, 1.5, 2.0, 30.0, 4, "melee"],
 		["walker", "normal", 5.0, 1.5, 2.1, 1.4, 3, 3.0, 4.0, 18.0, 8, "melee"],
 		["lancer", "normal", 1.0, 1.2, 4.2, 0.7, 1, 1.5, 2.0, 22.0, 6, "ranged"],
-		["boss_hulk", "boss", 25.0, 3.0, 1.4, 3.0, 1, 5.0, 15.0, 0.0, 10, "melee_boss"],
+		["boss_hulk", "boss", 8.0, 3.0, 1.4, 3.0, 1, 5.0, 15.0, 0.0, 10, "melee_boss"],
 	]
 	var enemies: Array[EnemyDef] = SimConfigLoader.load_default(1).enemies
 	for i: int in rows.size():
@@ -75,14 +75,14 @@ func test_enemies_match_gdd_03() -> void:
 ## [id, tab, kind, base, step, l_cap, hard_cap (-1 = none), c0, g, gate]
 func test_upgrades_match_gdd_02() -> void:
 	var rows: Array = [
-		["laser_output", "arms", "D", 10.0, 0.10, 400, -1.0, 15.0, 1.09, 0],
+		["laser_output", "arms", "D", 10.0, 0.10, 400, -1.0, 10.0, 1.108, 0],
 		["cycle_rate", "arms", "C", 1.0, 0.04, 100, 12.0, 25.0, 1.12, 0],
 		["crit_chance", "arms", "C", 0.02, 0.008, 98, 0.85, 60.0, 1.10, 5],
 		["crit_mult", "arms", "C", 1.5, 0.05, 150, -1.0, 80.0, 1.085, 8],
 		["optic_range", "arms", "C", 24.0, 0.4, 100, 80.0, 40.0, 1.10, 10],
-		["hull_integrity", "chassis", "D", 100.0, 0.10, 400, -1.0, 15.0, 1.09, 0],
-		["nano_repair", "chassis", "D", 1.0, 0.10, 400, -1.0, 20.0, 1.09, 0],
-		["plating_pct", "chassis", "C", 0.0, 0.005, 99, 0.90, 100.0, 1.10, 10],
+		["hull_integrity", "chassis", "D", 100.0, 0.10, 400, -1.0, 10.0, 1.108, 0],
+		["nano_repair", "chassis", "D", 1.0, 0.60, 400, -1.0, 20.0, 1.09, 0],
+		["plating_pct", "chassis", "C", 0.0, 0.06, 99, 0.90, 20.0, 1.10, 10],
 		["scrap_yield", "systems", "C", 1.0, 0.02, 100, 3.0, 50.0, 1.10, 3],
 		["reinvest", "systems", "C", 0.0, 0.0006, 99, 0.0594, 300.0, 1.11, 12],
 	]

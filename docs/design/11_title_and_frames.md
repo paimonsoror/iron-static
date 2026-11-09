@@ -1,6 +1,6 @@
 # 11 - Title Screen and Cinder Frames
 
-Changelog: 2026-11-08 v1.0 - first version. User scope addition to M3 ("M3 part B"): a smoky wasteland title screen and selectable Cinder frames for replayability. The user delegated the design choices; the numbers are starting values for the balance pass. Tasks: `docs/tasks/M3.md` M3-21 to M3-32. Visual rules follow `10_art_bible.md` and the IP guardrails of CLAUDE.md.
+Changelog: 2026-11-09 (frame balance pass after the Q54 retune: BULWARK and STRIKER final values, passive strengths are data columns `bastion_cap_frac`, `overclock_per_kill`, `overclock_cap`; SimVersion 2 so frame records of version 1 no longer replay) - 2026-11-08 v1.0 - first version. User scope addition to M3 ("M3 part B"): a smoky wasteland title screen and selectable Cinder frames for replayability. The user delegated the design choices; the numbers are starting values for the balance pass. Tasks: `docs/tasks/M3.md` M3-21 to M3-32. Visual rules follow `10_art_bible.md` and the IP guardrails of CLAUDE.md.
 
 Scope tags: Title screen and frames VANGUARD, BULWARK, STRIKER = MVP (M3). SALVAGER and LONGSHOT = defined in data now, implemented and shown in M6 (Launch).
 
@@ -14,7 +14,7 @@ A frame is the chassis configuration Cinder deploys in. Frames are **sidegrades,
 - Data: `data/frames.csv` -> generated `FrameDef` `.tres` (same pipeline as every table; ids below are stable).
 - **Unlocked by play, never sold.** Unlock keys are `best_s1` (best wave reached in sector 1, the same progress key as 05 section 7). Cosmetic skins for frames are a later monetization question (06), not part of this document.
 - **Frame mods multiply the base stats, then the Foundry applies on top** (02 section 5: `final = base x frame x run_factor x foundry_mult x external`). The Foundry is shared by all frames (a Foundry level helps every frame). Frame bonuses are not Foundry levels and do not count toward any cap on levels.
-- The selected frame id is part of the run config, written in the run record header and the input log header and in the run snapshot; it is deterministic. **VANGUARD uses neutral modifiers: with it every state hash, golden and replay recorded before M3 stays valid, and no `SimVersion` bump is needed.** Frame passives live in the pure sim (`src/sim/`) with unit tests; they use integer ticks and existing RNG streams only (none needs randomness).
+- The selected frame id is part of the run config, written in the run record header and the input log header and in the run snapshot; it is deterministic. **VANGUARD uses neutral modifiers: with it every state hash, golden and replay recorded before M3 stays valid, and no `SimVersion` bump is needed for frames (2026-11-09: the Q54 early-curve retune itself bumped it to 2, VANGUARD is still neutral).** Frame passives live in the pure sim (`src/sim/`) with unit tests; they use integer ticks and existing RNG streams only (none needs randomness).
 - The selected frame is chosen between runs (frame bay, section 3), never in a run. The profile stores unlocked frames and the selected frame.
 - Leaderboards (Launch, backend) are global; the submission carries the frame id and the UI shows a frame icon (09 Q65).
 
@@ -22,8 +22,8 @@ A frame is the chassis configuration Cinder deploys in. Frames are **sidegrades,
 | id | Name | Role | Stat modifiers | Passive | Unlock | Tag |
 |---|---|---|---|---|---|---|
 | `vanguard` | VANGUARD | Balanced baseline and the reference for balance | none (all x1.0, +0) | none | start | MVP |
-| `bulwark` | BULWARK | Tank: outlasts, slow to kill | `hull_integrity` x1.60, `plating_pct` +0.10 (starting value), `nano_repair` x1.30, `cycle_rate` x0.75, `optic_range` x0.92 | **Bastion:** no single hit deals more than 20% of Cinder's max hull | `best_s1` 8 | MVP |
-| `striker` | STRIKER | Glass cannon: fast, fragile | `cycle_rate` x1.40, `crit_chance` +0.03, `laser_output` x0.90, `hull_integrity` x0.65, `nano_repair` x0.70 | **Overclock:** each kill grants +1% fire rate for the rest of the wave (cap +20%, resets at the next wave start) | `best_s1` 15 | MVP |
+| `bulwark` | BULWARK | Tank: outlasts, slower to kill | `hull_integrity` x3.00, `plating_pct` +0.10, `nano_repair` x1.30, `cycle_rate` x0.80, `laser_output` x1.30, `optic_range` x0.92 (final values, 2026-11-09, SimVersion 2) | **Bastion:** no single hit deals more than 20% of Cinder's max hull (`bastion_cap_frac`, data) | `best_s1` 8 | MVP |
+| `striker` | STRIKER | Glass cannon: fast, fragile, short-sighted | `cycle_rate` x1.30, `crit_chance` +0.03, `laser_output` x0.85, `hull_integrity` x0.50, `nano_repair` x0.70, `optic_range` x0.80 (final values, 2026-11-09, SimVersion 2) | **Overclock:** each kill grants +1% fire rate for the rest of the wave (`overclock_per_kill` 0.01, `overclock_cap` 0.20, both data; resets at the next wave start) | `best_s1` 15 | MVP |
 | `salvager` | SALVAGER | Economy: slower kills, better income | `scrap` income x1.25, `data` income x1.10, `laser_output` x0.85 | **Scrap Tithe:** bonus `scrap` from heavy kills (walker, lancer, bosses; exact numbers at M6) | M6 | M6 |
 | `longshot` | LONGSHOT | Sniper: reach and burst, slow cadence | `optic_range` x1.33, `laser_output` x1.40, `crit_mult` x2.0 of the base multiplier step, `cycle_rate` x0.60 | **First Sight:** the first shot at a newly acquired target always crits | M6 | M6 |
 
@@ -34,6 +34,7 @@ Implementation notes (impl, starting points): modifiers enter `StatResolver` as 
 - A new profile has only VANGUARD. NEW GAME on an existing profile resets unlocks together with everything else (section 2.4).
 
 ### 1.4 Balance acceptance (gates for the M3 frames, measured with `balance_run --frame <id>`)
+**Final result (2026-11-09, after the Q54 retune, SimVersion 2; 40 seeds, fresh profile, VANGUARD greedy4 11.55 / idle 8.13):** BULWARK greedy4 12.30 (+6.5%), idle 8.70 (+7.1%, wins idle); STRIKER greedy4 12.43 (+7.6%, wins greedy4), idle 8.45 (+4.0%). Both stay inside the identity bounds (STRIKER cycle >= 1.30, hull <= 0.75, laser 0.85-1.0; BULWARK cycle <= 0.80, hull >= 1.4). Levers: BULWARK hull x3.0 and laser x1.3 (cycle 0.80 alone loses 33%); STRIKER optic x0.80 (the shorter reach costs it kills). On the `foundry_300` profile the frames spread more (BULWARK +30.1%, STRIKER +15.6% vs VANGUARD): the gate is the fresh profile, tracked in Q67. Details: `docs/playtests/m3/balance_m3.md`.
 1. On a **fresh profile** (no Foundry), each M3 frame's mean death wave over at least 40 runs of the `greedy4` policy is within +-10% of VANGUARD's (the median alone is too coarse at waves 8-10; report both).
 2. Each M3 frame **wins at least one scenario** against VANGUARD: BULWARK with an idle policy that never buys (`--policy none`: only its starting stats matter), STRIKER with the greedy active buyer (`greedy4`). "Wins" means a higher mean death wave over at least 40 runs with the same seeds.
 3. Tuning is done only in `data/frames.csv` (config, no sim change). If the targets cannot be met without a sim change, the task stops and reports.

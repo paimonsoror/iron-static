@@ -28,6 +28,9 @@ const FRAME_COLUMNS: PackedStringArray = [
 	"scrap_mult",
 	"data_mult",
 	"passive",
+	"bastion_cap_frac",
+	"overclock_per_kill",
+	"overclock_cap",
 	"tag",
 ]  # gdlint: ignore=max-line-length
 ## Numeric frame columns with their neutral value (multipliers 1.0, adds 0.0).
@@ -147,6 +150,15 @@ static func _frame_row(rd: DataRowReader, table: CsvTable, r: int, ctx: String) 
 	if implemented:
 		rd.require(SIM_PASSIVES.has(passive), ctx, "implemented row uses passive '%s' the sim does not know" % passive)
 	p["passive"] = passive
+	var bastion: float = rd.number(ctx + " bastion_cap_frac", table.get_value(r, "bastion_cap_frac"))
+	var per_kill: float = rd.number(ctx + " overclock_per_kill", table.get_value(r, "overclock_per_kill"))
+	var oc_cap: float = rd.number(ctx + " overclock_cap", table.get_value(r, "overclock_cap"))
+	rd.require(bastion > 0.0 and bastion <= 1.0, ctx, "bastion_cap_frac must be in (0, 1]")
+	rd.require(per_kill > 0.0 and per_kill <= 1.0, ctx, "overclock_per_kill must be in (0, 1]")
+	rd.require(oc_cap > 0.0 and oc_cap <= 10.0, ctx, "overclock_cap must be in (0, 10]")
+	p["bastion_cap_frac"] = bastion
+	p["overclock_per_kill"] = per_kill
+	p["overclock_cap"] = oc_cap
 	if p["id"] == "vanguard":
 		var ok: bool = neutral and passive == "none" and unlock == 0 and implemented
 		rd.require(ok, ctx, "vanguard must be neutral (all x1.0 / +0, passive none, unlock 0, implemented)")

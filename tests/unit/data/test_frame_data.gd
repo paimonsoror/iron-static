@@ -53,18 +53,20 @@ func test_five_rows_in_order_and_vanguard_neutral() -> void:
 
 func test_bulwark_and_striker_match_design() -> void:
 	var b: FrameDef = _frame("bulwark")
-	assert_float(b.hull_mult).is_equal(1.6)
+	assert_float(b.hull_mult).is_equal(3.0)
 	assert_float(b.plating_add).is_equal(0.10)
 	assert_float(b.nano_mult).is_equal(1.3)
-	assert_float(b.cycle_mult).is_equal(0.75)
+	assert_float(b.cycle_mult).is_equal(0.80)
+	assert_float(b.laser_mult).is_equal(1.3)
 	assert_float(b.optic_mult).is_equal(0.92)
 	assert_str(b.passive).is_equal("bastion")
 	assert_int(b.unlock_best_wave).is_equal(8)
 	var s: FrameDef = _frame("striker")
-	assert_float(s.cycle_mult).is_equal(1.4)
+	assert_float(s.cycle_mult).is_equal(1.3)
+	assert_float(s.optic_mult).is_equal(0.80)
 	assert_float(s.crit_add).is_equal(0.03)
-	assert_float(s.laser_mult).is_equal(0.9)
-	assert_float(s.hull_mult).is_equal(0.65)
+	assert_float(s.laser_mult).is_equal(0.85)
+	assert_float(s.hull_mult).is_equal(0.5)
 	assert_float(s.nano_mult).is_equal(0.7)
 	assert_str(s.passive).is_equal("overclock")
 	assert_int(s.unlock_best_wave).is_equal(15)
@@ -104,3 +106,11 @@ func test_importer_rejections() -> void:
 	_expect_rejected("frames_bad_passive.csv", "unknown passive 'bogus'")
 	_expect_rejected("frames_vanguard_not_neutral.csv", "vanguard must be neutral")
 	_expect_rejected("frames_implemented_unknown_passive.csv", "sim does not know")
+
+
+func test_passive_strength_columns_default_to_the_old_constants() -> void:
+	var table: FrameTable = load(TABLE_PATH)
+	for d: FrameDef in table.defs:
+		assert_float(d.bastion_cap_frac).is_equal(FrameMods.BASTION_HIT_CAP)
+		assert_float(d.overclock_per_kill).is_equal(FrameMods.OVERCLOCK_PER_KILL)
+		assert_float(d.overclock_cap).is_equal(FrameMods.OVERCLOCK_CAP_FRAC)

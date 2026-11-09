@@ -1,6 +1,6 @@
 # 02 - Combat and In-Run Systems
 
-Changelog: 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
+Changelog: 2026-11-09 (Q54 early-curve retune, SimVersion 2: start scrap 60, laser_output and hull_integrity c0 10 / g 1.108, nano_repair p 0.60, plating_pct +0.06 per level at c0 20; see 03 section 4.7) - 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
 
 All numbers are first-pass and **tunable** unless marked HARD (a rule, not a balance number). Borrowed mechanics are cited to the research notes: `[CIS n]` = combat_and_in_run_systems.md section n. "Changed" notes say what we altered and why.
 
@@ -85,7 +85,7 @@ All rows reset at deployment start. A row is **visible** in the run only if unlo
 
 | id | Effect | Type | Base | Run inc / level | L cap | Hard cap | c0 | g | Gate |
 |---|---|---|---|---|---|---|---|---|---|
-| `laser_output` | Damage per laser shot | D, p=0.10 | 10 | (see D formula) | 400 | none | 15 | 1.09 | start |
+| `laser_output` | Damage per laser shot | D, p=0.10 | 10 | (see D formula) | 400 | none | 10 | 1.108 | start |
 | `cycle_rate` | Shots per second | C | 1.00 | +0.04 | 100 | 12.0 | 25 | 1.12 | start |
 | `crit_chance` | Chance a shot crits | C | 0.02 | +0.008 | 98 | 0.85 | 60 | 1.10 | S1 w5 |
 | `crit_mult` | Crit damage multiplier | C | 1.50 | +0.05 | 150 | none | 80 | 1.085 | S1 w8 |
@@ -108,9 +108,9 @@ Notes. `standoff` formula: `damage *= 1 + standoff * floor(distance_m)` where di
 
 | id | Effect | Type | Base | Run inc / level | L cap | Hard cap | c0 | g | Gate |
 |---|---|---|---|---|---|---|---|---|---|
-| `hull_integrity` | Max integrity (HP) | D, p=0.10 | 100 | (D formula) | 400 | none | 15 | 1.09 | start |
-| `nano_repair` | Integrity restored per second | D, p=0.10 | 1.0 | (D formula) | 400 | none | 20 | 1.09 | start |
-| `plating_pct` | Damage reduction fraction (all sources sum, hard cap 0.90) | C | 0 | +0.005 | 99 | 0.90 | 100 | 1.10 | S1 w10 |
+| `hull_integrity` | Max integrity (HP) | D, p=0.10 | 100 | (D formula) | 400 | none | 10 | 1.108 | start |
+| `nano_repair` | Integrity restored per second | D, p=0.60 | 1.0 | (D formula) | 400 | none | 20 | 1.09 | start |
+| `plating_pct` | Damage reduction fraction (all sources sum, hard cap 0.90) | C | 0 | +0.06 | 99 | 0.90 | 20 | 1.10 | S1 w10 |
 | `plating_flat` | Flat damage subtracted after percent reduction | D, p=0.10 | 1 | (D formula) | 400 | none | 200 | 1.09 | S1 w25 |
 | `spike_return` | Reflect fraction of attacker MAX health when it hits (bosses use 50% of value, elites 30%) | C | 0 | +0.01 | 60 | 0.60 | 500 | 1.11 | S1 w20 |
 | `siphon_cell` | Heal fraction of damage dealt by Cinder weapons | C | 0 | +0.0005 | 80 | 0.05 | 800 | 1.10 | S1 w30 |
@@ -149,7 +149,7 @@ Notes. `razor_count` changed from The Tower's instant-kill orbs [CIS 2 Orbs] to 
 Notes. `reinvest` order: wave bonuses first, then interest on the total. [CIS 2 Interest] Free upgrade rolls never pick maxed stats and only pick stats unlocked for this run. [CIS 2 Free Upgrades] `signal_lag_*` replace The Tower's "Enemy Level Skip" [CIS 2]. Repair pods are auto-collected after 3 s on the field (so they are not a tap chore).
 
 ### 7.4 Starting-run values (before any Foundry)
-`scrap` 20, laser_output 10, cycle_rate 1.0, range 24, integrity 100, repair 1.0/s, all others locked. This gives wave ~11-13 on the first deployments with greedy buying (first-pass headless estimate, see 03 section 6).
+`scrap` 60 (was 20 until SimVersion 2), laser_output 10, cycle_rate 1.0, range 24, integrity 100, repair 1.0/s, all others locked. This gives wave ~11-13 on the first deployments with greedy buying (first-pass headless estimate, see 03 section 6).
 
 ### 7.5 Buying and recording rules (M2, **(impl)**)
 - Buy modes x1, x10, x100, Max. A partial multi-buy is allowed: with `scrap` for only 7 of 10 levels, x10 buys 7 (cost is the exact sequential sum `ceil(c0 * g^L)` level by level); it buys nothing only when not even one level is affordable. Max buys until the cap or the money runs out.

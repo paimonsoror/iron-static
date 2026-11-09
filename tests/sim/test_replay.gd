@@ -3,9 +3,9 @@ extends GdUnitTestSuite
 ## InputLog, RunRecord, ConfigHash and Replay (M2-07).
 
 const MAX_TICKS: int = 60000
-const GOLDEN_SIM_VERSION: int = 1
-const GOLDEN_CONFIG_HASH: String = "6d64c039083cb354df88635f228ffd48655be5bcdc8da7486fe8dbe93aaba060"
-const GOLDEN_FINAL_HASH: String = "570bac6ae475df6c3e0e5724c57eeb2120cb1e245f13804f52c6e35d3f77e838"
+const GOLDEN_SIM_VERSION: int = 2
+const GOLDEN_CONFIG_HASH: String = "43ca2931080753827c979b9b0f25d6d51a45770bc8ee9c37b1754439a4698337"
+const GOLDEN_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 const GOLDEN_TICKS: int = 3000
 const NO_BUDGET_LIMIT: int = 1_000_000_000
 
@@ -52,15 +52,18 @@ func test_replay_matches_final_and_checkpoints() -> void:
 	assert_int(again.input_log.size()).is_equal(rec.commands.size())
 
 
-func test_moving_one_command_by_one_tick_changes_the_final_hash() -> void:
-	# A shift only matters when it moves a buy across a shot or hit, so try each command in turn.
+func test_moving_a_command_by_a_few_ticks_changes_the_final_hash() -> void:
+	# A shift only matters when it moves a buy across a shot or hit, so try each command in turn. With the
+	# SimVersion 2 start scrap (60) the early buys all land at once, so one tick is not enough: also try 40
+	# ticks (less than the 45-tick spacing, so the log stays ordered).
 	var rec: RunRecord = RunRecord.from_world(_scripted(_cfg(), MAX_TICKS))
 	var changed: int = 0
 	for i: int in rec.commands.size():
-		rec.commands.ticks[i] += 1
-		if Replay.run(_cfg(), rec, MAX_TICKS) != rec.final_hash:
-			changed += 1
-		rec.commands.ticks[i] -= 1
+		for shift: int in [1, 40]:
+			rec.commands.ticks[i] += shift
+			if Replay.run(_cfg(), rec, MAX_TICKS) != rec.final_hash:
+				changed += 1
+			rec.commands.ticks[i] -= shift
 	assert_int(changed).is_greater(0)
 	assert_str(Replay.run(_cfg(), rec, MAX_TICKS)).is_equal(rec.final_hash)
 

@@ -18,12 +18,13 @@ func _row(w: SimWorld, id: String) -> int:
 
 func test_laser_output_first_buy_then_second_fails() -> void:
 	var w: SimWorld = _world()
+	w.economy.scrap = BigNum.from_int(20)  # start scrap is 60 since SimVersion 2; keep the 20-scrap case
 	var i: int = _row(w, "laser_output")
 	assert_int(w.command_buy(i, 1)).is_equal(1)
 	assert_float(w.stats.laser_output).is_equal_approx(11.0, 1.0e-9)
-	assert_float(w.economy.scrap.to_float()).is_equal_approx(5.0, 1.0e-6)
+	assert_float(w.economy.scrap.to_float()).is_equal_approx(10.0, 1.0e-6)
 	var before: String = w.state_hash()
-	assert_int(w.command_buy(i, 1)).is_equal(0)  # costs ceil(15 * 1.09) = 17
+	assert_int(w.command_buy(i, 1)).is_equal(0)  # costs ceil(10 * 1.108) = 12
 	assert_str(w.state_hash()).is_equal(before)
 
 
@@ -116,14 +117,14 @@ func test_preview_does_not_mutate_and_matches_buy() -> void:
 	assert_str(w.state_hash()).is_equal(before)
 	assert_int(p.levels).is_equal(1)
 	assert_bool(p.affordable).is_true()
-	assert_float(p.cost.to_float()).is_equal_approx(15.0, 1.0e-6)
+	assert_float(p.cost.to_float()).is_equal_approx(10.0, 1.0e-6)
 	assert_float(p.current_value).is_equal_approx(10.0, 1.0e-9)
 	assert_float(p.next_value).is_equal_approx(11.0, 1.0e-9)
 	assert_int(p.levels_to_milestone).is_equal(25)
 	w.economy.scrap = BigNum.from_int(5)
 	var q: UpgradePreview = UpgradeSystem.preview(w, i, 10)
 	assert_int(q.levels).is_equal(0)
-	assert_float(q.cost.to_float()).is_equal_approx(15.0, 1.0e-6)  # price of one level when nothing is affordable
+	assert_float(q.cost.to_float()).is_equal_approx(10.0, 1.0e-6)  # price of one level when nothing is affordable
 	assert_bool(q.affordable).is_false()
 
 

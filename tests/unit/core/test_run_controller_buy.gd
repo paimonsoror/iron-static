@@ -30,7 +30,7 @@ func test_buy_is_queued_then_applied_at_next_update() -> void:
 	@warning_ignore("return_value_discarded")
 	c.update(FRAME_S)
 	assert_float(w.stats.laser_output).is_equal_approx(11.0, 1.0e-9)
-	assert_float(w.economy.scrap.to_float()).is_less(20.0)
+	assert_float(w.economy.scrap.to_float()).is_less(60.0)
 	assert_int(w.input_log.size()).is_equal(1)
 	assert_int(w.input_log.ticks[0]).is_equal(0)  # logged at the tick about to run
 

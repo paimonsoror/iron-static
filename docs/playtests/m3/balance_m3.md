@@ -1,4 +1,4 @@
-# M3 balance measurements (M3-08 Foundry, M3-24 frames)
+# M3 balance measurements (M3-08 Foundry, M3-24 frames; the 2026-11-09 retune section is at the end)
 
 Date 2026-11-08. Sector 1, seeds 1..N (same seeds for every row), cap 100 waves, profile `fresh` unless stated.
 Sim and goldens unchanged (`SimVersion` untouched, no `src/sim` edit). Output is byte-identical across two runs
@@ -175,3 +175,155 @@ identity and accept a wider band, for example +-30% like FC10, plus a different 
 change such as scaling frame effects against the wave-gate thresholds, which this task may not do).
 Interaction with Q54: all of this is on the current balance where early upgrades barely matter; a Q54 retune
 (early return) should be done first, then re-run `-Frame all` and re-tune.
+
+---
+
+# Q54 early-curve retune and frame pass (2026-11-09, SimVersion 2)
+
+User decision 2026-11-09: "Fix the early curve first". Order: (1) early-curve retune, (2) passive strengths as data, (3) BULWARK and STRIKER inside the identity bounds, (4) SimVersion bump and re-baselining. Everything was measured in an isolated copy of HEAD plus the files of this task (the shared tree did not compile: other agents' in-progress `src/ui` and `src/core` files). Sector 1, seeds 1..N (same seeds in every row), profile `fresh` unless stated, cap 100 waves in `balance_run`, 30-45 in the sweep tool.
+
+## Commands
+
+```
+.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 40
+.\tools\balance_run.ps1 -Profile tests\profiles\foundry_300.json -Runs 40
+.\tools\balance_run.ps1 -Profile tests\profiles\foundry_1k.json -Runs 40
+.\tools\balance_run.ps1 -Frame all -Policy greedy4 -Runs 40
+.\tools\balance_run.ps1 -Frame all -Policy none -Runs 40
+.\tools\balance_run.ps1 -Profile tests\profiles\foundry_300.json -Frame all -Runs 40
+.\tools\balance_run.ps1 -Policy only:hull_integrity -Runs 40      # new policy: buys just that row
+.\tools\balance_run.ps1 -Policy only:nano_repair -Runs 40
+.\tools\balance_run.ps1 -Profile <json with best_wave_s1 10> -Policy only:plating_pct -Runs 40   # plating is gated at best wave 10
+```
+
+Tuning sweeps used a scratch tool (not committed) that applies `key=value` overrides to the loaded config (tuning, enemy, upgrade and frame fields) and runs N seeds; its numbers equal `balance_run` (checked: VANGUARD 11.55 / 8.13 and the frames 12.30 and 12.43 are identical).
+
+## Step 1: early-curve retune
+
+Diagnosis (old data, greedy4, laser base damage scaled by k to find the walls): k 1.0 gives 9, 1.2 gives 10.5, **1.4 to 1.8 gives 11 (flat)**, 2.0 gives 12 (mean 14), 2.5 gives 21-22 (a second flat at 20-21). The walls are the **boss waves** (wave 10 and 20: `boss_hulk` HP 607 at wave 10, 25x a skitter, killing 45% of old `foundry_300` runs) and the 2-shot to 3-shot kill thresholds (skitter HP 14 x 1.063^(w-1) against integer laser damage). Hull x2 adds +0.7 waves and x4 adds +2, so armor mattered little. `boss_hulk` hp_mult 25 to 10 lifted old `foundry_300` from 11.17 to 12.29 (14: 11.67, 18: 11.21). Fresh runs die before the boss, so they only move with income and cost.
+
+### Data changes (final)
+
+| File | Row | Old | New |
+|---|---|---|---|
+| `enemies.csv` | `boss_hulk` hp_mult | 25 | 8 |
+| `sim_constants.csv` | `n_base` | 6 | 4 |
+| `sim_constants.csv` | `start_scrap` | 20 | 60 |
+| `run_upgrades.csv` | `laser_output` c0 / g | 15 / 1.09 | 10 / 1.108 |
+| `run_upgrades.csv` | `hull_integrity` c0 / g | 15 / 1.09 | 10 / 1.108 |
+| `run_upgrades.csv` | `nano_repair` step (p) | 0.10 | 0.60 |
+| `run_upgrades.csv` | `plating_pct` step / c0 | 0.005 / 100 | 0.06 / 20 |
+| `targets.csv` | `foundry_300` target | 13 | 16 (fresh 12 + 4) |
+
+`g` 1.108 with `c0` 10 prices a level the same as the old curve near level 25 (15 x 1.09^25 and 10 x 1.108^25 are both about 129), so the change is front-loaded: early levels are 20-36% cheaper, later ones are not. This is what keeps `foundry_1k` near x2.
+
+### Tuning log (24 seeds unless stated; fresh / foundry_300 / foundry_1k means)
+
+| # | Change | fresh | f300 | f1k |
+|---|---|---|---|---|
+| 0 | old data | 8.68 (40) | 11.13 (40) | 24.65 (24) |
+| 1 | boss hp_mult 12 | 8.71 | 12.0 | 26.75 |
+| 2 | boss 12 + start_scrap 60 / 100 | 9.17 / 10.13 | 12.17 (60) | 26.83 (60) |
+| 3 | boss 12 + laser/hull c0 10 (g 1.09) | 10.50 | - | - |
+| 4 | boss 12 + c0 10 g 1.108 + start 60 (X1) | 10.63 | 15.21 | 27.94 (16 seeds) |
+| 5 | X1 with start 100 (X2) | 10.79 | 15.88 | - |
+| 6 | X1 + `scrap_k` 3 (X3) | 11.17 | **18.46** (too strong) | - |
+| 7 | boss 8 + start 60 / 100 (Y1 / Y2) | 10.83 / 11.08 | 15.21 / 15.88 | - |
+| 8 | **Y1 + `n_base` 4 (Y3, chosen)** | **11.88** (40 seeds: 11.90) | 15.75 | 28.13 |
+| 9 | Y2 + nano step 0.3 | 11.21 | - | - |
+
+`scrap_k` 3 was rejected (it moves `foundry_300` by +7 for +0.5 fresh). `start_scrap` is the cheapest lever because it does not move `foundry_1k` (26.75 to 26.83). Final tool numbers (40 seeds) are below.
+
+### Before and after (40 seeds, `balance_run`)
+
+| Profile | Before mean (median) | After mean (median) | Target | Result |
+|---|---|---|---|---|
+| `fresh` greedy4 | 8.68 (9) | **11.55 (12)**, p10 11, p90 12, 4.43 game min | 12 +-30% | PASS (dev +0.0%) |
+| `foundry_300` | 11.13 (11) | **15.55 (16)**, delta median +4, mean +4.00 | fresh + 4 | PASS |
+| `foundry_1k` | 24.65 (26), 24 seeds | **27.25 (27)**, delta median +15 | about x2 (24) | PASS in tolerance (+12.5%), about x2.3 of fresh |
+| `fresh` idle (`--policy none`) | 7.88 (8) | 8.13 (8) | none | - |
+
+Causes of death after (fresh): skitter 60%, dart 13%, lancer 13%, boss 8%, walker 8% (before: skitter 48%, lancer 33%). The old boss wall is gone; `foundry_300` now dies to lancers (58%) and skitters (28%).
+
+### Check: early hull, plating and repair purchases extend runs (40 seeds, vs idle)
+
+Rule: a bot that buys only that row must beat the idle mean (8.13) by at least +0.4 waves.
+
+| Policy | mean | median | delta vs idle | Result |
+|---|---|---|---|---|
+| `none` | 8.13 | 8 | 0 | baseline |
+| `only:hull_integrity` | 8.75 | 9 | **+0.62** | PASS |
+| `only:nano_repair` | 8.70 | 9 | **+0.57** | PASS |
+| `only:plating_pct` (best wave 10 profile; idle on that profile is also 8.13) | 8.60 | 9 | **+0.47** | PASS |
+
+Before the retune (same method, measured during tuning): hull +0.62, nano repair +0.12 (step 0.10), plating +0.0 to +0.1 (c0 100, +0.5%), so nano and plating were useless early. Plating needs about +6% per level to register: +3% at c0 25 gave only +0.12, +5% at c0 20 gave +0.34, +8% at c0 15 gave +1.0 (too strong long term: the 0.90 cap is reached at level 12). +6% at c0 20 was taken between those points and measured above.
+
+Side effect of nano step 0.6: the greedy4 bot now values `nano_repair` above `laser_output` at 20 scrap (its reference EHP counts 60 s of repair). Fresh stayed at 11.55, median 12.
+
+## Step 2: passive strengths as data (sim change)
+
+`data/frames.csv` has three new columns, imported into `FrameDef` and read into `FrameMods`: `bastion_cap_frac` (0.20, max share of max hull per hit), `overclock_per_kill` (0.01), `overclock_cap` (0.20). Defaults equal the old constants (`BASTION_HIT_CAP`, 1% per kill, kill cap 20). The Overclock charge uses integer fixed point (`inc * kills * round(per_kill * 100000) / 100000`, identical to the old `/ 100` for the default); the kill cap is `floor(cap / per_kill)`. `FrameMods.hash_text` only appends the strengths when they differ from the defaults, so a default frame keeps its config hash. New tests: `test_frame_bastion` and `test_frame_overclock` (custom strengths, defaults), `test_frame_data` (columns).
+
+## Step 3: BULWARK and STRIKER inside the identity bounds
+
+Bounds (user, HARD): STRIKER cycle >= 1.30, hull <= 0.75, laser 0.85..1.0; BULWARK cycle <= 0.80, hull >= 1.4. Gate: each within +-10% of VANGUARD (mean, 40 seeds, median reported) on a fresh profile; BULWARK wins idle; STRIKER wins greedy4.
+
+Old design values on the new curve: BULWARK (hull 1.6, cycle 0.75) 7.75 greedy4 (-33%), 7.05 idle (-13%); STRIKER (cycle 1.4, laser 0.9, hull 0.65) 16.45 (+42%), idle 10.38 (+28%). The curve change moved the problem, not the cause: fire rate dominates.
+
+Sweep (BULWARK cycle 0.80, nano x1.3, plating +0.10, optic x0.92; greedy4 / idle mean):
+
+| laser_mult | hull | greedy4 | idle |
+|---|---|---|---|
+| 1.2 | 1.6 | 10.63 | 8.03 |
+| 1.4 | 1.6 | 12.73 | 8.03 |
+| 1.6 | 1.6 | 17.25 | 8.57 |
+| 1.8 | 1.6 | 19.75 | 9.22 |
+| 1.3 | 2.0 | 11.60 | 8.22 |
+| 1.3 | 2.0, plating +0.20 | 11.90 | 8.28 |
+| **1.3** | **3.0** | **12.30** | **8.70** |
+| 1.3 | 3.0, plating +0.35, nano x2 | 12.75 | 9.22 |
+
+Armor is the idle lever: laser alone cannot win idle without pushing greedy4 to +49%; hull x3.0 wins idle (+7.1%) at +6.5% greedy4.
+
+STRIKER (cycle 1.30, laser 0.85, hull 0.5; greedy4 mean): base 14.03 (+21%); scrap x0.85 13.48, x0.7 12.73; Overclock 0.5% per kill and 10% cap 13.65; optic x0.85 13.10, x0.8 **12.43**, x0.75 11.95, x0.7 11.45. Reduced optic range is the lever that cuts STRIKER without touching the bounds (shorter reach, less time to kill dart and skitter). Optic x0.80 chosen (wins greedy4 by 0.88 waves).
+
+Final `frames.csv` values: BULWARK hull 1.6 to **3.0**, cycle 0.75 to **0.80**, laser 1.0 to **1.3** (plating +0.10, nano x1.3, optic x0.92 unchanged). STRIKER cycle 1.4 to **1.30**, laser 0.9 to **0.85**, hull 0.65 to **0.50**, optic 1.0 to **0.80** (nano x0.7, crit +0.03 unchanged). Passive strengths unchanged (defaults).
+
+Gate (fresh, 40 seeds, `balance_run -Frame all`):
+
+| Frame | greedy4 mean | median | delta vs VANGUARD | idle mean | median | delta |
+|---|---|---|---|---|---|---|
+| VANGUARD | 11.55 | 12 | 0 | 8.13 | 8 | 0 |
+| BULWARK | 12.30 | 12 | **+6.5%** | 8.70 | 9 | **+7.1%** |
+| STRIKER | 12.43 | 12 | **+7.6%** | 8.45 | 8 | +4.0% |
+
+| Criterion | Result |
+|---|---|
+| BULWARK greedy4 within +-10% | +6.5% PASS |
+| STRIKER greedy4 within +-10% | +7.6% PASS |
+| BULWARK wins idle | 8.70 vs 8.13 PASS |
+| STRIKER wins greedy4 | 12.43 vs 11.55 PASS |
+| Identity bounds (STRIKER cycle 1.30, hull 0.5, laser 0.85; BULWARK cycle 0.80, hull 3.0) | PASS |
+
+With the `foundry_300` profile (40 seeds, greedy4): VANGUARD 15.55 (16), BULWARK 20.23 (+30.1%), STRIKER 17.98 (+15.6%). The frames scale better than VANGUARD once the Foundry multiplies their stats. The gate is the fresh profile, so this is informational; it is a Q67 follow-up (user decision: accept, or add a Foundry-profile gate).
+
+## Step 4: SimVersion and re-baselining
+
+`SimVersion.CURRENT` 1 to **2** (the data change alters every outcome; the sim code change of step 2 is hash-neutral for default frames). A snapshot saved under version 1 is discarded (`SimSnapshot.restore` already requires `sim_version == CURRENT`), so a run in flight across the update ends through the existing "run ended by update" path. The repo has no multi-version replay machinery, and an old `RunRecord` no longer verifies against a version 2 config hash (the config hash also changed because the data did).
+
+Re-baselined (each is a pin of a number that the retune deliberately changed):
+
+| Test | What changed | Why |
+|---|---|---|
+| `tests/sim/test_replay.gd` | `GOLDEN_SIM_VERSION` 2, `GOLDEN_CONFIG_HASH` 43ca2931...8337, `GOLDEN_FINAL_HASH` 49509380...eda0 (seed 7, 3000 ticks, scripted buys) | config and outcome changed by design. The command-shift test also tries a 40-tick shift: with start scrap 60 a 1-tick shift no longer crosses a shot |
+| `test_frame_mods.gd`, `test_foundry_sim.gd` | `PRE_M3_CONFIG_HASH` equals the new default hash | the "neutral frame is bit-identical to no frame" and "all-zero Foundry is bit-identical" checks compare against the default config hash |
+| `test_economy_system.gd` | start scrap 60 (62, 61, 67 after kills, float shadow base 60) | `start_scrap` 20 to 60 |
+| `test_upgrade_system.gd` | scrap 20 set explicitly for the first-buy case; costs 10 and 12 | `c0` 10, `g` 1.108 |
+| `test_policy_bot.gd` | with 20 scrap the first buy is any greedy4 row | nano step 0.6 makes `nano_repair` the bot's best ratio |
+| `test_spawn_system.gd` | wave 1 has 6 skitters (was 8), boss wave normal slots 7-9 (was 9-11), alive-cap test cap 4 | `n_base` 4 |
+| `test_gdd_tables.gd` | boss 8, laser/hull c0 10 g 1.108, nano 0.60, plating 0.06 c0 20 | data |
+| `test_frame_data.gd`, `core/test_sim_config_foundry.gd`, `meta/test_frame_rules.gd` | BULWARK/STRIKER values; card deltas (BULWARK hull +200%, rate -20%, damage +30%; STRIKER rate +30%, damage -15%, hull -50%, range -20%; reference-follows-selection -66.7%) | final frame values |
+| `core/test_run_controller_buy.gd` | scrap after a buy is below 60 | start scrap |
+| `test_sim_snapshot.gd` via `snapshot_fields.gd` | the two new derived SimWorld vars are classified DERIVED | step 2 |
+
+Not touched by me (UI-owned; they pin the old start scrap and fail, report to the owners): `tests/unit/ui/test_upgrade_panel_scene.gd` (`test_refresh_follows_scrap_and_does_not_mutate_world`, `test_row_cost_states_icon_and_maxed_plate`) and `tests/unit/ui/test_upgrade_row_model.gd` (`test_unaffordable_state_is_flagged_and_cost_is_formatted`): each assumes a `cycle_rate` row costing 25 is unaffordable at the default start scrap, which is now 60 (fix: set `world.economy.scrap` explicitly in those tests).

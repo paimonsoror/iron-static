@@ -21,4 +21,7 @@ crit_mult_mult = 1.0
 scrap_mult = 1.25
 data_mult = 1.1
 passive = "scrap_tithe"
+bastion_cap_frac = 0.2
+overclock_per_kill = 0.01
+overclock_cap = 0.2
 tag = "M6"

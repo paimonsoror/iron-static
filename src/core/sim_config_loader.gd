@@ -87,6 +87,9 @@ static func frame_mods_from(def: FrameDef) -> FrameMods:
 	m.scrap_mult = def.scrap_mult
 	m.data_mult = def.data_mult
 	m.implemented = def.implemented
+	m.bastion_cap_frac = def.bastion_cap_frac
+	m.overclock_per_kill = def.overclock_per_kill
+	m.overclock_cap = def.overclock_cap
 	match def.passive:
 		"bastion":
 			m.passive = FrameMods.PASSIVE_BASTION

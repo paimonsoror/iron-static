@@ -99,11 +99,11 @@ func test_cards_list_and_state() -> void:
 func test_bulwark_deltas_vs_vanguard() -> void:
 	var cards: Array[FrameCard] = FrameRules.cards(PlayerProfile.fresh(0, "t"), _defs, _service())
 	var b: FrameCard = _card(cards, "bulwark")
-	assert_float(b.delta("hull")).is_equal_approx(60.0, 1e-6)
-	assert_float(b.delta("rate")).is_equal_approx(-25.0, 1e-6)
+	assert_float(b.delta("hull")).is_equal_approx(200.0, 1e-6)
+	assert_float(b.delta("rate")).is_equal_approx(-20.0, 1e-6)
 	assert_float(b.delta("range")).is_equal_approx(-8.0, 1e-6)
 	assert_float(b.delta("repair")).is_equal_approx(30.0, 1e-6)
-	assert_float(b.delta("damage")).is_equal_approx(0.0, 1e-6)
+	assert_float(b.delta("damage")).is_equal_approx(30.0, 1e-6)
 	var v: FrameCard = _card(cards, "vanguard")
 	for key: String in FrameCard.STAT_KEYS:
 		assert_float(v.delta(key)).is_equal_approx(0.0, 1e-9)
@@ -112,9 +112,10 @@ func test_bulwark_deltas_vs_vanguard() -> void:
 
 func test_striker_deltas() -> void:
 	var s: FrameCard = _card(FrameRules.cards(PlayerProfile.fresh(0, "t"), _defs, _service()), "striker")
-	assert_float(s.delta("rate")).is_equal_approx(40.0, 1e-6)
-	assert_float(s.delta("damage")).is_equal_approx(-10.0, 1e-6)
-	assert_float(s.delta("hull")).is_equal_approx(-35.0, 1e-6)
+	assert_float(s.delta("rate")).is_equal_approx(30.0, 1e-6)
+	assert_float(s.delta("damage")).is_equal_approx(-15.0, 1e-6)
+	assert_float(s.delta("hull")).is_equal_approx(-50.0, 1e-6)
+	assert_float(s.delta("range")).is_equal_approx(-20.0, 1e-6)
 	assert_float(s.delta("crit")).is_equal_approx(150.0, 1e-6)
 
 
@@ -124,9 +125,9 @@ func test_reference_follows_selection() -> void:
 	assert_bool(FrameRules.select(p, "bulwark")).is_true()
 	var cards: Array[FrameCard] = FrameRules.cards(p, _defs, _service())
 	assert_float(_card(cards, "bulwark").delta("hull")).is_equal_approx(0.0, 1e-9)
-	assert_float(_card(cards, "vanguard").delta("hull")).is_equal_approx(-37.5, 1e-6)
+	assert_float(_card(cards, "vanguard").delta("hull")).is_equal_approx(-66.666667, 1e-5)
 	var fixed: Array[FrameCard] = FrameRules.cards(p, _defs, _service(), "vanguard")
-	assert_float(_card(fixed, "bulwark").delta("hull")).is_equal_approx(60.0, 1e-6)
+	assert_float(_card(fixed, "bulwark").delta("hull")).is_equal_approx(200.0, 1e-6)
 
 
 func test_power_rating_includes_foundry() -> void:

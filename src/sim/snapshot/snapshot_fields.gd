@@ -43,6 +43,8 @@ const TABLE: Dictionary = {
 		"frame_ext": "DERIVED: built by the constructor from config.frame",
 		"frame_passive": "DERIVED: built by the constructor from config.frame",
 		"frame_scrap_mult": "DERIVED: built by the constructor from config.frame",
+		"frame_overclock_scale": "DERIVED: built by the constructor from config.frame",
+		"frame_overclock_kill_cap": "DERIVED: built by the constructor from config.frame",
 		"frame_data_mult": "DERIVED: built by the constructor from config.frame",
 		"overclock_kills": "SAVED: Overclock per-wave counter",
 		"_streams": "DERIVED: rebuilt by the constructor, the stream states are saved as rng_*",

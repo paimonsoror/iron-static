@@ -6,13 +6,16 @@ extends RefCounted
 
 const USAGE: String = (
 	"usage: balance_run [--profile fresh|FILE.json] [--waves W] [--runs N] [--seed S]"
-	+ " [--policy greedy4|all|none] [--sector K] [--frame ID|all]  (defaults: fresh, 100, 20, 1, greedy4, 1, vanguard)"
+	+ " [--policy greedy4|all|none|only:ID] [--sector K] [--frame ID|all]"
+	+ "  (defaults: fresh, 100, 20, 1, greedy4, 1, vanguard)"
 )
 const DEFAULT_WAVES: int = 100
 const DEFAULT_RUNS: int = 20
 const DEFAULT_SEED: int = 1
 ## `none` never buys (only the starting stats matter; M3-24).
 const POLICIES: PackedStringArray = ["greedy4", "all", "none"]
+## `only:<row id>` buys just that run-upgrade row (check of early hull, plating and repair purchases).
+const ONLY_PREFIX: String = "only:"
 const FRAME_ALL: String = "all"
 const STATUS_PASS: String = "PASS"
 const STATUS_WARN: String = "WARN"
@@ -62,8 +65,8 @@ static func parse(args: PackedStringArray) -> BalanceRunArgs:
 				_:
 					out.sector = value
 		elif flag == "--policy":
-			if not POLICIES.has(raw):
-				out.error = "--policy must be greedy4, all or none"
+			if not POLICIES.has(raw) and not raw.begins_with(ONLY_PREFIX):
+				out.error = "--policy must be greedy4, all, none or only:<row id>"
 				return out
 			out.policy = raw
 		elif flag == "--frame":

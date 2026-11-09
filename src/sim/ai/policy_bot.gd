@@ -3,7 +3,8 @@ extends RefCounted
 ## Deterministic greedy buyer for headless balance runs (M2-13). No randomness; buys only through
 ## `world.command_buy` (so runs are recorded and replayable) and reads costs through `UpgradeSystem.preview`.
 ## The runner calls `think(world)` every THINK_INTERVAL ticks (before that tick's `step()`).
-## Policies: "greedy4" = the four starting rows (ids in GREEDY4_IDS), "all" = every visible row.
+## Policies: "greedy4" = the four starting rows (ids in GREEDY4_IDS), "all" = every visible row,
+## "only:<row id>" = that single row (M3 balance check).
 ## Rule: for each candidate row, gain = score(after one more level) / score(now) - 1 with
 ## score = ref_dmg * ref_ehp; ratio = gain / cost; the best ratio wins (lowest row index on ties).
 ## **(impl)** If the winner is unaffordable the bot waits (saves). After a purchase it re-evaluates in the
@@ -13,6 +14,8 @@ extends RefCounted
 const THINK_INTERVAL: int = 15
 const MAX_BUYS_PER_THINK: int = 64
 const GREEDY4_IDS: PackedStringArray = ["laser_output", "cycle_rate", "hull_integrity", "nano_repair"]
+## `only:<row id>` policy: buys just that row (balance check of single purchases).
+const ONLY_PREFIX: String = "only:"
 
 var policy: String = "greedy4"
 
@@ -58,6 +61,8 @@ func _candidates(world: SimWorld) -> PackedInt32Array:
 		if world.visible[i] == 0:
 			continue
 		if policy == "greedy4" and not GREEDY4_IDS.has(defs[i].id):
+			continue
+		if policy.begins_with(ONLY_PREFIX) and defs[i].id != policy.trim_prefix(ONLY_PREFIX):
 			continue
 		if out.append(i):
 			push_error("PolicyBot: append failed")

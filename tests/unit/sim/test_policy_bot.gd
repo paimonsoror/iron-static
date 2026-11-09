@@ -20,11 +20,13 @@ func _run(w: SimWorld, policy: String, ticks: int) -> void:
 		w.step()
 
 
-func test_with_20_scrap_buys_laser_output_first() -> void:
+func test_with_20_scrap_buys_a_greedy4_row_first() -> void:
 	var w: SimWorld = _world(0)
+	w.economy.scrap = BigNum.from_float(20.0)  # the SimVersion 2 start scrap is 60: pin the old 20-scrap case
 	PolicyBot.new("greedy4").think(w)
 	assert_int(w.input_log.size()).is_equal(1)
-	assert_str(w.config.upgrades[w.input_log.arg_a[0]].id).is_equal("laser_output")
+	# With nano_repair at step 0.6 (SimVersion 2) the bot values repair above laser at 20 scrap: any greedy4 row.
+	assert_bool(PolicyBot.GREEDY4_IDS.has(w.config.upgrades[w.input_log.arg_a[0]].id)).is_true()
 	assert_int(w.run_levels[w.input_log.arg_a[0]]).is_equal(1)
 
 

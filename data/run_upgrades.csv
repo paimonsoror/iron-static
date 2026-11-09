@@ -1,13 +1,13 @@
 # MVP run upgrades (GDD 02 s7.1-7.3, gates per GDD 08 s1.3). Row order is the display order.
 # kind D: step is the factor p of the D formula. kind C: step is the per-level increment. Empty hard_cap = none.
 id,tab,kind,base,step,l_cap,hard_cap,c0,g,gate_best_wave,tag
-laser_output,arms,D,10,0.10,400,,15,1.09,0,MVP
+laser_output,arms,D,10,0.10,400,,10,1.108,0,MVP
 cycle_rate,arms,C,1.00,0.04,100,12.0,25,1.12,0,MVP
 crit_chance,arms,C,0.02,0.008,98,0.85,60,1.10,5,MVP
 crit_mult,arms,C,1.50,0.05,150,,80,1.085,8,MVP
 optic_range,arms,C,24,0.4,100,80,40,1.10,10,MVP
-hull_integrity,chassis,D,100,0.10,400,,15,1.09,0,MVP
-nano_repair,chassis,D,1.0,0.10,400,,20,1.09,0,MVP
-plating_pct,chassis,C,0,0.005,99,0.90,100,1.10,10,MVP
+hull_integrity,chassis,D,100,0.10,400,,10,1.108,0,MVP
+nano_repair,chassis,D,1.0,0.60,400,,20,1.09,0,MVP
+plating_pct,chassis,C,0,0.06,99,0.90,20,1.10,10,MVP
 scrap_yield,systems,C,1.00,0.02,100,3.0,50,1.10,3,MVP
 reinvest,systems,C,0,0.0006,99,0.0594,300,1.11,12,MVP

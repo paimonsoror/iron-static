@@ -3,5 +3,5 @@
 # Foundry profile rows (M3-08) are information only: balance_run reports a FAIL there as WARN (Q54 territory). x4 37 and x10 60 rows follow with the real Foundry profiles.
 profile,metric,target,tolerance,source
 fresh,median_death_wave,12,0.30,gdd:03 s6
-foundry_300,median_death_wave,13,0.30,gdd:04 s3 fresh median 9 + 4 (info only)
+foundry_300,median_death_wave,16,0.30,gdd:04 s3 fresh median 12 + 4 (info only)
 foundry_1k,median_death_wave,24,0.30,gdd:03 s6 x2 impl guess (info only)

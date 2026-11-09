@@ -53,7 +53,7 @@ func test_apply_frame_builds_mods() -> void:
 	var cfg: SimConfig = SimConfigLoader.load_default(1)
 	assert_bool(SimConfigLoader.apply_frame(cfg, "bulwark")).is_true()
 	assert_str(cfg.frame_id).is_equal("bulwark")
-	assert_float(cfg.frame.hull_mult).is_equal(1.6)
+	assert_float(cfg.frame.hull_mult).is_equal(3.0)
 	assert_int(cfg.frame.passive).is_equal(FrameMods.PASSIVE_BASTION)
 	assert_bool(cfg.frame.is_runnable()).is_true()
 	assert_bool(SimConfigLoader.apply_frame(cfg, "striker")).is_true()

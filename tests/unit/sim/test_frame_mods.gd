@@ -2,7 +2,7 @@ class_name TestFrameMods
 extends GdUnitTestSuite
 ## Frame stat modifiers and neutrality (M3-22).
 
-const PRE_M3_CONFIG_HASH: String = "6d64c039083cb354df88635f228ffd48655be5bcdc8da7486fe8dbe93aaba060"
+const PRE_M3_CONFIG_HASH: String = "43ca2931080753827c979b9b0f25d6d51a45770bc8ee9c37b1754439a4698337"
 
 
 static func bulwark() -> FrameMods:

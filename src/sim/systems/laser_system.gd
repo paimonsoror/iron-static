@@ -18,8 +18,10 @@ static func step(world: SimWorld) -> void:
 	var shot_cost: int = world.config.tuning.tick_rate * CHARGE_UNIT
 	var inc: int = roundi(stats.cycle_rate * float(CHARGE_UNIT))
 	if world.overclock_kills > 0:
-		# Overclock (M3-22): +1% per kill this wave, integer fixed point on the charge increment.
-		inc += floori(float(inc * world.overclock_kills) / 100.0)
+		# Overclock (M3-22): +overclock_per_kill (1% default) per kill this wave, integer fixed point.
+		inc += floori(
+			float(inc * world.overclock_kills * world.frame_overclock_scale) / float(FrameMods.OVERCLOCK_SCALE)
+		)
 	world.laser_charge += inc
 	var shots: int = 0
 	while world.laser_charge >= shot_cost and shots < MAX_SHOTS_PER_TICK:
@@ -56,7 +58,7 @@ static func _kill(world: SimWorld, i: int) -> void:
 	var scrap: float = RewardCalc.scrap_for_kill(t, def, level, world.stats.scrap_yield, stale) * world.frame_scrap_mult
 	var data: float = RewardCalc.data_for_kill(t, def, level, world.config.sector, stale) * world.frame_data_mult
 	if world.frame_passive == FrameMods.PASSIVE_OVERCLOCK:
-		world.overclock_kills = mini(world.overclock_kills + 1, FrameMods.OVERCLOCK_CAP)
+		world.overclock_kills = mini(world.overclock_kills + 1, world.frame_overclock_kill_cap)
 	world.run.scrap_earned += scrap  # float shadow totals (tools and HUD read them)
 	world.run.data_earned += data
 	world.tick_scrap += scrap  # BigNum conversion happens once per tick in EconomySystem.apply_tick

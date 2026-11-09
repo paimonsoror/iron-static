@@ -64,12 +64,14 @@ var rng_draft: Rng
 var laser_charge: int = 0
 ## Frame state (M3-22). `frame_ext` = stat modifiers (null for a neutral frame), `frame_passive` = FrameMods.PASSIVE_*
 ## actually in force (a frame the sim cannot run falls back to neutral), `overclock_kills` = kills this wave
-## (capped at FrameMods.OVERCLOCK_CAP; hashed only for a non-neutral frame).
+## (capped at `frame_overclock_kill_cap`; hashed only for a non-neutral frame).
 var frame_ext: ExternalMults = null
 var frame_passive: int = FrameMods.PASSIVE_NONE
 var frame_scrap_mult: float = 1.0
 var frame_data_mult: float = 1.0
 var overclock_kills: int = 0
+var frame_overclock_scale: int = 0  ## per-kill Overclock bonus, FrameMods.OVERCLOCK_SCALE units (set with the passive)
+var frame_overclock_kill_cap: int = 0  ## kills after which Overclock stops growing
 var next_wave_is_boss: bool = false
 var query_buf: PackedInt32Array
 var type_is_boss: PackedByteArray
@@ -97,7 +99,7 @@ func _init(cfg: SimConfig) -> void:
 	cinder = CinderState.new()
 	cinder.setup(stats.hull_integrity, cfg.debug_invulnerable)
 	if frame_passive == FrameMods.PASSIVE_BASTION:
-		cinder.hit_cap_frac = FrameMods.BASTION_HIT_CAP
+		cinder.hit_cap_frac = cfg.frame.bastion_cap_frac
 	run = RunStats.new()
 	events = SimEvents.new()
 	plan = WavePlanState.new(t.n_cap + PLAN_SLACK)
@@ -294,3 +296,5 @@ func _init_frame(cfg: SimConfig) -> void:
 	frame_passive = f.passive
 	frame_scrap_mult = f.scrap_mult
 	frame_data_mult = f.data_mult
+	frame_overclock_scale = f.overclock_scale()
+	frame_overclock_kill_cap = f.overclock_kill_cap()

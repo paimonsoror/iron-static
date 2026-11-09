@@ -72,3 +72,28 @@ func test_same_seed_and_inputs_give_identical_hashes() -> void:
 		a.step()
 		b.step()
 	assert_str(a.state_hash()).is_equal(b.state_hash())
+
+
+func test_per_kill_and_cap_are_data_driven() -> void:
+	var m: FrameMods = FrameMods.new()
+	m.passive = FrameMods.PASSIVE_OVERCLOCK
+	m.overclock_per_kill = 0.02
+	m.overclock_cap = 0.10
+	assert_int(m.overclock_kill_cap()).is_equal(5)
+	var w: SimWorld = SimWorld.new(TestFrameMods.cfg_with("striker", m, 3))
+	for k: int in 9:
+		_kill_one(w)
+	assert_int(w.overclock_kills).is_equal(5)
+	w.laser_charge = 0
+	LaserSystem.step(w)
+	var base: int = roundi(w.stats.cycle_rate * float(LaserSystem.CHARGE_UNIT))
+	assert_int(w.laser_charge).is_equal(base + floori(float(base * 5 * 2) / 100.0))
+
+
+func test_defaults_equal_the_old_constants() -> void:
+	var m: FrameMods = FrameMods.new()
+	assert_float(m.bastion_cap_frac).is_equal(0.20)
+	assert_float(m.overclock_per_kill).is_equal(0.01)
+	assert_float(m.overclock_cap).is_equal(0.20)
+	assert_int(m.overclock_kill_cap()).is_equal(FrameMods.OVERCLOCK_CAP)
+	assert_int(m.overclock_scale()).is_equal(1000)

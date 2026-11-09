@@ -37,11 +37,11 @@ func _count_of(world: SimWorld, type_index: int) -> int:
 	return n
 
 
-func test_wave_1_has_8_skitters() -> void:
+func test_wave_1_has_6_skitters() -> void:
 	var w: SimWorld = _world()
 	_build_plan(w, 1)
-	assert_int(w.plan.count).is_equal(8)
-	assert_int(_count_of(w, 0)).is_equal(8)
+	assert_int(w.plan.count).is_equal(6)
+	assert_int(_count_of(w, 0)).is_equal(6)
 	assert_bool(w.plan.built).is_true()
 
 
@@ -98,7 +98,7 @@ func test_boss_wave_plan() -> void:
 			if w.plan.type_index[i] == BOSS:
 				assert_int(w.plan.spawn_tick[i]).is_equal(60)
 	_build_plan(w, 10)
-	assert_int(_slots(w)).is_between(9, 11)
+	assert_int(_slots(w)).is_between(7, 9)
 
 
 func test_boss_spawns_at_tick_60_with_event() -> void:
@@ -169,14 +169,14 @@ func test_spawn_positions_on_arena_rim() -> void:
 	for wt: int in Ticks.SPAWN_TICKS:
 		w.wave_tick = wt
 		SpawnSystem.step(w)
-	assert_int(w.enemies.alive_count).is_equal(8)
+	assert_int(w.enemies.alive_count).is_equal(6)
 	for i: int in w.enemies.high_water:
 		var r: float = Vector2(w.enemies.pos_x[i], w.enemies.pos_y[i]).length()
 		assert_float(r).is_equal_approx(w.config.tuning.arena_radius, 0.01)
 
 
 func test_alive_cap_throttles_but_never_drops() -> void:
-	var w: SimWorld = _world(3, 5)
+	var w: SimWorld = _world(3, 4)
 	w.wave = 12
 	w.plan.begin(12)
 	var max_alive: int = 0
@@ -187,9 +187,9 @@ func test_alive_cap_throttles_but_never_drops() -> void:
 		if wt % 200 == 199:  # simulate kills
 			for i: int in w.enemies.high_water:
 				w.enemies.release(i)
-	assert_int(max_alive).is_equal(5)
+	assert_int(max_alive).is_equal(4)
 	assert_int(w.plan.cursor).is_equal(w.plan.count)
-	assert_int(w.plan.count).is_greater(5)
+	assert_int(w.plan.count).is_greater(4)
 	for i: int in w.plan.count:
 		assert_int(w.plan.spawned[i]).is_equal(1)
 	assert_int(w.run.spawn_throttled).is_greater(0)
@@ -261,8 +261,8 @@ func test_stepping_world_spawns_wave_1() -> void:
 	var w: SimWorld = _world()
 	for i: int in Ticks.WAVE_TICKS - 1:
 		w.step()
-	assert_int(w.plan.count).is_equal(8)
-	assert_int(w.plan.cursor).is_equal(8)
+	assert_int(w.plan.count).is_equal(6)
+	assert_int(w.plan.cursor).is_equal(6)
 
 
 @warning_ignore("return_value_discarded")  # grouped count not needed here

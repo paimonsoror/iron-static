@@ -62,3 +62,19 @@ func test_without_bastion_the_hit_is_not_capped() -> void:
 	var w: SimWorld = SimWorld.new(cfg)
 	var taken: float = w.cinder.apply_hit(90.0, w.stats, w.config.tuning)
 	assert_float(taken).is_greater(20.0)
+
+
+func test_cap_fraction_is_data_driven() -> void:
+	var m: FrameMods = FrameMods.new()
+	m.passive = FrameMods.PASSIVE_BASTION
+	m.bastion_cap_frac = 0.10
+	var w: SimWorld = SimWorld.new(TestFrameMods.cfg_with("bulwark", m))
+	w.stats.plating_flat = 0.0
+	w.stats.plating_pct = 0.0
+	var taken: float = w.cinder.apply_hit(90.0, w.stats, w.config.tuning)
+	assert_float(taken).is_equal_approx(10.0, 1.0e-9)
+	# A non-default strength is part of the config hash; the default is not (frame hash unchanged).
+	var d: FrameMods = FrameMods.new()
+	d.passive = FrameMods.PASSIVE_BASTION
+	assert_str(m.hash_text("bulwark")).is_not_equal(d.hash_text("bulwark"))
+	assert_bool(d.hash_text("bulwark").contains(";pp")).is_false()
