@@ -115,7 +115,7 @@ func test_styles_match_the_gdd() -> void:
 	assert_int(DamageNumberModel.size_of(DamageNumberModel.Kind.NORMAL)).is_equal(30)
 	assert_int(DamageNumberModel.size_of(DamageNumberModel.Kind.CRIT)).is_equal(44)
 	assert_int(DamageNumberModel.size_of(DamageNumberModel.Kind.OVERCRIT)).is_equal(56)
-	assert_int(DamageNumberModel.size_of(DamageNumberModel.Kind.CINDER)).is_equal(22)
+	assert_int(DamageNumberModel.size_of(DamageNumberModel.Kind.CINDER)).is_equal(36)
 	assert_str(DamageNumberModel.color_of(DamageNumberModel.Kind.NORMAL).to_html(false)).is_equal("f2e6c9")
 	assert_str(DamageNumberModel.color_of(DamageNumberModel.Kind.CRIT).to_html(false)).is_equal("ffd27a")
 	assert_str(DamageNumberModel.color_of(DamageNumberModel.Kind.OVERCRIT).to_html(false)).is_equal("ffffff")
