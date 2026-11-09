@@ -1,8 +1,8 @@
 # 12 - Upgrade Visual Tiers
 
-Changelog: 2026-11-09 v0.1 - first version, a DRAFT for the user gate. User request: "visual changes to the upgrades ... as we reach certain values for the strength of our laser, it changes the visual look and feel of the shot, and same with armor upgrades, etc. this way the consumer can get visual satisfaction of purchasing upgrades". Direction accepted by the user: tiers, not every level. This chapter is a design and a mockup only; nothing is built. The style frame (section 15) is the thing to approve first. Visual rules follow `10_art_bible.md` and the IP guardrails of CLAUDE.md.
+Changelog: 2026-11-09 v0.2 - APPROVED at the user gate (user: "Approved!"). Open questions Q1-Q10 resolved with the recommended defaults (section 14). One change from the style frame: MK II's beam is a little thicker and brighter so the first step reads at phone size (main-agent note; tune in VT-2). - 2026-11-09 v0.1 - first version, a DRAFT for the user gate. User request: "visual changes to the upgrades ... as we reach certain values for the strength of our laser, it changes the visual look and feel of the shot, and same with armor upgrades, etc. this way the consumer can get visual satisfaction of purchasing upgrades". Direction accepted by the user: tiers, not every level. This chapter is a design and a mockup only; nothing is built. The style frame (section 15) is the thing to approve first. Visual rules follow `10_art_bible.md` and the IP guardrails of CLAUDE.md.
 
-Scope tags: first slice (laser beam tiers, hull and plating armor tiers, repair motes, tier-up moment, upgrade-row mark) = MVP/M4-M5 candidate, pending approval. Cycle Rate heat-glow and the Crit spark = a second slice (section 4.5).
+Scope tags: first slice (laser beam tiers, hull and plating armor tiers, repair motes, tier-up moment, upgrade-row mark) = approved 2026-11-09, built as M4 group 6 (VT-1 to VT-7 in docs/tasks/M4.md). Cycle Rate heat-glow and the Crit spark = a second slice (section 4.5).
 
 ---
 
@@ -295,7 +295,7 @@ Critical path: VT-1 -> (VT-2, VT-3, VT-4 in parallel) -> VT-5 -> VT-7. Total abo
 
 ---
 
-## 14. Open questions for the user
+## 14. Open questions for the user (RESOLVED 2026-11-09: every recommended default adopted)
 
 | # | Question | Recommended default |
 |---|---|---|
