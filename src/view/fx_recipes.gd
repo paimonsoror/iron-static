@@ -36,6 +36,19 @@ const PARTICLE_BUDGET: Array[int] = [120, 80, 48]
 const MAX_EMBERS_PER_FRAME: int = 4
 ## Sparks of a Cinder hit (6.5).
 const CINDER_HIT_SPARKS: int = 4
+## VT-4 deflection sparks: radius of the ricochet point as a fraction of the armor ring radius (plate edge) and the
+## spark counts (cap per hit, MID, reduce motion).
+const DEFLECT_EDGE: float = 1.22
+const DEFLECT_SPARKS_MAX: int = 6
+const DEFLECT_SPARKS_MID: int = 4
+const DEFLECT_SPARKS_REDUCED: int = 3
+## VT-4 repair motes: life in s, spawn rate share at full integrity (1.0 while hurt), count share of MID and of
+## reduce motion, and the per-frame spawn cap.
+const MOTE_LIFE_S: float = 1.3
+const MOTE_IDLE_RATE: float = 0.4
+const MOTE_MID_SHARE: float = 0.6
+const MOTE_REDUCED_SHARE: float = 0.5
+const MAX_MOTES_PER_FRAME: int = 3
 ## Hits on one enemy within this many sim seconds do not spawn a second impact (a beam burst on one target).
 const HIT_COOLDOWN_S: float = 0.05
 
@@ -105,3 +118,31 @@ static func particle_budget(tier: int) -> int:
 
 static func kill_budget(tier: int) -> int:
 	return KILL_BUDGET[clampi(tier, 0, 2)]
+
+
+## Sparks of one deflection (0 on LOW): 5 to 6 at HIGH by the PLATED tier scale, 4 on MID, 3 under reduce motion.
+static func deflect_sparks(tier: int, reduce_motion: bool, tier_scale: float) -> int:
+	if tier >= 2:
+		return 0
+	if reduce_motion:
+		return DEFLECT_SPARKS_REDUCED
+	if tier == 1:
+		return DEFLECT_SPARKS_MID
+	return clampi(roundi(5.0 * tier_scale), 1, DEFLECT_SPARKS_MAX)
+
+
+## Live repair motes wanted at quality `tier`: 0 on LOW, 60% on MID, half under reduce motion (the smaller of the two).
+static func mote_count(base: int, tier: int, reduce_motion: bool) -> int:
+	if tier >= 2 or base <= 0:
+		return 0
+	var share: float = 1.0
+	if tier == 1:
+		share = MOTE_MID_SHARE
+	if reduce_motion:
+		share = minf(share, MOTE_REDUCED_SHARE)
+	return maxi(roundi(float(base) * share), 1)
+
+
+## Mote spawns per second: count / life, at 40% while Cinder is at full integrity and 100% while hurt.
+static func mote_rate(count: int, hurt: bool) -> float:
+	return float(count) / MOTE_LIFE_S * (1.0 if hurt else MOTE_IDLE_RATE)

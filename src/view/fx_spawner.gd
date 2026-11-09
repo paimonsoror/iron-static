@@ -12,6 +12,9 @@ extends RefCounted
 var emitter: FxEmitter
 var hits_spawned: int = 0
 var hits_dropped: int = 0
+## VT-4 counters: deflection effects fired, motes spawned (tests and the perf report read them).
+var deflects_spawned: int = 0
+var motes_spawned: int = 0
 var kills_spawned: int = 0
 var kills_dropped: int = 0
 var boss_kills: int = 0
@@ -37,6 +40,17 @@ var _written_start: int = 0
 var _particle_budget: int = 0
 var _quality_fallback: VisualQuality = VisualQuality.high()
 var _rng := RandomNumberGenerator.new()
+# VT-4 (docs/design/12): tier looks read from the plating_pct and nano_repair run levels, refreshed only on a change
+var _tiers: VisualTierModel = null
+var _plating_row: int = -1
+var _nano_row: int = -1
+var _plating_level: int = -1
+var _nano_level: int = -1
+var _deflect_scale: float = 0.0
+var _mote_base: int = 0
+var _mote_speed: float = 0.0
+var _mote_size: float = 0.0
+var _mote_acc: float = 0.0
 
 
 func setup(renderer: ParticleRenderer, enemies: EnemyRenderer) -> void:
@@ -44,6 +58,7 @@ func setup(renderer: ParticleRenderer, enemies: EnemyRenderer) -> void:
 	_enemies = enemies
 	emitter = FxEmitter.new(renderer.additive, renderer.smoke)
 	_rng.seed = 77
+	_tiers = VisualTierModel.shared()
 	_world_id = 0
 
 
@@ -71,11 +86,13 @@ func update(world: SimWorld, alpha: float, visual: VisualSettings, band: int) ->
 	_cinder_budget = FxRecipes.CINDER_HIT_BUDGET
 	_particle_budget = FxRecipes.particle_budget(quality.tier)
 	_written_start = _written()
+	_refresh_tiers(world)
 	var store: EnemyStore = world.enemies
 	while _events.poll(world.events) > 0:
 		for i: int in _events.count:
 			_on_event(_events.kind_at(i), _events.a_at(i), _events.b_at(i), store, a, sim_t)
 	_embers(band, dt)
+	_motes(world, dt, quality.tier, reduce, visual != null and visual.high_contrast)
 	_renderer.flush()
 	last_update_usec = Time.get_ticks_usec() - t0
 
@@ -105,6 +122,10 @@ func _on_event(kind: int, a: int, b: int, store: EnemyStore, alpha: float, sim_t
 			if _cinder_budget > 0:
 				_cinder_budget -= 1
 				emitter.cinder_hit(FxRecipes.accent(b))
+				if _deflect_scale > 0.0:
+					deflects_spawned += 1
+					@warning_ignore("return_value_discarded")
+					emitter.deflect(emitter.last_hit_angle, _deflect_scale)
 		SimEventKind.RUN_ENDED:
 			emitter.cinder_death()
 
@@ -165,6 +186,7 @@ func _apply_quality(quality: VisualQuality, reduce: bool) -> void:
 	emitter.sparks_per_hit = quality.sparks_per_hit
 	emitter.rings_enabled = quality.impact_rings
 	emitter.reduce_motion = reduce
+	emitter.quality_tier = int(quality.tier)
 
 
 func _reset(world: SimWorld, wid: int) -> void:
@@ -178,4 +200,56 @@ func _reset(world: SimWorld, wid: int) -> void:
 	_hit_until.fill(0.0)
 	_ember_acc = 0.0
 	_last_t = (float(world.tick)) * SimWorld.DT
+	_mote_acc = 0.0
+	_plating_row = _row_of(world, "plating_pct")
+	_nano_row = _row_of(world, "nano_repair")
+	_plating_level = -1
+	_nano_level = -1
 	_renderer.clear()
+
+
+func _row_of(world: SimWorld, upgrade_id: String) -> int:
+	var ups: Array[RunUpgradeDef] = world.config.upgrades
+	for i: int in ups.size():
+		if ups[i].id == upgrade_id:
+			return i
+	return -1
+
+
+## Re-reads the PLATED and MK looks, only when the run level of that row changed (a tier is a pure function of it).
+func _refresh_tiers(world: SimWorld) -> void:
+	var pl: int = world.run_levels[_plating_row] if _plating_row >= 0 else 0
+	if pl != _plating_level:
+		_plating_level = pl
+		var def: VisualTierDef = _tiers.def_for("plating_pct", pl)
+		var deflect: bool = def != null and def.param("deflect") >= 2.0
+		_deflect_scale = def.param("spark_scale", 1.0) if deflect else 0.0
+	var nl: int = world.run_levels[_nano_row] if _nano_row >= 0 else 0
+	if nl != _nano_level:
+		_nano_level = nl
+		var nd: VisualTierDef = _tiers.def_for("nano_repair", nl)
+		_mote_base = roundi(nd.param("motes")) if nd != null else 0
+		_mote_speed = nd.param("speed") if nd != null else 0.0
+		_mote_size = nd.param("size") if nd != null else 0.0
+
+
+## Repair motes (VT-4): count / 1.3 s spawns per second, 40% at full integrity and 100% while hurt. Off on LOW and
+## under high contrast; MID 60% count without halo; reduce motion half count and no drift. Skipped when this frame
+## already wrote its particle budget, so a crowded frame is never made worse.
+func _motes(world: SimWorld, dt: float, tier: int, reduce: bool, high_contrast: bool) -> void:
+	var count: int = 0 if high_contrast else FxRecipes.mote_count(_mote_base, tier, reduce)
+	if count <= 0:
+		_mote_acc = 0.0
+		return
+	var cinder: CinderState = world.cinder
+	var hurt: bool = cinder != null and cinder.hp < cinder.max_hp
+	_mote_acc += FxRecipes.mote_rate(count, hurt) * dt
+	var n: int = mini(floori(_mote_acc), FxRecipes.MAX_MOTES_PER_FRAME)
+	_mote_acc = minf(_mote_acc - float(floori(_mote_acc)), 1.0)
+	if _over_budget():
+		return
+	var speed: float = 0.0 if reduce else _mote_speed
+	for k: int in n:
+		@warning_ignore("return_value_discarded")
+		emitter.mote(_rng.randf() * TAU, speed, _mote_size, tier == 0)
+		motes_spawned += 1
