@@ -2,16 +2,18 @@ class_name BalanceRunArgs
 extends RefCounted
 ## Argument parsing and target comparison for tools/balance_run.gd (M2-14). Kept out of the tool script so
 ## it is unit-testable. Flags: --profile fresh|<json path>, --waves W, --runs N, --seed S,
-## --policy greedy4|all, --sector K.
+## --policy greedy4|all|none, --sector K, --frame ID|all (M3-24).
 
 const USAGE: String = (
 	"usage: balance_run [--profile fresh|FILE.json] [--waves W] [--runs N] [--seed S]"
-	+ " [--policy greedy4|all] [--sector K]  (defaults: fresh, 100, 20, 1, greedy4, 1)"
+	+ " [--policy greedy4|all|none] [--sector K] [--frame ID|all]  (defaults: fresh, 100, 20, 1, greedy4, 1, vanguard)"
 )
 const DEFAULT_WAVES: int = 100
 const DEFAULT_RUNS: int = 20
 const DEFAULT_SEED: int = 1
-const POLICIES: PackedStringArray = ["greedy4", "all"]
+## `none` never buys (only the starting stats matter; M3-24).
+const POLICIES: PackedStringArray = ["greedy4", "all", "none"]
+const FRAME_ALL: String = "all"
 const STATUS_PASS: String = "PASS"
 const STATUS_WARN: String = "WARN"
 const STATUS_FAIL: String = "FAIL"
@@ -22,6 +24,8 @@ var runs: int = DEFAULT_RUNS
 var seed_value: int = DEFAULT_SEED
 var policy: String = "greedy4"
 var sector: int = 1
+## Frame id from frames.csv, or `all` for the frames table. Validated against the data by the tool.
+var frame: String = "vanguard"
 ## Empty when parsing succeeded, otherwise a one-line reason.
 var error: String = ""
 
@@ -33,7 +37,7 @@ static func parse(args: PackedStringArray) -> BalanceRunArgs:
 	while i < args.size():
 		var flag: String = args[i]
 		var is_int: bool = int_flags.has(flag)
-		if not is_int and flag != "--profile" and flag != "--policy":
+		if not is_int and not ["--profile", "--policy", "--frame"].has(flag):
 			out.error = "unknown argument '%s'" % flag
 			return out
 		if i + 1 >= args.size():
@@ -59,9 +63,14 @@ static func parse(args: PackedStringArray) -> BalanceRunArgs:
 					out.sector = value
 		elif flag == "--policy":
 			if not POLICIES.has(raw):
-				out.error = "--policy must be greedy4 or all"
+				out.error = "--policy must be greedy4, all or none"
 				return out
 			out.policy = raw
+		elif flag == "--frame":
+			if raw.is_empty():
+				out.error = "--frame needs a value"
+				return out
+			out.frame = raw
 		else:
 			if raw.is_empty():
 				out.error = "--profile needs a value"
@@ -89,3 +98,8 @@ static func worst(a: String, b: String) -> String:
 	if a == STATUS_WARN or b == STATUS_WARN:
 		return STATUS_WARN
 	return STATUS_PASS
+
+
+## Whether a policy buys at all (`none` is the idle scenario).
+static func buys(policy_name: String) -> bool:
+	return policy_name != "none"

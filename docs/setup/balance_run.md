@@ -1,6 +1,6 @@
 # Balance runner (`tools/balance_run.ps1`, M2-14)
 
-Changelog: 2026-11-07 created (M2-14).
+Changelog: 2026-11-08 (M3-08, M3-24: Foundry profiles, `--frame`, `--policy none`, frames table, mean line, frame tuning log) - 2026-11-07 created (M2-14).
 
 The standard "did I break the economy" check (TECH_ARCHITECTURE 10.3). Required in the definition of
 done for every economy or sim change: paste the output in the commit message and compare it to
@@ -9,17 +9,18 @@ done for every economy or sim change: paste the output in the commit message and
 ## Command
 
 ```
-.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20 -Seed 1 -Policy greedy4 [-Sector 1]
+.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20 -Seed 1 -Policy greedy4 [-Sector 1] [-Frame vanguard]
 ```
 
 | Flag | Default | Meaning |
 |---|---|---|
-| `-Profile` | `fresh` | `fresh` (best_wave_s1 0, no Foundry) or a JSON file: `{"name": "...", "best_wave_s1": 12, "foundry_levels": {...}}`. `foundry_levels` is parsed but ignored with a warning (**(impl)** the sim has no Foundry until M3+). |
+| `-Profile` | `fresh` | `fresh` (best_wave_s1 0, no Foundry) or a JSON file: `{"name": "...", "best_wave_s1": 0, "foundry_levels": {"laser_output": 5, ...}, "total_cost": 325}`. `foundry_levels` is `{Foundry row id: level}` and goes through `SimConfigLoader.apply_foundry` (M3-08); an unknown id exits 2. `total_cost` is informational (a test recomputes it). Checked-in profiles: `tests/profiles/foundry_300.json`, `foundry_1k.json`. |
 | `-Waves` | 100 | cap: a run that is still alive after this wave reports death wave = cap |
 | `-Runs` | 20 | seeds are `Seed .. Seed+Runs-1` |
 | `-Seed` | 1 | first seed |
-| `-Policy` | `greedy4` | `PolicyBot` policy: `greedy4` or `all` |
+| `-Policy` | `greedy4` | `PolicyBot` policy: `greedy4`, `all` or `none` (never buys: only the starting stats matter, M3-24) |
 | `-Sector` | 1 | sector number (sets `SimConfig.sector`) |
+| `-Frame` | `vanguard` | Cinder frame id from `data/frames.csv` (implemented ones: vanguard, bulwark, striker), or `all` to run every implemented frame on the same seeds and print a frames table (M3-24). Unknown or unimplemented id exits 2. |
 
 Unknown flags exit 2 with a usage line. Exit codes: 0 ok (PASS or WARN), 1 a `data/targets.csv` row is
 `FAIL`, 2 bad arguments or script error. The Godot part takes about 10 to 13 s for 20 runs; the wrapper adds
@@ -71,3 +72,18 @@ the Foundry targets. Deaths: lancer 45%, skitter 40%, dart 15%. The result is a 
 - The wrapper retries the transient Sentry DLL copy collision (`Invoke-GodotRetry`, 15 s waits), so a run
   overlapping other Godot processes can take a minute of wall time with nothing wrong.
 - A running emulator inflates the timing numbers (like `perf_bench`); the output itself is unaffected.
+
+## M3 additions (M3-08 Foundry profiles, M3-24 frames)
+
+- New stdout lines: `BALANCE death_wave_mean=` (after the percentile line); for a profile with `foundry_levels`
+  `BALANCE FOUNDRY delta median vs fresh: +N waves (...; mean +x.xx)` against a silent fresh run on the same seeds;
+  with `-Frame all` one header and block per implemented frame (header gets ` frame=<id>` for non-VANGUARD) and a
+  closing `BALANCE frames frame=.. policy=.. mean=.. median=.. p10=.. p90=.. delta_mean_vs_vanguard=..%` table.
+- `-Policy none` never buys (the runner skips `PolicyBot`); `targets.csv` rows are only compared for VANGUARD with a
+  buying policy. Foundry profile target rows (`foundry_300` 13, `foundry_1k` 24) are information only: a FAIL
+  there is printed as WARN (**impl**).
+- `tools/sim_run.ps1` takes `--foundry id=level,...` and `--frame <id>` (forwarded flags).
+- Shared config building is `BalanceSetup` (`src/core/balance_setup.gd`).
+- Measured numbers, the frame gate and the `data/frames.csv` tuning log: `docs/playtests/m3/balance_m3.md`
+  (fresh 9; `foundry_300` 11 = +2 waves, `foundry_1k` 22 = +13; frames BULWARK +3.2% / STRIKER +7.5% greedy4,
+  BULWARK +1.6% idle with parity-tuned option P; gate NOT met inside the identity bounds, see the report).

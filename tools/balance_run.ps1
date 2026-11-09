@@ -2,7 +2,7 @@
 # stdout is deterministic ("BALANCE ..." lines); TIMING and engine noise go to stderr so two runs diff clean.
 # Exit 0 ok (PASS/WARN), 1 a targets.csv row is FAIL, 2 script error or bad arguments.
 # Usage: .\tools\balance_run.ps1 [-Profile fresh|file.json] [-Waves 100] [-Runs 20] [-Seed 1]
-#        [-Policy greedy4|all] [-Sector 1]   (unknown flags are forwarded and rejected by the script)
+#        [-Policy greedy4|all|none] [-Sector 1] [-Frame vanguard|bulwark|striker|all]   (unknown flags are forwarded and rejected by the script)
 [CmdletBinding(PositionalBinding = $false)]
 param(
     [string]$Profile = "fresh",
@@ -11,6 +11,7 @@ param(
     [int]$Seed = 1,
     [string]$Policy = "greedy4",
     [int]$Sector = 1,
+    [string]$Frame = "vanguard",
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$Extra = @()
 )
@@ -40,7 +41,7 @@ $profileArg = $Profile
 if ($Profile -ne "fresh" -and (Test-Path $Profile)) { $profileArg = (Resolve-Path $Profile).Path -replace '\\', '/' }
 $argList = @("--headless", "-s", "res://tools/balance_run.gd", "--",
     "--profile", $profileArg, "--waves", "$Waves", "--runs", "$Runs", "--seed", "$Seed",
-    "--policy", $Policy, "--sector", "$Sector")
+    "--policy", $Policy, "--sector", "$Sector", "--frame", $Frame)
 if ($Extra.Count -gt 0) { $argList += $Extra }
 $r = Invoke-GodotRetry $argList -TimeoutSec 900
 $text = $r.Output -replace $ansi, ""

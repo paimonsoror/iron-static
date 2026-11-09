@@ -55,3 +55,13 @@ func test_worst_status() -> void:
 	assert_str(BalanceRunArgs.worst("PASS", "WARN")).is_equal("WARN")
 	assert_str(BalanceRunArgs.worst("FAIL", "WARN")).is_equal("FAIL")
 	assert_str(BalanceRunArgs.worst("PASS", "PASS")).is_equal("PASS")
+
+
+func test_frame_and_policy_none() -> void:
+	var a: BalanceRunArgs = BalanceRunArgs.parse(PackedStringArray(["--frame", "bulwark", "--policy", "none"]))
+	assert_str(a.error).is_empty()
+	assert_str(a.frame).is_equal("bulwark")
+	assert_str(a.policy).is_equal("none")
+	assert_str(BalanceRunArgs.parse(PackedStringArray()).frame).is_equal("vanguard")
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--frame", "all"])).frame).is_equal("all")
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--frame"])).error).is_not_empty()

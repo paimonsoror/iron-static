@@ -1,0 +1,6 @@
+{
+	"name": "foundry_300",
+	"best_wave_s1": 0,
+	"foundry_levels": {"laser_output": 5, "hull_integrity": 4, "cycle_rate": 2},
+	"total_cost": 325
+}

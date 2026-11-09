@@ -1,9 +1,12 @@
 extends SceneTree
 ## Headless balance runner (M2-14). Run through tools\balance_run.ps1.
 ## Usage: godot --headless --path . -s res://tools/balance_run.gd -- [--profile fresh|FILE.json] [--waves W]
-##   [--runs N] [--seed S] [--policy greedy4|all] [--sector K]
-## stdout (deterministic, every line starts with "BALANCE"): header, per-run lines, death wave percentiles,
-## mean game minutes, cause-of-death histogram, curve excerpt, target comparison, RESULT and "BALANCE OK".
+##   [--runs N] [--seed S] [--policy greedy4|all|none] [--sector K] [--frame ID|all]
+## stdout (deterministic, every line starts with "BALANCE"): header, per-run lines, death wave percentiles and
+## mean, mean game minutes, cause-of-death histogram, curve excerpt, target comparison, RESULT and "BALANCE OK".
+## A profile with foundry_levels (M3-08) applies them through SimConfigLoader.apply_foundry and prints a
+## "BALANCE FOUNDRY delta" line against a silent fresh run on the same seeds. `--frame all` (M3-24) runs every
+## implemented frame in frames.csv and prints a frames table. `--policy none` never buys.
 ## Wall-clock info is on a "TIMING" line (the wrapper sends it to stderr).
 ## Files: build/balance/curve.csv (per-wave averages), build/balance/run0_buys.csv (run 0 purchases).
 ## Exit code: 0 ok, 1 when a target row is FAIL, 2 on bad arguments or a script error.
@@ -11,6 +14,7 @@ extends SceneTree
 const OUT_DIR: String = "res://build/balance"
 const TARGETS_PATH: String = "res://data/targets.csv"
 const CURVE_EXCERPT_STEP: int = 5
+const BASE_FRAME: String = "vanguard"
 
 
 func _initialize() -> void:
@@ -20,6 +24,7 @@ func _initialize() -> void:
 		return
 	var profile_name: String = args.profile
 	var best_wave: int = 0
+	var foundry: Dictionary = {}
 	if args.profile != "fresh":
 		var loaded: Dictionary = _load_profile(args.profile)
 		if loaded.has("error"):
@@ -27,13 +32,73 @@ func _initialize() -> void:
 			return
 		profile_name = str(loaded["name"])
 		best_wave = loaded["best_wave_s1"]
-	print(
-		(
-			"BALANCE profile=%s policy=%s sector=%d waves=%d runs=%d seed=%d best_wave_s1=%d"
-			% [profile_name, args.policy, args.sector, args.waves, args.runs, args.seed_value, best_wave]
-		)
-	)
+		foundry = loaded["foundry_levels"]
+	var frames: PackedStringArray = PackedStringArray([args.frame])
+	if args.frame == BalanceRunArgs.FRAME_ALL:
+		frames = BalanceSetup.implemented_frames()
+	for frame_id: String in frames:
+		var frame_err: String = BalanceSetup.frame_error(frame_id)
+		if not frame_err.is_empty():
+			_fail_args(frame_err)
+			return
 	var t0: int = Time.get_ticks_usec()
+	var total_ticks: int = 0
+	var overall: String = BalanceRunArgs.STATUS_PASS
+	var table: Array[Dictionary] = []
+	for frame_id: String in frames:
+		var res: Dictionary = _run_set(args, frame_id, profile_name, best_wave, foundry, true)
+		if res.has("error"):
+			print("BALANCE ERROR: %s" % res["error"])
+			quit(2)
+			return
+		total_ticks += res["ticks"]
+		table.append(res)
+		if not foundry.is_empty():
+			var fresh: Dictionary = _run_set(args, frame_id, "fresh", 0, {}, false)
+			total_ticks += fresh["ticks"]
+			print(
+				(
+					"BALANCE FOUNDRY delta median vs fresh: %+d waves (fresh p50=%d, %s p50=%d; mean %+.2f)"
+					% [res["p50"] - fresh["p50"], fresh["p50"], profile_name, res["p50"], res["mean"] - fresh["mean"]]
+				)
+			)
+		# Targets are for the standard buyer on the neutral frame (greedy4); idle runs have none.
+		if frame_id == BASE_FRAME and args.policy != "none":
+			var p50: int = res["p50"]
+			var measured: Dictionary = {"median_death_wave": float(p50)}
+			overall = BalanceRunArgs.worst(overall, _compare_targets(profile_name, measured))
+	if frames.size() > 1:
+		_print_frames_table(table, args.policy)
+	print("BALANCE RESULT %s" % overall)
+	var elapsed: float = float(Time.get_ticks_usec() - t0) / 1000000.0
+	var game_s: float = float(total_ticks) / float(Ticks.TICK_RATE)
+	print("TIMING wall=%.2fs game=%.1fs speedup=%.0fx" % [elapsed, game_s, game_s / maxf(elapsed, 0.000001)])
+	print("BALANCE OK")
+	quit(1 if overall == BalanceRunArgs.STATUS_FAIL else 0)
+
+
+## Runs `args.runs` seeds with one frame and prints the usual block when `verbose`. Returns
+## {frame, p10, p50, p90, mean, ticks} or {error}.
+func _run_set(
+	args: BalanceRunArgs, frame_id: String, profile_name: String, best_wave: int, foundry: Dictionary, verbose: bool
+) -> Dictionary:
+	if verbose:
+		var frame_part: String = "" if frame_id == BASE_FRAME else " frame=%s" % frame_id
+		print(
+			(
+				"BALANCE profile=%s policy=%s sector=%d waves=%d runs=%d seed=%d best_wave_s1=%d%s"
+				% [
+					profile_name,
+					args.policy,
+					args.sector,
+					args.waves,
+					args.runs,
+					args.seed_value,
+					best_wave,
+					frame_part
+				]
+			)
+		)
 	var death_waves: PackedInt32Array = PackedInt32Array()
 	var minutes_sum: float = 0.0
 	var total_ticks: int = 0
@@ -42,18 +107,17 @@ func _initialize() -> void:
 	var wave_data: PackedFloat64Array = PackedFloat64Array()
 	var wave_runs: PackedInt32Array = PackedInt32Array()
 	var buys_csv: String = ""
+	var buys: bool = BalanceRunArgs.buys(args.policy)
 	for r: int in range(args.runs):
 		var run_seed: int = args.seed_value + r
-		var cfg: SimConfig = SimConfigLoader.load_default(run_seed)
-		cfg.sector = args.sector
-		cfg.best_wave_s1 = best_wave
+		var cfg: SimConfig = BalanceSetup.make_config(run_seed, args.sector, best_wave, foundry, frame_id)
 		var world: SimWorld = SimWorld.new(cfg)
 		var bot: PolicyBot = PolicyBot.new(args.policy)
 		var prev_wave: int = world.wave
 		var prev_scrap: float = 0.0
 		var prev_data: float = 0.0
 		while not world.is_over() and world.wave <= args.waves:
-			if world.tick % PolicyBot.THINK_INTERVAL == 0:
+			if buys and world.tick % PolicyBot.THINK_INTERVAL == 0:
 				bot.think(world)
 			world.step()
 			if world.wave != prev_wave:
@@ -70,40 +134,54 @@ func _initialize() -> void:
 		var cause: String = _cause_label(world, survived)
 		var prior: int = causes.get(cause, 0)
 		causes[cause] = prior + 1
-		print(
-			(
-				"BALANCE run seed=%d death_wave=%d minutes=%.2f cause=%s kills=%d hash=%s"
-				% [run_seed, death_wave, minutes, cause, world.run.kills, world.state_hash()]
+		if verbose:
+			print(
+				(
+					"BALANCE run seed=%d death_wave=%d minutes=%.2f cause=%s kills=%d hash=%s"
+					% [run_seed, death_wave, minutes, cause, world.run.kills, world.state_hash()]
+				)
 			)
-		)
 		if r == 0:
 			buys_csv = _buys_csv(world)
-	var elapsed: float = float(Time.get_ticks_usec() - t0) / 1000000.0
-	var p50: int = SimRunArgs.percentile(death_waves, 50)
-	print(
-		(
-			"BALANCE death_wave p10=%d p50=%d p90=%d"
-			% [SimRunArgs.percentile(death_waves, 10), p50, SimRunArgs.percentile(death_waves, 90)]
-		)
-	)
+	var out: Dictionary = {
+		"frame": frame_id,
+		"p10": SimRunArgs.percentile(death_waves, 10),
+		"p50": SimRunArgs.percentile(death_waves, 50),
+		"p90": SimRunArgs.percentile(death_waves, 90),
+		"mean": SimRunArgs.mean(death_waves),
+		"ticks": total_ticks,
+	}
+	if not verbose:
+		return out
+	print("BALANCE death_wave p10=%d p50=%d p90=%d" % [out["p10"], out["p50"], out["p90"]])
+	print("BALANCE death_wave_mean=%.2f" % out["mean"])
 	print("BALANCE mean_game_minutes=%.2f" % (minutes_sum / float(args.runs)))
 	var labels: Array[String] = causes.keys()
 	labels.sort()
 	for label: String in labels:
 		var n: int = causes[label]
 		print("BALANCE cause %s %d (%.0f%%)" % [label, n, 100.0 * float(n) / float(args.runs)])
-	var curve: String = _curve_csv(wave_scrap, wave_data, wave_runs)
 	_print_curve_excerpt(wave_scrap, wave_data, wave_runs)
-	if not _write_file("curve.csv", curve) or not _write_file("run0_buys.csv", buys_csv):
-		print("BALANCE ERROR: cannot write %s" % OUT_DIR)
-		quit(2)
-		return
-	var overall: String = _compare_targets(profile_name, {"median_death_wave": float(p50)})
-	print("BALANCE RESULT %s" % overall)
-	var game_s: float = float(total_ticks) / float(Ticks.TICK_RATE)
-	print("TIMING wall=%.2fs game=%.1fs speedup=%.0fx" % [elapsed, game_s, game_s / maxf(elapsed, 0.000001)])
-	print("BALANCE OK")
-	quit(1 if overall == BalanceRunArgs.STATUS_FAIL else 0)
+	if (
+		not _write_file("curve.csv", _curve_csv(wave_scrap, wave_data, wave_runs))
+		or not _write_file("run0_buys.csv", buys_csv)
+	):
+		return {"error": "cannot write %s" % OUT_DIR}
+	return out
+
+
+## One line per frame: mean and median death wave and the mean delta against VANGUARD (first row).
+func _print_frames_table(table: Array[Dictionary], policy: String) -> void:
+	var base_mean: float = table[0]["mean"]
+	for res: Dictionary in table:
+		var mean: float = res["mean"]
+		var delta: float = 100.0 * (mean - base_mean) / maxf(base_mean, 0.000001)
+		print(
+			(
+				"BALANCE frames frame=%s policy=%s mean=%.2f median=%d p10=%d p90=%d delta_mean_vs_vanguard=%+.1f%%"
+				% [res["frame"], policy, res["mean"], res["p50"], res["p10"], res["p90"], delta]
+			)
+		)
 
 
 func _fail_args(message: String) -> void:
@@ -112,7 +190,7 @@ func _fail_args(message: String) -> void:
 	quit(2)
 
 
-## Reads a profile JSON: {"best_wave_s1": int, "foundry_levels": {...}, "name": str (optional)}.
+## Reads a profile JSON: {"best_wave_s1": int, "foundry_levels": {id: level}, "name": str (optional)}.
 func _load_profile(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
 		return {"error": "profile file not found: %s" % path}
@@ -122,11 +200,18 @@ func _load_profile(path: String) -> Dictionary:
 	var dict: Dictionary = parsed
 	var name_text: String = str(dict.get("name", path.get_file().get_basename()))
 	var foundry: Dictionary = dict.get("foundry_levels", {})
-	if not foundry.is_empty():
-		# (impl) the sim has no Foundry yet (M3+): foundry_levels is ignored.
-		print("BALANCE warn foundry_levels ignored (the Foundry does not exist yet)")
+	var foundry_err: String = BalanceSetup.foundry_error(foundry)
+	if not foundry_err.is_empty():
+		return {"error": foundry_err}
+	var clean: Dictionary = {}
+	for key: Variant in foundry.keys():
+		var raw: Variant = foundry[key]
+		var level: float = raw if (raw is int or raw is float) else -1.0
+		if level < 0.0:
+			return {"error": "foundry level of '%s' must be a non-negative integer" % str(key)}
+		clean[str(key)] = int(level)
 	var best: int = dict.get("best_wave_s1", 0)
-	return {"name": name_text, "best_wave_s1": best}
+	return {"name": name_text, "best_wave_s1": best, "foundry_levels": clean}
 
 
 func _add_wave(
@@ -214,6 +299,8 @@ func _compare_targets(profile_name: String, measured: Dictionary) -> String:
 			continue
 		var value: float = measured[metric]
 		var st: String = BalanceRunArgs.status(value, target, tol)
+		if profile_name != "fresh" and st == BalanceRunArgs.STATUS_FAIL:
+			st = BalanceRunArgs.STATUS_WARN  # (impl) Foundry profile rows are information only
 		overall = BalanceRunArgs.worst(overall, st)
 		var dev: float = 100.0 * (value - target) / maxf(absf(target), 0.000001)
 		print(

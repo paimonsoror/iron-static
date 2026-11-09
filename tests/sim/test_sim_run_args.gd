@@ -38,3 +38,12 @@ func test_percentile_nearest_rank() -> void:
 	assert_int(SimRunArgs.percentile(v, 90)).is_equal(9)
 	assert_int(SimRunArgs.percentile(PackedInt32Array(), 50)).is_equal(0)
 	assert_int(SimRunArgs.percentile(PackedInt32Array([4]), 90)).is_equal(4)
+
+
+func test_foundry_and_frame_flags() -> void:
+	var a: SimRunArgs = SimRunArgs.parse(PackedStringArray(["--foundry", "laser_output=5", "--frame", "striker"]))
+	assert_str(a.error).is_empty()
+	assert_str(a.foundry).is_equal("laser_output=5")
+	assert_str(a.frame).is_equal("striker")
+	assert_str(SimRunArgs.parse(PackedStringArray(["--frame"])).error).is_not_empty()
+	assert_float(SimRunArgs.mean(PackedInt32Array([8, 9, 10, 9]))).is_equal(9.0)

@@ -1,6 +1,7 @@
 extends SceneTree
 ## Headless sim runner (M1-16). Run through tools\sim_run.ps1.
 ## Usage: godot --headless --path . -s res://tools/sim_run.gd -- [--runs N] [--seed S] [--max-waves W]
+##   [--foundry id=level,...] [--frame ID]
 ## stdout (deterministic, byte-identical across executions): one CSV line per run
 ## "seed,death_wave,game_seconds,kills,scrap_earned,data_earned,hash", then
 ## "SUMMARY runs=N death_wave p10=.. p50=.. p90=..", then "SIM RUN OK". Seeds are seed, seed+1, ...
@@ -19,13 +20,25 @@ func _initialize() -> void:
 		print(SimRunArgs.USAGE)
 		quit(2)
 		return
+	var spec: BalanceSetup.FoundrySpec = BalanceSetup.parse_foundry_spec(args.foundry)
+	var setup_error: String = spec.error
+	if setup_error.is_empty():
+		setup_error = BalanceSetup.foundry_error(spec.levels)
+	if setup_error.is_empty():
+		setup_error = BalanceSetup.frame_error(args.frame)
+	if not setup_error.is_empty():
+		print("SIM RUN ERROR: %s" % setup_error)
+		print(SimRunArgs.USAGE)
+		quit(2)
+		return
 	var lines: PackedStringArray = PackedStringArray()
 	var death_waves: PackedInt32Array = PackedInt32Array()
 	var total_ticks: int = 0
 	var t0: int = Time.get_ticks_usec()
 	for r: int in range(args.runs):
 		var run_seed: int = args.seed_value + r
-		var world: SimWorld = SimWorld.new(SimConfigLoader.load_default(run_seed))
+		var cfg: SimConfig = BalanceSetup.make_config(run_seed, 1, 0, spec.levels, args.frame)
+		var world: SimWorld = SimWorld.new(cfg)
 		while not world.is_over() and world.wave <= args.max_waves:
 			world.step()
 		var death_wave: int = world.run.death_wave if world.is_over() else args.max_waves
