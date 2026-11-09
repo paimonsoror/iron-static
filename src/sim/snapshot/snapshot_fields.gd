@@ -23,6 +23,7 @@ const TABLE: Dictionary = {
 		"stats": "DERIVED: resolve_stats() from run_levels, the config's Foundry arrays and the frame",
 		"economy": "SAVED: BigNum mantissa and exponent plus the float shadows",
 		"run_levels": "SAVED: packed array",
+		"patches": "IGNORED: no pick can exist before M4-15, which saves the picks and bumps the snapshot",
 		"visible": "SAVED: packed array",
 		"tick_scrap": "SAVED: scalar",
 		"tick_data": "SAVED: scalar",

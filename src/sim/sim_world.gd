@@ -47,6 +47,7 @@ var cinder: CinderState
 var stats: StatBlock
 var economy: EconomyState
 var run_levels: PackedInt32Array
+var patches: PatchState  ## patches picked this deployment (M4-14)
 var visible: PackedByteArray
 var tick_scrap: float = 0.0
 var tick_data: float = 0.0
@@ -92,6 +93,7 @@ func _init(cfg: SimConfig) -> void:
 	if run_levels.resize(cfg.upgrades.size()) != OK:
 		push_error("SimWorld: run_levels resize failed")
 	run_levels.fill(0)
+	patches = PatchState.new(cfg.patches.size())
 	visible = UnlockRules.visible(cfg.upgrades, cfg.best_wave_s1)
 	stats = resolve_stats()
 	economy = EconomyState.new()
@@ -288,7 +290,8 @@ func resolve_stats() -> StatBlock:
 
 ## Same for hypothetical run levels (the policy bot evaluates one more level without buying it).
 func resolve_stats_for(levels: PackedInt32Array) -> StatBlock:
-	return StatBlock.from_resolver(config.upgrades, levels, config.foundry_levels, config.foundry_f, frame_ext)
+	var ext: ExternalMults = PatchEffects.compose(frame_ext, patches, config.patches)
+	return StatBlock.from_resolver(config.upgrades, levels, config.foundry_levels, config.foundry_f, ext)
 
 
 ## Applies `config.frame`. A neutral or absent frame leaves everything at the pre-M3 path. A frame the sim

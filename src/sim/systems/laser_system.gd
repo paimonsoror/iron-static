@@ -56,7 +56,11 @@ static func _kill(world: SimWorld, i: int) -> void:
 	world.run.kills += 1
 	world.run.kills_by_type[type_index] += 1
 	var scrap: float = RewardCalc.scrap_for_kill(t, def, level, world.stats.scrap_yield, stale) * world.frame_scrap_mult
-	var data: float = RewardCalc.data_for_kill(t, def, level, world.config.sector, stale) * world.frame_data_mult
+	var data: float = (
+		RewardCalc.data_for_kill(t, def, level, world.config.sector, stale)
+		* world.frame_data_mult
+		* world.stats.data_yield
+	)
 	if world.frame_passive == FrameMods.PASSIVE_OVERCLOCK:
 		world.overclock_kills = mini(world.overclock_kills + 1, world.frame_overclock_kill_cap)
 	world.run.scrap_earned += scrap  # float shadow totals (tools and HUD read them)

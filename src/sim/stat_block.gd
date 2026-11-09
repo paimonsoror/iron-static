@@ -15,6 +15,9 @@ var plating_flat: float = 0.0
 ## Extra rows (impl): read by the M2 economy, unused by the M1 sim.
 var scrap_yield: float = 0.0
 var reinvest: float = 0.0
+## Patch-only stats (M4-14), neutral 1.0: multiplier on kill `data` and on enemy damage dealt to Cinder.
+var data_yield: float = 1.0
+var enemy_damage: float = 1.0
 
 
 ## Level-0 `base` of every run upgrade row in `cfg.upgrades`; `plating_flat` is 0.

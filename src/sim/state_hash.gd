@@ -17,6 +17,8 @@ static func compute(w: SimWorld) -> String:
 	_economy(ctx, w)
 	if w.frame_ext != null or w.frame_passive != FrameMods.PASSIVE_NONE:
 		_put(ctx, PackedInt64Array([w.overclock_kills]).to_byte_array())  # non-neutral frames only
+	if w.patches.total_picks > 0:
+		_put(ctx, w.patches.picks.to_byte_array())  # only once a patch is picked: no picks hash as before M4-14
 	return ctx.finish().hex_encode()
 
 

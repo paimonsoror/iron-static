@@ -36,12 +36,12 @@ static func step(world: SimWorld) -> void:
 		if world.type_behavior[type] == SimWorld.BEH_RANGED:
 			if d2 <= ranged_reach_sq:
 				store.next_attack_tick[i] = tick + fire_gap
-				_fire_bolt(world, type, x, y, store.dmg[i])
+				_fire_bolt(world, type, x, y, store.dmg[i] * world.stats.enemy_damage)
 		elif d2 <= melee_reach_sq:
 			var mult: float = minf(t.bite_cap, pow(1.0 + t.bite_gain, float(store.melee_hits[i])))
 			store.melee_hits[i] += 1
 			store.next_attack_tick[i] = tick + melee_gap
-			hit_cinder(world, store.dmg[i] * mult, type)
+			hit_cinder(world, store.dmg[i] * mult * world.stats.enemy_damage, type)
 
 
 ## Lancer stand-off: clamp(max(range_min, factor * optic_range), 0, cap). Source of truth; MovementSystem calls it.
