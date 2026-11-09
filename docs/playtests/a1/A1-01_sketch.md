@@ -24,7 +24,7 @@ Status: **A1-GATE: APPROVED by the user on 2026-11-08** (see "A1-GATE decision" 
 
 | File | What | Recipe |
 |---|---|---|
-| `sfx_laser_shot.wav` | Soft tick-zap, plays very often | 85 ms sine + triangle falling 2600 -> 950 Hz with a 26 ms decay, 4 ms band-passed click, low-passed at 6.5 kHz; peak -14 dBFS (the softest sound on purpose) |
+| `sfx_laser_shot.wav` | Weighty energy pulse, plays very often (v2, after the phone playtest: v1 was a 2600 -> 950 Hz tick-zap that read as rain on a tin can) | 105 ms: sine thump falling 190 -> 70 Hz (34 ms decay, 3 ms attack), a saw falling 380 -> 150 Hz low-passed at 1 kHz (20 ms decay), a little 300 Hz band-passed noise; whole sound low-passed at 1.6 kHz (no click, no partials; spectral centroid 2100 Hz -> 190 Hz); peak -10 dBFS. The v1 recipe stays in `sfx.py` as `laser_shot_v1` for the A/B file `laser_ab.ogg` (old x8 at 6/s, 1.2 s pause, new x8 at 6/s, each at its slot trim) |
 | `sfx_hit_metal.wav` | Metal impact | FM 640 -> 520 Hz ratio 2.76 with a fast decaying index, ring partial at 1480 Hz, band-passed noise tick, short small reverb |
 | `sfx_crit.wav` | Bright ping | FM bell 1760 Hz (ratio 3.5) + 2637 Hz partial, noise sparkle above 7 kHz, short delay |
 | `sfx_enemy_death_small.wav` | Small crunch | 6-bit bitcrushed noise through a band-pass sweeping 4.2 kHz -> 500 Hz, falling sine blip, tanh drive |
@@ -47,7 +47,7 @@ Status: **A1-GATE: APPROVED by the user on 2026-11-08** (see "A1-GATE decision" 
 | `music_perc.ogg` | 21.33 s | 290 KB | -6.9 | -24.0 | -22.6 | 0.00000 | 0 | 0.27 / 0.21 |
 | `music_pulse.ogg` | 21.33 s | 335 KB | -14.8 | -26.0 | -28.2 | 0.00000 | 0 | 0.015 / 0.00 |
 | `music_preview.ogg` | 64.00 s | 938 KB | -4.0 | -21.3 | -22.1 | 0.00005 | 0 | - |
-| `sfx_laser_shot.wav` | 0.09 s | 7 KB | -14.0 | -27.3 | -25.2 | 0.00000 | 0 | - |
+| `sfx_laser_shot.wav` | 0.10 s | 9 KB | -10.0 | -21.3 | -22.5 | 0.00007 | 0 | - |
 | `sfx_hit_metal.wav` | 0.22 s | 18 KB | -9.0 | -23.8 | -21.9 | 0.00000 | 0 | - |
 | `sfx_crit.wav` | 0.45 s | 38 KB | -9.0 | -24.1 | -21.2 | 0.00000 | 0 | - |
 | `sfx_enemy_death_small.wav` | 0.30 s | 25 KB | -8.0 | -17.8 | -16.1 | 0.00000 | 0 | - |
@@ -151,20 +151,21 @@ Scheme: every file keeps its recipe peak; the slot `volume_db` brings it to one 
 
 | Category | Target | Ids | Why |
 |---|---|---|---|
-| tick | -33 | laser_shot, razor_spin, mine_beep, nanite, arc, pod_heal | 10-30 per second: soft and non-fatiguing (the laser was already at -33.2) |
+| laser | -37 | laser_shot | own category since the phone playtest: bass-heavy pulse 4 dB lower than the old tick (-33.2); hits (-27) and deaths (-27 to -21) stay clearly above it |
+| tick | -33 | razor_spin, mine_beep, nanite, arc, pod_heal | 10-30 per second: soft and non-fatiguing (the laser was already at -33.2) |
 | frequent | -27 (crit -24) | hit_metal, enemy_death_small, crit | several per second; a crit reads over plain hits |
 | ui | -27 (deny -24) | ui_tap, upgrade_buy, draft_pick, firmware_pick, cache_open, ui_deny | taps and confirmations on the UI bus; a deny reads over a tap |
 | event | -21 | overcrit, player_hit, integrity_warn, skin_burn, shock_ring, missile_launch, enemy_death_heavy, aegis_break, dilation, purge | discrete combat moments |
 | stinger | -21 (wave_start -22) | wave_start, milestone_x15, draft_open, lab_complete, gauntlet_rank_up, results_tally | rewards and announcements |
 | big | -18 | emp, singularity, overdrive_on/off, reboot, meltdown, boss_warn, boss_death, death | rare, heavy moments |
 
-Music layers are untouched at 0 dB (pad -26.4, pulse -28.2, perc -22.6, lead -24.8; the 64 s preview -22.1; default Music fader 0.7 = -3 dB); the Music bus compressor (threshold -24, ratio 2, side-chain SFX) and Master limiter (threshold -3, ceiling -0.5 dBFS) are unchanged. Changes against the approved sketch levels: `sfx_enemy_death_small` is 6 dB lower than before (frequent sound, it was louder than a heavy death in the old trims), `sfx_player_hit` 5 dB lower, `sfx_enemy_death_heavy` 3.5 dB lower, `sfx_ui_tap` 3 dB louder, `sfx_hit_metal` and `sfx_laser_shot` +-1 dB or less.
+Music layers are untouched at 0 dB (pad -26.4, pulse -28.2, perc -22.6, lead -24.8; the 64 s preview -22.1; default Music fader 0.7 = -3 dB); the Music bus compressor (threshold -24, ratio 2, side-chain SFX) and Master limiter (threshold -3, ceiling -0.5 dBFS) are unchanged. Laser redesign (phone playtest, v2): new bassy recipe, own "laser" target -37 (was -33.2 as a tick: 4.2 dB lower; trimmed peak -22.0 -> -24.5 dBFS), cooldown 35 -> 50 ms, pitch_var 0.03 -> 0.02 and router jitter 0.04 -> 0.02; the wave-60 load sim is unchanged to 0.1 dB (SFX only -17.5 LUFS-ish, peak -3.0; sum peak -2.4, 0 clipped). Changes against the approved sketch levels: `sfx_enemy_death_small` is 6 dB lower than before (frequent sound, it was louder than a heavy death in the old trims), `sfx_player_hit` 5 dB lower, `sfx_enemy_death_heavy` 3.5 dB lower, `sfx_ui_tap` 3 dB louder, `sfx_hit_metal` and `sfx_laser_shot` +-1 dB or less.
 
 Checks: all 40 SFX files and the 4 music layers: 0 clipped samples; DC offset at most 0.0003 on any SFX and 0.00005 on any layer; every SFX file starts and ends at |sample| < 0.0005 (no step); peak after the trim at most -2.0 dBFS (table); music loop seams unchanged (source <= 0.92, decoded <= 1.10, limit 1.5) and decoded length equals source length. Wave-60 load simulation (12 s, mono sum before the Master limiter, voice caps and cooldowns from `slots.csv`, rates per second: laser 20, hit 14, crit 2, small death 6, heavy death 0.8, player hit 1.5, buy 0.5, razor 2, arc 1.5, mine 1, nanite 0.5; four music layers at 0.7): SFX only -17.5 LUFS-ish (peak -3.0), music only -27.4 (peak -9.7), sum -17.1 (peak -2.4 dBFS, 0 clipped samples), so the limiter (ceiling -0.5) is not needed in that case and only grazes its -3 dB threshold. The laser tick at -33 is the quietest thing in the mix; whether 5 minutes of it is fatiguing and whether SFX sit too far above the music (about 10 dB in the ungated number) is for the exit playtest to judge.
 
 | id | category | file LUFS-ish | volume_db | effective LUFS-ish | peak after trim dBFS |
 |---|---|---|---|---|---|
-| `sfx_laser_shot` | tick | -25.2 | -8 | -33.2 | -22.0 |
+| `sfx_laser_shot` | laser | -22.5 | -14.5 | -37.0 | -24.5 |
 | `sfx_hit_metal` | frequent | -21.9 | -5 | -26.9 | -14.0 |
 | `sfx_crit` | frequent | -21.2 | -3 | -24.2 | -12.0 |
 | `sfx_overcrit` | event | -18.3 | -2.5 | -20.8 | -8.5 |

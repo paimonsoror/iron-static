@@ -123,6 +123,20 @@ def main():
     reel = np.concatenate([np.concatenate([sfx_audio[s] * 10 ** (mix.trim_db(s, sfx_audio[s]) / 20), gap]) for s in sfx.ORDER])
     write_ogg(sketch / "sfx_reel_full.ogg", reel)  # OGG: the WAV was 5.2 MB in git
     report["sfx_reel_full.ogg"] = analyze.stats(reel, loop=False)
+    # A/B of the laser redesign: old x8 at 6/s, a pause, new x8 at 6/s, each at its slot trim (old -8 dB, new from mix.py).
+    old = sfx.render_fn(sfx.laser_shot_v1, -14.0)
+    new = sfx_audio["sfx_laser_shot"]
+    ab_len = int(8 * SR / 6 + 0.3 * SR)
+    ab_parts = []
+    for y, v in ((old, -8.0), (new, mix.trim_db("sfx_laser_shot", new))):
+        seg = np.zeros(ab_len + len(y))
+        for i in range(8):
+            s0 = int(i * SR / 6)
+            seg[s0 : s0 + len(y)] += y * 10 ** (v / 20)
+        ab_parts.append(seg[:ab_len])
+    ab = np.concatenate([ab_parts[0], np.zeros(int(1.2 * SR)), ab_parts[1]])
+    write_ogg(sketch / "laser_ab.ogg", ab)
+    report["laser_ab.ogg"] = analyze.stats(ab, loop=False)
     (sketch / "analysis.json").write_text(json.dumps(report, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     print(analyze.table(report))
 

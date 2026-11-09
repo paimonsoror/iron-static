@@ -22,6 +22,7 @@ REPO = Path(__file__).resolve().parents[2]
 # in the ungated number and "events" and "big" moments clearly above it; the Music bus also ducks under the SFX bus.
 TARGETS = {
     "tick": -33.0,  # plays 10-30x per second: soft and non-fatiguing
+    "laser": -37.0,  # the laser pulse (was a tick at -33.2): bassier body, about 4 dB lower after the phone playtest
     "frequent": -27.0,  # hits, small deaths: several per second
     "ui": -27.0,  # taps and confirmations
     "event": -21.0,  # discrete combat moments
@@ -29,7 +30,8 @@ TARGETS = {
     "big": -18.0,  # rare big moments: boss, death, overdrive, meltdown
 }
 CATEGORY = {
-    "tick": ["sfx_laser_shot", "sfx_razor_spin", "sfx_mine_beep", "sfx_nanite", "sfx_arc", "sfx_pod_heal"],
+    "laser": ["sfx_laser_shot"],
+    "tick": ["sfx_razor_spin", "sfx_mine_beep", "sfx_nanite", "sfx_arc", "sfx_pod_heal"],
     "frequent": ["sfx_hit_metal", "sfx_enemy_death_small", "sfx_crit"],
     "ui": ["sfx_ui_tap", "sfx_upgrade_buy", "sfx_draft_pick", "sfx_firmware_pick", "sfx_cache_open", "sfx_ui_deny"],
     "event": [

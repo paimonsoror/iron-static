@@ -29,7 +29,7 @@ const SFX_HEARTBEAT: String = "sfx_integrity_warn"
 const SFX_MILESTONE: String = "sfx_milestone_x15"
 const SFX_TALLY: String = "sfx_results_tally"
 ## Pitch spread of the laser tick (fraction; the slot default is used for the other sounds).
-const SHOT_JITTER: float = 0.04
+const SHOT_JITTER: float = 0.02
 const CAP_PER_FRAME: int = 3
 const MAX_BATCHES: int = 8
 const NO_BEAT: int = -1000000

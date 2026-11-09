@@ -4,7 +4,7 @@
 # volume_db: per-slot trim. pitch_var: random pitch spread as a fraction (0.03 = +-3%). voice_cap: max simultaneous voices of the id.
 # cooldown_ms: minimum time between two starts of the id. Music rows are the loop layers of the adaptive mix (rules: music_layers.csv).
 id,file,bus,volume_db,pitch_var,voice_cap,cooldown_ms
-sfx_laser_shot,sfx/sfx_laser_shot.wav,SFX,-8,0.03,6,35
+sfx_laser_shot,sfx/sfx_laser_shot.wav,SFX,-14.5,0.02,6,50
 sfx_hit_metal,sfx/sfx_hit_metal.wav,SFX,-5,0.04,4,40
 sfx_crit,sfx/sfx_crit.wav,SFX,-3,0.02,2,80
 sfx_enemy_death_small,sfx/sfx_enemy_death_small.wav,SFX,-11,0.05,4,50

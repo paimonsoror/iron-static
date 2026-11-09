@@ -11,13 +11,27 @@ def _n(sec):
     return int(sec * SR)
 
 
-def laser_shot():
+def laser_shot_v1():
+    """The sketch-gate laser (2600 -> 950 Hz tick-zap). Replaced after the phone playtest (too high, rain on a tin can);
+    kept only so render.py can build the old/new A/B file docs/playtests/a1/laser_ab.ogg. Not in the SFX registry."""
     n = _n(0.085)
     f = sweep(n, 2600, 950)
     body = sine(f, n) * 0.6 + dsp.tri(f * 0.5, n) * 0.25
     click = biquad(noise(n, 101), "bp", 4800, 1.2) * exp_decay(n, 0.004, 0) * 0.6
     y = (body * exp_decay(n, 0.026, 0.001) + click)
     return fade(biquad(y, "lp", 6500))
+
+
+def laser_shot():
+    """Weighty energy pulse (v2): 190 -> 70 Hz sine thump with a fast pitch drop, a saw one octave up low-passed so it
+    carries on a phone speaker, a little band-passed noise at 300 Hz for texture. No click, nothing above 1.6 kHz."""
+    n = _n(0.105)
+    thump = sine(sweep(n, 190, 70), n) * exp_decay(n, 0.034, 0.003)
+    mid = saw(sweep(n, 380, 150), n)
+    mid = biquad(mid, "lp", 1000, 0.707) * exp_decay(n, 0.02, 0.003) * 0.6
+    air = biquad(noise(n, 101), "bp", 300, 0.8) * exp_decay(n, 0.016, 0.003) * 0.25
+    y = thump + mid + air
+    return fade(biquad(y, "lp", 1600, 0.707), 0.002, 0.02)
 
 
 def hit_metal():
@@ -136,7 +150,7 @@ def death():
 
 # id -> (function, target peak dBFS). Loudness shaping beyond this is done by the runtime slot volume_db.
 SFX = {
-    "sfx_laser_shot": (laser_shot, -14.0),
+    "sfx_laser_shot": (laser_shot, -10.0),
     "sfx_hit_metal": (hit_metal, -9.0),
     "sfx_crit": (crit, -9.0),
     "sfx_enemy_death_small": (enemy_death_small, -8.0),
@@ -149,6 +163,12 @@ SFX = {
     "sfx_ui_deny": (ui_deny, -10.0),
     "sfx_death": (death, -4.0),
 }
+
+
+def render_fn(fn, peak):
+    """Render an alternate recipe at the given peak (the old laser for the A/B file)."""
+    y = fade(dsp.remove_dc(fn()), 0.0005, 0.008)
+    return dsp.normalize_peak(y, peak)
 
 
 def render(sfx_id):
