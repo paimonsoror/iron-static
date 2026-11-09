@@ -29,12 +29,19 @@ var tooltip_text: String = ""
 var icon_color: Color = Palette.TEXT_DIM
 
 
-static func from_preview(preview: UpgradePreview, can_afford: bool, lvl: int, def: RunUpgradeDef) -> UpgradeRowModel:
+static func from_preview(
+	preview: UpgradePreview,
+	can_afford: bool,
+	lvl: int,
+	def: RunUpgradeDef,
+	foundry_level: int = 0,
+	foundry_f: float = 0.0,
+) -> UpgradeRowModel:
 	var m: UpgradeRowModel = UpgradeRowModel.new()
 	m.index = preview.index
 	m.upgrade_id = def.id
 	m.tab = def.tab
-	m.name_text = Strings.get_text("upgrade." + def.id)
+	m.name_text = upgrade_name(def.id)
 	m.level = lvl
 	m.level_text = Strings.fill1("row.level", "n", str(lvl))
 	m.maxed = preview.maxed
@@ -50,11 +57,17 @@ static func from_preview(preview: UpgradePreview, can_afford: bool, lvl: int, de
 		m.value_text = Strings.fill("row.value", {"a": cur, "b": nxt})
 		m.cost_text = NumberFormat.format(preview.cost)
 	# The strings CSV holds a literal backslash-n; make it a real line break.
-	m.tooltip_text = tooltip_for(def).replace("\\n", "\n")
+	m.tooltip_text = tooltip_for(def, foundry_level, foundry_f).replace("\\n", "\n")
 	return m
 
 
 ## Stat value text by row id.
+## Display name of run upgrade `id` (string key "upgrade.<id>"). The one place that builds that key, so the
+## string-key scan of the screen folders sees no partial literals (Home, Foundry and the run panel use it).
+static func upgrade_name(id: String) -> String:
+	return Strings.get_text("upgrade." + id)
+
+
 static func format_value(id: String, v: float) -> String:
 	if PERCENT_IDS.has(id):
 		return NumberFormat.format_percent(v)
@@ -71,9 +84,10 @@ static func format_value(id: String, v: float) -> String:
 	return NumberFormat.format(BigNum.from_float(v))
 
 
-## Formula text with the numbers of this row (base, per level, milestone, caps). Foundry: -- until M3.
-static func tooltip_for(def: RunUpgradeDef) -> String:
-	var foundry: String = Strings.get_text("tooltip.foundry_none")
+## Formula text with the numbers of this row (base, per level, milestone, caps) and the Foundry contribution
+## (`foundry_level` F and Type D factor `foundry_f`; F0 shows `tooltip.foundry_none`).
+static func tooltip_for(def: RunUpgradeDef, foundry_level: int = 0, foundry_f: float = 0.0) -> String:
+	var foundry: String = foundry_text(def, foundry_level, foundry_f)
 	if def.kind == "D":
 		return (
 			Strings
@@ -96,7 +110,7 @@ static func tooltip_for(def: RunUpgradeDef) -> String:
 			"tooltip.c",
 			{
 				"base": format_value(def.id, def.base),
-				"step": _delta_text(def),
+				"step": _delta_text(def, def.step),
 				"cap": str(def.l_cap),
 				"limit": limit,
 				"foundry": foundry,
@@ -105,10 +119,20 @@ static func tooltip_for(def: RunUpgradeDef) -> String:
 	)
 
 
-static func _delta_text(def: RunUpgradeDef) -> String:
-	var sign_text: String = "+" if def.step >= 0.0 else ""
+static func _delta_text(def: RunUpgradeDef, step: float) -> String:
+	var sign_text: String = "+" if step >= 0.0 else ""
 	if PERCENT_IDS.has(def.id):
-		return sign_text + NumberFormat.format_float(def.step * 100.0, 2) + "%"
+		return sign_text + NumberFormat.format_float(step * 100.0, 2) + "%"
 	if PERCENT2_IDS.has(def.id):
-		return sign_text + NumberFormat.format_float(def.step * 100.0, 3) + "%"
-	return sign_text + NumberFormat.format_float(def.step, 3)
+		return sign_text + NumberFormat.format_float(step * 100.0, 3) + "%"
+	return sign_text + NumberFormat.format_float(step, 3)
+
+
+## "F12  x1.25" (Type D: the Foundry multiplier) or "F12  +0.36" (Type C: the starting stat gain); F0 is `--`.
+static func foundry_text(def: RunUpgradeDef, f_level: int, f: float) -> String:
+	if f_level <= 0:
+		return Strings.get_text("tooltip.foundry_none")
+	var lead: String = Strings.fill1("foundry.level", "n", str(f_level))
+	if def.kind == "D":
+		return lead + "  " + NumberFormat.format_mult(Curves.foundry_mult(f_level, f))
+	return lead + "  " + _delta_text(def, def.step * float(f_level))

@@ -40,7 +40,7 @@ func test_hidden_by_default_and_shows_fields_after_run() -> void:
 func test_animated_run_ends_on_exact_model_texts() -> void:
 	var overlay: ResultsOverlay = _overlay(2400.0, false)
 	var c: RunController = _dead_run()
-	overlay.show_results(c.world)
+	overlay.show_results(c.world, BankedInfo.new())
 	assert_bool(overlay.is_settled()).is_false()
 	assert_str((overlay.get_node("%WaveLabel") as Label).text).is_equal("WAVE REACHED  0")
 	overlay.advance(ResultsAnim.total_s(ResultsOverlay.ROW_COUNT, false) + 0.01)
@@ -66,7 +66,11 @@ func test_redeploy_button_emits_signal_immediately() -> void:
 
 func _check_layout(height: float) -> void:
 	var overlay: ResultsOverlay = _overlay(height)
-	overlay.show_results(_dead_run().world)
+	var w: SimWorld = _dead_run().world
+	var info: BankedInfo = _info(w.run.death_wave, 0)
+	info.unlocked_frames = ["bulwark"]
+	info.save_failed = true
+	overlay.show_results(w, info)
 	await await_idle_frame()
 	await await_idle_frame()
 	var card: Control = overlay.get_node("%Card")
@@ -75,9 +79,16 @@ func _check_layout(height: float) -> void:
 	assert_bool(screen.encloses(card_rect)).is_true()
 	var button: Button = overlay.get_node("%RedeployButton")
 	assert_float(button.size.y).is_greater_equal(MIN_TOUCH)
+	for bn: String in ["%FoundryButton", "%HomeButton"]:
+		var sb: Button = overlay.get_node(bn)
+		assert_float(sb.size.y).is_greater_equal(MIN_TOUCH)
+		assert_bool(card_rect.encloses(Rect2(sb.global_position, sb.size))).is_true()
+		assert_int(sb.get_theme_font_size("font_size")).is_greater_equal(MIN_TEXT)
 	assert_bool(card_rect.encloses(Rect2(button.global_position, button.size))).is_true()
 	var rects: Array[Rect2] = []
-	for n: String in ["%TitleLabel", "%Stats", "%RedeployButton"]:
+	for n: String in [
+		"%TitleLabel", "%ChipPanel", "%Stats", "%SaveWarnLabel", "%RedeployButton", "%FoundryButton", "%HomeButton"
+	]:
 		var c: Control = overlay.get_node(n)
 		rects.append(Rect2(c.global_position, c.size))
 	var rows: Array[Rect2] = []
@@ -88,7 +99,7 @@ func _check_layout(height: float) -> void:
 		for j: int in range(i + 1, rects.size()):
 			assert_bool(rects[i].intersects(rects[j])).is_false()
 	for i: int in rows.size():
-		assert_bool(rects[1].encloses(rows[i])).is_true()
+		assert_bool(rects[2].encloses(rows[i])).is_true()
 		for j: int in range(i + 1, rows.size()):
 			assert_bool(rows[i].intersects(rows[j])).is_false()
 	for n: String in ["%TitleLabel", "%WaveLabel", "%TimeLabel", "%KillsLabel", "%CauseLabel", "%DataLabel"]:
@@ -123,3 +134,63 @@ func test_text_contrast_on_plate_is_at_least_4_5() -> void:
 		Palette.ACCENT_BOSS,
 	]:
 		assert_float(ThemeBuilder.contrast_ratio(c, Palette.PANEL)).is_greater_equal(4.5)
+
+
+func _info(wave: int, prev: int) -> BankedInfo:
+	var info := BankedInfo.new()
+	info.has_bank = true
+	info.previous_best = prev
+	info.new_best = maxi(prev, wave)
+	info.data_total = BigNum.from_int(999)
+	info.foundry_unlocked = true
+	info.affordable_count = 2
+	return info
+
+
+func test_three_buttons_emit_their_own_signal_once() -> void:
+	var overlay: ResultsOverlay = _overlay(2400.0, false)
+	var counts: Dictionary[String, int] = {"redeploy": 0, "foundry": 0, "home": 0}
+	overlay.redeploy_pressed.connect(func() -> void: counts["redeploy"] += 1)
+	overlay.foundry_pressed.connect(func() -> void: counts["foundry"] += 1)
+	overlay.home_pressed.connect(func() -> void: counts["home"] += 1)
+	var c: RunController = _dead_run()
+	overlay.show_results(c.world, _info(c.world.run.death_wave, 0))
+	for n: String in ["%RedeployButton", "%FoundryButton", "%HomeButton"]:
+		var b: Button = overlay.get_node(n)
+		assert_bool(b.visible and not b.disabled).is_true()
+		b.pressed.emit()
+	assert_int(counts["redeploy"]).is_equal(1)
+	assert_int(counts["foundry"]).is_equal(1)
+	assert_int(counts["home"]).is_equal(1)
+	assert_float(ResultsAnim.BUTTONS_ENABLED_S).is_equal(0.0)
+
+
+func test_data_count_up_ends_on_exact_banked_text_and_badge_shows() -> void:
+	var overlay: ResultsOverlay = _overlay(2400.0, false)
+	var c: RunController = _dead_run()
+	overlay.show_results(c.world, _info(c.world.run.death_wave, 0))
+	assert_bool((overlay.get_node("%BadgeLabel") as Label).visible).is_true()
+	overlay.advance(ResultsAnim.total_s(ResultsOverlay.ROW_COUNT, false) + 0.01)
+	assert_str((overlay.get_node("%DataLabel") as Label).text).is_equal(overlay.model().data_text)
+	assert_str((overlay.get_node("%DataLabel") as Label).text).contains("TOTAL 999")
+	assert_str((overlay.get_node("%FoundryButton") as Button).text).is_equal("FOUNDRY  2 AFFORDABLE")
+
+
+func test_reduce_motion_shows_finals_at_frame_zero_with_chip_and_warning() -> void:
+	var overlay: ResultsOverlay = _overlay(2400.0, true)
+	var c: RunController = _dead_run()
+	var info: BankedInfo = _info(c.world.run.death_wave, 0)
+	info.unlocked_frames = ["bulwark"]
+	info.save_failed = true
+	overlay.show_results(c.world, info)
+	assert_bool(overlay.is_settled()).is_true()
+	assert_str((overlay.get_node("%DataLabel") as Label).text).is_equal(overlay.model().data_text)
+	assert_bool((overlay.get_node("%ChipPanel") as Control).visible).is_true()
+	assert_bool((overlay.get_node("%SaveWarnLabel") as Control).visible).is_true()
+
+
+func test_foundry_button_hidden_for_debug_runs() -> void:
+	var overlay: ResultsOverlay = _overlay(2400.0, true)
+	overlay.show_results(_dead_run().world, BankedInfo.new())
+	assert_bool((overlay.get_node("%FoundryButton") as Control).visible).is_false()
+	assert_bool((overlay.get_node("%HomeButton") as Control).visible).is_true()

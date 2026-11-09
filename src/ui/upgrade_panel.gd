@@ -132,7 +132,9 @@ func refresh() -> void:
 			_rows[i].visible = want
 	for i: int in shown:
 		var p: UpgradePreview = UpgradeSystem.preview(_world, i, 1)
-		_rows[i].apply(UpgradeRowModel.from_preview(p, p.affordable, p.level, _defs[i]))
+		var fl: int = _world.config.foundry_levels[i] if i < _world.config.foundry_levels.size() else 0
+		var ff: float = _world.config.foundry_f[i] if i < _world.config.foundry_f.size() else 0.0
+		_rows[i].apply(UpgradeRowModel.from_preview(p, p.affordable, p.level, _defs[i], fl, ff))
 	var hint: String = "" if intel else UpgradePanelModel.hint_text(_defs, _world.config.best_wave_s1)
 	if hint != _hint:
 		_hint = hint

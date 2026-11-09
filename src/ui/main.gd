@@ -32,6 +32,8 @@ func _ready() -> void:
 	_hud.buy_requested.connect(Game.request_buy)
 	_hud.field_rect_changed.connect(_battle.set_field_rect)  # Cinder centers in the open field (V1-25, V1-28)
 	_results.redeploy_pressed.connect(_on_redeploy_pressed)
+	_results.foundry_pressed.connect(_on_results_event.bind(AppFlow.Event.OPEN_FOUNDRY))
+	_results.home_pressed.connect(_on_results_event.bind(AppFlow.Event.GO_HOME))
 	_debug.band_forced.connect(_on_band_forced)
 	_debug.load_requested.connect(_on_load_requested)
 	_debug.best_wave_requested.connect(_on_best_wave_requested)
@@ -100,6 +102,12 @@ func _on_pause_toggled(paused: bool) -> void:
 func _on_redeploy_pressed() -> void:
 	@warning_ignore("return_value_discarded")  # the router starts the run (Game.start_run) on its DEPLOY path
 	_router.dispatch(AppFlow.Event.DEPLOY)
+
+
+## Results FOUNDRY and HOME buttons (M3-17): the router applies the flow event.
+func _on_results_event(event: AppFlow.Event) -> void:
+	@warning_ignore("return_value_discarded")
+	_router.dispatch(event)
 
 
 ## A resumed run starts paused: show the PAUSED overlay (V1-24 style) behind which the player taps to continue.

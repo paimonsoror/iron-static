@@ -69,6 +69,22 @@ custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 mouse_filter = 2
 
+[node name="ChipPanel" type="PanelContainer" parent="Holder/Card/Column"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"PanelInset"
+
+[node name="ChipLabel" type="Label" parent="Holder/Card/Column/ChipPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "FRAME UNLOCKED"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
 [node name="Stats" type="PanelContainer" parent="Holder/Card/Column"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -172,6 +188,23 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 46
 vertical_alignment = 1
 
+[node name="BadgeLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/BestRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "NEW BEST"
+vertical_alignment = 1
+
+[node name="SaveWarnLabel" type="Label" parent="Holder/Card/Column"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "SAVE PROBLEM"
+horizontal_alignment = 1
+autowrap_mode = 3
+
 [node name="RedeployButton" type="Button" parent="Holder/Card/Column"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 160)
@@ -179,3 +212,20 @@ layout_mode = 2
 theme_type_variation = &"ButtonAffordable"
 theme_override_font_sizes/font_size = 64
 text = "REDEPLOY"
+
+[node name="FoundryButton" type="Button" parent="Holder/Card/Column"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+theme_type_variation = &"ButtonPlate"
+theme_override_font_sizes/font_size = 52
+text = "FOUNDRY"
+
+[node name="HomeButton" type="Button" parent="Holder/Card/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 148)
+layout_mode = 2
+theme_type_variation = &"ButtonPlate"
+theme_override_font_sizes/font_size = 52
+text = "HOME"

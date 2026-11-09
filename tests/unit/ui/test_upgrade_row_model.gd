@@ -89,3 +89,14 @@ func test_tooltip_has_formula_numbers_for_both_kinds() -> void:
 	var c: String = _model(w, "cycle_rate").tooltip_text
 	assert_str(c).contains("Base 1,").contains("+0.04").contains("100").contains("12")
 	assert_str(c).contains("Foundry: --")
+
+
+func test_foundry_tooltip_line_shows_the_real_contribution() -> void:
+	var w: SimWorld = _world()
+	var d: RunUpgradeDef = w.config.upgrades[_row(w, "laser_output")]
+	var c: RunUpgradeDef = w.config.upgrades[_row(w, "cycle_rate")]
+	assert_str(UpgradeRowModel.foundry_text(d, 0, 0.1)).is_equal("--")
+	assert_str(UpgradeRowModel.foundry_text(d, 10, 0.1)).starts_with("F10  x")
+	assert_str(UpgradeRowModel.foundry_text(c, 5, 0.0)).starts_with("F5  +")
+	assert_str(UpgradeRowModel.tooltip_for(c, 5, 0.0)).not_contains("Foundry: --")
+	assert_str(UpgradeRowModel.tooltip_for(c)).contains("Foundry: --")
