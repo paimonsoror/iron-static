@@ -24,3 +24,28 @@ func test_generated_table_ships_and_matches_csv() -> void:
 	for r: int in csv.rows.size():
 		assert_str(gen.keys[r]).is_equal(csv.get_value(r, "key"))
 		assert_str(gen.texts[r]).is_equal(csv.get_value(r, "text"))
+
+
+func test_wave_mode_keys_are_non_empty() -> void:
+	var keys: PackedStringArray = [
+		"mode.timed",
+		"mode.purge",
+		"mode.timed.desc",
+		"mode.purge.desc",
+		"mode.picker.title",
+		"mode.locked",
+		"mode.progress",
+		"mode.unlocked_toast",
+		"mode.chip",
+		"results.mode",
+		"results.best_mode",
+		"hud.mode_purge_left",
+		"home.best_mode",
+	]
+	var before: int = Strings.missing_count
+	for key: String in keys:
+		assert_bool(Strings.has_key(key)).is_true()
+		assert_str(Strings.get_text(key)).is_not_empty()
+	assert_str(Strings.fill1("mode.locked", "n", "20")).is_equal("Reach wave 20 in TIMED to unlock")
+	assert_str(Strings.fill("home.best_mode", {"name": "PURGE", "n": "7"})).is_equal("BEST PURGE 7")
+	assert_int(Strings.missing_count).is_equal(before)

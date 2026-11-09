@@ -1,0 +1,4 @@
+# Wave modes (M4-01, Q68-Q76). unlock_best_timed_wave: best TIMED wave needed to unlock (0 = from the start). backstop_s: PURGE wave time limit in seconds (0 = none, the 24 s wave clock rules).
+id,implemented,unlock_best_timed_wave,backstop_s,reward_mult,sort,source,note
+timed,1,3,0,1.0,0,gdd:02,24 s wave clock; leftovers carry over
+purge,1,20,60,1.0,1,impl:Q68,wave ends when every enemy in it is dead; 60 s backstop

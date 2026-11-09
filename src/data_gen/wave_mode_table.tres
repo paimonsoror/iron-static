@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="WaveModeTable" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/wave_mode_table.gd" id="1_script"]
+[ext_resource type="Script" path="res://src/data_defs/wave_mode_def.gd" id="2_item"]
+[ext_resource type="Resource" path="res://src/data_gen/wave_mode_timed.tres" id="item_0"]
+[ext_resource type="Resource" path="res://src/data_gen/wave_mode_purge.tres" id="item_1"]
+
+[resource]
+script = ExtResource("1_script")
+defs = Array[ExtResource("2_item")]([ExtResource("item_0"), ExtResource("item_1")])

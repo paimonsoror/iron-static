@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="WaveModeDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/wave_mode_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "purge"
+implemented = true
+unlock_best_timed_wave = 20
+backstop_s = 60.0
+reward_mult = 1.0
+sort = 1

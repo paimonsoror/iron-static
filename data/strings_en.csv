@@ -161,3 +161,16 @@ settings.reset_confirm2,"LAST CHANCE: {data} DATA AND BEST WAVE {wave} WILL BE L
 settings.reset_done,PROFILE RESET
 frame.confirm,CONTINUE
 results.save_failed,SAVE FAILED
+mode.timed,TIMED
+mode.purge,PURGE
+mode.timed.desc,Waves run on a 24 second clock. Leftovers carry over.
+mode.purge.desc,A wave ends when every enemy in it is destroyed.
+mode.picker.title,WAVE MODE
+mode.locked,Reach wave {n} in TIMED to unlock
+mode.progress,Best TIMED wave: {n}
+mode.unlocked_toast,PURGE MODE UNLOCKED
+mode.chip,MODE: {name}
+results.mode,{name} MODE
+results.best_mode,BEST {name} {n}
+hud.mode_purge_left,{n} LEFT
+home.best_mode,BEST {name} {n}

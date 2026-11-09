@@ -8,6 +8,18 @@ const FOUNDRY_SCRIPT: String = "res://src/data_defs/foundry_def.gd"
 const FOUNDRY_TABLE_SCRIPT: String = "res://src/data_defs/foundry_table.gd"
 const FRAME_SCRIPT: String = "res://src/data_defs/frame_def.gd"
 const FRAME_TABLE_SCRIPT: String = "res://src/data_defs/frame_table.gd"
+const WAVE_MODE_SCRIPT: String = "res://src/data_defs/wave_mode_def.gd"
+const WAVE_MODE_TABLE_SCRIPT: String = "res://src/data_defs/wave_mode_table.gd"
+const WAVE_MODE_COLUMNS: PackedStringArray = [
+	"id",
+	"implemented",
+	"unlock_best_timed_wave",
+	"backstop_s",
+	"reward_mult",
+	"sort",
+	"source",
+	"note",
+]
 const GEN_RES_DIR: String = "res://src/data_gen/"
 const FOUNDRY_COLUMNS: PackedStringArray = ["id", "kind", "f", "f_cap", "fc0", "fg", "tag"]
 const FRAME_COLUMNS: PackedStringArray = [
@@ -163,6 +175,63 @@ static func _frame_row(rd: DataRowReader, table: CsvTable, r: int, ctx: String) 
 		var ok: bool = neutral and passive == "none" and unlock == 0 and implemented
 		rd.require(ok, ctx, "vanguard must be neutral (all x1.0 / +0, passive none, unlock 0, implemented)")
 	p["tag"] = rd.text(ctx + " tag", table.get_value(r, "tag"))
+	return p
+
+
+## wave_modes.csv to WaveModeDef files plus WaveModeTable (M4-01).
+static func wave_modes(path: String) -> Dictionary:
+	var out: Dictionary = {"files": {}, "errors": PackedStringArray()}
+	var table: CsvTable = _load(path, out)
+	if table == null:
+		return out
+	var rd: DataRowReader = DataRowReader.new("wave_modes.csv")
+	var seen: Dictionary = {}
+	var sorts: Dictionary = {}
+	var ids: PackedStringArray = PackedStringArray()
+	var pending: Dictionary = {}
+	if rd.check_columns(table, WAVE_MODE_COLUMNS):
+		for r: int in table.rows.size():
+			var id: String = table.get_value(r, "id")
+			var ctx: String = "row %d (%s)" % [r + 1, id]
+			rd.snake_id(ctx + " id", id)
+			if seen.has(id):
+				rd.fail("%s: duplicate id" % ctx)
+			seen[id] = true
+			var p: Dictionary = _wave_mode_row(rd, table, r, ctx)
+			var sort: int = p["sort"]
+			if sorts.has(sort):
+				rd.fail("%s: duplicate sort %d" % [ctx, sort])
+			sorts[sort] = true
+			pending[id] = p
+			ids.append(id)
+		rd.require(seen.has("timed"), "timed", "row 'timed' is missing")
+	_collect(out, rd)
+	if _ok(out):
+		_emit(out, "wave_mode", "WaveModeDef", WAVE_MODE_SCRIPT, "WaveModeTable", WAVE_MODE_TABLE_SCRIPT, ids, pending)
+	return out
+
+
+static func _wave_mode_row(rd: DataRowReader, table: CsvTable, r: int, ctx: String) -> Dictionary:
+	var id: String = table.get_value(r, "id")
+	var p: Dictionary = {"id": id}
+	var impl_text: String = table.get_value(r, "implemented")
+	rd.require(impl_text == "1" or impl_text == "0", ctx, "implemented must be 1 or 0")
+	var implemented: bool = impl_text == "1"
+	p["implemented"] = implemented
+	var unlock: int = rd.integer(ctx + " unlock_best_timed_wave", table.get_value(r, "unlock_best_timed_wave"))
+	rd.require(unlock >= 0, ctx, "unlock_best_timed_wave must be >= 0")
+	p["unlock_best_timed_wave"] = unlock
+	var backstop: float = rd.number(ctx + " backstop_s", table.get_value(r, "backstop_s"))
+	rd.require(backstop >= 0.0, ctx, "backstop_s must be >= 0")
+	if id != "timed" and implemented:
+		rd.require(backstop > 0.0, ctx, "backstop_s must be > 0 for a non-timed implemented mode")
+	p["backstop_s"] = backstop
+	var mult: float = rd.number(ctx + " reward_mult", table.get_value(r, "reward_mult"))
+	rd.require(mult > 0.0, ctx, "reward_mult must be > 0")
+	p["reward_mult"] = mult
+	p["sort"] = rd.integer(ctx + " sort", table.get_value(r, "sort"))
+	if id == "timed":
+		rd.require(unlock == 0 and implemented, ctx, "timed must be implemented and unlocked at 0")
 	return p
 
 

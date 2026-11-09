@@ -242,6 +242,7 @@ func _build_meta_tables(data_dir: String, upgrades_csv: CsvTable) -> void:
 	var built: Array[Dictionary] = [
 		DataMetaTables.foundry(data_dir.path_join("foundry.csv"), kinds),
 		DataMetaTables.frames(data_dir.path_join("frames.csv")),
+		DataMetaTables.wave_modes(data_dir.path_join("wave_modes.csv")),
 	]
 	for b: Dictionary in built:
 		var errs: PackedStringArray = b["errors"]
