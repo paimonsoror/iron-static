@@ -116,9 +116,13 @@ func setup_persistence(fs: SaveFs, args: PackedStringArray) -> void:
 	saves = SaveService.new(fs, clock, Crypto.new().generate_random_bytes(16).hex_encode())
 	saves.attach(controller)
 	controller.run_ended.connect(_on_run_ended)  # after the service's own banking handler
+	controller.run_aborted.connect(_on_run_ended)
 	var status: LoadResult.Status = saves.load_profile()
 	save_problem = saves.problem
 	notice = saves.notice
+	if not saves.last_unlocked_modes.is_empty():  # a mode the load itself unlocked (migrated save): same one-time chip
+		ModeUnlockFlag.mark(saves.profile, saves.last_unlocked_modes)
+		saves.request_save()
 	Log.info("[SAVE] boot load status=%s problem=%s" % [LoadResult.Status.keys()[status], str(save_problem)])
 	settings_applier.apply(PlayerSettings.from_dict(saves.profile.settings), visual, audio.settings, args)
 	if save_problem == SaveService.Problem.NONE and not debug_load and not style_frame:

@@ -192,3 +192,18 @@ func test_load_applies_unlocks_for_a_migrated_v1_save() -> void:
 	assert_array(s.profile.modes_unlocked).is_equal(["timed", "purge"])
 	assert_array(s.last_unlocked_modes).is_equal(["purge"])
 	assert_int(s.profile.best_wave_of_mode("timed", 1)).is_equal(need + 5)
+
+
+func test_boot_unlock_of_a_loaded_save_marks_the_one_time_chip() -> void:
+	var need: int = ModeRules.find_def(ModeRules.load_defs(), "purge").unlock_best_timed_wave
+	var doc: Dictionary = {"schema_version": 1, "profile": {"best_wave": {"1": need + 1}}}
+	fs.files["profile.sav"] = SaveCodec.encode(SaveCodec.MAGIC_PROFILE, 1, SaveSchema.raw_from_document(doc))
+	var g: Node = _game()
+	var p: PlayerProfile = g.call("profile")
+	assert_array(ModeUnlockFlag.pending(p)).is_equal(["purge"])
+	_free(g)
+	fs = MemorySaveFs.new()
+	var g2: Node = _game()
+	var p2: PlayerProfile = g2.call("profile")
+	assert_array(ModeUnlockFlag.pending(p2)).is_empty()
+	_free(g2)

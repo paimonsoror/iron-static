@@ -13,6 +13,9 @@ extends RefCounted
 
 signal run_started(world: SimWorld)
 signal run_ended(world: SimWorld)
+## The player aborted a live run from the pause menu (the world is NOT over). Subscribers bank it exactly like
+## `run_ended` (SaveService, Game); the UI goes straight Home instead of Results.
+signal run_aborted(world: SimWorld)
 signal load_finished(world: SimWorld)
 
 enum State { BOOT, IN_RUN, RESULTS }
@@ -160,6 +163,20 @@ func fast_forward(max_ticks: int) -> int:
 	return ran
 
 
+## Ends the live run at the current tick as if Cinder fell (pause menu ABORT MISSION): the record is written
+## (`"ended":"aborted"`), the session best is raised for TIMED, `run_aborted` fires so the run is banked. The sim
+## world is left untouched (no end_run, so replay hashes stay the live world's). False when there is no live run
+## (not IN_RUN, already over, debug load).
+func abort_run() -> bool:
+	if state != State.IN_RUN or world == null or world.is_over() or load_wave > 0:
+		return false
+	state = State.RESULTS
+	_pending_buys.clear()
+	_finish(true)
+	run_aborted.emit(world)
+	return true
+
+
 ## Fraction (0-1) of the debug load reached so far, 1.0 when not loading.
 func load_progress() -> float:
 	if load_wave <= 0:
@@ -209,7 +226,7 @@ func _apply_pending_buys() -> void:
 	_pending_buys.clear()
 
 
-func _write_last_run(w: SimWorld) -> void:
+func _write_last_run(w: SimWorld, aborted: bool = false) -> void:
 	var dir_path: String = last_run_path.get_base_dir()
 	if DirAccess.make_dir_recursive_absolute(dir_path) != OK:
 		Log.warn("run record: cannot create " + dir_path)
@@ -218,7 +235,7 @@ func _write_last_run(w: SimWorld) -> void:
 	if file == null:
 		Log.warn("run record: cannot write " + last_run_path)
 		return
-	file.store_string(RunRecord.from_world(w).to_json())
+	file.store_string(RunRecord.from_world(w, aborted).to_json())
 	file.close()
 	Log.info("run record written: " + ProjectSettings.globalize_path(last_run_path))
 
@@ -226,9 +243,15 @@ func _write_last_run(w: SimWorld) -> void:
 func _check_over() -> void:
 	if state == State.IN_RUN and world.is_over():
 		state = State.RESULTS
-		load_wave = 0
 		_pending_buys.clear()
-		if not _load_run and world.config.wave_mode == SimConfig.MODE_TIMED:  # Q71: only TIMED feeds the session best
-			best_wave_s1 = maxi(best_wave_s1, world.run.death_wave)
-		_write_last_run(world)
+		_finish(false)
 		run_ended.emit(world)
+
+
+## Shared end-of-run bookkeeping (a death and an abort): session best (TIMED only, Q71) and the run record.
+func _finish(aborted: bool) -> void:
+	load_wave = 0
+	var wave: int = world.wave if aborted else world.run.death_wave
+	if not _load_run and world.config.wave_mode == SimConfig.MODE_TIMED:
+		best_wave_s1 = maxi(best_wave_s1, wave)
+	_write_last_run(world, aborted)

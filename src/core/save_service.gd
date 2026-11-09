@@ -162,6 +162,7 @@ func save_now() -> bool:
 func attach(controller: RunController) -> void:
 	_controller = controller
 	controller.run_ended.connect(_on_run_ended)
+	controller.run_aborted.connect(_on_run_ended)  # an abort banks exactly like a death
 
 
 ## Per-frame: advances the scheduler, writes what is due. A failed write retries once on the next tick.
@@ -255,6 +256,9 @@ static func summary_from(world: SimWorld, run_id: int, counts: bool) -> RunSumma
 	var s: RunSummary = RunSummary.make(
 		run_id, world.run.death_wave, world.economy.data_run, world.tick, world.run.kills, world.config.sector
 	)
+	s.aborted = not world.is_over()  # pause menu ABORT MISSION: the run banks the wave being played
+	if s.aborted:
+		s.death_wave = world.wave
 	s.mode = world.config.wave_mode
 	s.counts_for_progress = counts
 	return s

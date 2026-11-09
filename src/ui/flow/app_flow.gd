@@ -10,7 +10,8 @@ extends RefCounted
 ##        SETTINGS -PROFILE_RESET-> TITLE); HOME -FRAMES-> FRAME_BAY (confirm and back both return to HOME: the
 ##        bay's back goes to its `OPENER`, TITLE after NEW GAME)
 ##        SAVE_PROBLEM -START_NEW-> HOME;  HOME -DEPLOY-> BATTLE;  HOME <-> FOUNDRY (after the first death) and
-##        HOME <-> SETTINGS;  BATTLE -RUN_ENDED-> RESULTS;  RESULTS -DEPLOY-> BATTLE | -GO_HOME-> HOME |
+##        HOME <-> SETTINGS;  BATTLE -RUN_ENDED-> RESULTS | -ABORT_MISSION-> HOME (pause menu, skips Results);
+##        RESULTS -DEPLOY-> BATTLE | -GO_HOME-> HOME |
 ##        -OPEN_FOUNDRY-> FOUNDRY;  FOUNDRY -DEPLOY-> BATTLE;  FOUNDRY and SETTINGS return to the screen they were
 ##        opened from (`OPENER`).
 
@@ -29,6 +30,7 @@ enum Event {
 	FRAME_BAY_BACK,
 	PROFILE_RESET,
 	OPEN_FRAMES,
+	ABORT_MISSION,
 }
 
 ## Boot into the title screen (flipped on by M3-30).
@@ -51,7 +53,7 @@ const TABLE: Dictionary = {
 	},
 	Screen.FOUNDRY: {Event.DEPLOY: Screen.BATTLE, Event.BACK_TO_OPENER: OPENER},
 	Screen.SETTINGS: {Event.BACK_TO_OPENER: OPENER, Event.PROFILE_RESET: Screen.TITLE},
-	Screen.BATTLE: {Event.RUN_ENDED: Screen.RESULTS},
+	Screen.BATTLE: {Event.RUN_ENDED: Screen.RESULTS, Event.ABORT_MISSION: Screen.HOME},
 	Screen.RESULTS: {Event.DEPLOY: Screen.BATTLE, Event.GO_HOME: Screen.HOME, Event.OPEN_FOUNDRY: Screen.FOUNDRY},
 }
 

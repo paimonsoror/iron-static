@@ -10,6 +10,8 @@ var death_wave: int = 0
 var data_run: BigNum = BigNum.zero()
 var kills: int = 0
 var ticks: int = 0
+## True when the player aborted the mission (pause menu): `death_wave` is the wave being played, not a death.
+var aborted: bool = false
 ## False for debug-load runs: they bank nothing and never touch best wave.
 var counts_for_progress: bool = true
 

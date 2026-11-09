@@ -44,8 +44,6 @@ results.scrap,SCRAP  {v}
 results.best,BEST  --
 results.redeploy,REDEPLOY
 pause.title,PAUSED
-pause.resume_hint,TAP TO RESUME
-pause.exit_hint,BACK AGAIN TO EXIT
 home.header,CINDER  ASH-07
 home.pr,PR {v}
 home.data,DATA {v}
@@ -216,3 +214,11 @@ enemy.name.dart,DART
 enemy.name.walker,WALKER
 enemy.name.lancer,LANCER
 enemy.name.boss_hulk,HULK
+pause.resume,RESUME
+pause.abort,ABORT MISSION
+pause.exit,EXIT GAME
+pause.abort_title,ABORT MISSION?
+pause.abort_body,THE RUN ENDS NOW. DATA EARNED IS KEPT.
+pause.abort_yes,ABORT
+pause.abort_no,CANCEL
+home.aborted,MISSION ABORTED: +{data} DATA

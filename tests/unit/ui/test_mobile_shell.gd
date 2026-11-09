@@ -31,13 +31,17 @@ func before_test() -> void:
 	_shell.lifecycle_enabled = true
 
 
-func test_back_pauses_then_would_quit() -> void:
+func test_back_opens_the_pause_menu_and_a_second_back_resumes() -> void:
 	assert_int(_shell.handle_back()).is_equal(BackPolicy.Action.PAUSE)
 	assert_bool(_c.paused).is_true()
 	assert_bool(_shell.overlay().visible).is_true()
 	assert_bool(_hud.is_paused()).is_true()
-	# A second back quits; check the decision only (quitting the test runner is not an option).
-	assert_int(BackPolicy.decide(false, _c.paused, _shell.in_battle())).is_equal(BackPolicy.Action.QUIT)
+	# Back with the menu open closes it and resumes: it never quits.
+	assert_int(_shell.handle_back()).is_equal(BackPolicy.Action.RESUME)
+	assert_bool(_c.paused).is_false()
+	assert_bool(_shell.overlay().visible).is_false()
+	assert_bool(_hud.is_paused()).is_false()
+	assert_int(_shell.exit_count).is_equal(0)
 
 
 func test_back_closes_the_open_panel_first() -> void:
@@ -79,71 +83,6 @@ func test_suspend_ignored_when_disabled_or_run_over() -> void:
 	assert_bool(_c.paused).is_false()
 
 
-func test_overlay_tap_resumes() -> void:
-	_shell.pause()
-	_shell.overlay()._gui_input(_mouse(true, Vector2(500.0, 900.0)))
-	assert_bool(_c.paused).is_true()  # the press alone never resumes
-	_shell.overlay()._gui_input(_mouse(false, Vector2(510.0, 905.0)))
-	assert_bool(_c.paused).is_false()
-	assert_bool(_shell.overlay().visible).is_false()
-
-
-## Phone bug: the gesture-navigation back swipe delivers a touch press, then Android cancels the touch. That must
-## not resume, so the second back reaches BackPolicy while still paused (QUIT).
-func test_back_swipe_press_then_cancel_keeps_the_pause() -> void:
-	_shell.pause()
-	_shell.overlay()._gui_input(_touch(true, Vector2(2.0, 900.0)))
-	var up := _touch(false, Vector2(40.0, 900.0))
-	up.canceled = true
-	_shell.overlay()._gui_input(up)
-	assert_bool(_c.paused).is_true()
-	assert_int(BackPolicy.decide(false, _c.paused, _shell.in_battle())).is_equal(BackPolicy.Action.QUIT)
-
-
-func test_swipe_without_cancel_and_release_without_press_do_not_resume() -> void:
-	_shell.pause()
-	_shell.overlay()._gui_input(_touch(true, Vector2(2.0, 900.0)))
-	_shell.overlay()._gui_input(_touch(false, Vector2(300.0, 900.0)))  # travelled far: a swipe, not a tap
-	assert_bool(_c.paused).is_true()
-	_shell.overlay()._gui_input(_touch(false, Vector2(300.0, 900.0)))  # stray release, no press seen
-	assert_bool(_c.paused).is_true()
-
-
-func test_touch_and_its_emulated_mouse_resume_once() -> void:
-	var resumes: Array[int] = [0]
-	_shell.overlay().resume_requested.connect(func() -> void: resumes[0] += 1)
-	_shell.pause()
-	var o: PauseOverlay = _shell.overlay()
-	o._gui_input(_touch(true, Vector2(500.0, 900.0)))
-	o._gui_input(_mouse(true, Vector2(500.0, 900.0)))
-	o._gui_input(_touch(false, Vector2(500.0, 900.0)))
-	o._gui_input(_mouse(false, Vector2(500.0, 900.0)))
-	assert_int(resumes[0]).is_equal(1)
-
-
-func test_a_press_from_before_the_pause_never_resumes() -> void:
-	var o: PauseOverlay = _shell.overlay()
-	o._gui_input(_touch(true, Vector2(500.0, 900.0)))  # overlay hidden: e.g. the swipe that paused
-	_shell.pause()
-	o._gui_input(_touch(false, Vector2(500.0, 900.0)))
-	assert_bool(_c.paused).is_true()
-
-
-func _touch(pressed: bool, pos: Vector2) -> InputEventScreenTouch:
-	var ev := InputEventScreenTouch.new()
-	ev.pressed = pressed
-	ev.position = pos
-	return ev
-
-
-func _mouse(pressed: bool, pos: Vector2) -> InputEventMouseButton:
-	var ev := InputEventMouseButton.new()
-	ev.pressed = pressed
-	ev.button_index = MOUSE_BUTTON_LEFT
-	ev.position = pos
-	return ev
-
-
 ## Phone bug (m3c build): the overlay anchored FULL_RECT after entering the tree kept its 0x0 rect, so the dim
 ## covered nothing and the card sat centered on the top-left corner. It must cover the viewport, card centered.
 func test_overlay_covers_the_viewport_with_the_card_centered() -> void:
@@ -154,7 +93,7 @@ func test_overlay_covers_the_viewport_with_the_card_centered() -> void:
 	assert_bool(view.size.x > 0.0 and view.size.y > 0.0).is_true()
 	assert_vector(o.get_global_rect().position).is_equal_approx(view.position, Vector2(0.5, 0.5))
 	assert_vector(o.get_global_rect().size).is_equal_approx(view.size, Vector2(0.5, 0.5))
-	var card: Control = o.get_child(1) as Control
+	var card: Control = (o.get_child(1) as Control).get_child(0) as Control
 	assert_vector(card.get_global_rect().get_center()).is_equal_approx(view.get_center(), Vector2(1.0, 1.0))
 
 
@@ -164,7 +103,17 @@ func test_overlay_texts_come_from_strings() -> void:
 	add_child(o)
 	auto_free(o)
 	assert_int(Strings.missing_count).is_equal(before)
-	for k: String in ["pause.title", "pause.resume_hint", "pause.exit_hint"]:
+	for k: String in [
+		"pause.title",
+		"pause.resume",
+		"pause.abort",
+		"pause.exit",
+		"pause.abort_title",
+		"pause.abort_body",
+		"pause.abort_yes",
+		"pause.abort_no",
+		"home.aborted",
+	]:
 		assert_bool(Strings.has_key(k)).is_true()
 
 
