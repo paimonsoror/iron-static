@@ -4,15 +4,15 @@ extends GdUnitTestSuite
 
 
 func test_decision_table() -> void:
-	# [panel_open, paused, in_battle] -> action
+	# [panel_open, paused (pause menu open), in_battle] -> action
 	var table: Array = [
 		[true, false, true, BackPolicy.Action.CLOSE_PANEL],
 		[true, true, true, BackPolicy.Action.CLOSE_PANEL],
 		[true, false, false, BackPolicy.Action.CLOSE_PANEL],
 		[false, false, true, BackPolicy.Action.PAUSE],
-		[false, true, true, BackPolicy.Action.QUIT],
+		[false, true, true, BackPolicy.Action.RESUME],
 		[false, false, false, BackPolicy.Action.QUIT],
-		[false, true, false, BackPolicy.Action.QUIT],
+		[false, true, false, BackPolicy.Action.RESUME],
 	]
 	for row: Array in table:
 		var panel: bool = row[0]
@@ -54,7 +54,7 @@ func test_screen_table_all_screens_by_paused_and_panel() -> void:
 			)
 
 
-func test_an_open_dialog_closes_first_on_every_menu_screen_but_not_in_battle() -> void:
+func test_an_open_dialog_closes_first_on_every_menu_screen() -> void:
 	for s: AppFlow.Screen in [
 		AppFlow.Screen.TITLE,
 		AppFlow.Screen.HOME,
@@ -69,6 +69,19 @@ func test_an_open_dialog_closes_first_on_every_menu_screen_but_not_in_battle() -
 	assert_int(BackPolicy.decide_screen(AppFlow.Screen.TITLE, false, false, false, false)).is_equal(
 		BackPolicy.Action.CONFIRM_QUIT
 	)
-	assert_int(BackPolicy.decide_screen(AppFlow.Screen.BATTLE, false, false, true, false, true)).is_equal(
+	# BATTLE: the pause menu's own confirm closes first (CLOSE_DIALOG), see the abort test below.
+	assert_int(BackPolicy.decide_screen(AppFlow.Screen.BATTLE, false, false, true, false, false)).is_equal(
 		BackPolicy.Action.PAUSE
 	)
+
+
+## The ABORT MISSION confirm is the topmost panel: back closes it first, in every battle state.
+func test_open_abort_confirm_closes_first_in_battle() -> void:
+	for panel: bool in [false, true]:
+		for paused: bool in [false, true]:
+			for in_battle: bool in [false, true]:
+				assert_int(BackPolicy.decide(panel, paused, in_battle, true)).is_equal(BackPolicy.Action.CLOSE_DIALOG)
+				(
+					assert_int(BackPolicy.decide_screen(AppFlow.Screen.BATTLE, panel, paused, in_battle, false, true))
+					. is_equal(BackPolicy.Action.CLOSE_DIALOG)
+				)

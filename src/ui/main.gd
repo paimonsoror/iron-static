@@ -55,6 +55,7 @@ func _ready() -> void:
 	add_child(_mobile)  # last child: its pause overlay is topmost
 	_mobile.setup(_controller, _hud, _results, _debug)
 	_mobile.set_router(_router)
+	_mobile.saves = Game.saves
 	ShaderWarmup.start(self)
 	_debug.force_perf = Game.perf_logging_forced()
 	if Game.debug_load:
@@ -95,8 +96,12 @@ func _on_speed_changed(multiplier: int) -> void:
 	_controller.speed = multiplier
 
 
+## The HUD pause button opens the pause menu (it covers the HUD, so it can only toggle on here; off is a safety net).
 func _on_pause_toggled(paused: bool) -> void:
-	_controller.paused = paused
+	if paused:
+		_mobile.pause()
+	else:
+		_mobile.resume()
 
 
 func _on_redeploy_pressed() -> void:
@@ -110,8 +115,8 @@ func _on_results_event(event: AppFlow.Event) -> void:
 	_router.dispatch(event)
 
 
-## A resumed run starts paused: show the PAUSED overlay (V1-24 style) behind which the player taps to continue,
-## with the pending notice ("RUN RESTORED") on it.
+## A resumed run starts paused: show the pause menu (RESUME / ABORT MISSION / EXIT GAME) with the pending notice
+## ("RUN RESTORED") on it.
 func _on_battle_entered() -> void:
 	if _controller.paused:
 		_mobile.pause()

@@ -47,10 +47,13 @@ func _init() -> void:
 	box.add_child(_no)
 
 
-## Shows the dialog with already localized texts.
-func open(heading_text: String, message: String) -> void:
+## Shows the dialog with already localized texts. `yes_text` / `no_text` replace the YES / NO labels (the pause
+## menu's ABORT / CANCEL); "" keeps the default button texts.
+func open(heading_text: String, message: String, yes_text: String = "", no_text: String = "") -> void:
 	_title.text = heading_text
 	_body.text = message
+	_yes.text = yes_text if yes_text != "" else Strings.get_text("title.quit_yes")
+	_no.text = no_text if no_text != "" else Strings.get_text("title.quit_no")
 	show()
 
 

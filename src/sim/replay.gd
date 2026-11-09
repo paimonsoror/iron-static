@@ -1,7 +1,8 @@
 class_name Replay
 extends RefCounted
 ## Re-runs a RunRecord in a fresh world. Rule (same as live play): commands logged at tick T are applied
-## before `step()` of tick T. Stops at `RUN_ENDED` or when `world.tick` reaches `max_ticks`.
+## before `step()` of tick T. Stops at `RUN_ENDED` or when `world.tick` reaches `max_ticks`. An aborted record (the
+## player left the mission alive) also stops at its `final_tick`, after applying the commands due on that tick.
 
 
 ## Final `state_hash()` of the replayed run. Mutates `cfg` via `rec.apply_to` (seed, sector, best wave...).
@@ -14,9 +15,12 @@ static func run_world(cfg: SimConfig, rec: RunRecord, max_ticks: int) -> SimWorl
 	rec.apply_to(cfg)
 	var w: SimWorld = SimWorld.new(cfg)
 	var cursor: int = 0
-	while not w.is_over() and w.tick < max_ticks:
+	var limit: int = mini(max_ticks, rec.final_tick) if rec.aborted else max_ticks
+	while not w.is_over() and w.tick < limit:
 		cursor = _apply_due(w, rec.commands, cursor)
 		w.step()
+	if rec.aborted and w.tick == rec.final_tick:
+		cursor = _apply_due(w, rec.commands, cursor)  # buys logged while paused on the abort tick
 	return w
 
 
@@ -27,7 +31,8 @@ static func checkpoints(cfg: SimConfig, rec: RunRecord, targets: PackedInt32Arra
 	var w: SimWorld = SimWorld.new(cfg)
 	var cursor: int = 0
 	for target: int in targets:
-		while not w.is_over() and w.tick < target:
+		var stop: int = mini(target, rec.final_tick) if rec.aborted else target
+		while not w.is_over() and w.tick < stop:
 			cursor = _apply_due(w, rec.commands, cursor)
 			w.step()
 		if out.append(w.state_hash() if w.tick == target else ""):

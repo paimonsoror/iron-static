@@ -13,7 +13,7 @@ IRON STATIC is built to be played one-handed in portrait. **You never aim and th
 | See a row's formula | **Tap the row** (anywhere but the cost button) |
 | Switch panels | Tap **ARMS**, **CHASSIS**, **SYSTEMS** or **INTEL** |
 | Change speed | The speed button in the top bar (1x and 2x; 3x and 4x will be unlocked by research) |
-| Pause | The pause button in the top bar |
+| Pause | The pause button in the top bar, or the back gesture (opens the [pause menu](#pause-menu)) |
 | Redeploy | The REDEPLOY button on the results screen (FOUNDRY and HOME are next to it) |
 | Start over | NEW GAME on the title screen, with a confirmation if you have progress |
 
@@ -23,11 +23,14 @@ Partial buys are allowed: if you cannot afford the whole amount you buy what you
 
 ## Android back gesture
 
-The back gesture is handled in a fixed order:
+In a battle the back gesture is handled in a fixed order:
 
-1. If a panel or tooltip is open, **it closes it**.
-2. Otherwise it **pauses** the battle.
-3. Otherwise (already paused) it **quits** the app.
+1. If the **ABORT MISSION?** confirmation is open, it closes (the pause menu stays).
+2. Otherwise, if a panel or tooltip is open, **it closes it**.
+3. Otherwise, if the pause menu is open, it **closes the menu and resumes** the battle.
+4. Otherwise it **opens the pause menu**.
+
+Back never quits the app from a battle: use EXIT GAME in the pause menu.
 
 The menu screens have their own back behavior:
 
@@ -42,9 +45,21 @@ The menu screens have their own back behavior:
 
 The first death unlocks the Foundry; before that, Home shows only DEPLOY and the settings button.
 
+## Pause menu
+
+The pause menu opens on the first back gesture, on the pause button, when the app goes to the background and when you continue a saved run. The battle stops and sound freezes. Three buttons:
+
+| Button | What it does |
+|---|---|
+| RESUME | Closes the menu and continues the battle |
+| ABORT MISSION | Asks "ABORT MISSION?" (ABORT or CANCEL). ABORT ends the run right now and counts it like a defeat: the data you earned and your best wave are kept, new frames and modes unlock as usual. You go straight to Home (no results screen), where a "MISSION ABORTED" message shows the data banked |
+| EXIT GAME | Saves and quits the app. CONTINUE on the title screen resumes the run where you left it |
+
+Tapping outside the buttons does nothing, and a back swipe from the screen edge never presses a button by accident.
+
 ## Leaving the app
 
-When the app goes to the background, the **run pauses automatically** and stays paused behind a "PAUSED" overlay until you tap to resume. Sound is frozen at the same moment. Nothing advances while you are away; offline earning is a separate system (see [Standby Patrol](meta-planned.md#standby-patrol)). Backgrounding also saves your profile and the run's checkpoint.
+When the app goes to the background, the **run pauses automatically** and stays paused behind the pause menu until you choose RESUME. Sound is frozen at the same moment. Nothing advances while you are away; offline earning is a separate system (see [Standby Patrol](meta-planned.md#standby-patrol)). Backgrounding also saves your profile and the run's checkpoint.
 
 ## Screen layouts
 

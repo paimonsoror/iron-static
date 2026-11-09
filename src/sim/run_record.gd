@@ -10,6 +10,9 @@ extends RefCounted
 ## order of the recording config; absent = all zero) and "frame":"<id>" (absent = vanguard). `apply_to` restores the
 ## Foundry levels by id; the Foundry factors `f` and the frame modifiers are config data the caller supplies
 ## (the config hash detects a mismatch).
+## Pause menu: optional "ended":"aborted" (absent = the run died): the player aborted at `final_tick`, the world was not
+## over, `death_wave` is the wave being played and `final_hash` the hash of that live world. `Replay` stops at
+## `final_tick` for such a record (applying the commands due on that tick), so it reproduces `final_hash`.
 ## M4-05: optional "mode":"purge" (absent = timed). `apply_to` sets `cfg.wave_mode`; the backstop and reward numbers are
 ## config data like the Foundry factors, so build the config with `SimConfigLoader.apply_mode(cfg, rec.mode)` first.
 
@@ -27,12 +30,15 @@ var frame_id: String = "vanguard"
 var mode: String = SimConfig.MODE_TIMED
 var final_tick: int = 0
 var death_wave: int = 0
+## True when the player aborted the mission (pause menu) instead of dying: the replay stops at `final_tick`.
+var aborted: bool = false
 var final_hash: String = ""
 var commands: InputLog = InputLog.new()
 
 
-## Snapshot of a world (finished or not): inputs from its config and log, outcome from its state.
-static func from_world(world: SimWorld) -> RunRecord:
+## Snapshot of a world (finished or not): inputs from its config and log, outcome from its state. `aborted`: the
+## player ended a live world; its death wave is then the wave being played.
+static func from_world(world: SimWorld, was_aborted: bool = false) -> RunRecord:
 	var r: RunRecord = RunRecord.new()
 	var cfg: SimConfig = world.config
 	r.seed_value = cfg.seed_value
@@ -45,7 +51,8 @@ static func from_world(world: SimWorld) -> RunRecord:
 	r.frame_id = cfg.frame_id
 	r.mode = cfg.wave_mode
 	r.final_tick = world.tick
-	r.death_wave = world.run.death_wave
+	r.aborted = was_aborted and not world.is_over()
+	r.death_wave = world.wave if r.aborted else world.run.death_wave
 	r.final_hash = world.state_hash()
 	r.commands = world.input_log
 	return r
@@ -100,6 +107,8 @@ func to_json() -> String:
 		d["frame"] = frame_id
 	if mode != SimConfig.MODE_TIMED:
 		d["mode"] = mode
+	if aborted:
+		d["ended"] = "aborted"
 	return JSON.stringify(d)
 
 
@@ -125,6 +134,7 @@ static func from_json(text: String) -> RunRecord:
 	r.foundry = _gets(d, "foundry", "")
 	r.frame_id = _gets(d, "frame", "vanguard")
 	r.mode = _gets(d, "mode", SimConfig.MODE_TIMED)
+	r.aborted = _gets(d, "ended", "") == "aborted"
 	var packed: String = _gets(d, "commands", "")
 	var t: int = 0
 	if packed != "":

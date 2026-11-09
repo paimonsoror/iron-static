@@ -147,3 +147,11 @@ func test_frame_bay_returns_to_the_screen_that_opened_it() -> void:
 	assert_int(from_title.apply(E.FRAME_BAY_BACK)).is_equal(S.TITLE)
 	assert_int(_flow(S.TITLE).apply(E.OPEN_FRAMES)).is_equal(AppFlow.NONE)
 	assert_int(_flow(S.RESULTS).apply(E.OPEN_FRAMES)).is_equal(AppFlow.NONE)
+
+
+func test_abort_mission_goes_home_only_from_battle() -> void:
+	assert_int(_flow(S.BATTLE).apply(E.ABORT_MISSION)).is_equal(S.HOME)
+	for from: AppFlow.Screen in [S.HOME, S.RESULTS, S.FOUNDRY, S.SETTINGS, S.TITLE, S.FRAME_BAY, S.SAVE_PROBLEM]:
+		assert_int(_flow(from).apply(E.ABORT_MISSION)).is_equal(AppFlow.NONE)
+	var f: AppFlow = _flow(S.BATTLE)
+	assert_int(f.apply(E.RUN_ENDED)).is_equal(S.RESULTS)  # a death still goes to Results

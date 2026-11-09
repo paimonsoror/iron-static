@@ -116,6 +116,7 @@ func setup_persistence(fs: SaveFs, args: PackedStringArray) -> void:
 	saves = SaveService.new(fs, clock, Crypto.new().generate_random_bytes(16).hex_encode())
 	saves.attach(controller)
 	controller.run_ended.connect(_on_run_ended)  # after the service's own banking handler
+	controller.run_aborted.connect(_on_run_ended)
 	var status: LoadResult.Status = saves.load_profile()
 	save_problem = saves.problem
 	notice = saves.notice
