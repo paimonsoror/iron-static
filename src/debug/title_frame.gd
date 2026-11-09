@@ -5,6 +5,7 @@ extends Node
 ##   godot --path . res://src/debug/title_frame.tscn [-- --quality=low --reduce-motion --frame=bulwark --tf-continue]
 ## `--tf-shots[=dir]` renders the capture series into a SubViewport, writes metrics.txt and quits (desktop only).
 ## `--tf-continue` shows the CONTINUE row (a profile with progress).
+## `--tf-banner[=dir]` renders the README banner (see `TitleBanner`) and quits (desktop only).
 
 const SCENE: String = "res://src/ui/title/title_screen.tscn"
 const PORTRAIT: Vector2 = Vector2(1080.0, 2400.0)
@@ -17,10 +18,12 @@ var _screen: TitleScreen = null
 func _ready() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var shots_dir: String = ""
+	var banner: bool = false
 	var frame_id: String = "vanguard"
 	for a: String in args:
-		if a.begins_with("--tf-shots"):
+		if a.begins_with("--tf-shots") or a.begins_with("--tf-banner"):
 			shots_dir = a.get_slice("=", 1) if "=" in a else "build/title_frame"
+			banner = a.begins_with("--tf-banner")
 		if a.begins_with("--frame="):
 			frame_id = a.get_slice("=", 1)
 	var host: Node = self
@@ -35,7 +38,9 @@ func _ready() -> void:
 	host.add_child(_screen)
 	var tier: VisualQuality.Tier = VisualQuality.tier_from_args(args)
 	_screen.show_state(tier, args.has("--reduce-motion"), args.has("--tf-continue"), frame_id)
-	if shots_dir != "":
+	if banner:
+		TitleBanner.run(self, shots_dir)
+	elif shots_dir != "":
 		TitleFrameShots.run(self, shots_dir)
 
 

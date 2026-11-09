@@ -27,9 +27,14 @@ IRON STATIC is in active development. This page says what you can play today and
 - **Saving**: crash-safe writes, a backup copy, tamper detection, resume after the app is killed, and a save when the app goes to the background.
 - An **early-curve rebalance**: more starting scrap, cheaper first upgrade levels and a softer first boss.
 
-## What M3 still needs
+M3 closed on 2026-11-09 after checks on a real phone: the pause screen, the back gesture, resume from the title's CONTINUE and the save-problem screen were all fixed and confirmed on the device.
 
-All planned M3 features are in. Checking them on a real phone, and the milestone's exit check, remain. Until then M3 stays open and numbers can still move.
+## In progress: milestone M4
+
+<span class="badge planned">In progress</span>
+
+- **Wave modes.** You will choose a mode before each deployment. **TIMED** is today's game: 24-second waves, leftovers carry over. **PURGE** ends each wave when every enemy in it is destroyed, with a 60-second limit so a wave can never stall. PURGE unlocks when your best TIMED wave reaches 20, and each mode keeps its own best wave. The rules and the separate records are being built now; the mode picker on Home comes next.
+- Later in M4: the wave-10 patch draft, the Intel tab, damage numbers, haptics, more accessibility settings and a guided first ten minutes.
 
 ## Roadmap
 
@@ -40,8 +45,8 @@ All planned M3 features are in. Checking them on a real phone, and the milestone
 | M2 In-run economy | Scrap, ten upgrades, big numbers, panel, results | Done |
 | V1 Visual pass | Illustrated vector art, effects, styled HUD, mobile hardening | Done apart from on-device verification |
 | A1 Audio pass | Synthesized sound effects and adaptive music | Done |
-| M3 Meta loop | Data banking, Foundry, saving and resume, title screen, frames | In progress: features are in; on-device verification and the exit check remain |
-| M4 Patches and first-time experience | Patch draft, Intel tab, damage numbers, haptics, tutorial | <span class="badge planned">Planned</span> |
+| M3 Meta loop | Data banking, Foundry, saving and resume, title screen, frames | Done (2026-11-09) |
+| M4 Wave modes, patches and first-time experience | TIMED and PURGE wave modes, patch draft, Intel tab, damage numbers, haptics, tutorial | In progress: wave modes first |
 | M5 MVP validation | Balance, real-device performance, fun checks | <span class="badge planned">Planned</span> |
 | M6 Launch content | Lab, weapon systems, firmware, drones, adaptive swarm, caches, overdrive, more sectors, Standby Patrol, two more frames | <span class="badge planned">Planned</span> |
 | M7 Online and release | Accounts, cloud save, purchases, ads, store release | <span class="badge planned">Planned</span> |

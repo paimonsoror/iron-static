@@ -7,7 +7,7 @@ hide:
 
 <div class="hero" markdown>
 
-![IRON STATIC logo](assets/img/logo.jpg){ width="520" }
+![IRON STATIC: Cinder on a ridge of machine wrecks under a smoky amber sky](assets/img/banner.jpg){ width="1280" }
 
 <p class="tagline">Hold the last relay. Burn away what is left of being human. Go deeper every time.</p>
 

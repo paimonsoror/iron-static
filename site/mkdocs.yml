@@ -39,7 +39,11 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
   - Home: index.md
@@ -72,3 +76,8 @@ nav:
       - Glossary: systems/glossary.md
   - FAQ: faq.md
   - Development status: status.md
+  - Under the hood:
+      - dev/index.md
+      - Architecture: dev/architecture.md
+      - Building and tools: dev/building.md
+      - Credits and sources: dev/credits.md
