@@ -4,7 +4,8 @@ extends Node2D
 ## band/hp/aim from the sim each frame via set_state(). Origin = center. The metallic art comes from the `cinder`
 ## and `cinder_glow` sheets through `ArtSlots`; `CinderRig` holds state and paints, this node owns the two canvas
 ## layers (body = normal blend, glow = additive) and the procedural integrity ring. Draw calls: integrity arcs,
-## body batch, glow batch. Range rings belong to the battle view.
+## body batch, glow batch, plus one for the armor plates layer once the hull has a tier (VT-3: that layer sits
+## behind this node's own `_draw`, so the ring stays on top of the plates). Range rings belong to the battle view.
 
 const INTEGRITY_POINTS: int = 96
 const INTEGRITY_RING: float = 1.32
@@ -14,6 +15,7 @@ var radius_px: float = 110.0:
 	set(value):
 		radius_px = maxf(value, 8.0)
 		_rig.scale_f = CinderLayout.rig_scale(radius_px)
+		_plates.queue_redraw()
 		queue_redraw()
 ## Visual options (quality tier, reduce motion); null = HIGH defaults. Set by BattleView.
 var visual: VisualSettings = null
@@ -26,6 +28,10 @@ var _ring_cols := PackedColorArray()
 var _rig := CinderRig.new()
 var _body := CinderLayer.new()
 var _glow := CinderLayer.new()
+var _plates := CinderLayer.new()
+var _world: SimWorld = null
+var _hull_row: int = -1
+var _hull_level: int = -1
 
 
 func _init() -> void:
@@ -36,6 +42,11 @@ func _init() -> void:
 	_body.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_glow.painter = _rig.paint_glow
 	_glow.make_additive()
+	_plates.painter = _rig.paint_plates
+	_plates.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_plates.show_behind_parent = true
+	_plates.visible = false
+	add_child(_plates)
 	add_child(_body)
 	add_child(_glow)
 
@@ -51,7 +62,9 @@ func set_state(hp_frac: float, band: int, aim_angle: float, time_s: float) -> vo
 	_rig.glow_mul = CinderLayout.glow_factor(glow_on)
 	_rig.update(clampi(band, 0, 3), aim_angle, time_s, heart_clock_s)
 	_glow.visible = glow_on
+	_update_plates()
 	var shiver: Vector2 = _rig.shiver()
+	_plates.position = shiver
 	_body.position = shiver
 	_glow.position = shiver
 	queue_redraw()
@@ -59,13 +72,48 @@ func set_state(hp_frac: float, band: int, aim_angle: float, time_s: float) -> vo
 	_glow.queue_redraw()
 
 
+## Binds the run whose `hull_integrity` level picks the armor plate tier (VT-3; `BattleView.bind`). The plate set
+## changes only when that level crosses a tier; null clears the plates.
+func bind_world(world: SimWorld) -> void:
+	_world = world
+	_hull_row = -1
+	_hull_level = -1
+	if world != null:
+		for i: int in world.config.upgrades.size():
+			if world.config.upgrades[i].id == CinderPlates.UPGRADE_ID:
+				_hull_row = i
+				break
+	_update_plates()
+
+
+## Armor plate tier drawn now (0 = none, 3 = outer lip).
+func plate_tier() -> int:
+	return _rig.plates
+
+
 ## Selects the frame variant of the rig (`vanguard`, `bulwark`, `striker`; M3-27). Called by `BattleView.bind` from
 ## `world.config.frame_id`; unknown ids draw VANGUARD.
 func set_frame(id: String) -> void:
 	_rig.set_frame(id)
+	_plates.queue_redraw()
 	queue_redraw()
 	_body.queue_redraw()
 	_glow.queue_redraw()
+
+
+## Reads the hull level from the bound world (an int compare per frame) and re-picks the plate tier on change.
+func _update_plates() -> void:
+	var level: int = 0
+	if _world != null and _hull_row >= 0 and _hull_row < _world.run_levels.size():
+		level = _world.run_levels[_hull_row]
+	if level == _hull_level:
+		return
+	_hull_level = level
+	var tier: int = CinderPlates.tier_for_level(VisualTierModel.shared(), level)
+	if tier != _rig.plates:
+		_rig.plates = tier
+		_plates.visible = tier > 0
+		_plates.queue_redraw()
 
 
 func frame_id() -> String:

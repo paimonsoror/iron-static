@@ -12,5 +12,5 @@ threshold_kind = "level"
 threshold = 5
 label_key = "vt.mark.2"
 banner_key = "vt.banner.hull"
-art_slot = "ut_plates:tier_1"
+art_slot = "cinder_plate_corner"
 params = "plates=1"
