@@ -41,7 +41,8 @@ func test_glow_only_within_three_levels_of_milestone() -> void:
 
 
 func test_unaffordable_state_is_flagged_and_cost_is_formatted() -> void:
-	var w: SimWorld = _world()  # start scrap 15 in the default tuning: cycle_rate costs 25
+	var w: SimWorld = _world()
+	w.economy.scrap = BigNum.from_float(10.0)  # below cycle_rate's 25 (start scrap is tuning data)
 	var m: UpgradeRowModel = _model(w, "cycle_rate")
 	assert_bool(m.affordable).is_false()
 	assert_str(m.cost_text).is_equal("25")

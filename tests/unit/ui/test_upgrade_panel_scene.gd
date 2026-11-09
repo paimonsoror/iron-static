@@ -75,9 +75,10 @@ func test_buy_requested_carries_index_and_count_of_a_tap() -> void:
 func test_refresh_follows_scrap_and_does_not_mutate_world() -> void:
 	var panel: UpgradePanel = _panel()
 	var w: SimWorld = _world(0)
+	w.economy.scrap = BigNum.from_float(10.0)  # below cycle_rate's 25 (start scrap is tuning data)
 	panel.bind(w)
 	var before: String = w.state_hash()
-	var button: Button = panel.row_at(1).get_node("%BuyButton")  # cycle_rate costs 25, start scrap 15
+	var button: Button = panel.row_at(1).get_node("%BuyButton")
 	assert_str(button.theme_type_variation).is_equal(str(ThemeBuilder.VAR_BUTTON_UNAFFORDABLE))
 	w.economy.scrap = BigNum.from_float(1000.0)
 	var mid: String = w.state_hash()
@@ -112,8 +113,9 @@ func test_code_driven_tab_switch_leaves_one_selected_and_no_buy_selector() -> vo
 func test_row_cost_states_icon_and_maxed_plate() -> void:
 	var panel: UpgradePanel = _panel()
 	var w: SimWorld = _world(0)
+	w.economy.scrap = BigNum.from_float(10.0)  # below cycle_rate's 25 (start scrap is tuning data)
 	panel.bind(w)
-	var row: UpgradeRow = panel.row_at(1)  # cycle_rate costs 25, start scrap 15
+	var row: UpgradeRow = panel.row_at(1)
 	var button: Button = row.get_node("%BuyButton")
 	assert_int(row.cost_state()).is_equal(UpgradeRow.CostState.LOCKED)
 	assert_object(button.icon).is_same(UiKit.lock_icon())

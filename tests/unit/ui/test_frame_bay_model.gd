@@ -28,9 +28,9 @@ func test_only_three_frames_listed() -> void:
 
 func test_bulwark_vs_vanguard_delta_texts() -> void:
 	var b: FrameCard = _card(_cards(0), "bulwark")
-	assert_str(FrameBayModel.row_text(b, "hull")).is_equal("HULL +60%")
-	assert_str(FrameBayModel.delta_text(b.delta("rate"))).is_equal("-25%")
-	assert_str(FrameBayModel.row_text(b, "rate")).is_equal("FIRE RATE -25%")
+	assert_str(FrameBayModel.row_text(b, "hull")).is_equal("HULL +200%")
+	assert_str(FrameBayModel.delta_text(b.delta("rate"))).is_equal("-20%")
+	assert_str(FrameBayModel.row_text(b, "rate")).is_equal("FIRE RATE -20%")
 
 
 func test_delta_text_rounding_and_sign() -> void:

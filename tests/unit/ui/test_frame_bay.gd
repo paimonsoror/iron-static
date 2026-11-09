@@ -81,8 +81,8 @@ func test_fresh_profile_locked_cards_show_condition() -> void:
 	assert_bool(view.lock_label().visible).is_true()
 	assert_str(view.lock_label().text).is_equal("REACH WAVE 8")
 	assert_str(s.action_button().text).is_equal("REACH WAVE 8")
-	assert_str(view.value_text("hull")).is_equal("+60%")
-	assert_str(view.value_text("rate")).is_equal("-25%")
+	assert_str(view.value_text("hull")).is_equal("+200%")
+	assert_str(view.value_text("rate")).is_equal("-20%")
 	s.page(1)
 	assert_str(view.lock_label().text).is_equal("REACH WAVE 15")
 
@@ -114,7 +114,7 @@ func test_select_unlocked_persists_and_keeps_vanguard_reference() -> void:
 	assert_str(Game.profile().frame_selected).is_equal("bulwark")
 	assert_str(s.action_button().text).is_equal("CONTINUE")
 	assert_bool(s.card_view().tag_label().visible).is_true()
-	assert_str(s.card_view().value_text("hull")).is_equal("+60%")  # still compared to VANGUARD
+	assert_str(s.card_view().value_text("hull")).is_equal("+200%")  # still compared to VANGUARD
 	assert_bool(Game.saves.save_now()).is_true()
 	var reloaded := SaveService.new(_fs, FakeClock.new(2000), "dev")
 	@warning_ignore("return_value_discarded")
@@ -138,7 +138,7 @@ func test_selected_frame_reaches_run_config() -> void:
 	assert_bool(FrameRules.select(Game.profile(), "bulwark")).is_true()
 	var w: SimWorld = Game.saves.start_run()
 	assert_str(w.config.frame_id).is_equal("bulwark")
-	assert_float(w.stats.hull_integrity).is_equal_approx(160.0, 0.01)
+	assert_float(w.stats.hull_integrity).is_equal_approx(300.0, 0.01)
 
 
 func test_touch_targets_and_portrait_by_state() -> void:
