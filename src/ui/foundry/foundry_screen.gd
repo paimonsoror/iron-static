@@ -47,7 +47,7 @@ func _build() -> void:
 	heading.add_theme_font_size_override("font_size", HEADING_SIZE)
 	content.add_child(_build_top_bar())
 	preview_label = label("", &"LabelNumber", Palette.AMBER_GLOW, PREVIEW_SIZE)
-	preview_label.hide()
+	preview_label.modulate.a = 0.0
 	content.add_child(preview_label)
 	locked_label = label("foundry.locked", &"LabelHeading", Palette.TEXT_DIM, 48)
 	locked_label.hide()
@@ -137,6 +137,11 @@ func is_locked() -> bool:
 	return _locked
 
 
+## True while the PR preview line is readable (hidden = transparent, it keeps its space).
+func is_preview_shown() -> bool:
+	return preview_label.visible and preview_label.modulate.a > 0.0
+
+
 func row_count() -> int:
 	return _rows.size()
 
@@ -188,8 +193,13 @@ func _set_preview(profile: PlayerProfile) -> void:
 	for i: int in _views.size():
 		if _views[i].recommended and _views[i].affordable:
 			rec = i
-	preview_label.visible = rec >= 0 and not _locked
+	# The line keeps its space while hidden (transparent, placeholder text): hiding it shifted every row ~50 px under
+	# a held finger after the first purchase (M3-32).
+	preview_label.visible = not _locked
+	preview_label.modulate.a = 1.0 if rec >= 0 else 0.0
 	if rec < 0:
+		if preview_label.text == "":
+			preview_label.text = Strings.fill("foundry.preview", {"a": "0", "b": "0"})
 		return
 	var pr: Vector2 = service.power_rating_preview(profile, _views[rec].id)
 	var fine: bool = floorf(pr.x) == floorf(pr.y)

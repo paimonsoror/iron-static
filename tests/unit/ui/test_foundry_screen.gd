@@ -59,7 +59,7 @@ func test_four_rows_in_order_and_balance_header() -> void:
 func test_no_glow_and_no_preview_when_nothing_is_affordable() -> void:
 	var s: FoundryScreen = _screen(_profile(0))
 	assert_int(s.recommended_index()).is_equal(-1)
-	assert_bool(s.preview_label.visible).is_false()
+	assert_bool(s.is_preview_shown()).is_false()
 	for i: int in 4:
 		assert_bool(s.row_at(i).has_glow()).is_false()
 
@@ -68,12 +68,30 @@ func test_recommended_moves_after_a_buy() -> void:
 	var s: FoundryScreen = _screen(_profile(60))
 	assert_int(s.recommended_index()).is_equal(0)  # laser 20 is the cheapest affordable row
 	assert_bool(s.row_at(0).has_glow()).is_true()
-	assert_bool(s.preview_label.visible).is_true()
+	assert_bool(s.is_preview_shown()).is_true()
 	assert_str(s.preview_label.text).contains("NEXT RUN  PR")
 	s.row_at(0).buy_pressed.emit(0, 1)  # laser now costs 22, hull 20 is cheaper
 	assert_int(s.recommended_index()).is_equal(2)
 	assert_bool(s.row_at(0).has_glow()).is_false()
 	assert_bool(s.row_at(2).has_glow()).is_true()
+
+
+## M3-32 emulator finding: the first purchase hid the PR preview line above the list, every row jumped ~50 px and
+## a held finger ended up on a different row. Rows must not move when the preview comes and goes.
+func test_rows_hold_still_when_the_preview_disappears() -> void:
+	var s: FoundryScreen = _screen(_profile(20))  # only laser (20) is affordable: preview shown
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_bool(s.is_preview_shown()).is_true()
+	var before: Array[float] = []
+	for i: int in s.row_count():
+		before.append(s.row_at(i).get_global_rect().position.y)
+	s.row_at(0).buy_pressed.emit(0, 1)  # data 0: nothing affordable, the preview goes away
+	await await_idle_frame()
+	await await_idle_frame()
+	assert_bool(s.is_preview_shown()).is_false()
+	for i: int in s.row_count():
+		assert_float(s.row_at(i).get_global_rect().position.y).is_equal_approx(before[i], 0.5)
 
 
 func test_recommended_prefers_a_row_near_its_milestone() -> void:
