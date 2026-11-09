@@ -240,6 +240,9 @@ func try_resume(cfg_factory: Callable) -> ResumeResult:
 			notice = NOTICE_RESUMED
 		ResumeResult.Status.ENDED_BY_UPDATE:
 			var s: RunSummary = RunSummary.make(res.info.run_id, res.info.wave, res.data_run, res.info.tick)
+			# A PURGE run ended by an update banks to the PURGE record; an unknown mode id counts as timed.
+			var known: bool = ModeRules.find_def(_modes(), res.info.wave_mode) != null
+			s.mode = res.info.wave_mode if known else SimConfig.MODE_TIMED
 			@warning_ignore("return_value_discarded")  # a duplicate run id is simply not banked again
 			bank_run(s)
 			notice = NOTICE_ENDED_BY_UPDATE

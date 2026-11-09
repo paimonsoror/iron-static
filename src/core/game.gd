@@ -154,6 +154,8 @@ func _resume_config(info: SnapshotInfo) -> SimConfig:
 	cfg.best_wave_s1 = info.best_wave_s1
 	cfg.debug_invulnerable = info.debug_invulnerable
 	SimConfigLoader.apply_foundry(cfg, saves.profile.foundry)
+	@warning_ignore("return_value_discarded")  # unknown mode: config stays timed, restore refuses it (ENDED_BY_UPDATE)
+	SimConfigLoader.apply_mode(cfg, info.wave_mode)
 	if info.frame_id != PlayerProfile.DEFAULT_FRAME:
 		@warning_ignore("return_value_discarded")  # unknown frame id: config stays VANGUARD, restore refuses it
 		SimConfigLoader.apply_frame(cfg, info.frame_id)

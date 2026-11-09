@@ -192,3 +192,48 @@ func test_last_unlocked_frames_reports_the_new_unlocks() -> void:
 	assert_array(s.last_unlocked_frames).is_equal(["bulwark"])
 	assert_bool(_bank(s, 3, 8, "1")).is_true()
 	assert_array(s.last_unlocked_frames).is_empty()
+
+
+## A snapshot of a run in `mode` checkpointed by `s`, then made stale (SimVersion 2), so try_resume banks it.
+func _stale_snapshot(s: SaveService, mode: String) -> SimWorld:
+	var cfg: SimConfig = SimConfigLoader.load_default(5)
+	@warning_ignore("return_value_discarded")
+	SimConfigLoader.apply_mode(cfg, "purge" if mode == "purge" else "timed")
+	var w: SimWorld = SimWorld.new(cfg)
+	for i: int in 1500:
+		w.step()
+	assert_bool(s.checkpointer.checkpoint(w, 1)).is_true()
+	var dec: DecodeResult = SaveCodec.decode(SaveCodec.MAGIC_SNAPSHOT, fs.read("run_snapshot.sav"), 0xFFFF)
+	var d: Dictionary = bytes_to_var(dec.raw)
+	d["sim_version"] = 2
+	d["mode"] = mode
+	fs.files["run_snapshot.sav"] = SaveCodec.encode(SaveCodec.MAGIC_SNAPSHOT, 1, var_to_bytes(d))
+	return w
+
+
+func _mode_factory() -> Callable:
+	return func(info: SnapshotInfo) -> SimConfig:
+		var cfg: SimConfig = SimConfigLoader.load_default(info.seed_value)
+		@warning_ignore("return_value_discarded")
+		SimConfigLoader.apply_mode(cfg, info.wave_mode)
+		return cfg
+
+
+## Merge glue of M4-05 and M4-07: a PURGE run ended by an update banks to the PURGE record, never to TIMED.
+func test_purge_run_ended_by_update_banks_the_purge_record() -> void:
+	var s: SaveService = _boot()
+	var w: SimWorld = _stale_snapshot(s, "purge")
+	var res: ResumeResult = s.try_resume(_mode_factory())
+	assert_int(res.status).is_equal(ResumeResult.Status.ENDED_BY_UPDATE)
+	assert_int(w.wave).is_greater(1)
+	assert_int(s.profile.best_wave_of_mode("purge", 1)).is_equal(w.wave)
+	assert_int(s.profile.best_wave_s1()).is_equal(0)
+
+
+func test_unknown_mode_ended_by_update_banks_as_timed() -> void:
+	var s: SaveService = _boot()
+	var w: SimWorld = _stale_snapshot(s, "gauntlet")
+	var res: ResumeResult = s.try_resume(_mode_factory())
+	assert_int(res.status).is_equal(ResumeResult.Status.ENDED_BY_UPDATE)
+	assert_int(s.profile.best_wave_s1()).is_equal(w.wave)
+	assert_int(s.profile.best_wave_of_mode("purge", 1)).is_equal(0)
