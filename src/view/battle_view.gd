@@ -37,6 +37,7 @@ var _base_position := Vector2.ZERO
 @onready var _enemies: EnemyRenderer = $Enemies
 @onready var _beams: BeamRenderer = $Beams
 @onready var _cinder: CinderView = $Cinder
+@onready var _numbers: DamageNumberLayer = $DamageNumbers
 
 
 func _ready() -> void:
@@ -45,9 +46,11 @@ func _ready() -> void:
 	var settings: VisualSettings = _game_visual()
 	_cinder.visual = settings
 	_beams.visual = settings
+	_numbers.visual = settings
 	if settings != null:
 		_background.setup_visual(settings)
 	_setup_particles(settings)
+	move_child(_numbers, -1)  # numbers read on top of the particles
 	layout(get_viewport_rect().size)
 
 
@@ -91,7 +94,7 @@ func field_rect() -> Rect2:
 
 ## Events lost by this view's cursors (aim + beams) since start; 0 unless the view fell behind the ring.
 func events_lost_total() -> int:
-	return _events.lost_total + _beams.events_lost_total()
+	return _events.lost_total + _beams.events_lost_total() + _numbers.events_lost_total()
 
 
 ## Starts observing `world` (skips events already pushed).
@@ -100,6 +103,7 @@ func bind(world: SimWorld) -> void:
 	_cinder.set_frame(world.config.frame_id)
 	_events.sync_to(world.events)
 	_beams.bind(world)
+	_numbers.bind(world)
 	_impact.bind(world)
 	apply_shake(Vector2.ZERO)
 	_aim = -PI * 0.5
@@ -127,6 +131,7 @@ func render(alpha: float) -> void:
 	_enemies.render(_world, alpha)
 	_beams.update(_world, now_s, _px_per_m, _cinder.emitter_position(), _enemies)
 	_fx.update(_world, alpha, _game_visual(), band)
+	_numbers.update(_enemies, now_s, alpha)
 	apply_shake(_impact.update(_world, now_s, _game_visual(), _speed_hint, _viewport_size.x / 1080.0))
 
 
@@ -257,6 +262,8 @@ func _apply_scale_to_children() -> void:
 	_beams.px_scale = _sprite_factor
 	_fx.emitter.cinder_radius_px = cinder_radius_px()
 	_fx.emitter.fx_scale = _sprite_factor
+	_numbers.text_scale = _viewport_size.x / 1080.0
+	_numbers.cinder_radius_px = cinder_radius_px()
 
 
 func _cinder_radius_m() -> float:
