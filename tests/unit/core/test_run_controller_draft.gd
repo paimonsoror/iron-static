@@ -38,6 +38,21 @@ func test_update_settles_a_draft_between_frames() -> void:
 	assert_int(w.patches.total_picks).is_equal(1)
 
 
+func test_debug_load_settles_the_draft_even_with_the_stopgap_off() -> void:
+	var c: RunController = _controller()
+	c.auto_pick_draft = false  # the game's setting: the overlay picks, but nobody can pick during an unrendered load
+	var w: SimWorld = c.start_run(1, true, 12)
+	for i: int in 2000:  # the load is wall-clock budgeted per update
+		if c.load_wave == 0:
+			break
+		@warning_ignore("return_value_discarded")
+		c.update(1.0 / 30.0)
+	assert_int(c.load_wave).is_equal(0)
+	assert_int(w.wave).is_greater_equal(12)
+	assert_bool(w.is_draft_open()).is_false()
+	assert_int(w.patches.total_picks).is_greater_equal(1)
+
+
 func test_without_the_stopgap_the_world_waits() -> void:
 	var c: RunController = _controller()
 	c.auto_pick_draft = false
