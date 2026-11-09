@@ -24,8 +24,16 @@ const GLOW_EPS: float = 0.004
 const DEFAULT_RADIUS_M: float = 0.5
 const LANCER_TYPE: int = 3
 
-## Visual options (quality tier, art bible 9.3); null = defaults (HIGH). Set by BattleView.
-var visual: VisualSettings = null
+## Visual options (quality tier, art bible 9.3); null = defaults (HIGH). Set by BattleView. Setting it also
+## follows `accessibility_changed` (M4-24): the colorblind palette is applied to the materials at once.
+var visual: VisualSettings = null:
+	set(value):
+		if visual != null and visual.accessibility_changed.is_connected(_apply_palette):
+			visual.accessibility_changed.disconnect(_apply_palette)
+		visual = value
+		if visual != null:
+			visual.accessibility_changed.connect(_apply_palette)
+		_apply_palette()
 ## Test hook: counts every packed-array resize done by setup(); render() must never change it.
 var resize_count: int = 0
 
@@ -132,6 +140,7 @@ func setup(
 	_glow_applied = -1.0
 	_bound_world_id = 0
 	_apply_scale()
+	_apply_palette()
 
 
 ## Re-sizes sprites, hit radii and contact stand-offs for a new camera (per-frame safe while zooming: no
@@ -192,6 +201,17 @@ func _update_fx(world: SimWorld) -> void:
 	_last_now_s = now_s
 	_fx.advance(dt, world.enemies.high_water)
 	_fx.consume(world.events)  # after advance: a new hit starts at full strength this frame
+
+
+## Pushes the active colorblind palette's tints to the enemy materials (0-4) and the bolt material (5). Runs on
+## setup and on `accessibility_changed` only, never per frame.
+func _apply_palette() -> void:
+	if _mats.size() != ENEMY_SLOTS.size() + 1:
+		return
+	var pal: PaletteSet = Palette.for_mode(visual.colorblind if visual != null else "off")
+	for t: int in ENEMY_SLOTS.size():
+		_mats[t].set_shader_parameter("tint_hostile", pal.tint_hostile)
+	_mats[ENEMY_SLOTS.size()].set_shader_parameter("tint_hostile", pal.tint_fire)
 
 
 func _apply_glow(alive: int) -> void:

@@ -15,8 +15,8 @@
 | Number format | Short, Scientific, Engineering | Short | <span class="badge live">Implemented</span> |
 | Frame rate cap | 30 or 60 | 60 | <span class="badge live">Implemented</span> |
 | Haptics | On or off | On | <span class="badge live">Implemented</span> |
-| Colorblind mode | Off, Deuteranopia, Protanopia, Tritanopia | Off | <span class="badge live">Implemented</span> setting saved; the palettes arrive with <span class="badge planned">Planned M4</span> |
-| High contrast | On or off | Off | <span class="badge live">Implemented</span> setting saved; the stronger rendering arrives with <span class="badge planned">Planned M4</span> |
+| Colorblind mode | Off, Deuteranopia, Protanopia, Tritanopia | Off | <span class="badge live">Implemented</span> recolors enemies, bolts, the integrity ring and bars and the low-health haze live |
+| High contrast | On or off | Off | <span class="badge live">Implemented</span> white text on black plates with white edges, a dimmed arena floor, no scanlines |
 | Reset profile (Settings > Data) | Behind a double confirmation | | <span class="badge live">Implemented</span> |
 
 Settings are saved with your profile and are **kept when you start a new game or reset your profile**, because they describe your device, not your progress. A setting forced by a debug launch option is marked "OVERRIDDEN THIS SESSION".
@@ -36,7 +36,7 @@ What is designed in:
 - **Shape first, color second:** every enemy is identifiable by silhouette, so color alone never carries meaning. <span class="badge live">Implemented</span>
 - **Reduce motion** disables scanlines, vignette pulse and screen shake, and on the title screen stops drift and the logo shimmer. <span class="badge live">Implemented</span>
 - **Shake is never tied to routine events** and slow-motion occurs only on a boss or Cinder death, and is presentation-only.
-- **Colorblind mode** (deuteranopia, protanopia, tritanopia) and **high contrast** are chosen in Settings and saved with your profile. <span class="badge live">Implemented</span> the choice; the recolored palettes and stronger outlines <span class="badge planned">Planned M4</span>
+- **Colorblind mode** (deuteranopia, protanopia, tritanopia) and **high contrast** are chosen in Settings and saved with your profile. <span class="badge live">Implemented</span> both apply immediately, no restart
 - **Haptics** can be switched off in Settings. <span class="badge live">Implemented</span>
 - **Left-handed mode** (mirrors the panel's small buttons), battery saver and a keep-screen-on option: <span class="badge planned">Planned later</span>
 - **In-game explanations:** every upgrade shows its formula and the planned Intel view shows enemy statistics, so nothing is hidden behind a wiki. <span class="badge live">Implemented</span> tooltips; Intel <span class="badge planned">Planned M4</span>

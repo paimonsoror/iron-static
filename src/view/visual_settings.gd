@@ -27,9 +27,9 @@ var reduce_motion: bool = false
 var scanline_intensity: float = DEFAULT_SCANLINE_INTENSITY
 ## Frame cap in fps (30 or 60; 0 = uncapped for benches). Applied with `apply_fps_cap`.
 var fps_cap: int = DEFAULT_FPS_CAP
-## Colorblind mode, one of `PlayerSettings.COLORBLIND_NAMES` ("off" = the normal palette). Read by M4-24.
+## Colorblind mode, one of `PlayerSettings.COLORBLIND_NAMES` ("off" = the normal palette); see `palette()`.
 var colorblind: String = "off"
-## High-contrast rendering on/off. Read by M4-24.
+## High-contrast rendering on/off: bright UI text and plate edges, dimmed background, no scanlines (M4-24).
 var high_contrast: bool = false
 
 
@@ -52,15 +52,28 @@ static func parse_shake(text: String) -> Shake:
 	return idx as Shake
 
 
-## THE accessibility hook (M4-23): the settings applier and the Settings rows call this; M4-24 consumes
-## `colorblind` / `high_contrast` and the `accessibility_changed` signal. Unknown mode names become "off".
+## THE accessibility hook (M4-23): the settings applier and the Settings rows call this. M4-24 makes the mode the
+## active `Palette`, re-skins the shared UI theme for high contrast and emits `accessibility_changed` (the enemy
+## renderer and the arena listen). Unknown mode names become "off".
 func set_accessibility(mode: String, contrast: bool) -> void:
 	var m: String = mode if PlayerSettings.COLORBLIND_NAMES.has(mode) else "off"
 	if m == colorblind and contrast == high_contrast:
 		return
 	colorblind = m
 	high_contrast = contrast
+	Palette.set_active(m, contrast)
+	ThemeBuilder.refresh_contrast(contrast)
 	accessibility_changed.emit()
+
+
+## The active colorblind palette (shared, read-only).
+func palette() -> PaletteSet:
+	return Palette.for_mode(colorblind)
+
+
+## Background layer brightness: the high-contrast dim, else 1.
+func background_dim() -> float:
+	return Palette.for_mode(Palette.HIGH_CONTRAST).bg_dim if high_contrast else 1.0
 
 
 ## Switches the tier (replaces `quality` with the preset) and emits `quality_changed`.
@@ -76,9 +89,9 @@ func effective_shake_px() -> float:
 	return minf(SHAKE_PX[screen_shake], quality.shake_max_px)
 
 
-## Scanline opacity to draw: 0 when the tier disallows them or reduce motion is on.
+## Scanline opacity to draw: 0 when the tier disallows them, reduce motion or high contrast is on (07 s5.3).
 func effective_scanlines() -> float:
-	if reduce_motion or not quality.scanlines:
+	if reduce_motion or high_contrast or not quality.scanlines:
 		return 0.0
 	return scanline_intensity
 

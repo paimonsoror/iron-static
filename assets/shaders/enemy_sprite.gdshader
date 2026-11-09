@@ -28,8 +28,9 @@ uniform float flash_cap : hint_range(0.0, 1.0) = 0.8;
 uniform float glow_strength : hint_range(0.0, 3.0) = 1.0;
 uniform float pulse_amount : hint_range(0.0, 0.5) = 0.04;
 uniform float pulse_hz : hint_range(0.0, 8.0) = 0.83;
-// Colorblind hook (art bible 3.2): multiplies the glow color. (1,1,1) = default palette.
-uniform vec3 tint_hostile : source_color = vec3(1.0, 1.0, 1.0);
+// Colorblind hook (art bible 3.2, M4-24): per-channel multiplier of the baked body and glow color, set from the
+// active palette (PaletteSet.tint_hostile / tint_fire). A gain, not a color: no source_color hint. (1,1,1) = default.
+uniform vec3 tint_hostile = vec3(1.0, 1.0, 1.0);
 
 // Per-instance data, one row of RGBAF, never filtered.
 uniform highp sampler2D u_inst : filter_nearest, repeat_disable;
@@ -71,7 +72,7 @@ void fragment() {
 
 	float pulse = 1.0 + pulse_amount * sin((TIME + v_custom.w) * pulse_hz * 6.2831853);
 	float fl = v_custom.x * flash_cap;
-	vec3 body_pm = mix(body.rgb * body.a, flash_color * body.a, fl);
+	vec3 body_pm = mix(min(body.rgb * tint_hostile, vec3(1.0)) * body.a, flash_color * body.a, fl);
 	vec3 glow_pm = glow.rgb * glow.a * tint_hostile * (glow_strength * pulse);
 	// the flash also lifts the glow a little so a flashing unit does not look dimmer
 	glow_pm *= 1.0 + 0.5 * fl;
