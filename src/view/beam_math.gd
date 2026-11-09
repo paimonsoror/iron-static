@@ -50,6 +50,12 @@ static func widths(crit: bool, width_mul: float = 1.0) -> Vector3:
 	return Vector3(GLOW_PX * m, CORE_PX * m, HOT_PX * m)
 
 
+## Same as `widths` for a tier look (VT-2); the MK I look gives the constants above.
+static func widths_for(look: BeamLook, crit: bool, width_mul: float = 1.0) -> Vector3:
+	var m: float = width_mul * (CRIT_WIDTH_MUL if crit else 1.0)
+	return Vector3(look.glow_px * m, look.core_px * m, look.hot_px * m)
+
+
 ## Deterministic jitter from the shot counter: x = width multiplier in [1 - J, 1 + J], y = lateral wobble in px.
 static func jitter(counter: int) -> Vector2:
 	var h: int = _hash(counter)
@@ -81,6 +87,22 @@ static func length_angle(start: Vector2, end: Vector2) -> Vector2:
 ## Core color: `Palette.LASER_CORE`, pure white on a crit.
 static func core_color(crit: bool) -> Color:
 	return Color.WHITE if crit else Palette.LASER_CORE
+
+
+## Glow color of a tier look: `LASER_GLOW`, moved toward `AMBER_GLOW` by half the whiten amount (0 = unchanged).
+static func glow_color(whiten: float) -> Color:
+	if whiten <= 0.0:
+		return Palette.LASER_GLOW
+	return Palette.LASER_GLOW.lerp(Palette.AMBER_GLOW, whiten * 0.5)
+
+
+## Core color of a tier look: `core_color` moved toward white by `whiten` (0 = unchanged).
+static func core_color_for(crit: bool, whiten: float) -> Color:
+	if crit or whiten >= 1.0:
+		return Color.WHITE
+	if whiten <= 0.0:
+		return Palette.LASER_CORE
+	return Palette.LASER_CORE.lerp(Color.WHITE, whiten)
 
 
 ## Cap rect in a frame whose origin is the beam end and +x points along the beam toward it: an h x h quad whose

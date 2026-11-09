@@ -19,12 +19,23 @@ const FADE_S: float = BeamMath.FADE_S
 ## Fraction of the target sprite radius the beam is pulled back (art bible 4.1).
 const BEAM_PULLBACK: float = 0.6
 const RATE_RING: int = 16
+const LASER_ROW_ID: String = "laser_output"
+## Impact flares at or above this size use the 8-point star (MK III, IV); smaller ones the 4-point star.
+const STAR8_MIN_PX: float = 90.0
+## Ripple bands travel emitter to target this many times a second; band half-length and fade-in distance in px.
+const RIPPLE_HZ: float = 3.0
+const RIPPLE_FADE_PX: float = 40.0
 
 ## Width/size multiplier of every beam layer, flare and cone (V1-23: the sprite factor, 1.0 = pre-V1-23 pixels).
 var px_scale: float = 1.0
 ## Optional: reduce motion switches off jitter, wobble and the flare scale animation.
 var visual: VisualSettings
 
+## Current tier look (VT-2). Replaced only when the laser_output run level crosses a tier; MK I = today's constants.
+var look: BeamLook = BeamLook.new()
+
+var _laser_row: int = -1
+var _level: int = 0
 var _start := PackedVector2Array()
 var _end := PackedVector2Array()
 var _born := PackedFloat32Array()
@@ -46,6 +57,12 @@ var _flare4: Rect2
 var _flare8: Rect2
 var _cone: Rect2
 var _cone_pivot_x: float = 0.0
+var _ring: Rect2
+var _calm: bool = false
+var _do_flare: bool = false
+var _do_ring: bool = false
+var _do_rim: bool = false
+var _do_ripple: bool = false
 
 
 func _init() -> void:
@@ -78,12 +95,35 @@ func events_lost_total() -> int:
 ## Call when binding to a world mid-run so old events are not drawn.
 func bind(world: SimWorld) -> void:
 	_events.sync_to(world.events)
+	_laser_row = -1
+	for i: int in world.config.upgrades.size():
+		if world.config.upgrades[i].id == LASER_ROW_ID:
+			_laser_row = i
+			break
+	_level = 0
+	look = BeamLook.for_level(0)
+	_track_level(world)
+
+
+## Switches `look` when the laser_output run level has crossed a tier. An int compare per frame; the model is
+## consulted only when the level itself changed (a purchase).
+func _track_level(world: SimWorld) -> void:
+	if _laser_row < 0 or _laser_row >= world.run_levels.size():
+		return
+	var level: int = world.run_levels[_laser_row]
+	if level == _level:
+		return
+	_level = level
+	var tier: int = VisualTierModel.shared().tier_for(LASER_ROW_ID, level)
+	if tier != look.tier:
+		look = BeamLook.for_level(level)
 
 
 ## Consumes new SHOT_FIRED events and redraws. `now_s` is monotonic wall time (seconds),
 ## `emitter_px` the beam start in local pixels, `enemies` supplies the per-type stand-off (null = default).
 func update(world: SimWorld, now_s: float, px_per_m: float, emitter_px: Vector2, enemies: EnemyRenderer = null) -> void:
 	_now_s = now_s
+	_track_level(world)
 	var store: EnemyStore = world.enemies
 	while _events.poll(world.events) > 0:
 		for i: int in _events.count:
@@ -177,45 +217,120 @@ func _load_art() -> void:
 	var cone: ArtSlot = ArtSlots.slot("fx_muzzle_cone")
 	_cone = cone.frame_rect(0)
 	_cone_pivot_x = cone.pivot_frac().x
+	_ring = ArtSlots.slot("fx_ring_thin").frame_rect(0)
 
 
 func _draw() -> void:
 	if _sheet == null:
 		_load_art()
-	var calm: bool = visual != null and visual.reduce_motion
+	_resolve_quality()
 	for i: int in MAX_BEAMS:
 		var f: float = _alpha_of(i, _now_s)
 		if f > 0.0:
 			_draw_beam(i, f)
 	for i: int in MAX_BEAMS:
-		_draw_muzzle(i, calm)
+		_draw_muzzle(i, _calm)
+
+
+## Names of the optional tier parts drawn now (flare, ring, rim, ripple), for tests and the debug harness.
+func active_parts() -> PackedStringArray:
+	_resolve_quality()
+	var out := PackedStringArray()
+	if _do_flare:
+		out.append("flare")
+	if _do_ring:
+		out.append("ring")
+	if _do_rim:
+		out.append("rim")
+	if _do_ripple:
+		out.append("ripple")
+	return out
+
+
+## Which parts of the tier look are drawn (spec 12 section 8): LOW keeps thickness and color only; MID drops the
+## ripple and the impact ring; reduce motion drops the ripple and keeps the ring without its scale animation.
+func _resolve_quality() -> void:
+	_calm = visual != null and visual.reduce_motion
+	var q: VisualQuality = null if visual == null else visual.quality
+	var low: bool = q != null and q.tier == VisualQuality.Tier.LOW
+	var rings_ok: bool = q == null or q.impact_rings
+	var mid_up: bool = q == null or q.tier == VisualQuality.Tier.HIGH
+	_do_flare = not low and look.flare_px > 0.0
+	_do_ring = not low and rings_ok and look.ring_px > 0.0
+	_do_rim = not low and look.rim > 0.0
+	_do_ripple = not low and mid_up and not _calm and look.ripple > 0
 
 
 func _draw_beam(i: int, f: float) -> void:
 	var crit: bool = _crit[i] != 0
 	var la: Vector2 = BeamMath.length_angle(_start[i], _end[i])
-	var w: Vector3 = BeamMath.widths(crit, _width_mul[i] * px_scale)
-	var glow: Color = Palette.LASER_GLOW
+	var w: Vector3 = BeamMath.widths_for(look, crit, _width_mul[i] * px_scale)
+	var glow: Color = BeamMath.glow_color(look.whiten)
 	glow.a = BeamMath.GLOW_ALPHA * f
-	var core: Color = BeamMath.core_color(crit)
+	var core: Color = BeamMath.core_color_for(crit, look.whiten)
 	core.a = f
 	var hot := Color(1.0, 1.0, 1.0, f)
 	# Start end: strip layers run from the emitter; core and hot get a cap behind it, the glow does not.
 	draw_set_transform(_start[i], la.y)
 	draw_texture_rect_region(_sheet, Rect2(0.0, -w.x * 0.5, la.x, w.x), _strip, glow)
+	if _do_rim:
+		var teal: Color = Palette.current().teal
+		teal.a = look.rim * f
+		draw_texture_rect_region(_sheet, Rect2(0.0, -w.x * 0.36, la.x, w.x * 0.72), _strip, teal)
 	draw_texture_rect_region(_sheet, Rect2(0.0, -w.y * 0.5, la.x, w.y), _strip, core)
 	draw_texture_rect_region(_sheet, Rect2(0.0, -w.z * 0.5, la.x, w.z), _strip, hot)
-	draw_set_transform(_start[i], la.y)
+	if _do_ripple:
+		_draw_ripples(la.x, w, f)
+		draw_set_transform(_start[i], la.y)
 	draw_texture_rect_region(_sheet, Rect2(-w.y, -w.y * 0.5, w.y, w.y), _cap, core)
 	# Target end: caps in a frame rotated by angle + PI, bright edge on the strip's end.
 	draw_set_transform(_end[i], la.y + PI)
 	draw_texture_rect_region(_sheet, BeamMath.cap_rect(w.x), _cap, glow)
 	draw_texture_rect_region(_sheet, BeamMath.cap_rect(w.y), _cap, core)
 	draw_texture_rect_region(_sheet, BeamMath.cap_rect(w.z), _cap, hot)
+	_draw_impact(_end[i], f, crit)
+
+
+## Charge ripple (MK IV): bright teal-white bands that travel from the emitter to the target, in the beam's frame.
+func _draw_ripples(length: float, w: Vector3, f: float) -> void:
+	var gap: float = length / float(look.ripple)
+	var phase: float = fposmod(_now_s * RIPPLE_HZ, 1.0)
+	var band: Color = Palette.current().teal.lerp(Color.WHITE, 0.7)
+	for k: int in look.ripple:
+		var x: float = fposmod((float(k) + phase) * gap, length)
+		var a: float = clampf(minf(x, length - x) / RIPPLE_FADE_PX, 0.0, 1.0) * f
+		band.a = 0.9 * a
+		draw_texture_rect_region(
+			_sheet, Rect2(x - 7.0 * px_scale, -w.y * 1.05, 14.0 * px_scale, w.y * 2.1), _strip, band
+		)
+		var cw := Color(1.0, 1.0, 1.0, 0.8 * a)
+		draw_texture_rect_region(_sheet, Rect2(x - 3.0 * px_scale, -w.z * 0.9, 6.0 * px_scale, w.z * 1.8), _strip, cw)
+
+
+## Impact at the target: the tier flare (a crit uses at least the crit flare size) and the thin ring.
+func _draw_impact(at: Vector2, f: float, crit: bool) -> void:
+	var flare: float = look.flare_px if _do_flare else 0.0
 	if crit:
-		var s: float = BeamMath.CRIT_FLARE_PX * px_scale * lerpf(1.2, 0.8, 1.0 - f)
-		draw_set_transform(_end[i], 0.0)
-		draw_texture_rect_region(_sheet, Rect2(-s * 0.5, -s * 0.5, s, s), _flare8, Color(1.0, 1.0, 1.0, f))
+		flare = maxf(flare, BeamMath.CRIT_FLARE_PX)
+	if flare <= 0.0 and not _do_ring:
+		return
+	draw_set_transform(at, 0.0)
+	if flare > 0.0:
+		var s: float = flare * px_scale
+		if crit or not _calm:
+			s *= lerpf(1.2, 0.8, 1.0 - f)
+		var slot: Rect2 = _flare8 if (crit or flare >= STAR8_MIN_PX) else _flare4
+		var c: Color = Color(1.0, 1.0, 1.0, f)
+		if not crit:
+			c = Color(1.0, 0.89, 0.64, f).lerp(c, look.whiten)
+		draw_texture_rect_region(_sheet, Rect2(-s * 0.5, -s * 0.5, s, s), slot, c)
+	if _do_ring:
+		var r: float = look.ring_px * px_scale
+		if not _calm:
+			r *= lerpf(0.7, 1.0, 1.0 - f)
+		var rc: Color = Palette.AMBER_GLOW
+		rc.a = 0.75 * f
+		draw_texture_rect_region(_sheet, Rect2(-r * 0.5, -r * 0.5, r, r), _ring, rc)
 
 
 func _draw_muzzle(i: int, calm: bool) -> void:
@@ -224,14 +339,17 @@ func _draw_muzzle(i: int, calm: bool) -> void:
 	var ca: float = BeamMath.cone_alpha(age)
 	if fa <= 0.0 and ca <= 0.0:
 		return
+	var mul: float = px_scale
+	if _do_flare:
+		mul *= look.muzzle
 	var angle: float = (_end[i] - _start[i]).angle()
 	draw_set_transform(_start[i], angle)
 	if ca > 0.0:
-		var cone: float = BeamMath.CONE_PX * px_scale
+		var cone: float = BeamMath.CONE_PX * mul
 		var col := Color(1.0, 0.89, 0.64, 0.55 * ca)
 		draw_texture_rect_region(_sheet, Rect2(-cone * _cone_pivot_x, -cone * 0.5, cone, cone), _cone, col)
 	if fa > 0.0:
-		var s: float = BeamMath.FLASH_PX * px_scale * (1.0 if calm else BeamMath.flash_scale(age))
+		var s: float = BeamMath.FLASH_PX * mul * (1.0 if calm else BeamMath.flash_scale(age))
 		draw_texture_rect_region(_sheet, Rect2(-s * 0.5, -s * 0.5, s, s), _flare4, Color(1.0, 0.89, 0.64, fa))
 
 

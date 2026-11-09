@@ -4,7 +4,7 @@
 # Beam px values are at 1080 width (multiplied by the view sprite factor). Retune thresholds here; no code change needed.
 id,upgrade,tier,mark,threshold_kind,threshold,label_key,banner_key,art_slot,params
 laser_1,laser_output,1,MK I,level,0,vt.mark.1,,-,glow=36;core=8;hot=3;flare=0;ring=0;whiten=0.0;rim=0.0;ripple=0;muzzle=1.0
-laser_2,laser_output,2,MK II,level,5,vt.mark.2,vt.banner.laser,-,glow=54;core=13;hot=5;flare=70;ring=0;whiten=0.35;rim=0.0;ripple=0;muzzle=1.15
+laser_2,laser_output,2,MK II,level,5,vt.mark.2,vt.banner.laser,-,glow=66;core=17;hot=6;flare=84;ring=0;whiten=0.55;rim=0.0;ripple=0;muzzle=1.2
 laser_3,laser_output,3,MK III,level,12,vt.mark.3,vt.banner.laser,-,glow=76;core=18;hot=8;flare=104;ring=84;whiten=0.7;rim=0.0;ripple=0;muzzle=1.3
 laser_4,laser_output,4,MK IV,level,25,vt.mark.4,vt.banner.laser,-,glow=100;core=24;hot=11;flare=136;ring=118;whiten=1.0;rim=0.3;ripple=6;muzzle=1.5
 hull_1,hull_integrity,1,MK I,level,0,vt.mark.1,,-,plates=0

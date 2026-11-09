@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/debug/vt2_beam_frame.gd" id="1"]
+
+[node name="Vt2BeamFrame" type="Node"]
+script = ExtResource("1")

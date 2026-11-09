@@ -5,13 +5,13 @@ extends BeamRenderer
 ## Same three strip quads and caps on the same sheet and material, so the draw-call count stays at the production 1-2.
 ## Debug only: the production change would be a `BeamLook` struct passed to `_draw_beam` (spec 12 s7).
 
-var look: Dictionary = {}
+var tier_params: Dictionary = {}
 ## Phase of the charge ripple in bands (static frames pick one).
 var ripple_phase: float = 0.0
 
 
 func _px(key: String, fallback: float) -> float:
-	var v: float = look.get(key, fallback)
+	var v: float = tier_params.get(key, fallback)
 	return v
 
 
