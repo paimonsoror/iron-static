@@ -9,6 +9,12 @@ param(
 $ErrorActionPreference = "Stop"
 . "$PSScriptRoot\_common.ps1"
 
+# Each checkout gets its own user:// (Godot on Windows puts it under %APPDATA%): parallel test runs in several git
+# worktrees share the project name, so they shared user:// and clobbered each other's scratch files (flaky importer
+# and save tests). This only affects this process tree; the game's real save location is unchanged.
+$env:APPDATA = Join-Path $BuildRoot "test_appdata"
+New-Item -ItemType Directory -Force $env:APPDATA | Out-Null
+
 $py = (Find-Python) -split ' '
 $pyRest = @(); if ($py.Count -gt 1) { $pyRest = $py[1..($py.Count - 1)] }
 $argList = @("$PSScriptRoot\test_runner.py", "--godot", $Godot, "--project", $RepoRoot)
