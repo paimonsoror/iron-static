@@ -36,3 +36,7 @@ Thumbs.db
 
 # Stray files from Windows paths whose backslashes were stripped (C:/dev/tower/build/x.png -> devtowerbuildx.png)
 /devtower*
+
+# Codex site (GitHub Pages): local venv and build output
+site/.venv/
+site/public/

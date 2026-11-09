@@ -1,0 +1,74 @@
+site_name: IRON STATIC Codex
+site_description: Player-facing codex for IRON STATIC, an original portrait idle-defense game for Android. Lore, characters and the complete game systems.
+site_url: https://paimonsoror.github.io/iron-static/
+edit_uri: ""
+docs_dir: docs
+site_dir: public
+use_directory_urls: true
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+copyright: IRON STATIC is a work in progress. Everything here is a draft and may change.
+
+theme:
+  name: material
+  font: false
+  language: en
+  palette:
+    scheme: slate
+    primary: custom
+    accent: custom
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+extra_css:
+  - stylesheets/ironstatic.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Lore:
+      - lore/index.md
+      - The world: lore/world.md
+      - CHORUS and the swarms: lore/chorus.md
+      - The Relay and the sectors: lore/relay-and-sectors.md
+      - Cinder and the Wardens: lore/cinder-origin.md
+      - What burns away: lore/burning-away.md
+  - Characters:
+      - characters/index.md
+      - Cinder: characters/cinder.md
+      - Frames: characters/frames.md
+      - Enemies: characters/enemies.md
+  - Game systems:
+      - systems/index.md
+      - The run loop and waves: systems/run-loop.md
+      - Combat: systems/combat.md
+      - Run upgrades: systems/upgrades.md
+      - Skin burn: systems/skin-burn.md
+      - Economy and currencies: systems/economy.md
+      - The Foundry: systems/foundry.md
+      - Saving and resuming: systems/save-resume.md
+      - Novel mechanics: systems/novel-mechanics.md
+      - Lab, Arsenal and Standby Patrol: systems/meta-planned.md
+      - Settings and accessibility: systems/settings.md
+      - Controls: systems/controls.md
+      - Look and sound: systems/audio-visual.md
+      - Glossary: systems/glossary.md
+  - FAQ: faq.md
+  - Development status: status.md
