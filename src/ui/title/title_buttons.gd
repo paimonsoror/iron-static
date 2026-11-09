@@ -58,7 +58,7 @@ func _gui_input(event: InputEvent) -> void:
 	if mb.pressed:
 		_down = i
 	else:
-		var hit: bool = i >= 0 and i == _down
+		var hit: bool = i >= 0 and i == _down and not mb.canceled  # cancelled = Android took a back swipe
 		_down = -1
 		if hit:
 			pressed.emit(_rows[i])

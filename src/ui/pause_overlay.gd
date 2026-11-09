@@ -1,11 +1,17 @@
 class_name PauseOverlay
 extends Control
-## Full-screen "paused" cover (V1-24): dim, a plate with the title and the two hints. Any press resumes. Hidden by
+## Full-screen "paused" cover (V1-24): dim, a plate with the title and the two hints. A tap resumes. Hidden by
 ## default; while shown it blocks touches to the HUD underneath. Texts come from data/strings_en.csv.
 
 signal resume_requested
 
+## Largest finger travel (base px, ~23 dp) between press and release that still counts as a tap.
+const TAP_SLOP_PX: float = 60.0
+const NO_PRESS: Vector2 = Vector2(INF, INF)
+
 var _notice: Label = null
+## Where the current press started on the overlay (NO_PRESS = none seen since it was shown).
+var _press_pos: Vector2 = NO_PRESS
 
 
 ## One notice line under the title (M3-14: "RUN RESTORED" after a resume, the save notices). "" hides it.
@@ -52,11 +58,38 @@ func _ready() -> void:
 	column.add_child(_label("pause.exit_hint", &"LabelNumber", Palette.TEXT_DIM, 44))
 
 
+## True when a press at `from` released at `to` is a tap: a press was seen, the release was not cancelled and the
+## finger stayed within TAP_SLOP_PX. Phone bug: with gesture navigation the back swipe from the screen edge first
+## delivers a touch press to the app, then Android takes the gesture over and cancels the touch. Resuming on that
+## press made "BACK AGAIN TO EXIT" impossible, so the overlay resumes on a completed tap only.
+static func is_tap(from: Vector2, to: Vector2, canceled: bool) -> bool:
+	return from != NO_PRESS and not canceled and from.distance_to(to) <= TAP_SLOP_PX
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED:
+		_press_pos = NO_PRESS  # a press that started before the overlay appeared never resumes
+
+
+## Touch and the mouse emulated from it both arrive on a phone: the first release resumes and clears the press,
+## so the twin release is ignored.
 func _gui_input(event: InputEvent) -> void:
 	var touch := event as InputEventScreenTouch
 	var mouse := event as InputEventMouseButton
-	if (touch != null and touch.pressed) or (mouse != null and mouse.pressed):
-		accept_event()
+	if mouse != null and mouse.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if touch == null and mouse == null:
+		return
+	accept_event()
+	var pressed: bool = touch.pressed if touch != null else mouse.pressed
+	var pos: Vector2 = touch.position if touch != null else mouse.position
+	var canceled: bool = touch.canceled if touch != null else mouse.canceled
+	if pressed:
+		_press_pos = pos
+		return
+	var tap: bool = is_tap(_press_pos, pos, canceled)
+	_press_pos = NO_PRESS
+	if tap:
 		resume_requested.emit()
 
 

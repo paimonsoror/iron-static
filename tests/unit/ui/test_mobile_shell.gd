@@ -81,12 +81,67 @@ func test_suspend_ignored_when_disabled_or_run_over() -> void:
 
 func test_overlay_tap_resumes() -> void:
 	_shell.pause()
-	var ev := InputEventMouseButton.new()
-	ev.pressed = true
-	ev.button_index = MOUSE_BUTTON_LEFT
-	_shell.overlay()._gui_input(ev)
+	_shell.overlay()._gui_input(_mouse(true, Vector2(500.0, 900.0)))
+	assert_bool(_c.paused).is_true()  # the press alone never resumes
+	_shell.overlay()._gui_input(_mouse(false, Vector2(510.0, 905.0)))
 	assert_bool(_c.paused).is_false()
 	assert_bool(_shell.overlay().visible).is_false()
+
+
+## Phone bug: the gesture-navigation back swipe delivers a touch press, then Android cancels the touch. That must
+## not resume, so the second back reaches BackPolicy while still paused (QUIT).
+func test_back_swipe_press_then_cancel_keeps_the_pause() -> void:
+	_shell.pause()
+	_shell.overlay()._gui_input(_touch(true, Vector2(2.0, 900.0)))
+	var up := _touch(false, Vector2(40.0, 900.0))
+	up.canceled = true
+	_shell.overlay()._gui_input(up)
+	assert_bool(_c.paused).is_true()
+	assert_int(BackPolicy.decide(false, _c.paused, _shell.in_battle())).is_equal(BackPolicy.Action.QUIT)
+
+
+func test_swipe_without_cancel_and_release_without_press_do_not_resume() -> void:
+	_shell.pause()
+	_shell.overlay()._gui_input(_touch(true, Vector2(2.0, 900.0)))
+	_shell.overlay()._gui_input(_touch(false, Vector2(300.0, 900.0)))  # travelled far: a swipe, not a tap
+	assert_bool(_c.paused).is_true()
+	_shell.overlay()._gui_input(_touch(false, Vector2(300.0, 900.0)))  # stray release, no press seen
+	assert_bool(_c.paused).is_true()
+
+
+func test_touch_and_its_emulated_mouse_resume_once() -> void:
+	var resumes: Array[int] = [0]
+	_shell.overlay().resume_requested.connect(func() -> void: resumes[0] += 1)
+	_shell.pause()
+	var o: PauseOverlay = _shell.overlay()
+	o._gui_input(_touch(true, Vector2(500.0, 900.0)))
+	o._gui_input(_mouse(true, Vector2(500.0, 900.0)))
+	o._gui_input(_touch(false, Vector2(500.0, 900.0)))
+	o._gui_input(_mouse(false, Vector2(500.0, 900.0)))
+	assert_int(resumes[0]).is_equal(1)
+
+
+func test_a_press_from_before_the_pause_never_resumes() -> void:
+	var o: PauseOverlay = _shell.overlay()
+	o._gui_input(_touch(true, Vector2(500.0, 900.0)))  # overlay hidden: e.g. the swipe that paused
+	_shell.pause()
+	o._gui_input(_touch(false, Vector2(500.0, 900.0)))
+	assert_bool(_c.paused).is_true()
+
+
+func _touch(pressed: bool, pos: Vector2) -> InputEventScreenTouch:
+	var ev := InputEventScreenTouch.new()
+	ev.pressed = pressed
+	ev.position = pos
+	return ev
+
+
+func _mouse(pressed: bool, pos: Vector2) -> InputEventMouseButton:
+	var ev := InputEventMouseButton.new()
+	ev.pressed = pressed
+	ev.button_index = MOUSE_BUTTON_LEFT
+	ev.position = pos
+	return ev
 
 
 ## Phone bug (m3c build): the overlay anchored FULL_RECT after entering the tree kept its 0x0 rect, so the dim
