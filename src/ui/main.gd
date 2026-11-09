@@ -1,5 +1,6 @@
 extends Control
-## Host scene (M1-23): BattleView, HUD, results overlay and debug overlay wired to `Game.controller`.
+## Host scene (M1-23, M3-14): BattleView, HUD, results overlay and debug overlay wired to `Game.controller`; the
+## `ScreenRouter` owns which screen is up (menus, battle, results; see flow/screen_router.gd).
 ## Thin glue only: the state machine is RunController, ticking happens in Game._process (an autoload, so it
 ## runs before this node's _process each frame), this node renders and routes signals.
 
@@ -8,6 +9,8 @@ var _controller: RunController
 var _hold: bool = false
 ## Back gesture, app lifecycle and safe area (V1-24).
 var _mobile: MobileShell
+## Screen flow (M3-14): HOME / FOUNDRY / SETTINGS / SAVE_PROBLEM menus, BATTLE, RESULTS.
+var _router: ScreenRouter
 ## Sim events -> sounds and adaptive music (A1-05, A1-07).
 var _audio: AudioEventRouter
 
@@ -42,20 +45,27 @@ func _ready() -> void:
 	_debug.battle_view = _battle
 	_debug.visual = Game.visual
 	_hold = Game.debug_hold
+	_router = ScreenRouter.new()
+	add_child(_router)  # before MobileShell: the pause overlay stays topmost
+	_router.setup(_controller, _battle, _hud, _results)
+	_router.battle_entered.connect(_on_battle_entered)
 	_mobile = MobileShell.new()
 	add_child(_mobile)  # last child: its pause overlay is topmost
 	_mobile.setup(_controller, _hud, _results, _debug)
+	_mobile.set_router(_router)
 	ShaderWarmup.start(self)
 	_debug.force_perf = Game.perf_logging_forced()
 	if Game.debug_load:
 		Game.start_debug_load()
+		_router.show_battle()
 	else:
-		Game.start_run(RunController.DEFAULT_SEED)
+		_router.boot()
+		_show_boot_notice()
 
 
 @warning_ignore("unused_parameter")
 func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
-	if _controller == null or _controller.world == null:
+	if _controller == null or _controller.world == null or AppFlow.is_menu(_router.current_screen()):
 		return
 	if _controller.load_wave == 0:
 		_battle.set_speed_hint(_controller.speed)
@@ -88,7 +98,23 @@ func _on_pause_toggled(paused: bool) -> void:
 
 
 func _on_redeploy_pressed() -> void:
-	Game.redeploy()
+	@warning_ignore("return_value_discarded")  # the router starts the run (Game.start_run) on its DEPLOY path
+	_router.dispatch(AppFlow.Event.DEPLOY)
+
+
+## A resumed run starts paused: show the PAUSED overlay (V1-24 style) behind which the player taps to continue.
+func _on_battle_entered() -> void:
+	if _controller.paused:
+		_mobile.pause()
+
+
+## `Game.notice` once: on the PAUSED overlay when the boot lands in a paused battle, else as a toast.
+func _show_boot_notice() -> void:
+	if _router.current_screen() == AppFlow.Screen.BATTLE and _controller.paused:
+		_mobile.overlay().set_notice(_router.take_notice())
+	else:
+		@warning_ignore("return_value_discarded")
+		_router.show_notice_toast()
 
 
 func _on_band_forced(band: int) -> void:

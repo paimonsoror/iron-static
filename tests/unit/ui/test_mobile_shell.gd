@@ -116,3 +116,33 @@ func test_desktop_refresh_leaves_margins_zero() -> void:
 	_shell.safe_area_enabled = false
 	_shell.refresh_safe_area()
 	assert_float((_hud.get_node("%TopBar") as Control).offset_top).is_equal(0.0)
+
+
+func _with_router() -> ScreenRouter:
+	var router := ScreenRouter.new()
+	router.quits_tree = false
+	_shell.get_parent().add_child(router)
+	var battle: Node2D = auto_free(Node2D.new())
+	router.setup(_c, battle, _hud, _results)
+	_shell.set_router(router)
+	return router
+
+
+func test_router_leaves_the_battle_back_behavior_unchanged() -> void:
+	var router: ScreenRouter = _with_router()
+	router.show_battle()
+	assert_int(_shell.handle_back()).is_equal(BackPolicy.Action.PAUSE)
+	assert_bool(_c.paused).is_true()
+	_debug.visible = true
+	_c.paused = false
+	assert_int(_shell.handle_back()).is_equal(BackPolicy.Action.CLOSE_PANEL)
+
+
+func test_router_screens_take_the_back_gesture_through_the_policy() -> void:
+	var router: ScreenRouter = _with_router()
+	router.boot()
+	assert_int(_shell.handle_back()).is_equal(BackPolicy.Action.ARM_EXIT)
+	_debug.visible = true
+	assert_int(_shell.handle_back()).is_equal(BackPolicy.Action.CLOSE_PANEL)
+	assert_bool(_debug.visible).is_false()
+	assert_int(_shell.handle_back()).is_equal(BackPolicy.Action.QUIT)  # second back inside the 2 s window

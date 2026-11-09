@@ -7,7 +7,7 @@ extends Node
 ## Lifecycle: APPLICATION_PAUSED / FOCUS_OUT (mobile builds only; desktop focus changes must not pause benches)
 ## pause and show the overlay; coming back stays paused until the player taps.
 ## M3 NOTE: the save system must persist on NOTIFICATION_APPLICATION_PAUSED (write synchronously, atomic temp file
-## plus rename). Android may kill a backgrounded process with no further callback. Nothing is saved here yet.
+## plus rename). Android may kill a backgrounded process with no further callback. `Game._notification` does it (M3-12).
 
 ## Pause on app pause / focus loss. Defaults to mobile builds; tests flip it.
 var lifecycle_enabled: bool = OS.has_feature("mobile")
@@ -19,6 +19,14 @@ var _hud: Hud = null
 var _results: Control = null
 var _debug: Control = null
 var _overlay: PauseOverlay = null
+var _router: ScreenRouter = null
+
+
+## M3-14: hands the screen router in. On every screen except BATTLE the back gesture goes through it
+## (`BackPolicy.decide_screen`); BATTLE keeps the V1-24 behavior exactly. Safe margins also reach its screens.
+func set_router(router: ScreenRouter) -> void:
+	_router = router
+	refresh_safe_area()
 
 
 ## Wires the shell to the main scene's parts and adds the pause overlay as a child (topmost when added last).
@@ -45,6 +53,11 @@ func in_battle() -> bool:
 
 ## Performs the back action for the current UI state and returns it.
 func handle_back() -> BackPolicy.Action:
+	if _router != null and _router.current_screen() != AppFlow.Screen.BATTLE:
+		var screen_action: BackPolicy.Action = _router.handle_back(_debug.visible)
+		if screen_action == BackPolicy.Action.CLOSE_PANEL:
+			_debug.hide()
+		return screen_action
 	var action: BackPolicy.Action = BackPolicy.decide(_debug.visible, _controller.paused, in_battle())
 	match action:
 		BackPolicy.Action.CLOSE_PANEL:
@@ -68,6 +81,7 @@ func resume() -> void:
 	_controller.paused = false
 	_hud.set_paused(false)
 	_overlay.hide()
+	_overlay.set_notice("")
 	_set_audio_paused(false)
 	AudioHooks.tap()
 
@@ -84,7 +98,10 @@ func refresh_safe_area() -> void:
 		return
 	var win := Vector2(DisplayServer.window_get_size())
 	var safe := Rect2(DisplayServer.get_display_safe_area())
-	_hud.apply_safe_margins(SafeArea.margins(win, safe, get_viewport().get_visible_rect().size))
+	var m: Vector4 = SafeArea.margins(win, safe, get_viewport().get_visible_rect().size)
+	_hud.apply_safe_margins(m)
+	if _router != null:
+		_router.apply_safe_margins(m)
 
 
 func _notification(what: int) -> void:

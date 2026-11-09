@@ -5,6 +5,20 @@ extends Control
 
 signal resume_requested
 
+var _notice: Label = null
+
+
+## One notice line under the title (M3-14: "RUN RESTORED" after a resume, the save notices). "" hides it.
+func set_notice(text: String) -> void:
+	if _notice == null:
+		return
+	_notice.text = text
+	_notice.visible = text != ""
+
+
+func notice_text() -> String:
+	return _notice.text if _notice != null and _notice.visible else ""
+
 
 func _ready() -> void:
 	theme = ThemeBuilder.shared()
@@ -29,6 +43,9 @@ func _ready() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(column)
 	column.add_child(_label("pause.title", &"LabelHeading", Palette.AMBER, 96))
+	_notice = _label("pause.title", &"LabelNumber", Palette.TEXT, 44)
+	_notice.visible = false
+	column.add_child(_notice)
 	column.add_child(_label("pause.resume_hint", &"LabelNumber", Palette.AMBER_GLOW, 56))
 	column.add_child(_label("pause.exit_hint", &"LabelNumber", Palette.TEXT_DIM, 44))
 

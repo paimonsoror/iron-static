@@ -20,3 +20,35 @@ func test_decision_table() -> void:
 		var battle: bool = row[2]
 		var want: int = row[3]
 		assert_int(BackPolicy.decide(panel, paused, battle)).is_equal(want)
+
+
+func test_screen_table_all_screens_by_paused_and_panel() -> void:
+	# BATTLE falls back to the V1-24 table for every (panel_open, paused, in_battle).
+	for panel: bool in [false, true]:
+		for paused: bool in [false, true]:
+			for in_battle: bool in [false, true]:
+				var want: BackPolicy.Action = BackPolicy.decide(panel, paused, in_battle)
+				assert_int(BackPolicy.decide_screen(AppFlow.Screen.BATTLE, panel, paused, in_battle, false)).is_equal(
+					want
+				)
+	# [screen, armed] -> action with no panel open; paused never changes a menu screen's answer.
+	var table: Array = [
+		[AppFlow.Screen.SAVE_PROBLEM, false, BackPolicy.Action.QUIT],
+		[AppFlow.Screen.HOME, false, BackPolicy.Action.ARM_EXIT],
+		[AppFlow.Screen.HOME, true, BackPolicy.Action.QUIT],
+		[AppFlow.Screen.FOUNDRY, false, BackPolicy.Action.GO_BACK],
+		[AppFlow.Screen.SETTINGS, false, BackPolicy.Action.GO_BACK],
+		[AppFlow.Screen.FRAME_BAY, false, BackPolicy.Action.GO_BACK],
+		[AppFlow.Screen.RESULTS, false, BackPolicy.Action.GO_HOME],
+		[AppFlow.Screen.TITLE, false, BackPolicy.Action.CONFIRM_QUIT],
+	]
+	for row: Array in table:
+		var screen: AppFlow.Screen = row[0]
+		var armed: bool = row[1]
+		var want: int = row[2]
+		for paused: bool in [false, true]:
+			assert_int(BackPolicy.decide_screen(screen, false, paused, false, armed)).is_equal(want)
+			# an open debug panel closes first on every screen
+			assert_int(BackPolicy.decide_screen(screen, true, paused, false, armed)).is_equal(
+				BackPolicy.Action.CLOSE_PANEL
+			)

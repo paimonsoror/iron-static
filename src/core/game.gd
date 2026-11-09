@@ -11,6 +11,7 @@ extends Node
 ##   --debug-novsync  disable vsync so fps shows uncapped render throughput (V1-03 bench)
 ## Quality args (all builds): --quality=high|mid|low, --shake=off|low|normal (VisualSettings, V1-03).
 ## Audio arg (all builds): --mute runs silent (no SFX, no music; benches and captures).
+## Save arg (all builds): --no-save keeps the profile and run snapshot in memory (tests, tools; M3-14).
 
 const VERSION: String = "0.0.1"
 const ARG_DEBUG_LOAD: String = "--debug-load"
@@ -19,6 +20,7 @@ const ARG_STYLE_FRAME: String = "--style-frame"
 const ARG_LOAD_WAVE: String = "--debug-load-wave="
 const ARG_HOLD: String = "--debug-hold"
 const ARG_NOVSYNC: String = "--debug-novsync"
+const ARG_NO_SAVE: String = "--no-save"
 
 var controller: RunController = RunController.new()
 var debug_load: bool = false
@@ -72,7 +74,9 @@ func _ready() -> void:
 		audio.disabled = true
 		audio.settings.muted = true
 	audio.setup()
-	setup_persistence(DiskSaveFs.new(), OS.get_cmdline_user_args())
+	# --no-save (tests, tools): an in-memory fs, so a run never reads or writes the real user://save profile.
+	var fs: SaveFs = MemorySaveFs.new() if args.has(ARG_NO_SAVE) else DiskSaveFs.new()
+	setup_persistence(fs, args)
 
 
 func _process(delta: float) -> void:
@@ -121,6 +125,11 @@ func setup_persistence(fs: SaveFs, args: PackedStringArray) -> void:
 ## The profile (`saves.profile`).
 func profile() -> PlayerProfile:
 	return saves.profile
+
+
+## True when boot found an interrupted run: `start_run()` will resume it (paused) instead of starting a new one.
+func has_pending_resume() -> bool:
+	return _pending_resume != null and _pending_resume.status == ResumeResult.Status.RESUMED
 
 
 ## Hook after a run was banked and its profile save returned true (the snapshot is already cleared by
