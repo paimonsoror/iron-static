@@ -174,3 +174,19 @@ results.mode,{name} MODE
 results.best_mode,BEST {name} {n}
 hud.mode_purge_left,{n} LEFT
 home.best_mode,BEST {name} {n}
+results.wave_big,WAVE {n}
+results.best_short,BEST {n}
+results.killed_by,DESTROYED BY
+results.stat_time,TIME
+results.stat_kills,KILLS
+results.stat_data,DATA
+results.stat_scrap,SCRAP
+results.data_gain,+{v}
+results.data_total,TOTAL {t}
+results.kill_count,x{n}
+results.unknown_killer,UNKNOWN
+enemy.name.skitter,SKITTER
+enemy.name.dart,DART
+enemy.name.walker,WALKER
+enemy.name.lancer,LANCER
+enemy.name.boss_hulk,HULK

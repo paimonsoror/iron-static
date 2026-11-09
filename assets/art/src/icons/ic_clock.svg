@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="g_plate" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#151B24"/><stop offset="1" stop-color="#080B10"/></linearGradient>
+</defs>
+<g id="slot.ic_clock">
+<g id="layer.plate"><polygon points="0.5,24.7 24.7,0.5 127.5,0.5 127.5,103.3 103.3,127.5 0.5,127.5" fill="url(#g_plate)"/><polygon points="9,36.7 36.7,9 119,9 119,91.3 91.3,119 9,119" fill="none" stroke="#FFB000" stroke-width="1.5" stroke-linejoin="round" stroke-opacity="0.35"/><polygon points="2,26.8 26.8,2 126,2 126,101.2 101.2,126 2,126" fill="none" stroke="#FFB000" stroke-width="4" stroke-linejoin="round"/><polyline points="94,2 126,2 126,34" fill="none" stroke="#FFD27A" stroke-width="4"/><polyline points="2,94 2,126 34,126" fill="none" stroke="#FFD27A" stroke-width="4"/></g>
+<g id="layer.glyph">
+<circle cx="64" cy="66" r="42" fill="#0D1117" stroke="#8A5F00" stroke-width="13"/><circle cx="64" cy="66" r="41" fill="none" stroke="#FFB000" stroke-width="9"/><circle cx="64" cy="66" r="35" fill="none" stroke="#FFE3A3" stroke-width="1.5" stroke-opacity="0.45"/><rect x="61" y="35" width="6" height="10" fill="#FFD27A"/><rect x="61" y="87" width="6" height="10" fill="#FFD27A"/><rect x="33" y="63" width="10" height="6" fill="#FFD27A"/><rect x="85" y="63" width="10" height="6" fill="#FFD27A"/><polyline points="64,66 64,42" fill="none" stroke="#0D1117" stroke-width="13" stroke-linecap="square"/><polyline points="64,66 82,78" fill="none" stroke="#0D1117" stroke-width="13" stroke-linecap="square"/><polyline points="64,66 64,42" fill="none" stroke="#FFF1C9" stroke-width="7" stroke-linecap="square"/><polyline points="64,66 82,78" fill="none" stroke="#FFB000" stroke-width="7" stroke-linecap="square"/><circle cx="64" cy="66" r="7" fill="#0D1117" stroke="#FFD27A" stroke-width="3"/>
+</g>
+</g>
+</svg>
