@@ -62,15 +62,23 @@ func _router(main: Control) -> ScreenRouter:
 	return null
 
 
+## Boots, then leaves the title through CONTINUE (always legal from TITLE) so the test starts on HOME.
+func _home_router(main: Control) -> ScreenRouter:
+	var r: ScreenRouter = _router(main)
+	assert_int(r.current_screen()).is_equal(AppFlow.Screen.TITLE)
+	assert_bool(r.dispatch(AppFlow.Event.CONTINUE)).is_true()
+	return r
+
+
 func _press_home_deploy(router: ScreenRouter) -> void:
 	var home: HomeScreen = router.active_screen() as HomeScreen
 	assert_object(home).is_not_null()
 	home.deploy_pressed.emit()
 
 
-func test_fresh_profile_boots_to_home_with_the_battle_view_off() -> void:
+func test_fresh_profile_boots_to_title_then_continue_to_home_with_the_battle_view_off() -> void:
 	var main: Control = _main()
-	var r: ScreenRouter = _router(main)
+	var r: ScreenRouter = _home_router(main)
 	assert_int(r.current_screen()).is_equal(AppFlow.Screen.HOME)
 	assert_that(r.size).is_equal(main.size)  # the router and its screen fill the view
 	assert_that(r.active_screen().size).is_equal(main.size)
@@ -87,13 +95,13 @@ func test_fresh_profile_boots_to_home_with_the_battle_view_off() -> void:
 
 func test_profile_with_a_banked_run_shows_the_foundry_nav() -> void:
 	Game.saves.profile.runs_total = 1
-	var r: ScreenRouter = _router(_main())
+	var r: ScreenRouter = _home_router(_main())
 	assert_bool((r.active_screen() as HomeScreen).nav_foundry.visible).is_true()
 
 
 func test_deploy_runs_then_results_then_back_goes_home_and_redeploy_works() -> void:
 	var main: Control = _main()
-	var r: ScreenRouter = _router(main)
+	var r: ScreenRouter = _home_router(main)
 	_press_home_deploy(r)
 	assert_int(r.current_screen()).is_equal(AppFlow.Screen.BATTLE)
 	assert_int(Game.controller.state).is_equal(RunController.State.IN_RUN)
@@ -114,7 +122,7 @@ func test_deploy_runs_then_results_then_back_goes_home_and_redeploy_works() -> v
 
 func test_results_to_foundry_and_back_restores_results() -> void:
 	var main: Control = _main()
-	var r: ScreenRouter = _router(main)
+	var r: ScreenRouter = _home_router(main)
 	_press_home_deploy(r)
 	@warning_ignore("return_value_discarded")
 	Game.controller.fast_forward(MAX_TICKS)
@@ -126,7 +134,7 @@ func test_results_to_foundry_and_back_restores_results() -> void:
 
 
 func test_home_back_arms_then_second_back_quits() -> void:
-	var r: ScreenRouter = _router(_main())
+	var r: ScreenRouter = _home_router(_main())
 	assert_int(r.handle_back(false)).is_equal(BackPolicy.Action.ARM_EXIT)
 	assert_bool(r.toast_visible()).is_true()
 	assert_str(r.toast_text()).is_equal(Strings.get_text("exit.back_again"))
@@ -136,7 +144,7 @@ func test_home_back_arms_then_second_back_quits() -> void:
 
 
 func test_settings_back_returns_to_home() -> void:
-	var r: ScreenRouter = _router(_main())
+	var r: ScreenRouter = _home_router(_main())
 	assert_bool(r.dispatch(AppFlow.Event.OPEN_SETTINGS)).is_true()
 	assert_int(r.current_screen()).is_equal(AppFlow.Screen.SETTINGS)
 	assert_int(r.handle_back(false)).is_equal(BackPolicy.Action.GO_BACK)
@@ -144,7 +152,7 @@ func test_settings_back_returns_to_home() -> void:
 
 
 func test_foundry_dispatch_is_refused_before_the_first_death() -> void:
-	var r: ScreenRouter = _router(_main())
+	var r: ScreenRouter = _home_router(_main())
 	assert_bool(r.dispatch(AppFlow.Event.OPEN_FOUNDRY)).is_false()
 	assert_int(r.current_screen()).is_equal(AppFlow.Screen.HOME)
 
@@ -220,7 +228,7 @@ func test_resumed_run_boots_into_a_paused_battle_with_the_notice() -> void:
 
 
 func test_menu_audio_follows_the_screen() -> void:
-	var r: ScreenRouter = _router(_main())
+	var r: ScreenRouter = _home_router(_main())
 	# --mute keeps the director disabled (start is a no-op); entering the battle must leave the ambience off
 	_press_home_deploy(r)
 	assert_bool(Game.audio.is_menu_ambience_active()).is_false()

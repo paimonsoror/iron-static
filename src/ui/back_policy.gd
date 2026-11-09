@@ -7,9 +7,10 @@ extends RefCounted
 ## Per screen (`decide_screen`, a table, `SCREEN_ACTIONS`): an open debug panel closes first on every screen;
 ## SAVE_PROBLEM quits; HOME arms exit (first back shows `exit.back_again`, a second back within `EXIT_WINDOW_S`
 ## quits); FOUNDRY / SETTINGS / FRAME_BAY go back to the opener; RESULTS goes HOME; TITLE asks "QUIT?";
+## an open confirm dialog (NEW GAME, Settings reset) closes first on every menu screen (CLOSE_DIALOG);
 ## BATTLE is `decide` unchanged.
 
-enum Action { CLOSE_PANEL, PAUSE, QUIT, ARM_EXIT, GO_BACK, GO_HOME, CONFIRM_QUIT }
+enum Action { CLOSE_PANEL, PAUSE, QUIT, ARM_EXIT, GO_BACK, GO_HOME, CONFIRM_QUIT, CLOSE_DIALOG }
 
 ## Seconds a first back on HOME keeps the exit armed.
 const EXIT_WINDOW_S: float = 2.0
@@ -39,10 +40,12 @@ static func decide(panel_open: bool, paused: bool, in_battle: bool) -> Action:
 
 ## Decision for any screen. `exit_armed` = a previous back on HOME is still inside its 2 s window.
 static func decide_screen(
-	screen: AppFlow.Screen, panel_open: bool, paused: bool, in_battle: bool, exit_armed: bool
+	screen: AppFlow.Screen, panel_open: bool, paused: bool, in_battle: bool, exit_armed: bool, dialog_open: bool = false
 ) -> Action:
 	if screen == AppFlow.Screen.BATTLE:
 		return decide(panel_open, paused, in_battle)
+	if dialog_open:
+		return Action.CLOSE_DIALOG
 	if panel_open:
 		return Action.CLOSE_PANEL
 	var action: Action = SCREEN_ACTIONS.get(screen, Action.QUIT)

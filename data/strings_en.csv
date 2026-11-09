@@ -158,3 +158,5 @@ settings.reset,RESET PROFILE
 settings.reset_confirm1,RESET YOUR PROFILE? ALL PROGRESS IS LOST.
 settings.reset_confirm2,"LAST CHANCE: {data} DATA AND BEST WAVE {wave} WILL BE LOST."
 settings.reset_done,PROFILE RESET
+frame.confirm,CONTINUE
+results.save_failed,SAVE FAILED

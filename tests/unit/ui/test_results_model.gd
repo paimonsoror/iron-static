@@ -77,7 +77,7 @@ func test_chip_and_save_warning() -> void:
 	info.save_failed = true
 	var m: ResultsModel = ResultsModel.from_run(run, EconomyState.new(), 0, "", info)
 	assert_str(m.chip_text).is_equal("FRAME UNLOCKED: BULWARK")
-	assert_str(m.save_warning_text).is_equal("SAVE PROBLEM")
+	assert_str(m.save_warning_text).is_equal("SAVE FAILED")
 	var clean := BankedInfo.new()
 	clean.has_bank = true
 	var m2: ResultsModel = ResultsModel.from_run(run, EconomyState.new(), 0, "", clean)

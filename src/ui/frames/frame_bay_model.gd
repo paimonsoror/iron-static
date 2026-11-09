@@ -96,7 +96,7 @@ static func action_text(card: FrameCard) -> String:
 		Action.SELECT:
 			return Strings.get_text("frame.select")
 		_:
-			return Strings.get_text("title.continue")
+			return Strings.get_text("frame.confirm")
 
 
 ## Index of `id` in `cards` (0 when absent).

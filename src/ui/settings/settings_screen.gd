@@ -6,6 +6,8 @@ extends MenuScreen
 ## `settings.note_session` tag until the player edits that control. Back goes to the opener (router).
 
 signal back_pressed
+## The profile was reset (Settings > Data, after two YES taps): the router goes to the title.
+signal profile_reset
 
 const ROW_GAP: int = 24
 const NAME_PX: int = 40
@@ -19,9 +21,12 @@ var toggles: Dictionary[String, SettingsToggle] = {}
 var choices: Dictionary[String, SettingsChoice] = {}
 var back_button: Button
 var version_label: Label
+var reset_button: Button
 var example_label: Label
 var _value_labels: Dictionary[String, Label] = {}
 var _notes: Dictionary[String, Label] = {}
+var _dialog: ConfirmDialog
+var _reset_step: int = 0
 
 
 func title_key() -> String:
@@ -40,11 +45,18 @@ func _build() -> void:
 	scroll.add_child(list)
 	for setting: String in SettingsModel.ORDER:
 		list.add_child(_make_row(setting))
+	list.add_child(label("settings.data", &"LabelHeading", Palette.AMBER, 64))
+	reset_button = make_button("settings.reset", _on_reset_pressed)
+	list.add_child(reset_button)
 	version_label = label("", &"LabelDim", Palette.TEXT_DIM, NOTE_PX)
 	version_label.text = Strings.fill1("settings.version", "v", Game.VERSION)
 	list.add_child(version_label)
 	back_button = make_button("settings.back", _on_back)
 	content.add_child(back_button)
+	_dialog = ConfirmDialog.new()
+	_dialog.confirmed.connect(_on_reset_yes)
+	_dialog.cancelled.connect(_on_reset_cancelled)
+	add_child(_dialog)
 	enter()
 
 
@@ -67,6 +79,8 @@ func enter() -> void:
 		choices[key].set_selected_silent(SettingsModel.index_of(key, picks[key]))
 	_refresh_state()
 	scroll.scroll_vertical = 0
+	_reset_step = 0
+	_dialog.close()
 
 
 ## Saves at once when the screen is hidden.
@@ -74,6 +88,42 @@ func leave() -> void:
 	if Game.saves != null:
 		@warning_ignore("return_value_discarded")
 		Game.saves.save_now()
+
+
+## Back closes an open reset dialog first.
+func on_back() -> bool:
+	return _dialog.cancel()
+
+
+func dialog() -> ConfirmDialog:
+	return _dialog
+
+
+func reset_step() -> int:
+	return _reset_step
+
+
+func _on_reset_pressed() -> void:
+	AudioHooks.tap()
+	_reset_step = 1
+	_dialog.open(Strings.get_text("settings.reset"), Strings.get_text("settings.reset_confirm1"))
+
+
+## First YES opens the second dialog (naming what is lost); the second YES resets.
+func _on_reset_yes() -> void:
+	if _reset_step == 1:
+		_reset_step = 2
+		var p: PlayerProfile = Game.profile()
+		var values: Dictionary[String, String] = {"data": NumberFormat.format(p.data), "wave": str(p.best_wave_s1())}
+		_dialog.open(Strings.get_text("settings.reset"), Strings.fill("settings.reset_confirm2", values))
+		return
+	_reset_step = 0
+	if ProfileReset.run(Game.saves):
+		profile_reset.emit()
+
+
+func _on_reset_cancelled() -> void:
+	_reset_step = 0
 
 
 func _on_back() -> void:

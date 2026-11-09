@@ -52,3 +52,23 @@ func test_screen_table_all_screens_by_paused_and_panel() -> void:
 			assert_int(BackPolicy.decide_screen(screen, true, paused, false, armed)).is_equal(
 				BackPolicy.Action.CLOSE_PANEL
 			)
+
+
+func test_an_open_dialog_closes_first_on_every_menu_screen_but_not_in_battle() -> void:
+	for s: AppFlow.Screen in [
+		AppFlow.Screen.TITLE,
+		AppFlow.Screen.HOME,
+		AppFlow.Screen.FOUNDRY,
+		AppFlow.Screen.SETTINGS,
+		AppFlow.Screen.FRAME_BAY,
+		AppFlow.Screen.SAVE_PROBLEM,
+	]:
+		assert_int(BackPolicy.decide_screen(s, false, false, false, false, true)).is_equal(
+			BackPolicy.Action.CLOSE_DIALOG
+		)
+	assert_int(BackPolicy.decide_screen(AppFlow.Screen.TITLE, false, false, false, false)).is_equal(
+		BackPolicy.Action.CONFIRM_QUIT
+	)
+	assert_int(BackPolicy.decide_screen(AppFlow.Screen.BATTLE, false, false, true, false, true)).is_equal(
+		BackPolicy.Action.PAUSE
+	)

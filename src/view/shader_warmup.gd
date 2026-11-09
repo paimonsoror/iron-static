@@ -37,6 +37,7 @@ func _ready() -> void:
 	_add_particles()
 	_add_arena()
 	_add_additive_layer()
+	_add_title()
 
 
 @warning_ignore("unused_parameter")
@@ -98,6 +99,18 @@ func _add_additive_layer() -> void:
 			3.0
 		)
 	add_child(layer)
+
+
+## The title materials (M3-30): the fbm smoke band (its additive variant is a uniform) and the shimmering logo.
+## Embers reuse the particle shaders above.
+func _add_title() -> void:
+	var smoke: ColorRect = TitleArt.smoke_rect(0, TitleArt.far_haze())
+	smoke.size = Vector2(64.0, 64.0)
+	add_child(smoke)
+	var logo := TitleLogo.new()
+	logo.setup()
+	logo.scale = Vector2(0.05, 0.05)
+	add_child(logo)
 
 
 ## One-instance, transform-only MultiMesh (instanced draw path), as in the game: the enemy and particle shaders read

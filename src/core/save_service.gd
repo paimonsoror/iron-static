@@ -97,6 +97,33 @@ func resolve_start_new() -> bool:
 	return true
 
 
+## NEW GAME / Settings > Data (Q66): renames every profile and run-snapshot file (live, bak, tmp) to
+## `<file>.reset` (numbered, never overwriting, never deleting), then starts a fresh in-memory profile that keeps
+## the old settings. Writes nothing itself: the caller saves (`save_now`) so the settings survive a restart.
+## Refused (false) while writes are blocked (save problem) or when a rename fails.
+func reset_profile() -> bool:
+	if writes_blocked:
+		return false
+	var stores: Array[SaveStore] = [_store, checkpointer.store]
+	for st: SaveStore in stores:
+		for p: String in [st.live_path(), st.bak_path(), st.tmp_path()]:
+			if _fs.exists(p) and not _fs.rename(p, _reset_target(p)):
+				last_error = "reset rename failed"
+				return false
+	var kept: Dictionary = profile.settings.duplicate(true)
+	profile = PlayerProfile.fresh(clock.now_utc(), _device_id)
+	profile.settings = kept
+	if _controller != null:
+		_controller.best_wave_s1 = 0  # the session value mirrors the old profile's best wave
+	scheduler.notify_saved()
+	notice = ""
+	last_unlocked_frames = []
+	last_bank_saved = false
+	last_error = ""
+	last_load_status = LoadResult.Status.FRESH
+	return true
+
+
 ## Marks state worth saving; the write happens after the 2 s debounce (`tick`).
 func request_save() -> void:
 	scheduler.request_save()
@@ -248,3 +275,13 @@ func _frames() -> Array[FrameDef]:
 			frame_defs = FrameRules.load_defs()
 		_frames_loaded = true
 	return frame_defs
+
+
+## `<path>.reset`, numbered (`.reset.1`, ...) so an earlier reset's files are never overwritten.
+func _reset_target(path: String) -> String:
+	var target: String = path + ".reset"
+	var k: int = 0
+	while _fs.exists(target):
+		k += 1
+		target = path + ".reset." + str(k)
+	return target

@@ -105,3 +105,19 @@ func test_every_event_target_is_a_known_screen() -> void:
 		for event: int in row:
 			var to: int = row[event]
 			assert_bool(to == AppFlow.OPENER or S.values().has(to)).is_true()
+
+
+func test_title_flow_rows_and_the_profile_reset_return() -> void:
+	assert_bool(AppFlow.TITLE_ENABLED).is_true()
+	assert_int(AppFlow.boot_screen(false, false)).is_equal(S.TITLE)
+	assert_int(AppFlow.boot_screen(false, true)).is_equal(S.BATTLE)  # a resumed run skips the title
+	assert_int(_flow(S.SETTINGS).apply(E.PROFILE_RESET)).is_equal(S.TITLE)
+	assert_int(_flow(S.FRAME_BAY).apply(E.BACK_TO_OPENER)).is_equal(AppFlow.NONE)
+
+
+func test_title_cannot_reach_battle_or_other_screens_directly() -> void:
+	for e: AppFlow.Event in [E.DEPLOY, E.OPEN_FOUNDRY, E.GO_HOME, E.RUN_ENDED, E.FRAME_CONFIRMED, E.PROFILE_RESET]:
+		var f: AppFlow = _flow(S.TITLE)
+		assert_int(f.apply(e)).is_equal(AppFlow.NONE)
+		assert_int(f.current).is_equal(S.TITLE)
+	assert_int(_flow(S.FRAME_BAY).apply(E.DEPLOY)).is_equal(AppFlow.NONE)

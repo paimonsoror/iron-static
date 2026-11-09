@@ -28,7 +28,7 @@ const ENTRIES: Array[Dictionary] = [
 	{
 		"screen": AppFlow.Screen.SETTINGS,
 		"scene": "res://src/ui/settings/settings_screen.tscn",
-		"signals": {&"back_pressed": AppFlow.Event.BACK_TO_OPENER},
+		"signals": {&"back_pressed": AppFlow.Event.BACK_TO_OPENER, &"profile_reset": AppFlow.Event.PROFILE_RESET},
 	},
 	{
 		"screen": AppFlow.Screen.TITLE,

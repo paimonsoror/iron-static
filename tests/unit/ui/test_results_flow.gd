@@ -45,6 +45,7 @@ func _to_results() -> Array:
 		if c is ScreenRouter:
 			router = c
 			router.quits_tree = false
+	assert_bool(router.dispatch(AppFlow.Event.CONTINUE)).is_true()  # boot is the title
 	assert_bool(router.dispatch(AppFlow.Event.DEPLOY)).is_true()
 	@warning_ignore("return_value_discarded")
 	Game.controller.fast_forward(60000)

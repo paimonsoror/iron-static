@@ -141,6 +141,8 @@ func test_router_leaves_the_battle_back_behavior_unchanged() -> void:
 func test_router_screens_take_the_back_gesture_through_the_policy() -> void:
 	var router: ScreenRouter = _with_router()
 	router.boot()
+	assert_int(router.current_screen()).is_equal(AppFlow.Screen.TITLE)
+	assert_bool(router.dispatch(AppFlow.Event.CONTINUE)).is_true()
 	assert_int(_shell.handle_back()).is_equal(BackPolicy.Action.ARM_EXIT)
 	_debug.visible = true
 	assert_int(_shell.handle_back()).is_equal(BackPolicy.Action.CLOSE_PANEL)

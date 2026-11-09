@@ -78,4 +78,4 @@ func _fill_banked(death_wave: int, banked: BankedInfo) -> void:
 	if not names.is_empty():
 		chip_text = Strings.fill1(FrameRules.KEY_CHIP, "name", ", ".join(names))
 	if banked.save_failed:
-		save_warning_text = Strings.get_text("save.problem_title")
+		save_warning_text = Strings.get_text("results.save_failed")

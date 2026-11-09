@@ -4,13 +4,13 @@ extends RefCounted
 ## screen swap. The flow is a DATA TABLE (`TABLE`): adding a screen or a transition is a table edit.
 ##
 ## Flow:  boot -> SAVE_PROBLEM (damaged or too-new save) | BATTLE (a run snapshot resumed, paused) | HOME
-##        (part B, `TITLE_ENABLED`: TITLE first)
+##        (`TITLE_ENABLED`: TITLE first; CONTINUE -> HOME, NEW GAME -> FRAME_BAY (the router asks a confirm first
+##        when the profile has progress), FRAME_BAY -confirm-> HOME, TITLE <-> SETTINGS,
+##        SETTINGS -PROFILE_RESET-> TITLE)
 ##        SAVE_PROBLEM -START_NEW-> HOME;  HOME -DEPLOY-> BATTLE;  HOME <-> FOUNDRY (after the first death) and
 ##        HOME <-> SETTINGS;  BATTLE -RUN_ENDED-> RESULTS;  RESULTS -DEPLOY-> BATTLE | -GO_HOME-> HOME |
 ##        -OPEN_FOUNDRY-> FOUNDRY;  FOUNDRY -DEPLOY-> BATTLE;  FOUNDRY and SETTINGS return to the screen they were
 ##        opened from (`OPENER`).
-## TITLE and FRAME_BAY rows exist for M3-28/29/30 and are only reachable once `TITLE_ENABLED` is true (impl:
-## the boot target stays HOME until M3-30 flips it, per the M3-14 note).
 
 enum Screen { SAVE_PROBLEM, HOME, FOUNDRY, SETTINGS, BATTLE, RESULTS, TITLE, FRAME_BAY }
 enum Event {
@@ -25,10 +25,11 @@ enum Event {
 	NEW_GAME,
 	FRAME_CONFIRMED,
 	FRAME_BAY_BACK,
+	PROFILE_RESET,
 }
 
-## Boot straight into the title screen (flipped by M3-30; HOME until then).
-const TITLE_ENABLED: bool = false
+## Boot into the title screen (flipped on by M3-30).
+const TITLE_ENABLED: bool = true
 ## Table value meaning "the screen this one was opened from".
 const OPENER: int = -2
 const NONE: int = -1
@@ -41,7 +42,7 @@ const TABLE: Dictionary = {
 	Screen.HOME:
 	{Event.DEPLOY: Screen.BATTLE, Event.OPEN_FOUNDRY: Screen.FOUNDRY, Event.OPEN_SETTINGS: Screen.SETTINGS},
 	Screen.FOUNDRY: {Event.DEPLOY: Screen.BATTLE, Event.BACK_TO_OPENER: OPENER},
-	Screen.SETTINGS: {Event.BACK_TO_OPENER: OPENER},
+	Screen.SETTINGS: {Event.BACK_TO_OPENER: OPENER, Event.PROFILE_RESET: Screen.TITLE},
 	Screen.BATTLE: {Event.RUN_ENDED: Screen.RESULTS},
 	Screen.RESULTS: {Event.DEPLOY: Screen.BATTLE, Event.GO_HOME: Screen.HOME, Event.OPEN_FOUNDRY: Screen.FOUNDRY},
 }

@@ -40,6 +40,7 @@ var _entries: Dictionary = {}
 var _screens: Dictionary = {}
 var _active: MenuScreen = null
 var _safe := Vector4.ZERO
+var _dialog: ConfirmDialog = null
 var _toast: PanelContainer = null
 var _toast_label: Label = null
 var _toast_token: int = 0
@@ -55,6 +56,7 @@ func setup(controller: RunController, battle: CanvasItem, hud: CanvasItem, resul
 	theme = ThemeBuilder.shared()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_build_dialog()
 	_build_toast()
 	register_defaults()
 	_controller.run_ended.connect(_on_run_ended)
@@ -78,6 +80,11 @@ func register(screen: AppFlow.Screen, scene_path: String, signals: Dictionary) -
 		old.queue_free()
 		@warning_ignore("return_value_discarded")
 		_screens.erase(screen)
+
+
+## The confirm dialog the router owns (NEW GAME).
+func dialog() -> ConfirmDialog:
+	return _dialog
 
 
 func current_screen() -> AppFlow.Screen:
@@ -109,11 +116,20 @@ func show_battle() -> void:
 ## Applies a flow event. False (nothing changes) when the transition is illegal from the current screen.
 func dispatch(event: AppFlow.Event) -> bool:
 	refresh_unlocks()
+	if event == AppFlow.Event.NEW_GAME and flow.current == AppFlow.Screen.TITLE and _has_progress():
+		_dialog.open(Strings.get_text("title.newgame_confirm_title"), Strings.get_text("title.newgame_confirm_body"))
+		return false  # the dialog's YES applies the event (_on_new_game_yes)
+	return _apply(event)
+
+
+func _apply(event: AppFlow.Event) -> bool:
 	var from: AppFlow.Screen = flow.current
 	var to: int = flow.apply(event)
 	if to == AppFlow.NONE:
 		return false
 	_present(to as AppFlow.Screen, to == AppFlow.Screen.BATTLE and event == AppFlow.Event.DEPLOY, from)
+	if event == AppFlow.Event.PROFILE_RESET:
+		show_toast(Strings.get_text("settings.reset_done"), TOAST_S)
 	return true
 
 
@@ -126,7 +142,9 @@ func refresh_unlocks() -> void:
 func handle_back(panel_open: bool) -> BackPolicy.Action:
 	var armed: bool = Time.get_ticks_msec() < _exit_armed_until_ms
 	var paused: bool = _controller != null and _controller.paused
-	var action: BackPolicy.Action = BackPolicy.decide_screen(flow.current, panel_open, paused, false, armed)
+	var action: BackPolicy.Action = BackPolicy.decide_screen(
+		flow.current, panel_open, paused, false, armed, _dialog.is_open()
+	)
 	match action:
 		BackPolicy.Action.ARM_EXIT:
 			_exit_armed_until_ms = Time.get_ticks_msec() + int(BackPolicy.EXIT_WINDOW_S * 1000.0)
@@ -149,6 +167,9 @@ func handle_back(panel_open: bool) -> BackPolicy.Action:
 		BackPolicy.Action.CONFIRM_QUIT:
 			@warning_ignore("return_value_discarded")
 			_active_consumes_back()
+		BackPolicy.Action.CLOSE_DIALOG:
+			@warning_ignore("return_value_discarded")
+			_dialog.cancel()
 	return action
 
 
@@ -256,6 +277,25 @@ func _screen_node(screen: AppFlow.Screen) -> MenuScreen:
 	_screens[screen] = node
 	node.hide()
 	return node
+
+
+func _has_progress() -> bool:
+	return Game.saves != null and Game.profile().has_progress()
+
+
+## YES on the NEW GAME confirm: reset the profile (old files kept as *.reset, settings kept), then the bay.
+func _on_new_game_yes() -> void:
+	if not ProfileReset.run(Game.saves):
+		show_toast(Strings.get_text("results.save_failed"), TOAST_S)
+		return
+	@warning_ignore("return_value_discarded")
+	_apply(AppFlow.Event.NEW_GAME)
+
+
+func _build_dialog() -> void:
+	_dialog = ConfirmDialog.new()
+	_dialog.confirmed.connect(_on_new_game_yes)
+	add_child(_dialog)
 
 
 func _on_screen_signal(event: int) -> void:
