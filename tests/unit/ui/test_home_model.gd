@@ -104,3 +104,14 @@ func test_locked_last_mode_is_never_preselected_and_chip_follows_the_flag() -> v
 	assert_str(m.unlock_chip_text).is_equal("PURGE MODE UNLOCKED")
 	assert_bool(ModeUnlockFlag.clear(p)).is_true()
 	assert_bool(ModeUnlockFlag.clear(p)).is_false()
+
+
+func test_best_line_per_mode() -> void:
+	var p: PlayerProfile = PlayerProfile.fresh(0, "t")
+	p.best_wave["1"] = 14
+	assert_str(HomeModel.best_line(p, "timed")).is_equal("BEST  W14")
+	assert_str(HomeModel.best_line(p, "purge")).is_equal(Strings.get_text("home.best_none"))
+	@warning_ignore("return_value_discarded")
+	p.unlock_mode("purge")
+	p.best_wave_by_mode["purge"] = {"1": 31}
+	assert_str(HomeModel.best_line(p, "purge")).is_equal("BEST PURGE 31")

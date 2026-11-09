@@ -185,3 +185,18 @@ func test_mode_arg_parsing_and_resolve_order() -> void:
 	p.select_mode("purge")
 	assert_str(RunMode.resolve(p, "", "")).is_equal("purge")
 	assert_str(RunMode.resolve(p, "timed", "")).is_equal("timed")
+
+
+func test_purge_death_does_not_raise_the_session_timed_best() -> void:
+	var c := RunController.new()
+	@warning_ignore("return_value_discarded")
+	c.start_run(1, false, 0, {}, 0, "", "purge")
+	@warning_ignore("return_value_discarded")
+	c.fast_forward(MAX_TICKS)
+	assert_int(c.state).is_equal(RunController.State.RESULTS)
+	assert_int(c.best_wave_s1).is_equal(0)  # Q71: PURGE gates nothing
+	@warning_ignore("return_value_discarded")
+	c.start_run(1)
+	@warning_ignore("return_value_discarded")
+	c.fast_forward(MAX_TICKS)
+	assert_int(c.best_wave_s1).is_greater(0)

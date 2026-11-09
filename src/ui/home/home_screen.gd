@@ -283,6 +283,10 @@ func _on_mode_selected(id: String) -> void:
 	var p: PlayerProfile = _profile if _profile != null else Game.profile()
 	if p.select_mode(id) and _profile == null:
 		Game.saves.request_save()
+	best_label.text = HomeModel.best_line(p, id)
+	best_label.add_theme_color_override(
+		"font_color", Palette.AMBER if p.best_wave_of_mode(id, 1) > 0 else Palette.TEXT_DIM
+	)
 	mode_selected.emit(id)
 
 

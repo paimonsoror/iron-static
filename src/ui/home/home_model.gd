@@ -53,7 +53,6 @@ static func build(
 	m.data_text = Strings.fill1("home.data", "v", NumberFormat.format(profile.data))
 	m.sector_text = Strings.fill1("home.sector", "n", "1")
 	m.best_known = best > 0
-	m.best_text = Strings.fill1("home.best", "n", str(best)) if best > 0 else Strings.get_text("home.best_none")
 	m.nav = MetaUnlocks.visible_nav(profile)
 	m.foundry_visible = MetaUnlocks.foundry_screen_unlocked(profile)
 	var nu: Vector2i = MetaUnlocks.next_unlock_line(upgrades, best)
@@ -82,7 +81,21 @@ static func build(
 			pr = c.power_rating
 	m.pr_text = Strings.fill1("home.pr", "v", str(roundi(pr)))
 	m._fill_modes(profile, mode_defs)
+	m.best_text = best_line(profile, m.selected_mode)
+	m.best_known = profile.best_wave_of_mode(m.selected_mode, 1) > 0
 	return m
+
+
+## The Home best line of one mode (M4-09): TIMED "BEST  W14" (as before), other modes "BEST PURGE 31",
+## "NO DEPLOYMENT YET" when that mode was never played.
+static func best_line(profile: PlayerProfile, mode_id: String) -> String:
+	var best: int = profile.best_wave_of_mode(mode_id, 1)
+	if best <= 0:
+		return Strings.get_text("home.best_none")
+	if mode_id == SimConfig.MODE_TIMED:
+		return Strings.fill1("home.best", "n", str(best))
+	var name_key: String = "mode." + mode_id
+	return Strings.fill("home.best_mode", {"name": Strings.get_text(name_key), "n": str(best)})
 
 
 ## Cards of the wave mode picker. The selection is `last_mode` when unlocked, else the first unlocked card, so a

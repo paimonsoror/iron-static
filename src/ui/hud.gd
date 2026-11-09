@@ -26,6 +26,9 @@ const PANEL_MAX_SHARE: float = 0.36
 ## Touch rect of the 80 px icon buttons: 80 + 2 x 23 = 126 px (48 dp).
 ## Timer bar frame inset: 24 px bar leaves 16 px tall segments (V1-27).
 const TIMER_INSET: float = 4.0
+## Right edge of the timer label: wide enough for "999 LEFT" in PURGE (the speed label starts at 700).
+const TIMED_LABEL_RIGHT: float = 620.0
+const PURGE_LABEL_RIGHT: float = 690.0
 const TOUCH_PAD_PX: float = 23.0
 
 ## Set true to force reduce motion (it is also read from `Game.visual.reduce_motion`).
@@ -35,6 +38,9 @@ var _speed_index: int = 0
 var _paused: bool = false
 var _model: HudModel = HudModel.new()
 var _last_wave: int = -1
+## PURGE (M4-09): enemies left in the wave quota (-1 = TIMED, the clock shows) and the backstop length in ticks.
+var _quota_left: int = -1
+var _bar_ticks: int = Ticks.WAVE_TICKS
 var _scrap_roll: NumberRoll = NumberRoll.new()
 var _data_roll: NumberRoll = NumberRoll.new()
 var _insets_dirty: bool = false
@@ -166,6 +172,9 @@ func refresh(world: SimWorld, now_s: float) -> void:
 	if not _model.due(now_s):
 		return
 	var boss: bool = world.is_boss_wave(world.wave)
+	var purge: bool = world.config.wave_mode == SimConfig.MODE_PURGE
+	_quota_left = PurgeClock.remaining_quota(world) if purge else -1  # read-only: the HUD never mutates the sim
+	_bar_ticks = PurgeClock.backstop_ticks(world) if purge else Ticks.WAVE_TICKS
 	_apply(
 		world.wave,
 		world.wave_tick,
@@ -210,13 +219,15 @@ func set_paused(paused: bool) -> void:
 func _apply(
 	wave: int, wave_tick: int, hp: float, max_hp: float, scrap: BigNum, data: BigNum, boss: bool, now_s: float
 ) -> void:
+	_timer_bar.max_value = float(_bar_ticks)  # PURGE: the thin bar is the 60 s backstop, not the wave clock
+	_timer_label.offset_right = PURGE_LABEL_RIGHT if _quota_left >= 0 else TIMED_LABEL_RIGHT
 	_timer_bar.value = float(wave_tick)
 	_integrity_bar.max_value = maxf(max_hp, 1.0)
 	_integrity_bar.value = clampf(hp, 0.0, maxf(max_hp, 1.0))
 	var roll: bool = now_s >= 0.0 and not _reduced()
 	var shown_scrap: BigNum = _rolled(_scrap_roll, scrap, now_s, roll)
 	var shown_data: BigNum = _rolled(_data_roll, data, now_s, roll)
-	_model.set_values(wave, hp, max_hp, shown_scrap, shown_data, wave_tick)
+	_model.set_values(wave, hp, max_hp, shown_scrap, shown_data, wave_tick, _quota_left)
 	_set_text(_wave_label, _model.wave_text)
 	_set_text(_timer_label, _model.timer_text)
 	_set_text(_hp_label, _model.hp_text)

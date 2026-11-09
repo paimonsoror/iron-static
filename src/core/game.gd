@@ -189,8 +189,11 @@ func start_run(mode: String = "") -> void:
 		Log.info("run resumed run=%d tick=%d" % [res.info.run_id, res.world.tick])
 		return
 	_pending_resume = null
+	var run_mode: String = RunMode.resolve(saves.profile, mode, mode_override)
+	var best_before: int = saves.profile.best_wave_of_mode(run_mode, 1)
 	@warning_ignore("return_value_discarded")
-	saves.start_run(RunMode.resolve(saves.profile, mode, mode_override))
+	saves.start_run(run_mode)
+	controller.mode_best_at_start = best_before  # Results: "NEW BEST" is per mode (M4-09)
 	Log.info(
 		(
 			"run started seed=%d run=%d mode=%s"

@@ -41,6 +41,7 @@ var _chip: TextureRect = null
 @onready var _holder: Control = %Holder
 @onready var _card: PanelContainer = %Card
 @onready var _title: Label = %TitleLabel
+@onready var _mode: Label = %ModeLabel
 @onready var _stripe: Panel = %Stripe
 @onready var _wave: Label = %WaveLabel
 @onready var _time: Label = %TimeLabel
@@ -73,6 +74,7 @@ func _ready() -> void:
 	_best.add_theme_color_override("font_color", Palette.TEXT_DIM)
 	_badge.add_theme_color_override("font_color", Palette.AMBER_GLOW)
 	_unlock_label.add_theme_color_override("font_color", Palette.TEAL)
+	_mode.add_theme_color_override("font_color", Palette.TEXT_DIM)
 	_save_warn.add_theme_color_override("font_color", Palette.WARNING)
 	_button.add_theme_color_override("font_color", Palette.AMBER_GLOW)
 	_button.add_theme_font_override("font", _title.get_theme_font("font", ThemeBuilder.VAR_LABEL_HEADING))
@@ -141,8 +143,14 @@ func _build_model() -> void:
 	_best.text = _model.best_text
 	_badge.visible = _model.new_best
 	_badge.text = _model.new_best_text
-	_unlock_panel.visible = not _model.chip_text.is_empty()
-	_unlock_label.text = _model.chip_text
+	_mode.visible = not _model.mode_text.is_empty()
+	_mode.text = _model.mode_text
+	var chips: PackedStringArray = PackedStringArray()
+	for line: String in [_model.chip_text, _model.mode_unlock_text]:
+		if not line.is_empty():
+			chips.append(line)
+	_unlock_panel.visible = not chips.is_empty()
+	_unlock_label.text = "\n".join(chips)
 	_save_warn.visible = not _model.save_warning_text.is_empty()
 	_save_warn.text = _model.save_warning_text
 	_foundry_button.visible = _model.foundry_visible

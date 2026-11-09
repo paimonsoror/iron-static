@@ -22,6 +22,24 @@ func test_update_is_throttled_to_ten_hz_and_keeps_cached_text() -> void:
 	assert_str(m.scrap_text).is_equal("SCRAP 900")
 
 
+func test_purge_quota_shows_n_left_instead_of_the_clock() -> void:
+	var m := HudModel.new()
+	m.set_values(5, 80.0, 100.0, BigNum.zero(), BigNum.zero(), 100, 6)
+	assert_str(m.timer_text).is_equal("6 LEFT")
+	m.set_values(5, 80.0, 100.0, BigNum.zero(), BigNum.zero(), 130, 5)
+	assert_str(m.timer_text).is_equal("5 LEFT")
+
+
+func test_timed_clock_text_is_unchanged_and_returns_after_purge() -> void:
+	var m := HudModel.new()
+	m.set_values(3, 80.0, 100.0, BigNum.zero(), BigNum.zero(), 300)
+	assert_str(m.timer_text).is_equal("14s")
+	m.set_values(3, 80.0, 100.0, BigNum.zero(), BigNum.zero(), 300, 2)
+	assert_str(m.timer_text).is_equal("2 LEFT")
+	m.set_values(3, 80.0, 100.0, BigNum.zero(), BigNum.zero(), 300)
+	assert_str(m.timer_text).is_equal("14s")
+
+
 func test_results_text_matches_layout_fields() -> void:
 	var run := RunStats.new()
 	run.death_wave = 47
