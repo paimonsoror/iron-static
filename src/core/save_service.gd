@@ -23,18 +23,23 @@ var last_load_status: LoadResult.Status = LoadResult.Status.FRESH
 var notice: String = ""
 ## Frame ids unlocked by the last banked run (the Results chip reads it; empty when none).
 var last_unlocked_frames: Array[String] = []
+## Mode ids unlocked by the last banked run or by the last load (the Results toast reads it; empty when none).
+var last_unlocked_modes: Array[String] = []
 ## True when the profile save after the last bank succeeded.
 var last_bank_saved: bool = false
 ## Count of successful profile writes (tests).
 var writes: int = 0
 ## Frame table (loaded lazily; tests may inject).
 var frame_defs: Array[FrameDef] = []
+## Wave mode table (loaded lazily; tests may inject).
+var mode_defs: Array[WaveModeDef] = []
 var _fs: SaveFs
 var _store: SaveStore
 var _controller: RunController = null
 var _device_id: String
 var _retry: bool = false
 var _frames_loaded: bool = false
+var _modes_loaded: bool = false
 
 
 func _init(fs: SaveFs, time_source: ClockSource, new_device_id: String) -> void:
@@ -67,6 +72,7 @@ func load_profile() -> LoadResult.Status:
 			profile = SaveSchema.profile_from_document(upgraded)
 			if not profile.load_errors.is_empty():
 				Log.warn("[SAVE] profile fields repaired: " + "; ".join(profile.load_errors))
+			last_unlocked_modes = ModeRules.apply_unlocks(profile, _modes())
 			if res.status == LoadResult.Status.RECOVERED:
 				notice = NOTICE_RECOVERED
 				@warning_ignore("return_value_discarded")  # failure is logged and retried by the scheduler
@@ -118,6 +124,7 @@ func reset_profile() -> bool:
 	scheduler.notify_saved()
 	notice = ""
 	last_unlocked_frames = []
+	last_unlocked_modes = []
 	last_bank_saved = false
 	last_error = ""
 	last_load_status = LoadResult.Status.FRESH
@@ -194,8 +201,10 @@ func bank_run(summary: RunSummary) -> bool:
 	last_unlocked_frames = FrameRules.bank(profile, summary, _frames())
 	var banked: bool = profile.last_banked_run != before
 	last_bank_saved = false
+	last_unlocked_modes = []
 	if not banked:
 		return false
+	last_unlocked_modes = ModeRules.apply_unlocks(profile, _modes())
 	last_bank_saved = save_now()
 	if last_bank_saved:
 		@warning_ignore("return_value_discarded")  # a stale snapshot is deleted at boot by the run id rule
@@ -242,6 +251,7 @@ static func summary_from(world: SimWorld, run_id: int, counts: bool) -> RunSumma
 	var s: RunSummary = RunSummary.make(
 		run_id, world.run.death_wave, world.economy.data_run, world.tick, world.run.kills, world.config.sector
 	)
+	s.mode = world.config.wave_mode
 	s.counts_for_progress = counts
 	return s
 
@@ -275,6 +285,14 @@ func _frames() -> Array[FrameDef]:
 			frame_defs = FrameRules.load_defs()
 		_frames_loaded = true
 	return frame_defs
+
+
+func _modes() -> Array[WaveModeDef]:
+	if not _modes_loaded:
+		if mode_defs.is_empty():
+			mode_defs = ModeRules.load_defs()
+		_modes_loaded = true
+	return mode_defs
 
 
 ## `<path>.reset`, numbered (`.reset.1`, ...) so an earlier reset's files are never overwritten.

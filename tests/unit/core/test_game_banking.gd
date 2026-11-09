@@ -137,3 +137,58 @@ func test_snapshot_cleared_only_after_profile_save_ordering() -> void:
 	fs.clear_faults()
 	assert_bool(s.save_now()).is_true()
 	_free(g)
+
+
+func _service() -> SaveService:
+	var s: SaveService = SaveService.new(fs, FakeClock.new(5), "x")
+	@warning_ignore("return_value_discarded")
+	s.load_profile()
+	return s
+
+
+func _summary(run_id: int, wave: int, mode: String, counts: bool = true) -> RunSummary:
+	var r: RunSummary = RunSummary.make(run_id, wave, BigNum.from_int(10), 900, 3)
+	r.mode = mode
+	r.counts_for_progress = counts
+	return r
+
+
+func test_service_banking_unlocks_purge_once_and_purge_runs_write_their_own_record() -> void:
+	var s: SaveService = _service()
+	var need: int = ModeRules.find_def(ModeRules.load_defs(), "purge").unlock_best_timed_wave
+	assert_bool(s.bank_run(_summary(s.profile.begin_run(), need - 1, "timed"))).is_true()
+	assert_array(s.last_unlocked_modes).is_empty()
+	assert_bool(s.bank_run(_summary(s.profile.begin_run(), need, "timed"))).is_true()
+	assert_array(s.last_unlocked_modes).is_equal(["purge"])
+	assert_bool(s.bank_run(_summary(s.profile.begin_run(), 35, "purge"))).is_true()
+	assert_array(s.last_unlocked_modes).is_empty()
+	assert_int(s.profile.best_wave_s1()).is_equal(need)
+	assert_int(s.profile.best_wave_of_mode("purge", 1)).is_equal(35)
+	var after_timed: float = s.profile.farm_rate_1x
+	assert_bool(s.bank_run(_summary(s.profile.begin_run(), 40, "purge"))).is_true()
+	assert_float(s.profile.farm_rate_1x).is_equal(after_timed)  # a PURGE bank leaves the EMA alone
+	var again: int = s.profile.run_counter
+	assert_bool(s.bank_run(_summary(again, 50, "purge"))).is_false()  # double bank
+	assert_int(s.profile.best_wave_of_mode("purge", 1)).is_equal(40)
+	var reloaded: SaveService = _service()
+	assert_array(reloaded.profile.modes_unlocked).is_equal(["timed", "purge"])
+	assert_int(reloaded.profile.best_wave_of_mode("purge", 1)).is_equal(40)
+
+
+func test_debug_run_changes_no_mode_state() -> void:
+	var s: SaveService = _service()
+	assert_bool(s.bank_run(_summary(s.profile.begin_run(), 99, "timed", false))).is_false()
+	assert_array(s.last_unlocked_modes).is_empty()
+	assert_array(s.profile.modes_unlocked).is_equal(["timed"])
+	assert_int(s.profile.best_wave_s1()).is_equal(0)
+
+
+func test_load_applies_unlocks_for_a_migrated_v1_save() -> void:
+	var need: int = ModeRules.find_def(ModeRules.load_defs(), "purge").unlock_best_timed_wave
+	var doc: Dictionary = {"schema_version": 1, "profile": {"best_wave": {"1": need + 5}}}
+	fs.files["profile.sav"] = SaveCodec.encode(SaveCodec.MAGIC_PROFILE, 1, SaveSchema.raw_from_document(doc))
+	var s: SaveService = _service()
+	assert_int(s.last_load_status).is_equal(LoadResult.Status.OK)
+	assert_array(s.profile.modes_unlocked).is_equal(["timed", "purge"])
+	assert_array(s.last_unlocked_modes).is_equal(["purge"])
+	assert_int(s.profile.best_wave_of_mode("timed", 1)).is_equal(need + 5)
