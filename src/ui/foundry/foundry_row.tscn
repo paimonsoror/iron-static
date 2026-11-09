@@ -1,0 +1,88 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/ui/foundry/foundry_row.gd" id="1_row"]
+[ext_resource type="Script" path="res://src/ui/row_fx.gd" id="2_fx"]
+
+[node name="FoundryRow" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 252)
+mouse_filter = 1
+script = ExtResource("1_row")
+
+[node name="Content" type="HBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="Icon" type="TextureRect" parent="Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="TopLine" type="HBoxContainer" parent="Content/Info"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="NameLabel" type="Label" parent="Content/Info/TopLine"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_type_variation = &"LabelHeading"
+clip_text = true
+
+[node name="LevelLabel" type="Label" parent="Content/Info/TopLine"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+
+[node name="ValueLabel" type="Label" parent="Content/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"LabelNumber"
+clip_text = true
+
+[node name="MilestoneLabel" type="Label" parent="Content/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+clip_text = true
+
+[node name="AffordLine" type="HBoxContainer" parent="Content/Info"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="AffordLabel" type="Label" parent="Content/Info/AffordLine"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+clip_text = true
+
+[node name="BuyButton" type="Button" parent="Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(288, 148)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+clip_text = true
+
+[node name="Fx" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_fx")
