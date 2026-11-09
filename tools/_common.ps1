@@ -38,6 +38,9 @@ function Invoke-Godot {
         $outTask = $p.StandardOutput.ReadToEndAsync()
         $errTask = $p.StandardError.ReadToEndAsync()
         if (-not $p.WaitForExit($TimeoutSec * 1000)) {
+            # Kill the whole tree: the *_console.exe wrapper starts the real Godot as a child, and killing only the
+            # wrapper left that child running and holding the project, so later runs hung too (2026-11-09).
+            & taskkill.exe /PID $p.Id /T /F 2>&1 | Out-Null
             try { $p.Kill() } catch { }
             throw "Godot timed out after $TimeoutSec s: $($psi.Arguments)"
         }
