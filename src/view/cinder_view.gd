@@ -119,6 +119,7 @@ func _draw() -> void:
 
 ## Teal (full) to amber (half) to red (quarter and below).
 static func _integrity_color(hp_frac: float) -> Color:
+	var pal: PaletteSet = Palette.current()
 	if hp_frac >= 0.5:
-		return Palette.AMBER.lerp(Palette.TEAL, (hp_frac - 0.5) / 0.5)
-	return Palette.CRITICAL.lerp(Palette.AMBER, clampf((hp_frac - 0.25) / 0.25, 0.0, 1.0))
+		return pal.amber.lerp(pal.teal, (hp_frac - 0.5) / 0.5)
+	return pal.critical.lerp(pal.amber, clampf((hp_frac - 0.25) / 0.25, 0.0, 1.0))

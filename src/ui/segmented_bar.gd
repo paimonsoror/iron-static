@@ -65,12 +65,13 @@ static func filled_count(v: float, max_v: float, n: int, ceil_mode: bool) -> int
 	return clampi(floori(f + EPS), 0, n)
 
 
-## Teal (full) to amber (half) to red (quarter and below); identical to `CinderView._integrity_color`.
+## Teal (full) to amber (half) to red (quarter and below) in the active palette; same as `CinderView._integrity_color`.
 static func ramp_color(frac: float) -> Color:
 	var f: float = clampf(frac, 0.0, 1.0)
+	var pal: PaletteSet = Palette.current()
 	if f >= 0.5:
-		return Palette.AMBER.lerp(Palette.TEAL, (f - 0.5) / 0.5)
-	return Palette.CRITICAL.lerp(Palette.AMBER, clampf((f - 0.25) / 0.25, 0.0, 1.0))
+		return pal.amber.lerp(pal.teal, (f - 0.5) / 0.5)
+	return pal.critical.lerp(pal.amber, clampf((f - 0.25) / 0.25, 0.0, 1.0))
 
 
 ## Flash strength 1 -> 0 over FLASH_S (0 at and after the end).
@@ -138,7 +139,7 @@ func _draw() -> void:
 			draw_texture_rect_region(sheet, r, _seg_off, Color.WHITE)
 			if flashing and i >= _flash_from and i < _flash_to:
 				var a: float = flash_strength(_flash_age)
-				draw_texture_rect_region(sheet, r, _seg_on, Color(Palette.CRITICAL, a))
+				draw_texture_rect_region(sheet, r, _seg_on, Color(Palette.current().critical, a))
 	if ticks:
 		_draw_ticks(sheet, inner)
 

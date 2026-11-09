@@ -108,9 +108,11 @@ func apply_state(clock_s: float, band: int, alive: int) -> void:
 	_set_fx(&"sweep_enabled", ArenaFxParams.flag(sweep_on))
 	_set_fx(&"pulse_enabled", ArenaFxParams.flag(pulse_on))
 	_set_fx(&"density", ArenaFxParams.density_fade(alive))
+	_set_fx(&"bg_dim", _visual.background_dim())
 	_set_fx(&"sweep_phase", ArenaFxParams.sweep_phase(clock_s) if sweep_on else 0.0)
 	_set_fx(&"pulse_phase", ArenaFxParams.pulse_phase(clock_s) if pulse_on else 0.0)
 	_set_ov(&"scan_alpha", _visual.effective_scanlines())
+	_set_ov(&"haze_color", _visual.palette().critical)  # the low-HP danger haze follows the colorblind palette
 	_set_ov(&"low_hp", snappedf(low_hp, 0.001))
 	_apply_motes()
 
@@ -132,7 +134,7 @@ func _apply_layout() -> void:
 
 
 func _apply_motes() -> void:
-	var want: bool = _visual.quality.motes and not _visual.reduce_motion
+	var want: bool = _visual.quality.motes and not _visual.reduce_motion and not _visual.high_contrast
 	if _motes.emitting != want:
 		_motes.emitting = want
 		_motes.visible = want

@@ -1,0 +1,33 @@
+# IRON STATIC accessibility palettes (M4-24). Read at runtime by Palette.for_mode (res://assets/art/palettes.csv, `keep` importer like slots.csv).
+# mode: off | deuteranopia | protanopia | tritanopia (gameplay color remaps) or high_contrast (UI and background rules, independent of the colorblind mode).
+# role: amber (Cinder, information, mid integrity), teal (friendly, full integrity), hostile (enemy rim/glow and tint_hostile), fire (enemy bolts), critical (low integrity, danger).
+# high_contrast roles: text, text_dim, text_disabled (plate text colors), plate (plate fill), edge (plate border), bg_dim (background layer brightness multiplier, 0..1).
+# Values for deuteranopia, protanopia and tritanopia follow 07 s5.4 and were checked with Machado (2009) severity 1.0 simulation in tests/unit/view/test_palettes.gd.
+# `fire` and `critical` in the red-green modes are additions: the spec hostile magenta-violet would otherwise collide with the magenta bolts and the red low-integrity color.
+mode,role,value
+off,amber,#FFB000
+off,teal,#2EE6D6
+off,hostile,#FF2D4B
+off,fire,#FF4FD8
+off,critical,#FF3B30
+deuteranopia,amber,#FFD84D
+deuteranopia,teal,#2EE6D6
+deuteranopia,hostile,#FF5CF0
+deuteranopia,fire,#FFF7B0
+deuteranopia,critical,#FF5CF0
+protanopia,amber,#FFD84D
+protanopia,teal,#2EE6D6
+protanopia,hostile,#FF5CF0
+protanopia,fire,#FFF7B0
+protanopia,critical,#FF5CF0
+tritanopia,amber,#FFB000
+tritanopia,teal,#7CFFB0
+tritanopia,hostile,#FF2D4B
+tritanopia,fire,#FF4FD8
+tritanopia,critical,#FF3B30
+high_contrast,text,#FFFFFF
+high_contrast,text_dim,#D8D8D8
+high_contrast,text_disabled,#B8B8B8
+high_contrast,plate,#000000
+high_contrast,edge,#FFFFFF
+high_contrast,bg_dim,0.45

@@ -102,3 +102,65 @@ const ACCENT_DART := Color("#FF4FD8")
 const ACCENT_WALKER := Color("#FF7A1A")
 const ACCENT_LANCER := Color("#A35CFF")
 const ACCENT_BOSS := Color("#FF1F3D")
+
+# --- Accessibility palettes (M4-24) ---------------------------------------------------------------------------
+const PALETTES_PATH: String = "res://assets/art/palettes.csv"
+const MODES: Array[String] = ["off", "deuteranopia", "protanopia", "tritanopia"]
+const HIGH_CONTRAST: String = "high_contrast"
+
+## The set the HUD, Cinder ring and integrity bars read; changed only by `set_active` (VisualSettings does).
+static var active: PaletteSet = null
+static var active_contrast: bool = false
+static var _sets: Dictionary = {}
+
+
+## The palette of a colorblind mode ("off" and unknown ids give the normal one) or of "high_contrast".
+## Loaded once from `assets/art/palettes.csv`; the returned set is shared, never modify it.
+static func for_mode(id: String) -> PaletteSet:
+	_ensure_loaded()
+	var key: String = id if _sets.has(id) else "off"
+	var found: PaletteSet = _sets[key]
+	return found
+
+
+## Makes `mode` the active gameplay palette and records the high-contrast flag (no allocation after the first load).
+static func set_active(mode: String, contrast: bool) -> void:
+	active = for_mode(mode)
+	active_contrast = contrast
+
+
+## The active gameplay palette (the normal one before anything was set).
+static func current() -> PaletteSet:
+	if active == null:
+		active = for_mode("off")
+	return active
+
+
+static func _ensure_loaded() -> void:
+	if not _sets.is_empty():
+		return
+	for id: String in MODES + [HIGH_CONTRAST]:
+		var fresh := PaletteSet.new()
+		fresh.mode = id
+		_sets[id] = fresh
+	var f: FileAccess = FileAccess.open(PALETTES_PATH, FileAccess.READ)
+	if f == null:
+		push_error("Palette: cannot read %s" % PALETTES_PATH)
+	else:
+		for line: String in f.get_as_text().split("\n"):
+			_read_line(line.strip_edges())
+	for id: String in _sets:
+		var s: PaletteSet = _sets[id]
+		s.finish()
+
+
+static func _read_line(line: String) -> void:
+	if line.is_empty() or line.begins_with("#") or line.begins_with("mode,"):
+		return
+	var cols: PackedStringArray = line.split(",")
+	if cols.size() < 3 or not _sets.has(cols[0]):
+		push_error("Palette: bad palettes.csv row '%s'" % line)
+		return
+	var s: PaletteSet = _sets[cols[0]]
+	if not s.set_role(cols[1], cols[2]):
+		push_error("Palette: bad role or value in row '%s'" % line)

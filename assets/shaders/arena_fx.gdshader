@@ -24,6 +24,7 @@ uniform float pulse_phase : hint_range(0.0, 1.0) = 0.0;
 uniform float sweep_enabled : hint_range(0.0, 1.0) = 1.0;
 uniform float pulse_enabled : hint_range(0.0, 1.0) = 1.0;
 uniform float density : hint_range(0.0, 1.0) = 1.0;
+uniform float bg_dim : hint_range(0.0, 1.0) = 1.0;  // high contrast (M4-24): floor, grid, sweep and rings are dimmed so units stand out
 
 // radial stand-off remap, mirrors ViewMath.map_dist
 uniform float standoff_px = 72.0;
@@ -128,5 +129,5 @@ void fragment() {
 	// optic range ring
 	light += pulse_color.rgb * aa_line(abs(r - optic_range_px), 2.0) * optic_alpha * step(0.5, optic_range_px);
 
-	COLOR = vec4(base + light, 1.0);
+	COLOR = vec4((base + light) * bg_dim, 1.0);
 }

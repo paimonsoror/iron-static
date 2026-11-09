@@ -51,7 +51,15 @@ static var _shared: Theme = null
 static func shared() -> Theme:
 	if _shared == null:
 		_shared = build()
+		if Palette.active_contrast:
+			ThemeContrast.apply(_shared, true)
 	return _shared
+
+
+## Re-skins the shared theme (if it was built) for high contrast on/off (M4-24); a later `shared()` honors it.
+static func refresh_contrast(on: bool) -> void:
+	if _shared != null:
+		ThemeContrast.apply(_shared, on)
 
 
 static func build() -> Theme:
