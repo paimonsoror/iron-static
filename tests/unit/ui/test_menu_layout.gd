@@ -18,12 +18,12 @@ func _screen(size: Vector2, safe: Vector4) -> HomeScreen:
 func test_column_rect_math() -> void:
 	var m := Vector4(10.0, 130.0, 20.0, 48.0)
 	var p: Rect2 = MenuColumn.rect(Vector2(1080.0, 2341.0), m, LayoutMode.Mode.PORTRAIT)
-	assert_that(p).is_equal(Rect2(10.0, 130.0, 1050.0, 2163.0))
+	assert_that(p).is_equal(Rect2(110.0, 130.0, 850.0, 2163.0))
 	var w: Rect2 = MenuColumn.rect(Vector2(1990.0, 1920.0), Vector4.ZERO, LayoutMode.Mode.WIDE)
 	assert_float(w.size.x).is_equal(1080.0)
 	assert_float(w.get_center().x).is_equal_approx(995.0, 0.01)
 	var narrow: Rect2 = MenuColumn.rect(Vector2(1000.0, 1920.0), Vector4.ZERO, LayoutMode.Mode.WIDE)
-	assert_float(narrow.size.x).is_equal(1000.0)
+	assert_float(narrow.size.x).is_equal(1000.0 - 2.0 * UiKit.MENU_SIDE_MARGIN)
 	var degenerate: Rect2 = MenuColumn.rect(
 		Vector2(100.0, 100.0), Vector4(80.0, 0.0, 80.0, 0.0), LayoutMode.Mode.PORTRAIT
 	)
@@ -34,7 +34,7 @@ func test_phone_1080x2400_title_inside_the_view() -> void:
 	var s: HomeScreen = _screen(Vector2(1080.0, 2400.0), Vector4.ZERO)
 	assert_int(s.layout_mode()).is_equal(LayoutMode.Mode.PORTRAIT)
 	var r: Rect2 = s.column_rect()
-	assert_that(r).is_equal(Rect2(0.0, 0.0, 1080.0, 2400.0))
+	assert_that(r).is_equal(Rect2(100.0, 0.0, 880.0, 2400.0))
 	assert_bool(r.encloses(_title_rect(s))).is_true()
 
 

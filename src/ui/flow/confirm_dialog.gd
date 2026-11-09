@@ -7,7 +7,8 @@ extends Control
 signal confirmed
 signal cancelled
 
-const WIDTH: float = 880.0
+## Plate width: the 1080 reference minus the shared side margin on both sides.
+const WIDTH: float = 1080.0 - 2.0 * UiKit.MENU_SIDE_MARGIN
 const TITLE_PX: int = 72
 const BODY_PX: int = 44
 

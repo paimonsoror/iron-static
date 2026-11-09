@@ -10,6 +10,11 @@ extends RefCounted
 ##   UiKit.style_icon_button(button, "icon_ic_pause")                    # icon IS the face, no extra plate
 ##   bar: draw_style_box(UiKit.bar_frame(), rect) + UiKit.segment_region(true)
 
+## Menu side margin in base px (1080 reference): nothing in a menu screen or dialog is drawn closer than this to the
+## left/right edge of the safe area. Matches the pause card (880 px wide on 1080 = 100 px each side). Applied by
+## `MenuColumn.rect` (every `MenuScreen`: Home, Frame Bay, Foundry, Settings, Title, save problem) and `ConfirmDialog`.
+const MENU_SIDE_MARGIN: float = 100.0
+
 const SLOT_PLATE: String = "ui_panel_plate"
 const SLOT_PLATE_ACTIVE: String = "ui_panel_plate_active"
 const SLOT_INSET: String = "ui_panel_inset"

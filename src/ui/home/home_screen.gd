@@ -15,7 +15,7 @@ signal frames_pressed
 signal mode_selected(id: String)
 
 const TOP_ROW_H: float = 148.0
-const HEADING_PX: int = 80
+const HEADING_PX: int = 72
 const DEPLOY_H: float = 200.0
 const DEPLOY_PX: int = 84
 const CHIP_PX: int = 44
