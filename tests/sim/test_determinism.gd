@@ -32,3 +32,27 @@ func test_different_seeds_differ() -> void:
 	var b: PackedStringArray = _hashes(2)
 	assert_str(a[2]).is_not_equal(b[2])
 	assert_str(a[1]).is_not_equal(b[1])
+
+
+func _purge_hashes(seed_value: int) -> PackedStringArray:
+	var cfg: SimConfig = SimConfigLoader.load_default(seed_value)
+	assert_int(SimConfigLoader.apply_mode(cfg, "purge").size()).is_equal(0)
+	cfg.debug_invulnerable = true
+	var w: SimWorld = SimWorld.new(cfg)
+	var out: PackedStringArray = PackedStringArray()
+	for t: int in range(1, TICKS + 1):
+		w.step()
+		if t == 100 or t == 1000 or t == TICKS:
+			@warning_ignore("return_value_discarded")
+			out.append(w.state_hash())
+	return out
+
+
+func test_purge_same_seed_same_hash_and_differs_from_timed() -> void:
+	var a: PackedStringArray = _purge_hashes(1)
+	var b: PackedStringArray = _purge_hashes(1)
+	assert_int(a.size()).is_equal(3)
+	for i: int in 3:
+		assert_str(a[i]).is_equal(b[i])
+	assert_str(_purge_hashes(2)[2]).is_not_equal(a[2])
+	assert_str(_hashes(1)[2]).is_not_equal(a[2])

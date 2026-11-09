@@ -146,3 +146,36 @@ func test_foundry_and_frame_runs_restore() -> void:
 	assert_str(back.state_hash()).is_equal(w.state_hash())
 	# A snapshot of one frame never restores under another.
 	assert_object(SimSnapshot.restore(_cfg(4), SimSnapshot.capture(w))).is_null()
+
+
+func _purge_cfg(seed_value: int = 3) -> SimConfig:
+	var cfg: SimConfig = _cfg(seed_value)
+	assert_int(SimConfigLoader.apply_mode(cfg, "purge").size()).is_equal(0)
+	return cfg
+
+
+func test_peek_returns_the_wave_mode_and_restore_checks_it() -> void:
+	var timed: SimWorld = SimWorld.new(_cfg())
+	_run(timed, 300)
+	assert_str(SimSnapshot.peek(SimSnapshot.capture(timed, 1)).wave_mode).is_equal("timed")
+	var w: SimWorld = SimWorld.new(_purge_cfg())
+	_run(w, 900)
+	var bytes: PackedByteArray = SimSnapshot.capture(w, 4)
+	assert_str(SimSnapshot.peek(bytes).wave_mode).is_equal("purge")
+	var back: SimWorld = SimSnapshot.restore(_purge_cfg(), bytes)
+	assert_object(back).is_not_null()
+	assert_str(back.state_hash()).is_equal(w.state_hash())
+	assert_array(SimSnapshot.capture(back, 4)).is_equal(bytes)
+	assert_object(SimSnapshot.restore(_cfg(), bytes)).is_null()  # a timed config does not take a PURGE snapshot
+
+
+func test_snapshot_without_a_mode_key_is_timed() -> void:
+	var w: SimWorld = SimWorld.new(_cfg())
+	_run(w, 300)
+	var d: Dictionary = bytes_to_var(SimSnapshot.capture(w, 2))
+	assert_bool(d.erase("mode")).is_true()
+	var old: PackedByteArray = var_to_bytes(d)
+	assert_str(SimSnapshot.peek(old).wave_mode).is_equal("timed")
+	var back: SimWorld = SimSnapshot.restore(_cfg(), old)
+	assert_object(back).is_not_null()
+	assert_str(back.state_hash()).is_equal(w.state_hash())

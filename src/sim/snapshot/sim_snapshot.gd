@@ -27,6 +27,7 @@ static func capture(world: SimWorld, run_id: int = -1) -> PackedByteArray:
 		"sector": cfg.sector,
 		"best_wave_s1": cfg.best_wave_s1,
 		"ruleset": cfg.ruleset,
+		"mode": cfg.wave_mode,
 		"debug_invulnerable": cfg.debug_invulnerable,
 		"wave_tick": world.wave_tick,
 		"level_hp": world.level_hp,
@@ -68,6 +69,7 @@ static func peek(bytes: PackedByteArray) -> SnapshotInfo:
 	i.sector = d["sector"]
 	i.best_wave_s1 = d["best_wave_s1"]
 	i.ruleset = d["ruleset"]
+	i.wave_mode = _mode(d)
 	i.debug_invulnerable = d["debug_invulnerable"]
 	return i
 
@@ -93,6 +95,7 @@ static func restore(cfg: SimConfig, bytes: PackedByteArray) -> SimWorld:
 		or sector != cfg.sector
 		or best != cfg.best_wave_s1
 		or ruleset != cfg.ruleset
+		or _mode(d) != cfg.wave_mode
 		or invuln != cfg.debug_invulnerable
 		or frame_id != cfg.frame_id
 	):
@@ -269,3 +272,9 @@ static func _sub(d: Dictionary, key: String) -> Dictionary:
 	var v: Variant = d[key]
 	var sub: Dictionary = v
 	return sub
+
+
+## Wave mode of a snapshot; a pre-M4 snapshot has no "mode" key and is a TIMED run.
+static func _mode(d: Dictionary) -> String:
+	var v: Variant = d.get("mode", SimConfig.MODE_TIMED)
+	return v if typeof(v) == TYPE_STRING else SimConfig.MODE_TIMED

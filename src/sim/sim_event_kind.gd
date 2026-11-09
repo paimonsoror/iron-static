@@ -13,4 +13,5 @@ const BAND_CHANGED: int = 7  ## a = old band, b = new band
 const BOSS_SPAWNED: int = 8  ## a = enemy index
 const RUN_ENDED: int = 9  ## a = wave, b = death cause (enemy type index, -1 none)
 const UPGRADE_BOUGHT: int = 10  ## a = upgrade row index, b = new level
-const COUNT: int = 11
+const WAVE_PURGED: int = 11  ## a = wave number, b = ticks used; before WAVE_ENDED, PURGE clears only
+const COUNT: int = 12

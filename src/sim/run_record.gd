@@ -10,6 +10,8 @@ extends RefCounted
 ## order of the recording config; absent = all zero) and "frame":"<id>" (absent = vanguard). `apply_to` restores the
 ## Foundry levels by id; the Foundry factors `f` and the frame modifiers are config data the caller supplies
 ## (the config hash detects a mismatch).
+## M4-05: optional "mode":"purge" (absent = timed). `apply_to` sets `cfg.wave_mode`; the backstop and reward numbers are
+## config data like the Foundry factors, so build the config with `SimConfigLoader.apply_mode(cfg, rec.mode)` first.
 
 const FORMAT: int = 1
 
@@ -22,6 +24,7 @@ var ruleset: String = "standard"
 var debug_invulnerable: bool = false
 var foundry: String = ""
 var frame_id: String = "vanguard"
+var mode: String = SimConfig.MODE_TIMED
 var final_tick: int = 0
 var death_wave: int = 0
 var final_hash: String = ""
@@ -40,6 +43,7 @@ static func from_world(world: SimWorld) -> RunRecord:
 	r.debug_invulnerable = cfg.debug_invulnerable
 	r.foundry = _foundry_text(cfg)
 	r.frame_id = cfg.frame_id
+	r.mode = cfg.wave_mode
 	r.final_tick = world.tick
 	r.death_wave = world.run.death_wave
 	r.final_hash = world.state_hash()
@@ -54,6 +58,7 @@ func apply_to(cfg: SimConfig) -> void:
 	cfg.best_wave_s1 = best_wave_s1
 	cfg.ruleset = ruleset
 	cfg.debug_invulnerable = debug_invulnerable
+	cfg.wave_mode = mode
 	_apply_foundry(cfg)
 	if frame_id != cfg.frame_id:
 		if frame_id == "vanguard":
@@ -93,6 +98,8 @@ func to_json() -> String:
 		d["foundry"] = foundry
 	if frame_id != "vanguard":
 		d["frame"] = frame_id
+	if mode != SimConfig.MODE_TIMED:
+		d["mode"] = mode
 	return JSON.stringify(d)
 
 
@@ -117,6 +124,7 @@ static func from_json(text: String) -> RunRecord:
 	r.final_hash = _gets(d, "final_hash", "")
 	r.foundry = _gets(d, "foundry", "")
 	r.frame_id = _gets(d, "frame", "vanguard")
+	r.mode = _gets(d, "mode", SimConfig.MODE_TIMED)
 	var packed: String = _gets(d, "commands", "")
 	var t: int = 0
 	if packed != "":

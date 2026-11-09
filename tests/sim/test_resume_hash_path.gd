@@ -11,9 +11,10 @@ const WATCH: Array[int] = [2000, KILL_TICK]
 const FOUNDRY: Dictionary = {"laser_output": 3, "hull_integrity": 2}
 
 
-func _cfg(foundry: Dictionary) -> SimConfig:
+func _cfg(foundry: Dictionary, mode: String = "timed") -> SimConfig:
 	var cfg: SimConfig = SimConfigLoader.load_default(SEED)
 	SimConfigLoader.apply_foundry(cfg, foundry)
+	assert_int(SimConfigLoader.apply_mode(cfg, mode).size()).is_equal(0)
 	return cfg
 
 
@@ -43,14 +44,15 @@ func _factory(foundry: Dictionary) -> Callable:
 		var cfg: SimConfig = SimConfigLoader.load_default(info.seed_value)
 		cfg.best_wave_s1 = info.best_wave_s1
 		SimConfigLoader.apply_foundry(cfg, foundry)
+		assert_int(SimConfigLoader.apply_mode(cfg, info.wave_mode).size()).is_equal(0)
 		return cfg
 
 
-func _check(foundry: Dictionary) -> void:
-	var reference: PackedStringArray = _path(SimWorld.new(_cfg(foundry)), -1)
+func _check(foundry: Dictionary, mode: String = "timed") -> void:
+	var reference: PackedStringArray = _path(SimWorld.new(_cfg(foundry, mode)), -1)
 	var fs: MemorySaveFs = MemorySaveFs.new()
 	var cp: RunCheckpointer = RunCheckpointer.new(RunCheckpointer.make_store(fs))
-	var live: SimWorld = SimWorld.new(_cfg(foundry))
+	var live: SimWorld = SimWorld.new(_cfg(foundry, mode))
 	while live.tick < KILL_TICK:
 		if live.tick > 0 and live.tick % CHECK_EVERY == 0:
 			assert_bool(cp.checkpoint(live, RUN_ID)).is_true()
@@ -58,6 +60,7 @@ func _check(foundry: Dictionary) -> void:
 	# kill: discard the world and the checkpointer, keep only the files
 	var cp2: RunCheckpointer = RunCheckpointer.new(RunCheckpointer.make_store(fs))
 	var res: ResumeResult = cp2.try_resume(_factory(foundry), 2)
+	assert_str(res.info.wave_mode).is_equal(mode)
 	assert_int(res.status).is_equal(ResumeResult.Status.RESUMED)
 	assert_int(res.world.tick).is_equal(1800)
 	assert_int(res.info.run_id).is_equal(RUN_ID)
@@ -85,3 +88,7 @@ func test_resume_follows_identical_hash_path() -> void:
 
 func test_resume_follows_identical_hash_path_with_foundry() -> void:
 	_check(FOUNDRY)
+
+
+func test_purge_resume_follows_identical_hash_path() -> void:
+	_check({}, "purge")

@@ -74,3 +74,12 @@ func begin(new_wave: int, carry: bool = false) -> void:
 	carried = kept
 	count = kept
 	cursor = 0
+
+
+## Entries of this wave's own plan (not carried over) that are still unspawned (PURGE quota, M4-03).
+func remaining_unspawned() -> int:
+	var n: int = 0
+	for i: int in range(maxi(cursor, carried), count):
+		if spawned[i] == 0:
+			n += 1
+	return n
