@@ -14,7 +14,7 @@ extends Node
 ##   --mode <id>|--mode=<id>  start every run in that wave mode, ignoring the lock (M4-08, e.g. `--mode purge`)
 ## Save arg (all builds): --no-save keeps the profile and run snapshot in memory (tests, tools; M3-14).
 
-const VERSION: String = "0.0.1"
+const VERSION: String = "0.5.0-beta.1"
 const ARG_DEBUG_LOAD: String = "--debug-load"
 const ARG_DEBUG_PERF: String = "--debug-perf"
 const ARG_STYLE_FRAME: String = "--style-frame"
