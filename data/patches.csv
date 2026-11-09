@@ -1,0 +1,11 @@
+# In-run patches (M4-13, GDD 02 s10). op: bonus = stat x (1 + per_pick x qty); mult = stat x per_pick^qty; add = stat + per_pick x qty points (plating_pct only). stat may list several stats separated by ';' (patch_extraction). A gamble row names its cost: cost_stat cost_op cost_value, applied once per pick together with the benefit (cost_op is always mult). Strings come from data/strings_en.csv through name_key and desc_key.
+id,kind,stat,op,per_pick,max_picks,cost_stat,cost_op,cost_value,name_key,desc_key,tag,source
+patch_overcharge,standard,laser_output,bonus,0.15,5,,,,patch.overcharge.name,patch.overcharge.desc,MVP,gdd:02 s10.1
+patch_plating,standard,hull_integrity,bonus,0.20,5,,,,patch.plating.name,patch.plating.desc,MVP,gdd:02 s10.1
+patch_rate,standard,cycle_rate,bonus,0.10,5,,,,patch.rate.name,patch.rate.desc,MVP,gdd:02 s10.1
+patch_extraction,standard,scrap_yield;data_yield,bonus,0.15,5,,,,patch.extraction.name,patch.extraction.desc,MVP,gdd:02 s10.1
+patch_regen,standard,nano_repair,bonus,0.50,5,,,,patch.regen.name,patch.regen.desc,MVP,gdd:02 s10.1
+patch_ceramic,standard,plating_pct,add,0.04,5,,,,patch.ceramic.name,patch.ceramic.desc,MVP,gdd:02 s10.1
+patch_t_glass,gamble,laser_output,mult,1.5,1,hull_integrity,mult,0.70,patch.t_glass.name,patch.t_glass.desc,MVP,gdd:02 s10.2
+patch_t_greed,gamble,data_yield,mult,1.8,1,hull_integrity,mult,0.50,patch.t_greed.name,patch.t_greed.desc,MVP,gdd:02 s10.2
+patch_t_hardhide,gamble,enemy_damage,mult,0.60,1,laser_output,mult,0.60,patch.t_hardhide.name,patch.t_hardhide.desc,MVP,gdd:02 s10.2

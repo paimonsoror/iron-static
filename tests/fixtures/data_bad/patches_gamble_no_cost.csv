@@ -1,0 +1,2 @@
+id,kind,stat,op,per_pick,max_picks,cost_stat,cost_op,cost_value,name_key,desc_key,tag,source
+patch_t_glass,gamble,laser_output,mult,1.5,1,,,,patch.t_glass.name,patch.t_glass.desc,MVP,gdd:02 s10.2

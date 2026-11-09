@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="PatchTable" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/patch_table.gd" id="1_script"]
+[ext_resource type="Script" path="res://src/data_defs/patch_def.gd" id="2_item"]
+[ext_resource type="Resource" path="res://src/data_gen/patch_overcharge.tres" id="item_0"]
+[ext_resource type="Resource" path="res://src/data_gen/patch_plating.tres" id="item_1"]
+[ext_resource type="Resource" path="res://src/data_gen/patch_rate.tres" id="item_2"]
+[ext_resource type="Resource" path="res://src/data_gen/patch_extraction.tres" id="item_3"]
+[ext_resource type="Resource" path="res://src/data_gen/patch_regen.tres" id="item_4"]
+[ext_resource type="Resource" path="res://src/data_gen/patch_ceramic.tres" id="item_5"]
+[ext_resource type="Resource" path="res://src/data_gen/patch_t_glass.tres" id="item_6"]
+[ext_resource type="Resource" path="res://src/data_gen/patch_t_greed.tres" id="item_7"]
+[ext_resource type="Resource" path="res://src/data_gen/patch_t_hardhide.tres" id="item_8"]
+
+[resource]
+script = ExtResource("1_script")
+defs = Array[ExtResource("2_item")]([ExtResource("item_0"), ExtResource("item_1"), ExtResource("item_2"), ExtResource("item_3"), ExtResource("item_4"), ExtResource("item_5"), ExtResource("item_6"), ExtResource("item_7"), ExtResource("item_8")])

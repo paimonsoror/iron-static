@@ -74,3 +74,12 @@ extends Resource
 @export var exposure_t2: float = 0.0
 @export var exposure_t3: float = 0.0
 @export var exposure_hysteresis: float = 0.0
+
+# Patch draft (GDD 02 section 10; M4-13, used by the draft system from M4-15)
+@export var draft_first_wave: int = 0
+@export var draft_interval: int = 0
+@export var draft_interval_after: int = 0
+@export var draft_interval_late: int = 0
+@export var draft_offer_count: int = 0
+@export var draft_mix_standard: float = 0.0
+@export var draft_mix_gamble: float = 0.0

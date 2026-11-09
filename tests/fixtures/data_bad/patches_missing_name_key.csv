@@ -1,0 +1,2 @@
+id,kind,stat,op,per_pick,max_picks,cost_stat,cost_op,cost_value,name_key,desc_key,tag,source
+patch_overcharge,standard,laser_output,bonus,0.15,5,,,,,patch.overcharge.desc,MVP,gdd:02 s10.1

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="PatchDef" format=3]
+
+[ext_resource type="Script" path="res://src/data_defs/patch_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "patch_extraction"
+kind = "standard"
+stat = "scrap_yield;data_yield"
+op = "bonus"
+per_pick = 0.15
+max_picks = 5
+cost_stat = ""
+cost_op = ""
+cost_value = 1.0
+name_key = "patch.extraction.name"
+desc_key = "patch.extraction.desc"
+tag = "MVP"
