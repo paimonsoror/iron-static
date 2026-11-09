@@ -1,5 +1,5 @@
 shader_type canvas_item;
-// IRON STATIC title smoke (M3-25, design 11 section 2.1): one cheap fbm layer (value noise, 3 octaves) on a
+// IRON STATIC title smoke (M3-25, design 11 section 2.1): one cheap fbm layer (a sample of a baked tileable noise texture) on a
 // ColorRect. Three of these (different speeds, tints, bands) make the smoke; LOW uses one.
 // `blend_premul_alpha`: rgb is premultiplied and `additive` (0..1) moves weight from alpha into pure addition, so
 // the same shader draws dark alpha smoke (additive 0) and amber-lit haze (additive near 1).
@@ -36,36 +36,15 @@ uniform float hi_hole_h : hint_range(0.01, 0.5) = 0.1;
 uniform float hi_hole_amount : hint_range(0.0, 1.0) = 0.5;
 
 
-// Every noise step is highp: Godot's Compatibility renderer defaults fragment floats to mediump on Android, and
-// the fp16 hash/fract collapsed the value noise into hard rectangular blocks on the device (desktop is always fp32).
-highp float hash21(highp vec2 p) {
-	p = fract(p * vec2(123.34, 456.21));
-	p += dot(p, p + 45.32);
-	return fract(p.x * p.y);
-}
-
-
-highp float vnoise(highp vec2 p) {
-	highp vec2 i = floor(p);
-	highp vec2 f = fract(p);
-	highp vec2 u = f * f * (3.0 - 2.0 * f);
-	highp float a = hash21(i);
-	highp float b = hash21(i + vec2(1.0, 0.0));
-	highp float c = hash21(i + vec2(0.0, 1.0));
-	highp float d = hash21(i + vec2(1.0, 1.0));
-	return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-}
+// The fbm is baked into a seamless 256x256 grayscale texture (tools/gen_smoke_noise.py): 3 value-noise octaves, one
+// tile = 8 lattice units of the old per-pixel noise. The old hash/value-noise maths collapsed into hard rectangular
+// blocks on the Pixel's PowerVR GPU (ANGLE) even with highp, so the shader only does texture reads and coordinate maths.
+uniform sampler2D noise_tex : repeat_enable, filter_linear, hint_default_white;
+const highp float TILE_UNITS = 8.0;
 
 
 highp float fbm(highp vec2 p) {
-	highp float v = 0.0;
-	highp float a = 0.5;
-	for (int i = 0; i < 3; i++) {
-		v += a * vnoise(p);
-		p = p * 2.03 + vec2(17.1, 9.7);
-		a *= 0.5;
-	}
-	return v / 0.875;
+	return texture(noise_tex, p / TILE_UNITS).r;
 }
 
 

@@ -6,6 +6,7 @@ extends RefCounted
 
 const DIR: String = "res://assets/art/title/src/"
 const SHADER_SMOKE: String = "res://assets/shaders/title_smoke.gdshader"
+const SMOKE_NOISE: String = "res://assets/art/title/noise/smoke_fbm.png"
 const SHADER_LOGO: String = "res://assets/shaders/title_logo.gdshader"
 const SHADER_OVERLAY: String = "res://assets/shaders/arena_overlay.gdshader"
 const STAGE_W: float = 2160.0
@@ -84,6 +85,7 @@ static func smoke_rect(idx: int, params: Dictionary) -> ColorRect:
 	var m := ShaderMaterial.new()
 	m.shader = load(SHADER_SMOKE) as Shader
 	m.set_shader_parameter("rect_px", size)
+	m.set_shader_parameter("noise_tex", load(SMOKE_NOISE) as Texture2D)
 	for k: Variant in params:
 		m.set_shader_parameter(str(k), params[k])
 	r.material = m
