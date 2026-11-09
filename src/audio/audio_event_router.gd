@@ -157,7 +157,7 @@ func _route(kind: int, a: int, b: int) -> void:
 			_play(SFX_PLAYER_HIT)
 		SimEventKind.WAVE_STARTED:
 			_play(SFX_WAVE)
-		SimEventKind.BOSS_SPAWNED:
+		SimEventKind.BOSS_WARNING, SimEventKind.BOSS_SPAWNED:  # M4-17: drone at the warning and on arrival
 			_play(SFX_BOSS)
 		SimEventKind.RUN_ENDED:
 			_play(SFX_RUN_END)

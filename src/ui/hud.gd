@@ -41,6 +41,7 @@ var _last_wave: int = -1
 ## PURGE (M4-09): enemies left in the wave quota (-1 = TIMED, the clock shows) and the backstop length in ticks.
 var _quota_left: int = -1
 var _bar_ticks: int = Ticks.WAVE_TICKS
+var _boss_warn: HudBossWarning = null
 var _scrap_roll: NumberRoll = NumberRoll.new()
 var _data_roll: NumberRoll = NumberRoll.new()
 var _insets_dirty: bool = false
@@ -85,6 +86,10 @@ func _ready() -> void:
 	_pause_button.pressed.connect(_on_pause_pressed)
 	_speed_button.touch_pad = TOUCH_PAD_PX
 	_pause_button.touch_pad = TOUCH_PAD_PX
+	_boss_warn = HudBossWarning.new()
+	_boss_warn.name = "BossWarning"
+	add_child(_boss_warn)
+	_boss_warn.boss_arrived.connect(_on_boss_arrived)
 	_panel.buy_requested.connect(_on_buy_requested)
 	_panel.resized.connect(_mark_insets_dirty)
 	resized.connect(_on_resized)
@@ -169,6 +174,8 @@ func wave_banner() -> WaveBanner:
 func refresh(world: SimWorld, now_s: float) -> void:
 	if _panel.bound_world() != world:
 		_panel.bind(world)
+	_boss_warn.reduce_motion = _reduced()
+	_boss_warn.update(world, field_rect(), _chip_anchor())
 	if not _model.due(now_s):
 		return
 	var boss: bool = world.is_boss_wave(world.wave)
@@ -313,3 +320,22 @@ static func _style_counter(p: Panel, icon_slot: String) -> void:
 	icon.position = COUNTER_ICON_POS
 	icon.size = Vector2(COUNTER_ICON_PX, COUNTER_ICON_PX)
 	p.add_child(icon)
+
+
+## The boss warning layer (M4-17, tests).
+func boss_warning() -> HudBossWarning:
+	return _boss_warn
+
+
+## Right of the wave counter text, vertically centred on it (the chip's spot).
+func _chip_anchor() -> Vector2:
+	var r: Rect2 = _wave_label.get_global_rect()
+	var text_w: float = _wave_label.get_minimum_size().x
+	return (
+		r.position - global_position + Vector2(minf(text_w, r.size.x) + HudBossWarning.CHIP_SIZE * 1.6, r.size.y * 0.5)
+	)
+
+
+## The boss is on the field: the banner names it (BOSS_SPAWNED, M4-17).
+func _on_boss_arrived() -> void:
+	_banner.play(Strings.get_text("hud.warning"), true, Strings.get_text("hud.boss_incoming"), _reduced())

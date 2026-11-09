@@ -237,3 +237,4 @@ intel.stats.chain_frame,FRAME {v}
 intel.stats.chain_patch,PATCH {v}
 intel.stats.chain_dps,OUTPUT x RATE x CRIT {v}
 intel.stats.chain_none,NO MODIFIERS
+hud.boss_incoming,BOSS INCOMING
