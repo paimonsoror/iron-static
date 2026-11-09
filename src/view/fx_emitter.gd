@@ -15,6 +15,9 @@ const EMBER_LOW := Color("#FF8A1F")
 const CHAR_FLAKE := Color("#7A5A48")
 const WARNING := Color("#FFC21A")
 const TEAL := Color("#2EE6D6")
+## VT-4 sizes are authored in the style frame (docs/design/style/upgrade_tiers) at sprite factor 0.85; this brings them
+## to the factor-1 px that `_add` then scales like every other recipe.
+const VT_SIZE_K: float = 1.0 / 0.85
 
 ## Sim time in seconds.
 var now: float = 0.0
@@ -25,15 +28,21 @@ var fx_scale: float = 1.0
 var reduce_motion: bool = false
 var rings_enabled: bool = true
 var sparks_per_hit: int = 6
+## VisualQuality tier index (0 HIGH, 1 MID, 2 LOW) for the VT-4 effects (deflection sparks, repair motes).
+var quality_tier: int = 0
+## Bearing (radians) of the latest `cinder_hit()` on the armor ring; `deflect()` fires at the same point.
+var last_hit_angle: float = 0.0
 var additive: ParticlePool
 var smoke: ParticlePool
 var _rng := RandomNumberGenerator.new()
+var _fx_rng := RandomNumberGenerator.new()  # VT-4 effects: own stream, so tiers never shift the other recipes
 
 
 func _init(add_pool: ParticlePool = null, smoke_pool: ParticlePool = null) -> void:
 	additive = add_pool if add_pool != null else ParticlePool.new()
 	smoke = smoke_pool if smoke_pool != null else ParticlePool.new()
 	_rng.seed = 20260515
+	_fx_rng.seed = 20261109
 
 
 ## Hit impact at `pos`; `toward` is the unit direction sparks mostly fly (back toward the shooter).
@@ -216,6 +225,7 @@ func band_better() -> void:
 ## Cinder was hit: 4 red-orange sparks at a random point of the armor ring.
 func cinder_hit(accent: Color) -> void:
 	var a: float = _rng.randf() * TAU
+	last_hit_angle = a
 	var pos: Vector2 = Vector2.from_angle(a) * cinder_radius_px
 	for k: int in FxRecipes.CINDER_HIT_SPARKS:
 		var v: Vector2 = Vector2.from_angle(a + _rng.randf_range(-0.9, 0.9)) * _rng.randf_range(180.0, 320.0)
@@ -223,6 +233,56 @@ func cinder_hit(accent: Color) -> void:
 		col.a = 0.95
 		var len_px: float = _rng.randf_range(16.0, 28.0)
 		_add(pos, v, 0.0, 0.22, Vector2(len_px, len_px * 0.4), col, _spark_kind())
+
+
+## VT-4: teal-white ricochet at the plate edge (bearing `angle` on the armor ring), `tier_scale` = the PLATED tier's
+## spark_scale (1.0 to 1.4). HIGH: flash, ring, halo, flare + 5 to 6 sparks fanned to both sides of the normal;
+## MID: 4 sparks and no ring; reduce motion: 3 sparks and no ring; LOW: nothing. Returns the particles written.
+func deflect(angle: float, tier_scale: float) -> int:
+	var n: int = FxRecipes.deflect_sparks(quality_tier, reduce_motion, tier_scale)
+	if n <= 0:
+		return 0
+	var sc: float = tier_scale * VT_SIZE_K
+	var pos: Vector2 = Vector2.from_angle(angle) * cinder_radius_px * FxRecipes.DEFLECT_EDGE
+	var teal: Color = Palette.current().teal
+	var white := Color(0.85, 1.0, 0.98, 1.0)
+	var before: int = additive.total_written
+	_add(pos, Vector2.ZERO, 0.0, 0.1, Vector2(20.0, 26.0) * sc, Color(white, 0.6), ParticlePack.KIND_FLASH)
+	if rings_enabled and not reduce_motion and quality_tier == 0:
+		_add(pos, Vector2.ZERO, 0.0, 0.2, Vector2(30.0, 64.0) * sc, Color(teal, 0.8), ParticlePack.KIND_RING_THIN)
+	_add(pos, Vector2.ZERO, 0.0, 0.2, Vector2(46.0, 60.0) * sc, Color(teal, 0.3), ParticlePack.KIND_HALO)
+	_add(pos, Vector2.ZERO, 0.0, 0.16, Vector2(34.0, 42.0) * sc, Color(white, 0.7), ParticlePack.KIND_FLARE4)
+	for k: int in n:
+		var side: float = -1.0 if k % 2 == 0 else 1.0
+		var a: float = angle + side * _fx_rng.randf_range(0.55, 1.0)
+		var v: Vector2 = Vector2.from_angle(a) * _fx_rng.randf_range(300.0, 470.0)
+		var len_px: float = _fx_rng.randf_range(44.0, 78.0) * sc
+		var col: Color = teal.lerp(Color.WHITE, _fx_rng.randf_range(0.2, 0.7))
+		col.a = 0.95
+		var kind: int = ParticlePack.KIND_SPARK_A + _fx_rng.randi_range(0, 2)
+		_add(pos, v, 0.0, 0.24, Vector2(len_px, len_px * 0.22), col, kind)
+	return additive.total_written - before
+
+
+## VT-4: one repair mote just outside the plates at bearing `angle`. `speed` px/s along the tangent (0 = it fades in
+## place, reduce motion), `size` px; `halo` adds the soft glow particle. Lives MOTE_LIFE_S. Returns particles written.
+func mote(angle: float, speed: float, size: float, halo: bool) -> int:
+	var k: float = VT_SIZE_K
+	var rr: float = cinder_radius_px * _fx_rng.randf_range(1.02, 1.32)
+	var pos: Vector2 = Vector2.from_angle(angle) * rr
+	var v := Vector2.ZERO
+	if speed > 0.0:
+		v = Vector2.from_angle(angle + PI * 0.5) * speed * _fx_rng.randf_range(0.75, 1.1)
+		v += Vector2.from_angle(angle) * 14.0
+	var teal: Color = Palette.current().teal
+	var col: Color = teal.lerp(Color.WHITE, _fx_rng.randf_range(0.1, 0.45))
+	col.a = 0.95
+	var life: float = FxRecipes.MOTE_LIFE_S
+	_add(pos, v, 0.0, life, Vector2(size, size * 0.6) * k, col, ParticlePack.KIND_EMBER_A)
+	if not halo:
+		return 1
+	_add(pos, v, 0.0, life, Vector2(size * 3.2, size * 2.0) * k, Color(teal, 0.55), ParticlePack.KIND_HALO)
+	return 2
 
 
 ## Cinder died: a big white flash (kept under reduce motion) and one ring.
