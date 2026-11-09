@@ -116,7 +116,7 @@ Today: three strip quads (glow 36, core 8, hot 3 px; widths x1.5 on a crit), end
 | Mark | Glow / core / hot | Core color | Impact | Muzzle | Extra |
 |---|---|---|---|---|---|
 | I | 36 / 8 / 3 (today) | `LASER_CORE` | none | x1.0 | none |
-| II | 54 / 13 / 5 | 35% toward white | 4-point flare 70 px | x1.15 | none |
+| II | 66 / 17 / 6 (built; the frame had 54 / 13 / 5) | 55% toward white | 4-point flare 84 px | x1.2 | none |
 | III | 76 / 18 / 8 | 70% toward white, glow shifts toward `AMBER_GLOW` | 8-point flare 104 px plus a thin ring 84 px | x1.3 | none |
 | IV | 100 / 24 / 11 | pure white-hot | 8-point flare 136 px plus ring 118 px | x1.5 | teal-white rim layer at 30%, charge ripple: 6 bright bands travel emitter to target |
 

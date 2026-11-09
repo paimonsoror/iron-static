@@ -13,4 +13,4 @@ threshold = 5
 label_key = "vt.mark.2"
 banner_key = "vt.banner.laser"
 art_slot = "-"
-params = "glow=54;core=13;hot=5;flare=70;ring=0;whiten=0.35;rim=0.0;ripple=0;muzzle=1.15"
+params = "glow=66;core=17;hot=6;flare=84;ring=0;whiten=0.55;rim=0.0;ripple=0;muzzle=1.2"

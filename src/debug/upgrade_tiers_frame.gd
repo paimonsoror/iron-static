@@ -154,7 +154,7 @@ func _panel(o: Dictionary) -> Image:
 		beams.visible = false
 		beam = UtBeam.new()
 		beam.px_scale = view.sprite_factor()
-		beam.look = _tiers.params("laser_output", _oi(o, "laser", 1))
+		beam.tier_params = _tiers.params("laser_output", _oi(o, "laser", 1))
 		beam.ripple_phase = 0.3
 		view.add_child(beam)
 		view.move_child(beam, beams.get_index())
