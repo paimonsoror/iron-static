@@ -13,6 +13,8 @@ var _mobile: MobileShell
 var _router: ScreenRouter
 ## Sim events -> sounds and adaptive music (A1-05, A1-07).
 var _audio: AudioEventRouter
+## Sim events -> haptic pulses (M4-22).
+var _haptic_hooks: HapticHooks
 
 @onready var _battle: BattleView = %BattleView
 @onready var _hud: Hud = %Hud
@@ -27,6 +29,7 @@ func _ready() -> void:
 	Log.info("boot ok")
 	_controller = Game.controller
 	_audio = AudioEventRouter.new(Game.audio)
+	_haptic_hooks = HapticHooks.new(Game.haptics)
 	_hud.speed_changed.connect(_on_speed_changed)
 	_hud.pause_toggled.connect(_on_pause_toggled)
 	_hud.buy_requested.connect(Game.request_buy)
@@ -75,14 +78,17 @@ func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
 		_battle.render(_controller.driver.acc / TickDriver.DT)
 		_controller.time_scale = _battle.time_scale()  # slow-mo: view-only pacing for the next frame
 		_audio.update()
+		_haptic_hooks.update()
 	else:
 		_audio.skip()  # debug load fast-forward: no sound for the unrendered ticks
+		_haptic_hooks.skip()
 	_hud.refresh(_controller.world, Time.get_ticks_msec() / 1000.0)
 
 
 func _on_run_started(world: SimWorld) -> void:
 	_results.hide_results()
 	_battle.bind(world)
+	_haptic_hooks.bind(world)
 	_audio.bind(world)  # in-run music state and music start; a redeploy resets the cursor and the menu flag
 
 

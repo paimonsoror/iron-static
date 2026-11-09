@@ -39,6 +39,8 @@ var style_frame: bool = false
 var visual: VisualSettings = VisualSettings.new()
 ## SFX and adaptive music (A1). Presentation only: never read by the sim; phase-2 hooks call into it.
 var audio: AudioDirector = AudioDirector.new()
+## Haptic pulses (M4-22): device motor on Android, no-op on desktop; `enabled` is the haptics setting (M4-23).
+var haptics: Haptics = Haptics.create()
 ## Persistence (M3-12, no autoloads added): the profile lives in `saves.profile`.
 var saves: SaveService
 var clock: ClockSource = SystemClock.new()
