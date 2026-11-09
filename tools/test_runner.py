@@ -268,6 +268,11 @@ def run_canary(godot: str, timeout: int) -> int:
             shutil.copytree(REPO_ROOT / d, copy / d)
     shutil.copytree(REPO_ROOT / "tests" / "canary", copy / "tests" / "canary")
 
+    # Warm-up import: the first import of a brand-new copy is racy on CI (half-imported addon icons, threaded
+    # import notifications), and those errors made canary 1 exit 2 instead of 1. A second import in the pipeline
+    # then finds everything in place. The canary still proves the runner catches failures.
+    run_godot(godot, copy, ["--import"], timeout)
+
     print("== canary 1: failing test must give exit 1")
     c1 = run_pipeline(godot, copy, "res://tests/canary", None, timeout, quiet=True)
 
