@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://src/ui/results_overlay.gd" id="1_results"]
+[ext_resource type="Script" path="res://src/ui/results/results_body.gd" id="2_body"]
 
 [node name="ResultsOverlay" type="Control"]
 visible = false
@@ -52,158 +53,13 @@ theme_type_variation = &"PanelPlate"
 [node name="Column" type="VBoxContainer" parent="Holder/Card"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 16
 
-[node name="TitleLabel" type="Label" parent="Holder/Card/Column"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"LabelHeading"
-theme_override_font_sizes/font_size = 64
-text = "DEPLOYMENT ENDED"
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="ModeLabel" type="Label" parent="Holder/Card/Column"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_font_sizes/font_size = 42
-text = "TIMED MODE"
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="Stripe" type="Panel" parent="Holder/Card/Column"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 16)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="ChipPanel" type="PanelContainer" parent="Holder/Card/Column"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-mouse_filter = 2
-theme_type_variation = &"PanelInset"
-
-[node name="ChipLabel" type="Label" parent="Holder/Card/Column/ChipPanel"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 46
-text = "FRAME UNLOCKED"
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
-
-[node name="Stats" type="PanelContainer" parent="Holder/Card/Column"]
+[node name="Body" type="VBoxContainer" parent="Holder/Card/Column"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_type_variation = &"PanelInset"
-
-[node name="Rows" type="VBoxContainer" parent="Holder/Card/Column/Stats"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 14
-
-[node name="WaveRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 18
-
-[node name="WaveLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/WaveRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 46
-vertical_alignment = 1
-
-[node name="TimeRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 18
-
-[node name="TimeLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/TimeRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 46
-vertical_alignment = 1
-
-[node name="KillsRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 18
-
-[node name="KillsLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/KillsRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 46
-vertical_alignment = 1
-
-[node name="CauseRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 18
-
-[node name="CauseLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/CauseRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 46
-vertical_alignment = 1
-
-[node name="DataRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 18
-
-[node name="DataLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/DataRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 46
-vertical_alignment = 1
-
-[node name="ScrapRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 18
-
-[node name="ScrapLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/ScrapRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 46
-vertical_alignment = 1
-
-[node name="BestRow" type="HBoxContainer" parent="Holder/Card/Column/Stats/Rows"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 18
-
-[node name="BestLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/BestRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 46
-vertical_alignment = 1
-
-[node name="BadgeLabel" type="Label" parent="Holder/Card/Column/Stats/Rows/BestRow"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_font_sizes/font_size = 46
-text = "NEW BEST"
-vertical_alignment = 1
+script = ExtResource("2_body")
 
 [node name="SaveWarnLabel" type="Label" parent="Holder/Card/Column"]
 unique_name_in_owner = true

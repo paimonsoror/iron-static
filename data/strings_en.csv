@@ -200,3 +200,19 @@ draft.title,PATCH DRAFT (wave {n})
 draft.picks,PICKS: {list}
 draft.gamble,GAMBLE
 draft.note,Patches last this deployment
+results.wave_big,WAVE {n}
+results.best_short,BEST {n}
+results.killed_by,DESTROYED BY
+results.stat_time,TIME
+results.stat_kills,KILLS
+results.stat_data,DATA
+results.stat_scrap,SCRAP
+results.data_gain,+{v}
+results.data_total,TOTAL {t}
+results.kill_count,x{n}
+results.unknown_killer,UNKNOWN
+enemy.name.skitter,SKITTER
+enemy.name.dart,DART
+enemy.name.walker,WALKER
+enemy.name.lancer,LANCER
+enemy.name.boss_hulk,HULK

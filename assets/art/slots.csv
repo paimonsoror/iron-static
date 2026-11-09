@@ -125,6 +125,8 @@ icon_ic_play,icons/ic_play.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,ic
 icon_ic_settings,icons/ic_settings.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
 icon_ic_lock,icons/ic_lock.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
 icon_ic_check,icons/ic_check.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_ic_clock,icons/ic_clock.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
+icon_ic_kills,icons/ic_kills.svg,,,128,128,0,0,128,128,1,64,64,,,0,1,,0,,normal,icon,ready,"128x128 viewBox, DPI independent"
 cinder_bulwark_frame,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_frame_hot,1024,1024,0,0,448,448,1,224,224,,100,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
 cinder_bulwark_emitter_ring,cinder_bulwark.svg,cinder_bulwark_glow.svg,cinder_bulwark_emitter_glow,1024,1024,448,0,448,448,1,224,224,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet
 cinder_bulwark_wedge_a_intact,cinder_bulwark.svg,,,1024,1024,0,448,128,112,1,64,196,,,2,1,,4,,normal,cinder,ready,cell of the cinder bulwark body sheet

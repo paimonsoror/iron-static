@@ -1,6 +1,6 @@
 # 07 - UX, UI, Art and Audio
 
-Changelog: 2026-11-08 (A1-08/09: s7 all 40 SFX ids are produced and slotted, five wired to existing events, loudness scheme in docs/playtests/a1/A1-01_sketch.md; A1-GATE approved by the user) - 2026-11-08 (V1-28: s2 wide layout for near-square screens) - 2026-11-08 (V1-25: s2.1 wireframe is the compact HUD, s2.2 buying rule implemented) - 2026-11-08 (A1 audio pass: s7 rewritten - Claude-synthesized audio in swappable slots, ambient-to-industrial direction, 4/4 meter rule, sfx_upgrade_buy now steps up in pitch during a hold-to-buy) - 2026-11-08 (M2-16: unaffordable-text contrast note, see 09 Q48) - 2026-11-08 - V1 visual pass: `10_art_bible.md` is now the authority for all visuals (style, sizes, sprite slots, VFX looks and budgets, HUD styling); sections 5.1, 5.3 and 5.6 below are reconciled with it (illustrated SVG sprites replace procedural-only enemies and Cinder; glow is baked additive; VFX/skin-burn polish and battle HUD styling moved from M4 to V1). Palette hex values (5.2), VFX ids (6), damage numbers (5.5), accessibility (4, 5.4) and layout/wireframes (1-3) are unchanged. 2026-11-07 - Gauntlet screen and shop Pass tab tagged P1 (not in the Launch build); title IRON STATIC (icon and splash use the title text only on the splash).
+Changelog: 2026-11-09 (M4: s2.10 results screen is image-first: wave as the biggest text, killer sprite card, icon stat tiles, kill strip of enemy sprites with x{count}, compact unlock badges) - 2026-11-08 (A1-08/09: s7 all 40 SFX ids are produced and slotted, five wired to existing events, loudness scheme in docs/playtests/a1/A1-01_sketch.md; A1-GATE approved by the user) - 2026-11-08 (V1-28: s2 wide layout for near-square screens) - 2026-11-08 (V1-25: s2.1 wireframe is the compact HUD, s2.2 buying rule implemented) - 2026-11-08 (A1 audio pass: s7 rewritten - Claude-synthesized audio in swappable slots, ambient-to-industrial direction, 4/4 meter rule, sfx_upgrade_buy now steps up in pitch during a hold-to-buy) - 2026-11-08 (M2-16: unaffordable-text contrast note, see 09 Q48) - 2026-11-08 - V1 visual pass: `10_art_bible.md` is now the authority for all visuals (style, sizes, sprite slots, VFX looks and budgets, HUD styling); sections 5.1, 5.3 and 5.6 below are reconciled with it (illustrated SVG sprites replace procedural-only enemies and Cinder; glow is baked additive; VFX/skin-burn polish and battle HUD styling moved from M4 to V1). Palette hex values (5.2), VFX ids (6), damage numbers (5.5), accessibility (4, 5.4) and layout/wireframes (1-3) are unchanged. 2026-11-07 - Gauntlet screen and shop Pass tab tagged P1 (not in the Launch build); title IRON STATIC (icon and splash use the title text only on the splash).
 
 **Visual authority:** `docs/design/10_art_bible.md` (V1 visual pass). Where this chapter and the art bible differ on look, sizes, sprites, effects or budgets, the art bible wins; this chapter keeps layout, UX flows, the palette values, ids, damage-number rules, accessibility and audio.
 
@@ -140,14 +140,22 @@ Nav items unlock progressively (02/05 unlock order); locked items are hidden, no
 The battlefield dims 60% and freezes behind the overlay. Gamble cards have a different border (dashed amber) and show both benefit and cost in two lines.
 
 ### 2.10 Results screen
+Image-first (M4): readable in about two seconds, numbers and pictures, few words. Top to bottom, in one chamfered plate:
 ```
-| DEPLOYMENT ENDED   wave 47  (best 45 +2)|
-| time 11:42  kills 1,204  cause: lancer  |
-| DATA +18.4K   (x1.00 surge)             |
-| damage by type: laser 72% kinetic 20% ...|
-| [FOUNDRY  3 upgrades affordable]        |
-| [REDEPLOY]  [HOME]   [ad: revive used]  |
+| [PURGE]            BEST 31 [NEW BEST] |  mode chip, short best line, badge only when the mode record moved
+|              WAVE 31                  |  the wave reached, biggest text on the screen
+| ///////////////////////////////////// |
+| DESTROYED BY                          |  card: the killer's battle sprite (same art slot as the battle), small name
+|              (sprite)                 |
+|               HULK                    |
+| [clock 15m 12s]   [kills 570]         |  stat tiles: icon + number + one word
+| [data +2.6K  TOTAL 381] [scrap 4.18K] |  data tile has the new total as a small second line
+| [skit x412][dart x96][..][boss x1]    |  kill strip: one sprite per type killed, most kills first, boss on the highlighted plate
+| [check FRAME UNLOCKED: BULWARK]       |  compact badges (frame art or check icon); PURGE MODE UNLOCKED the same way
+| SAVE FAILED                           |  only when the bank save failed
+| [REDEPLOY]  [FOUNDRY n AFFORDABLE]  [HOME]
 ```
+Data: per-type kills are `RunStats.kills_by_type` (already in the snapshot and the state hash); enemy names are `enemy.name.<id>`. New icons `ic_clock` and `ic_kills` follow the art bible icon style. The entry animation reveals the five sections (header, killer, tiles, strip, badges) 0.12 s apart; numbers still count up and end on the exact value; reduce motion shows the final screen at once.
 
 ## 3. First-time user experience (first 10 minutes)
 

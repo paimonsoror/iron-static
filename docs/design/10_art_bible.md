@@ -292,7 +292,7 @@ Top bar plate (chamfered) holding `hud_wave` (stencil "WAVE" small + number big,
 - **Upgrades (10, M2 ids)**: `laser_output` (beam through a lens), `cycle_rate` (circular arrows over a pulse), `crit_chance` (target reticle with a spark), `crit_mult` (starburst x), `optic_range` (concentric rings with a scale), `hull_integrity` (plate with a hex bolt), `nano_repair` (wrench + plus, teal), `plating_pct` (stacked plates), `scrap_yield` (bent plate stack, `SCRAP` color), `reinvest` (loop arrow over a coin-less plate).
 - **Tabs (4)**: `tab_arms`, `tab_chassis`, `tab_systems`, `tab_intel`.
 - **Currencies (5)**: `cur_scrap` (bent plate), `cur_data` (hex cell), `cur_flux` (diamond), `cur_cipher` (key ring), `cur_merit` (chevron star), colors per 07 s5.2.
-- **HUD (6)**: `ic_speed`, `ic_pause`, `ic_play`, `ic_settings`, `ic_lock`, `ic_check`.
+- **HUD (8)**: `ic_speed`, `ic_pause`, `ic_play`, `ic_settings`, `ic_lock`, `ic_check`, `ic_clock` (time survived, amber), `ic_kills` (hostile wedge struck through, red; results screen, M4).
 - Icon style (09 Q45): **bold flat glyphs on a chamfered plate** (recommended) vs thin outline icons; no text in icons; 2 px minimum strokes at 96 px.
 
 ### 7.5 Numbers and motion

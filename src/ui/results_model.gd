@@ -25,14 +25,35 @@ var chip_text: String = ""
 var mode_text: String = ""
 var mode_unlock_text: String = ""
 var save_warning_text: String = ""
+## Image-first fields (M4): the header chip ("TIMED"), the big wave line, short best line, the stat tile values and
+## captions, the killer and the kill strip entries (most kills first).
+var mode_chip_text: String = ""
+## Id of the first frame this run unlocked ("" none), for the badge art.
+var chip_frame_id: String = ""
+var wave_big_text: String = ""
+var best_short_text: String = ""
+var time_value_text: String = ""
+var kills_value_text: String = ""
+var scrap_value_text: String = ""
+var data_total_text: String = ""
+var killer_id: String = ""
+var killer_name_text: String = ""
+var kill_entries: Array[KillEntry] = []
 
 var _banked: BankedInfo = null
 var _total_text: String = ""
 
 
 ## `cause` is the already localized killer name ("" or unknown id gives UNKNOWN). `banked` null: no bank line.
+## `enemy_ids` (enemy table order) and `killer` feed the kill strip and the killer card (empty: none).
 static func from_run(
-	run: RunStats, economy: EconomyState, ticks: int, cause: String, banked: BankedInfo = null
+	run: RunStats,
+	economy: EconomyState,
+	ticks: int,
+	cause: String,
+	banked: BankedInfo = null,
+	enemy_ids: PackedStringArray = PackedStringArray(),
+	killer: String = ""
 ) -> ResultsModel:
 	var m: ResultsModel = ResultsModel.new()
 	m._banked = banked
@@ -47,14 +68,30 @@ static func from_run(
 	m.home_text = Strings.get_text("results.home")
 	m.redeploy_text = Strings.get_text("results.redeploy")
 	m.new_best_text = Strings.get_text("results.new_best")
+	m.wave_big_text = Strings.fill1("results.wave_big", "n", str(run.death_wave))
+	m.time_value_text = NumberFormat.format_time(seconds)
+	m.kills_value_text = NumberFormat.format(BigNum.from_int(run.kills))
+	m.scrap_value_text = NumberFormat.format(BigNum.from_float(run.scrap_earned))
+	m.killer_id = killer
+	m.killer_name_text = Strings.get_text("results.unknown_killer")
+	if not killer.is_empty():
+		m.killer_name_text = KillEntry.display_name(killer)
+	m.kill_entries = KillEntry.list(run.kills_by_type, enemy_ids)
 	var banked_now: String = NumberFormat.format(economy.data_run)
 	m.data_text = Strings.fill1("results.data", "v", banked_now)
 	m.best_text = Strings.get_text("results.best")
+	m.best_short_text = Strings.fill1("results.best_short", "n", "--")
 	if banked != null and banked.has_bank:
 		m._total_text = NumberFormat.format(banked.data_total)
+		m.data_total_text = Strings.fill1("results.data_total", "t", m._total_text)
 		m.data_text = m.data_line(banked_now)
 		m._fill_banked(run.death_wave, banked)
 	return m
+
+
+## The data tile number ("+84") for a (possibly still counting up) banked value text.
+func data_gain(value_text: String) -> String:
+	return Strings.fill1("results.data_gain", "v", value_text)
 
 
 ## The data row for a (possibly still counting up) banked value text.
@@ -69,6 +106,8 @@ func _fill_banked(death_wave: int, banked: BankedInfo) -> void:
 	var name_key: String = "mode." + banked.mode
 	var mode_name: String = Strings.get_text(name_key)
 	mode_text = Strings.fill1("results.mode", "name", mode_name)
+	mode_chip_text = mode_name
+	best_short_text = Strings.fill1("results.best_short", "n", str(banked.new_best))
 	best_text = Strings.fill("results.best_mode", {"name": mode_name, "n": str(banked.new_best)})
 	if not banked.unlocked_modes.is_empty():
 		mode_unlock_text = Strings.get_text("mode.unlocked_toast")
@@ -81,6 +120,8 @@ func _fill_banked(death_wave: int, banked: BankedInfo) -> void:
 	var names: PackedStringArray = PackedStringArray()
 	for id: String in banked.unlocked_frames:
 		names.append(Strings.get_text("frame.name." + id))
+	if not banked.unlocked_frames.is_empty():
+		chip_frame_id = banked.unlocked_frames[0]
 	if not names.is_empty():
 		chip_text = Strings.fill1(FrameRules.KEY_CHIP, "name", ", ".join(names))
 	if banked.save_failed:
