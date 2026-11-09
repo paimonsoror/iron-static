@@ -183,15 +183,16 @@ func tick(dt: float) -> int:
 
 
 ## Starts a normal deployment: next run id from the profile, Q61 seed, Foundry levels and the selected frame.
+## `mode` is the wave mode id ("" = TIMED; `Game.start_run` resolves it).
 ## The controller's current `best_wave_s1` (a debug override, session only) can only raise the profile's.
-func start_run() -> SimWorld:
+func start_run(mode: String = "") -> SimWorld:
 	var run_id: int = profile.begin_run()
 	request_save()
 	var best: int = maxi(profile.best_wave_s1(), _controller.best_wave_s1)
 	_controller.best_wave_s1 = best
 	var run_seed: int = RunController.DEFAULT_SEED + run_id - 1
 	var frame_id: String = FrameRules.selected_id(profile, _frames())
-	return _controller.start_run(run_seed, false, 0, profile.foundry, run_id, frame_id)
+	return _controller.start_run(run_seed, false, 0, profile.foundry, run_id, frame_id, mode)
 
 
 ## Banks a finished run (`FrameRules.bank`: profile bank plus frame unlocks), saves synchronously and only

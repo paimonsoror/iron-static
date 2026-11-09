@@ -59,6 +59,7 @@ func start_run(
 	foundry_levels: Dictionary = {},
 	new_run_id: int = 0,
 	frame_id: String = "",
+	mode: String = "",
 ) -> SimWorld:
 	seed_value = new_seed
 	run_id = new_run_id
@@ -71,6 +72,10 @@ func start_run(
 		var applied: bool = SimConfigLoader.apply_frame(cfg, frame_id)  # unknown id: push_error, stays VANGUARD
 		if not applied:
 			Log.warn("run start: frame '%s' not applied" % frame_id)
+	if not mode.is_empty():
+		var mode_errors: PackedStringArray = SimConfigLoader.apply_mode(cfg, mode)  # unknown id: stays TIMED, no push_error
+		if not mode_errors.is_empty():
+			Log.warn("run start: " + mode_errors[0])
 	world = SimWorld.new(cfg)
 	driver = TickDriver.new()
 	load_wave = load_target

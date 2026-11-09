@@ -12,6 +12,7 @@ signal deploy_pressed
 signal foundry_pressed
 signal settings_pressed
 signal frames_pressed
+signal mode_selected(id: String)
 
 const TOP_ROW_H: float = 148.0
 const HEADING_PX: int = 80
@@ -39,6 +40,7 @@ var data_label: Label
 var best_label: Label
 var sector_label: Label
 var frame_button: Button
+var mode_picker: ModePicker
 var hint_label: Label
 var diorama: HomeDiorama
 var model: HomeModel = null
@@ -86,6 +88,9 @@ func _build() -> void:
 	content.add_child(frame_button)
 	hint_chip = _plate_button("", _on_foundry, ThemeBuilder.VAR_BUTTON_AFFORDABLE, CHIP_PX)
 	content.add_child(hint_chip)
+	mode_picker = ModePicker.new()
+	mode_picker.mode_selected.connect(_on_mode_selected)
+	content.add_child(mode_picker)
 	deploy_button = _plate_button(
 		Strings.get_text("home.deploy"), _on_deploy, ThemeBuilder.VAR_BUTTON_AFFORDABLE, DEPLOY_PX
 	)
@@ -117,6 +122,7 @@ func enter() -> void:
 
 func leave() -> void:
 	set_process(false)
+	_consume_unlock_chip()
 
 
 func refresh() -> void:
@@ -135,6 +141,9 @@ func refresh() -> void:
 	nav_foundry.visible = model.foundry_visible
 	nav_row.visible = model.nav_visible()
 	diorama.set_frame(model.frame_id)
+	mode_picker.setup(model.mode_cards, model.selected_mode)
+	if not model.unlock_chip_text.is_empty():
+		mode_picker.show_info(model.unlock_chip_text)
 
 
 func _process(delta: float) -> void:
@@ -259,6 +268,22 @@ func _bracketed(plate: PanelContainer) -> Control:
 	plate.minimum_size_changed.connect(sync_min)
 	sync_min.call()
 	return host
+
+
+## The chip shows once: leaving Home clears the flag (saved with the next profile save).
+func _consume_unlock_chip() -> void:
+	var p: PlayerProfile = _profile if _profile != null else Game.profile()
+	if p != null and ModeUnlockFlag.clear(p) and _profile == null:
+		Game.saves.request_save()
+
+
+## A segment was chosen: remember it as `last_mode` (Q75) so DEPLOY and REDEPLOY repeat it.
+func _on_mode_selected(id: String) -> void:
+	AudioHooks.tap()
+	var p: PlayerProfile = _profile if _profile != null else Game.profile()
+	if p.select_mode(id) and _profile == null:
+		Game.saves.request_save()
+	mode_selected.emit(id)
 
 
 func _on_deploy() -> void:
