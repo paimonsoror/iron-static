@@ -22,7 +22,9 @@ func notice_text() -> String:
 
 func _ready() -> void:
 	theme = ThemeBuilder.shared()
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	# In the tree already: set_anchors_preset alone would keep the current 0x0 rect (offsets become -viewport size)
+	# and the card centered on the top-left corner on the phone. Zero the offsets too.
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var dim := ColorRect.new()

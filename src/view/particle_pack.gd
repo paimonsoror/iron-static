@@ -8,7 +8,7 @@ extends RefCounted
 ## runs that arithmetic at fp16/mediump decodes garbage (pale colours became yellow, sizes 10-60x too big). Now NO
 ## field shares a number with another and nothing is bit-unpacked:
 ##   * MultiMesh instance = the 2D transform only (float32): origin = spawn position. No instance COLOR or CUSTOM.
-##   * Every other field is a plain float32 in a one-row RGBAF data texture the vertex shader reads with
+##   * Every other field is a plain number in a one-row RGBAH (half) data texture the vertex shader reads with
 ##     `texelFetch` (3 texels per particle, texel index = INSTANCE_ID * 3), see `ParticlePool.data`:
 ##       texel 0: r g b a    tint 0..1 (additive pool: tint is NOT premultiplied) and peak alpha 0..1
 ##       texel 1: vx vy s0 s1  velocity px/s (-1024..1024), size at birth / death px (0..SIZE_CAP)

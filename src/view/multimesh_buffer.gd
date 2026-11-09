@@ -5,13 +5,14 @@ extends RefCounted
 ##
 ## V1-29: the MultiMesh is TRANSFORM-ONLY (use_colors = false, use_custom_data = false). On the Pixel's PowerVR GPU
 ## via ANGLE the packed-half instance COLOR / CUSTOM attributes arrive as garbage once they change every frame, so
-## the per-instance fields travel in a float32 data texture instead (same fix as the particle ring, V1-26).
+## the per-instance fields travel in a data texture instead (same fix as the particle ring, V1-26). The texture is
+## RGBAH (half floats, see `data_image`): that phone's driver has no float32 textures anyway.
 ##
 ## Transform buffer, 8 floats per instance (Godot 4.7, MultiMesh.buffer / RenderingServer.multimesh_set_buffer,
 ## verified against a real MultiMesh by tests/unit/view/test_multimesh_buffer.gd):
 ##   [0] basis.x.x  [1] basis.y.x  [2] 0  [3] origin.x     (row 0 of the 2x3 matrix, padded)
 ##   [4] basis.x.y  [5] basis.y.y  [6] 0  [7] origin.y     (row 1)
-## Data buffer, DATA_FLOATS (4) floats per instance = ONE RGBAF texel of a one-row texture, texel x = INSTANCE_ID
+## Data buffer, DATA_FLOATS (4) floats per instance = ONE RGBAH texel of a one-row texture, texel x = INSTANCE_ID
 ## (enemy_sprite.gdshader reads it with texelFetch):
 ##   r flash 0..1   g flipbook frame (integer)   b spawn-in 0..1 (1 = spawned)   a phase seed for the glow pulse
 ## The instance colour is always white and no longer exists. Meshes face +x, so basis.x = (cos a, sin a) * scale
@@ -36,11 +37,16 @@ static func data_capacity(cap: int) -> int:
 	return clampi(cap, 1, MAX_TEX_WIDTH)
 
 
-## The data buffer as a one-row RGBAF image (float32, exact), width = floats / DATA_FLOATS.
+## The data buffer as a one-row RGBAH image (half floats), width = floats / DATA_FLOATS.
+## Halves on purpose: the Pixel's GLES3 driver (ANGLE) reports no float32 textures, so Godot converted every RGBAF
+## upload to RGBAH itself and logged a warning per upload (~7000 per session). Converting here is the same result on
+## every GPU, silent. All four fields are half-safe: flash / spawn 0..1, frame an integer <= 8, phase seed <= 70.
 static func data_image(data: PackedFloat32Array) -> Image:
-	return Image.create_from_data(
+	var img: Image = Image.create_from_data(
 		floori(data.size() / float(DATA_FLOATS)), 1, false, Image.FORMAT_RGBAF, data.to_byte_array()
 	)
+	img.convert(Image.FORMAT_RGBAH)
+	return img
 
 
 ## Writes one instance at slot `n`: transform into `out`, flash/frame/spawn/phase into `data`. Position and scale

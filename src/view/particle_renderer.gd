@@ -90,11 +90,15 @@ static func make_mix_shader() -> Shader:
 	return mix_shader
 
 
-## The pool's per-particle data as a one-row RGBAF image (TEXELS texels per particle, float32, exact).
+## The pool's per-particle data as a one-row RGBAH image (TEXELS texels per particle, half floats). Halves on
+## purpose, see MultiMeshBuffer.data_image: the phone's driver has no float32 textures and Godot converted (and
+## warned) on every upload. ParticlePack's precision budget is the fp16 worst case, so nothing visible changes.
 static func data_image(pool: ParticlePool) -> Image:
-	return Image.create_from_data(
+	var img: Image = Image.create_from_data(
 		pool.capacity * ParticlePack.TEXELS, 1, false, Image.FORMAT_RGBAF, pool.data.to_byte_array()
 	)
+	img.convert(Image.FORMAT_RGBAH)
+	return img
 
 
 ## Empties both rings (new run or world change).

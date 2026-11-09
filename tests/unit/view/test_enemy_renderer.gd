@@ -118,9 +118,9 @@ func test_data_texture_carries_flash_frame_spawn_phase_per_instance() -> void:
 		var f: float = data[k * d + MultiMeshBuffer.D_FRAME]
 		assert_float(f).is_equal(floorf(f))
 		assert_float(f).is_between(0.0, 3.0)
-	# the uploaded texture is a per-type RGBAF row sized to capacity, read by the shader as u_inst
+	# the uploaded texture is a per-type RGBAH row sized to capacity, read by the shader as u_inst
 	var tex: ImageTexture = r._data_tex[1]
 	assert_int(tex.get_width()).is_equal(EnemyStore.DEFAULT_CAPACITY)
 	assert_int(tex.get_height()).is_equal(1)
-	assert_int(tex.get_format()).is_equal(Image.FORMAT_RGBAF)
+	assert_int(tex.get_format()).is_equal(Image.FORMAT_RGBAH)
 	assert_object(r._mats[1].get_shader_parameter("u_inst")).is_same(tex)

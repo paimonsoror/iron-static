@@ -89,6 +89,20 @@ func test_overlay_tap_resumes() -> void:
 	assert_bool(_shell.overlay().visible).is_false()
 
 
+## Phone bug (m3c build): the overlay anchored FULL_RECT after entering the tree kept its 0x0 rect, so the dim
+## covered nothing and the card sat centered on the top-left corner. It must cover the viewport, card centered.
+func test_overlay_covers_the_viewport_with_the_card_centered() -> void:
+	_shell.pause()
+	await await_idle_frame()
+	var o: PauseOverlay = _shell.overlay()
+	var view: Rect2 = o.get_viewport().get_visible_rect()
+	assert_bool(view.size.x > 0.0 and view.size.y > 0.0).is_true()
+	assert_vector(o.get_global_rect().position).is_equal_approx(view.position, Vector2(0.5, 0.5))
+	assert_vector(o.get_global_rect().size).is_equal_approx(view.size, Vector2(0.5, 0.5))
+	var card: Control = o.get_child(1) as Control
+	assert_vector(card.get_global_rect().get_center()).is_equal_approx(view.get_center(), Vector2(1.0, 1.0))
+
+
 func test_overlay_texts_come_from_strings() -> void:
 	var before: int = Strings.missing_count
 	var o := PauseOverlay.new()

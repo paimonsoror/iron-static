@@ -152,14 +152,14 @@ func test_mix_variant_factory_replaces_only_the_blend_mode() -> void:
 	assert_str(mix.code.replace("render_mode blend_mix;", "render_mode blend_add;")).is_equal(_shader_code())
 
 
-func test_data_image_is_float32_rgba_three_texels_per_particle() -> void:
+func test_data_image_is_half_rgba_three_texels_per_particle() -> void:
 	var pool := ParticlePool.new()
 	pool.setup(5)
 	pool.emit(Vector2.ZERO, Vector2(1.0, 2.0), 1.0, 0.5, Vector2(3.0, 4.0), Color(0.25, 0.5, 0.75, 1.0), 9)
 	var img: Image = ParticleRenderer.data_image(pool)
 	assert_int(img.get_width()).is_equal(5 * ParticlePack.TEXELS)
 	assert_int(img.get_height()).is_equal(1)
-	assert_int(img.get_format()).is_equal(Image.FORMAT_RGBAF)
+	assert_int(img.get_format()).is_equal(Image.FORMAT_RGBAH)
 	assert_float(img.get_pixel(0, 0).b).is_equal(0.75)
 	assert_float(img.get_pixel(1, 0).a).is_equal(4.0)
 	assert_float(img.get_pixel(2, 0).b).is_equal(9.0)

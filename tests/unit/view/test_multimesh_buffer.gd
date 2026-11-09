@@ -166,19 +166,24 @@ func test_buffer_matches_a_real_transform_only_multimesh() -> void:
 		assert_float(out[F + k]).is_equal_approx(real[F + k], 0.0001)
 
 
-func test_data_image_is_one_row_rgbaf_one_texel_per_instance() -> void:
+func test_data_image_is_one_row_rgbah_one_texel_per_instance() -> void:
 	var dat := _dat(5)
 	var out := _out(5)
 	MultiMeshBuffer.write_instance(out, dat, 3, 0.0, 0.0, 0.0, 1.0, 0.25, 2.0, 0.5, 9.75)
 	var img: Image = MultiMeshBuffer.data_image(dat)
-	assert_int(img.get_format()).is_equal(Image.FORMAT_RGBAF)
+	assert_int(img.get_format()).is_equal(Image.FORMAT_RGBAH)
 	assert_int(img.get_width()).is_equal(5)
 	assert_int(img.get_height()).is_equal(1)
 	var c: Color = img.get_pixel(3, 0)  # texel x = instance index
 	assert_float(c.r).is_equal(0.25)
 	assert_float(c.g).is_equal(2.0)
 	assert_float(c.b).is_equal(0.5)
-	assert_float(c.a).is_equal(9.75)  # float32: exact above 2047 / fractional, unlike a half
+	assert_float(c.a).is_equal(9.75)  # exact in a half (multiple of 1/64 below 16)
+	# the largest phase seed (slot 511 * 0.137 = 70.0) stays within a half step (1/16 at 64..128)
+	dat[3 * MultiMeshBuffer.DATA_FLOATS + MultiMeshBuffer.D_PHASE] = EnemyInstanceData.pulse_seed(511)
+	assert_float(MultiMeshBuffer.data_image(dat).get_pixel(3, 0).a).is_equal_approx(
+		EnemyInstanceData.pulse_seed(511), 0.04
+	)
 	assert_float(img.get_pixel(2, 0).g).is_equal(0.0)
 
 
