@@ -11,6 +11,7 @@ extends Node
 ##   --debug-novsync  disable vsync so fps shows uncapped render throughput (V1-03 bench)
 ## Quality args (all builds): --quality=high|mid|low, --shake=off|low|normal (VisualSettings, V1-03).
 ## Audio arg (all builds): --mute runs silent (no SFX, no music; benches and captures).
+##   --mode <id>|--mode=<id>  start every run in that wave mode, ignoring the lock (M4-08, e.g. `--mode purge`)
 ## Save arg (all builds): --no-save keeps the profile and run snapshot in memory (tests, tools; M3-14).
 
 const VERSION: String = "0.0.1"
@@ -21,6 +22,7 @@ const ARG_LOAD_WAVE: String = "--debug-load-wave="
 const ARG_HOLD: String = "--debug-hold"
 const ARG_NOVSYNC: String = "--debug-novsync"
 const ARG_NO_SAVE: String = "--no-save"
+const ARG_MODE: String = "--mode"
 
 var controller: RunController = RunController.new()
 var debug_load: bool = false
@@ -29,6 +31,8 @@ var debug_perf: bool = false
 var debug_load_wave: int = RunController.LOAD_WAVE
 ## Pause the sim when the debug load wave is reached.
 var debug_hold: bool = false
+## Debug wave mode override (`--mode purge`, debug builds only): ignores the unlock; "" = use the profile.
+var mode_override: String = ""
 ## True when the V1-01 style frame scene replaces the game at boot (debug builds, `--style-frame`).
 var style_frame: bool = false
 ## View-side quality tier and visual options (handed to the view by main.gd; never read by the sim).
@@ -62,6 +66,7 @@ func _ready() -> void:
 		debug_perf = args.has(ARG_DEBUG_PERF)
 		style_frame = args.has(ARG_STYLE_FRAME)
 		debug_hold = args.has(ARG_HOLD)
+		mode_override = mode_from_args(args)
 		for a: String in args:
 			if a.begins_with(ARG_LOAD_WAVE):
 				debug_load_wave = clampi(a.substr(ARG_LOAD_WAVE.length()).to_int(), 2, 200)
@@ -145,6 +150,9 @@ func on_run_banked() -> void:
 
 @warning_ignore("unused_parameter")
 func _on_run_ended(ended_world: SimWorld) -> void:  # gdlint: ignore=unused-argument
+	if not saves.last_unlocked_modes.is_empty():  # Home shows the one-time "MODE UNLOCKED" chip (M4-08)
+		ModeUnlockFlag.mark(saves.profile, saves.last_unlocked_modes)
+		saves.request_save()
 	if saves.last_bank_saved:
 		on_run_banked()
 
@@ -169,10 +177,10 @@ func request_buy(upgrade_index: int, count: int) -> void:
 
 
 ## Starts a normal deployment. At boot a pending run snapshot resumes instead (paused behind the overlay).
-## (impl) `legacy_seed` is ignored: the seed is DEFAULT_SEED + run id - 1 (Q61), the id from the profile;
-## main.gd still passes DEFAULT_SEED until M3-14 reworks the flow.
-@warning_ignore("unused_parameter")
-func start_run(legacy_seed: int = 0) -> void:  # gdlint: ignore=unused-argument
+## The seed is DEFAULT_SEED + run id - 1 (Q61), the id from the profile. `mode` is the wave mode id; "" takes the
+## profile's `last_mode` (REDEPLOY therefore repeats it, Q75). A locked mode is never used (`RunMode.resolve`);
+## the `--mode` debug override wins and ignores the lock.
+func start_run(mode: String = "") -> void:
 	if _pending_resume != null and _pending_resume.status == ResumeResult.Status.RESUMED:
 		var res: ResumeResult = _pending_resume
 		_pending_resume = null
@@ -181,9 +189,27 @@ func start_run(legacy_seed: int = 0) -> void:  # gdlint: ignore=unused-argument
 		Log.info("run resumed run=%d tick=%d" % [res.info.run_id, res.world.tick])
 		return
 	_pending_resume = null
+	var run_mode: String = RunMode.resolve(saves.profile, mode, mode_override)
+	var best_before: int = saves.profile.best_wave_of_mode(run_mode, 1)
 	@warning_ignore("return_value_discarded")
-	saves.start_run()
-	Log.info("run started seed=%d run=%d" % [controller.seed_value, controller.run_id])
+	saves.start_run(run_mode)
+	controller.mode_best_at_start = best_before  # Results: "NEW BEST" is per mode (M4-09)
+	Log.info(
+		(
+			"run started seed=%d run=%d mode=%s"
+			% [controller.seed_value, controller.run_id, controller.world.config.wave_mode]
+		)
+	)
+
+
+## Value of `--mode <id>` or `--mode=<id>` in the user args ("" when absent).
+static func mode_from_args(args: PackedStringArray) -> String:
+	for i: int in args.size():
+		if args[i] == ARG_MODE and i + 1 < args.size():
+			return args[i + 1]
+		if args[i].begins_with(ARG_MODE + "="):
+			return args[i].substr(ARG_MODE.length() + 1)
+	return ""
 
 
 ## Starts the next deployment (next run id, Foundry levels from the profile).

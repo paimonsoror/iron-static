@@ -10,7 +10,8 @@ var wave_text: String = ""
 var hp_text: String = ""
 var scrap_text: String = ""
 var data_text: String = ""
-## Whole seconds left in the wave ("14s"); empty until a wave_tick is given.
+## Whole seconds left in the wave ("14s"); empty until a wave_tick is given. In PURGE (`quota_left` >= 0) it holds
+## "{n} LEFT" instead: enemies still to kill in the wave quota (M4-09).
 var timer_text: String = ""
 
 var _last_s: float = -1.0
@@ -20,6 +21,7 @@ var _max_hp: int = -1
 var _scrap_key: String = ""
 var _data_key: String = ""
 var _secs_left: int = -1
+var _quota: int = -1
 
 
 ## True when `now_s` is at least REFRESH_S after the last accepted refresh (the first call is always due).
@@ -41,8 +43,16 @@ func update(
 
 
 ## Unthrottled recompute; a string is rebuilt only when its source value changed.
-func set_values(wave: int, hp: float, max_hp: float, scrap: BigNum, data: BigNum, wave_tick: int = -1) -> void:
-	if wave_tick >= 0:
+func set_values(
+	wave: int, hp: float, max_hp: float, scrap: BigNum, data: BigNum, wave_tick: int = -1, quota_left: int = -1
+) -> void:
+	if quota_left >= 0:  # PURGE: "{n} LEFT" takes the clock's place
+		_secs_left = -1
+		if quota_left != _quota:
+			_quota = quota_left
+			timer_text = Strings.fill1("hud.mode_purge_left", "n", str(quota_left))
+	elif wave_tick >= 0:
+		_quota = -1
 		var secs: int = ceili(float(maxi(Ticks.WAVE_TICKS - wave_tick, 0)) / float(Ticks.TICK_RATE))
 		if secs != _secs_left:
 			_secs_left = secs

@@ -21,6 +21,9 @@ var foundry_pulse: bool = false
 var home_text: String = ""
 var redeploy_text: String = ""
 var chip_text: String = ""
+## "TIMED MODE" / "PURGE MODE" (empty without a bank) and the one-time "PURGE MODE UNLOCKED" line (M4-09).
+var mode_text: String = ""
+var mode_unlock_text: String = ""
 var save_warning_text: String = ""
 
 var _banked: BankedInfo = null
@@ -63,9 +66,12 @@ func data_line(value_text: String) -> String:
 
 func _fill_banked(death_wave: int, banked: BankedInfo) -> void:
 	new_best = death_wave > banked.previous_best
-	var best_key: String = "results.best_delta" if new_best else "results.best_same"
-	var delta: int = death_wave - banked.previous_best
-	best_text = Strings.fill(best_key, {"b": str(banked.new_best), "d": str(delta)})
+	var name_key: String = "mode." + banked.mode
+	var mode_name: String = Strings.get_text(name_key)
+	mode_text = Strings.fill1("results.mode", "name", mode_name)
+	best_text = Strings.fill("results.best_mode", {"name": mode_name, "n": str(banked.new_best)})
+	if not banked.unlocked_modes.is_empty():
+		mode_unlock_text = Strings.get_text("mode.unlocked_toast")
 	foundry_visible = banked.foundry_unlocked
 	foundry_pulse = foundry_visible and banked.affordable_count > 0
 	if banked.affordable_count > 0:

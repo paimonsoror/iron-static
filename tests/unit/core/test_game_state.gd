@@ -3,6 +3,7 @@ extends GdUnitTestSuite
 ## RunController state machine (M1-23): BOOT -> IN_RUN -> RESULTS -> redeploy, pause, debug load mode.
 
 const MAX_TICKS: int = 60000
+const GAME_SCRIPT: String = "res://src/core/game.gd"
 
 
 func test_starts_in_boot_without_world() -> void:
@@ -115,3 +116,87 @@ func test_time_text_and_cause_text() -> void:
 	assert_str(RunController.cause_text(c.world)).is_equal("UNKNOWN")
 	c.world.run.death_cause = 0
 	assert_str(RunController.cause_text(c.world)).is_equal("SKITTER")
+
+
+func test_start_run_with_mode_builds_a_purge_config() -> void:
+	var c := RunController.new()
+	var w: SimWorld = c.start_run(1, false, 0, {}, 0, "", SimConfig.MODE_PURGE)
+	assert_str(w.config.wave_mode).is_equal("purge")
+	assert_int(w.config.purge_backstop_ticks).is_greater(0)
+	assert_str(c.start_run(1).config.wave_mode).is_equal("timed")
+	assert_str(c.start_run(1, false, 0, {}, 0, "", "bogus").config.wave_mode).is_equal("timed")
+
+
+func _game() -> Node:
+	var script: GDScript = load(GAME_SCRIPT)
+	var g: Node = script.new()
+	g.call("setup_persistence", MemorySaveFs.new(), PackedStringArray())
+	return g
+
+
+func _free_game(g: Node) -> void:
+	var a: Node = g.get("audio")
+	a.free()
+	g.free()
+
+
+func test_game_start_run_purge_and_redeploy_repeats_the_mode() -> void:
+	SaveKey.reset()
+	var g: Node = _game()
+	var saves: SaveService = g.get("saves")
+	var c: RunController = g.get("controller")
+	c.last_run_path = "user://runs/test_game_state_run.json"
+	@warning_ignore("return_value_discarded")
+	saves.profile.unlock_mode("purge")
+	g.call("start_run", "purge")
+	assert_str(c.world.config.wave_mode).is_equal("purge")
+	c.fast_forward(60000)
+	assert_str(saves.profile.last_mode).is_equal("timed")  # start_run(mode) does not persist the choice itself
+	@warning_ignore("return_value_discarded")
+	saves.profile.select_mode("purge")
+	g.call("redeploy")
+	assert_str(c.world.config.wave_mode).is_equal("purge")
+	_free_game(g)
+
+
+func test_game_start_run_never_uses_a_locked_mode_but_debug_override_does() -> void:
+	SaveKey.reset()
+	var g: Node = _game()
+	var c: RunController = g.get("controller")
+	g.call("start_run", "purge")
+	assert_str(c.world.config.wave_mode).is_equal("timed")
+	g.set("mode_override", "purge")
+	g.call("start_run")
+	assert_str(c.world.config.wave_mode).is_equal("purge")
+	_free_game(g)
+
+
+func test_mode_arg_parsing_and_resolve_order() -> void:
+	var script: GDScript = load(GAME_SCRIPT)
+	assert_str(script.call("mode_from_args", PackedStringArray(["--mode", "purge"]))).is_equal("purge")
+	assert_str(script.call("mode_from_args", PackedStringArray(["--mode=purge"]))).is_equal("purge")
+	assert_str(script.call("mode_from_args", PackedStringArray(["--mode"]))).is_equal("")
+	var p: PlayerProfile = PlayerProfile.fresh(0, "t")
+	assert_str(RunMode.resolve(p, "purge", "")).is_equal("timed")
+	assert_str(RunMode.resolve(p, "", "purge")).is_equal("purge")
+	@warning_ignore("return_value_discarded")
+	p.unlock_mode("purge")
+	@warning_ignore("return_value_discarded")
+	p.select_mode("purge")
+	assert_str(RunMode.resolve(p, "", "")).is_equal("purge")
+	assert_str(RunMode.resolve(p, "timed", "")).is_equal("timed")
+
+
+func test_purge_death_does_not_raise_the_session_timed_best() -> void:
+	var c := RunController.new()
+	@warning_ignore("return_value_discarded")
+	c.start_run(1, false, 0, {}, 0, "", "purge")
+	@warning_ignore("return_value_discarded")
+	c.fast_forward(MAX_TICKS)
+	assert_int(c.state).is_equal(RunController.State.RESULTS)
+	assert_int(c.best_wave_s1).is_equal(0)  # Q71: PURGE gates nothing
+	@warning_ignore("return_value_discarded")
+	c.start_run(1)
+	@warning_ignore("return_value_discarded")
+	c.fast_forward(MAX_TICKS)
+	assert_int(c.best_wave_s1).is_greater(0)

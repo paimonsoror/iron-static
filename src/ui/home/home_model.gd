@@ -25,6 +25,11 @@ var foundry_visible: bool = false
 var affordable: int = 0
 var foundry_hint_text: String = ""
 var nav: Array[StringName] = []
+## Mode picker cards (`ModeRules.cards`, data-driven), the selected mode id (always an unlocked one) and the
+## one-time unlock chip line ("" when none is pending).
+var mode_cards: Array[ModeCard] = []
+var selected_mode: String = SimConfig.MODE_TIMED
+var unlock_chip_text: String = ""
 
 
 func hint_chip_visible() -> bool:
@@ -37,14 +42,17 @@ func nav_visible() -> bool:
 
 
 static func build(
-	profile: PlayerProfile, upgrades: Array[RunUpgradeDef], foundry: FoundryService, frame_defs: Array[FrameDef]
+	profile: PlayerProfile,
+	upgrades: Array[RunUpgradeDef],
+	foundry: FoundryService,
+	frame_defs: Array[FrameDef],
+	mode_defs: Array[WaveModeDef] = [],
 ) -> HomeModel:
 	var m := HomeModel.new()
 	var best: int = profile.best_wave_s1()
 	m.data_text = Strings.fill1("home.data", "v", NumberFormat.format(profile.data))
 	m.sector_text = Strings.fill1("home.sector", "n", "1")
 	m.best_known = best > 0
-	m.best_text = Strings.fill1("home.best", "n", str(best)) if best > 0 else Strings.get_text("home.best_none")
 	m.nav = MetaUnlocks.visible_nav(profile)
 	m.foundry_visible = MetaUnlocks.foundry_screen_unlocked(profile)
 	var nu: Vector2i = MetaUnlocks.next_unlock_line(upgrades, best)
@@ -72,4 +80,39 @@ static func build(
 		if c.id == m.frame_id:
 			pr = c.power_rating
 	m.pr_text = Strings.fill1("home.pr", "v", str(roundi(pr)))
+	m._fill_modes(profile, mode_defs)
+	m.best_text = best_line(profile, m.selected_mode)
+	m.best_known = profile.best_wave_of_mode(m.selected_mode, 1) > 0
 	return m
+
+
+## The Home best line of one mode (M4-09): TIMED "BEST  W14" (as before), other modes "BEST PURGE 31",
+## "NO DEPLOYMENT YET" when that mode was never played.
+static func best_line(profile: PlayerProfile, mode_id: String) -> String:
+	var best: int = profile.best_wave_of_mode(mode_id, 1)
+	if best <= 0:
+		return Strings.get_text("home.best_none")
+	if mode_id == SimConfig.MODE_TIMED:
+		return Strings.fill1("home.best", "n", str(best))
+	var name_key: String = "mode." + mode_id
+	return Strings.fill("home.best_mode", {"name": Strings.get_text(name_key), "n": str(best)})
+
+
+## Cards of the wave mode picker. The selection is `last_mode` when unlocked, else the first unlocked card, so a
+## locked mode can never be preselected (Q75). A pending unlock flag turns into the chip line.
+func _fill_modes(profile: PlayerProfile, mode_defs: Array[WaveModeDef]) -> void:
+	var defs: Array[WaveModeDef] = mode_defs if not mode_defs.is_empty() else ModeRules.load_defs()
+	mode_cards = ModeRules.cards(profile, defs)
+	selected_mode = ""
+	for c: ModeCard in mode_cards:
+		c.selected = c.unlocked and c.id == profile.last_mode
+		if c.selected:
+			selected_mode = c.id
+	if selected_mode.is_empty():
+		for c: ModeCard in mode_cards:
+			if c.unlocked:
+				c.selected = true
+				selected_mode = c.id
+				break
+	if not ModeUnlockFlag.pending(profile).is_empty():
+		unlock_chip_text = Strings.get_text("mode.unlocked_toast")

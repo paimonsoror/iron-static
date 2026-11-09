@@ -43,6 +43,9 @@ var last_ticks: int = 0
 var last_usec: int = 0
 ## In-memory best death wave of sector 1 (persistence arrives in M3); copied into SimConfig at run start.
 var best_wave_s1: int = 0
+## Best wave of the run's own mode at its start (Game sets it for PURGE-style records; -1 = unknown, e.g. a resumed
+## run): the Results screen compares the death wave against it (M4-09).
+var mode_best_at_start: int = -1
 ## Where the run record is written at run end (tests override it).
 var last_run_path: String = LAST_RUN_DIR + "/" + LAST_RUN_FILE
 ## Persistent run id (profile run counter, M3-12); 0 for debug and bare test runs.
@@ -59,9 +62,11 @@ func start_run(
 	foundry_levels: Dictionary = {},
 	new_run_id: int = 0,
 	frame_id: String = "",
+	mode: String = "",
 ) -> SimWorld:
 	seed_value = new_seed
 	run_id = new_run_id
+	mode_best_at_start = -1
 	var cfg: SimConfig = SimConfigLoader.load_default(new_seed)
 	cfg.debug_invulnerable = invulnerable
 	cfg.best_wave_s1 = best_wave_s1
@@ -71,6 +76,10 @@ func start_run(
 		var applied: bool = SimConfigLoader.apply_frame(cfg, frame_id)  # unknown id: push_error, stays VANGUARD
 		if not applied:
 			Log.warn("run start: frame '%s' not applied" % frame_id)
+	if not mode.is_empty():
+		var mode_errors: PackedStringArray = SimConfigLoader.apply_mode(cfg, mode)  # unknown id: stays TIMED, no push_error
+		if not mode_errors.is_empty():
+			Log.warn("run start: " + mode_errors[0])
 	world = SimWorld.new(cfg)
 	driver = TickDriver.new()
 	load_wave = load_target
@@ -99,6 +108,7 @@ func resume_run(restored: SimWorld, resumed_run_id: int) -> SimWorld:
 	world = restored
 	seed_value = restored.config.seed_value
 	run_id = resumed_run_id
+	mode_best_at_start = -1
 	driver = TickDriver.new()
 	load_wave = 0
 	time_scale = 1.0
@@ -218,7 +228,7 @@ func _check_over() -> void:
 		state = State.RESULTS
 		load_wave = 0
 		_pending_buys.clear()
-		if not _load_run:
+		if not _load_run and world.config.wave_mode == SimConfig.MODE_TIMED:  # Q71: only TIMED feeds the session best
 			best_wave_s1 = maxi(best_wave_s1, world.run.death_wave)
 		_write_last_run(world)
 		run_ended.emit(world)

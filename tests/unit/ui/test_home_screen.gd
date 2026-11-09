@@ -144,3 +144,22 @@ func _collect_texts(n: Node, out: PackedStringArray) -> void:
 		out.append((n as Button).text)
 	for c: Node in n.get_children():
 		_collect_texts(c, out)
+
+
+func test_mode_picker_tap_persists_last_mode_and_locked_tap_does_not() -> void:
+	var p: PlayerProfile = _profile(3, 20, "0")
+	@warning_ignore("return_value_discarded")
+	ModeRules.apply_unlocks(p, ModeRules.load_defs())
+	var s: HomeScreen = _screen(Vector2(1080.0, 2400.0), Vector4.ZERO, p)
+	assert_str(s.mode_picker.selected_id).is_equal("timed")
+	var seen: Array[String] = []
+	s.mode_selected.connect(func(id: String) -> void: seen.append(id))
+	s.mode_picker.button_of("purge").pressed.emit()
+	assert_array(seen).contains_exactly(["purge"])
+	assert_str(p.last_mode).is_equal("purge")
+	var fresh: PlayerProfile = _profile(0, 0, "0")
+	var s2: HomeScreen = _screen(Vector2(1080.0, 2400.0), Vector4.ZERO, fresh)
+	s2.mode_picker.button_of("purge").pressed.emit()
+	assert_str(fresh.last_mode).is_equal("timed")
+	assert_bool(s2.mode_picker.info_visible()).is_true()
+	assert_float(s2.mode_picker.button_of("purge").size.y).is_greater_equal(MIN_TOUCH)

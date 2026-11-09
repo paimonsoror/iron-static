@@ -64,3 +64,54 @@ func test_hint_chip_only_when_something_is_affordable() -> void:
 	assert_int(rich.affordable).is_greater(0)
 	assert_bool(rich.hint_chip_visible()).is_true()
 	assert_str(rich.foundry_hint_text).contains(str(rich.affordable))
+
+
+func test_fresh_profile_cards_are_timed_selected_and_purge_locked() -> void:
+	var m: HomeModel = _model(0, 0, "0")
+	assert_int(m.mode_cards.size()).is_equal(2)
+	assert_str(m.selected_mode).is_equal("timed")
+	assert_bool(m.mode_cards[0].selected).is_true()
+	assert_bool(m.mode_cards[1].unlocked).is_false()
+	assert_str(m.mode_cards[1].locked_text).contains("20")
+	assert_str(m.unlock_chip_text).is_equal("")
+
+
+func test_timed_best_20_unlocks_purge_and_a_remembered_purge_is_selected() -> void:
+	var p: PlayerProfile = PlayerProfile.fresh(0, "t")
+	p.runs_total = 2
+	p.best_wave["1"] = 20
+	@warning_ignore("return_value_discarded")
+	ModeRules.apply_unlocks(p, ModeRules.load_defs())
+	@warning_ignore("return_value_discarded")
+	p.select_mode("purge")
+	var upgrades: Array[RunUpgradeDef] = SimConfigLoader.load_default(1).upgrades
+	var foundry := FoundryService.new(SimConfigLoader.load_foundry_defs(), upgrades)
+	var m: HomeModel = HomeModel.build(p, upgrades, foundry, FrameRules.load_defs())
+	assert_bool(m.mode_cards[1].unlocked).is_true()
+	assert_str(m.selected_mode).is_equal("purge")
+
+
+func test_locked_last_mode_is_never_preselected_and_chip_follows_the_flag() -> void:
+	var p: PlayerProfile = PlayerProfile.fresh(0, "t")
+	p.last_mode = "purge"  # a hand-edited or corrupt save
+	var upgrades: Array[RunUpgradeDef] = SimConfigLoader.load_default(1).upgrades
+	var foundry := FoundryService.new(SimConfigLoader.load_foundry_defs(), upgrades)
+	var m: HomeModel = HomeModel.build(p, upgrades, foundry, FrameRules.load_defs())
+	assert_str(m.selected_mode).is_equal("timed")
+	var typed: Array[String] = ["purge"]
+	ModeUnlockFlag.mark(p, typed)
+	m = HomeModel.build(p, upgrades, foundry, FrameRules.load_defs())
+	assert_str(m.unlock_chip_text).is_equal("PURGE MODE UNLOCKED")
+	assert_bool(ModeUnlockFlag.clear(p)).is_true()
+	assert_bool(ModeUnlockFlag.clear(p)).is_false()
+
+
+func test_best_line_per_mode() -> void:
+	var p: PlayerProfile = PlayerProfile.fresh(0, "t")
+	p.best_wave["1"] = 14
+	assert_str(HomeModel.best_line(p, "timed")).is_equal("BEST  W14")
+	assert_str(HomeModel.best_line(p, "purge")).is_equal(Strings.get_text("home.best_none"))
+	@warning_ignore("return_value_discarded")
+	p.unlock_mode("purge")
+	p.best_wave_by_mode["purge"] = {"1": 31}
+	assert_str(HomeModel.best_line(p, "purge")).is_equal("BEST PURGE 31")
