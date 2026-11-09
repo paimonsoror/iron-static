@@ -4,7 +4,7 @@
 
 ## What is saved
 
-- **Your profile:** banked data, Foundry levels, best wave, unlocked frames, the selected frame, run counters and settings.
+- **Your profile:** banked data, Foundry levels, the best wave of each mode (TIMED and PURGE), the last mode you chose, unlocked frames, the selected frame, run counters and settings.
 - **Your current run,** while one is in progress, so it can be resumed.
 
 ## When it saves
@@ -14,9 +14,15 @@
 - When the app is paused or sent to the background. Android can end a backgrounded app with no warning, so saving is done at that moment.
 - During a run, a **checkpoint every 30 seconds** and on pause.
 
+## Records per mode
+
+<!-- Mode unlock wave (20) comes from data/wave_modes.csv. -->
+
+Each wave mode keeps its own best wave. The TIMED best is the one that unlocks upgrade rows, frames and PURGE (at wave 20). See [Wave modes](run-loop.md#wave-modes).
+
 ## Resuming after the app is closed
 
-If the app is closed or killed in the middle of a deployment, **CONTINUE** on the title screen resumes it. The run comes back **paused behind an overlay**; tap to carry on. Because the simulation is deterministic, a resumed run continues exactly as it would have.
+If the app is closed or killed in the middle of a deployment, **CONTINUE** on the title screen resumes it. The run comes back **paused behind an overlay**; tap to carry on. Because the simulation is deterministic, a resumed run continues exactly as it would have. It also comes back in the **wave mode** it started in: a PURGE run resumes as PURGE. The mode is stored with the run's snapshot and its record.
 
 A run that is closed with the back gesture or backgrounded is simply paused. See [Controls](controls.md).
 
@@ -30,7 +36,7 @@ Saving is built to survive crashes, power loss and bad writes:
 - The file is written to a temporary copy first, then swapped into place in one step, so a half-written file cannot replace a good one.
 - The previous good save is kept as a backup. If the main file fails its checks, the game falls back to the backup.
 - Saves carry a keyed signature (an HMAC), so corruption and tampering are detected. A damaged save is reported on a blocking screen with a START NEW PROFILE button, and the damaged files are renamed `.corrupt`, not deleted. A save written by a newer version of the game is never overwritten.
-- Save files carry a version number and are migrated forward when the game updates.
+- Save files carry a version number and are migrated forward when the game updates. An older save's best wave becomes your TIMED record, and PURGE starts with no record.
 
 ## New Game and resetting
 

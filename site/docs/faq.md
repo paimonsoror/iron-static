@@ -30,6 +30,10 @@
 ??? question "What happens when Cinder dies?"
     The deployment ends. You keep the data you earned (banked in full), lose your scrap and run upgrades, and can redeploy at once. Best wave is kept. See [The run loop](systems/run-loop.md).
 
+??? question "What are TIMED and PURGE?"
+    Two wave modes you pick on Home. TIMED runs each wave on a 24-second clock and leftover enemies carry over. PURGE ends a wave when every enemy in it is destroyed, with a 60-second limit. PURGE unlocks when your best TIMED wave reaches 20, and each mode keeps its own best wave. See [Wave modes](systems/run-loop.md#wave-modes).
+    <!-- numbers: data/wave_modes.csv -->
+
 ??? question "Does my progress save?"
     Yes. Your profile saves after every deployment and every Foundry purchase, and when the app goes to the background. If the app is killed mid-run, CONTINUE on the title screen resumes it. Saves are crash-safe and backed up. See [Saving and resuming](systems/save-resume.md).
 

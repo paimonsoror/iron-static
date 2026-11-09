@@ -6,7 +6,7 @@ IRON STATIC is in active development. This page says what you can play today and
 
 <span class="badge live">Implemented</span>
 
-- The full in-run loop: deployments, 24-second waves, spawn rings, flank groups, stale-enemy rule.
+- The full in-run loop: deployments, waves, spawn rings, flank groups, stale-enemy rule.
 - Cinder with an auto-firing hitscan laser, crits and range.
 - Five enemies: skitter, dart, lancer, walker and the boss hulk (without its plate mechanic).
 - Ten run upgrades in three tabs, with tap and hold-to-buy and formula tooltips.
@@ -33,8 +33,8 @@ M3 closed on 2026-11-09 after checks on a real phone: the pause screen, the back
 
 <span class="badge planned">In progress</span>
 
-- **Wave modes.** You will choose a mode before each deployment. **TIMED** is today's game: 24-second waves, leftovers carry over. **PURGE** ends each wave when every enemy in it is destroyed, with a 60-second limit so a wave can never stall. PURGE unlocks when your best TIMED wave reaches 20, and each mode keeps its own best wave. The rules and the separate records are being built now; the mode picker on Home comes next.
-- Later in M4: the wave-10 patch draft, the Intel tab, damage numbers, haptics, more accessibility settings and a guided first ten minutes.
+- **Wave modes** <span class="badge live">Implemented</span>. You choose a mode on Home before each deployment. **TIMED** is the original game: 24-second waves, leftovers carry over. **PURGE** ends each wave when every enemy in it is destroyed, with a 60-second limit so a wave can never stall. PURGE unlocks when your best TIMED wave reaches 20, and each mode keeps its own best wave. A resumed run comes back in its mode. See [Wave modes](systems/run-loop.md#wave-modes). <!-- numbers: data/wave_modes.csv -->
+- Still to come in M4: the wave-10 patch draft, the Intel tab, damage numbers, haptics, more accessibility settings and a guided first ten minutes.
 
 ## Roadmap
 
@@ -46,7 +46,7 @@ M3 closed on 2026-11-09 after checks on a real phone: the pause screen, the back
 | V1 Visual pass | Illustrated vector art, effects, styled HUD, mobile hardening | Done apart from on-device verification |
 | A1 Audio pass | Synthesized sound effects and adaptive music | Done |
 | M3 Meta loop | Data banking, Foundry, saving and resume, title screen, frames | Done (2026-11-09) |
-| M4 Wave modes, patches and first-time experience | TIMED and PURGE wave modes, patch draft, Intel tab, damage numbers, haptics, tutorial | In progress: wave modes first |
+| M4 Wave modes, patches and first-time experience | TIMED and PURGE wave modes (in the build), patch draft, Intel tab, damage numbers, haptics, tutorial | In progress: wave modes done, rest underway |
 | M5 MVP validation | Balance, real-device performance, fun checks | <span class="badge planned">Planned</span> |
 | M6 Launch content | Lab, weapon systems, firmware, drones, adaptive swarm, caches, overdrive, more sectors, Standby Patrol, two more frames | <span class="badge planned">Planned</span> |
 | M7 Online and release | Accounts, cloud save, purchases, ads, store release | <span class="badge planned">Planned</span> |

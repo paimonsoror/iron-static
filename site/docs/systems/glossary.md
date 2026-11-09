@@ -19,7 +19,7 @@ Terms are listed alphabetically. A badge shows whether the thing is in the build
 | **Adaptation** | The swarm's resistance to each damage type. <span class="badge planned">Planned</span> |
 | **Adaptive swarm** | The mechanic where overusing one damage type teaches the swarm to resist it. <span class="badge planned">Planned</span> |
 | **Arsenal** | The menu grouping weapon systems, firmware, drones and modules. <span class="badge planned">Planned</span> |
-| **Best wave** | The highest wave you have reached in Sector 1. It unlocks upgrades and frames. |
+| **Best wave** | The highest wave you have reached in Sector 1, kept per wave mode. The TIMED best unlocks upgrades, frames and PURGE. |
 | **Boss** | A node: a heavy enemy that arrives every 10 waves. |
 | **Bastion** | BULWARK's passive: no hit takes more than 20% of max hull. |
 | **Cell** | A player group. <span class="badge planned">Planned</span> |
@@ -48,6 +48,7 @@ Terms are listed alphabetically. A badge shows whether the thing is in the build
 | **Overclock** | STRIKER's passive: each kill adds fire rate until the wave ends. |
 | **Overdrive** | An optional ability that trades integrity for burst power. <span class="badge planned">Planned</span> |
 | **Patch** | A temporary in-run perk chosen from a draft. <span class="badge planned">Planned M4</span> |
+| **PURGE** | The wave mode where a wave ends when every enemy in it is destroyed, with a 60-second limit. Unlocks at best TIMED wave 20. <span class="badge live">Implemented</span> <!-- 20 and 60 s: data/wave_modes.csv --> |
 | **Relay** | The arena center; the thing Cinder holds. |
 | **Reinvest** | The run upgrade that pays interest on unspent scrap. |
 | **Salvage cache** | A drop from elites and bosses that you tap for a reward choice. <span class="badge planned">Planned</span> |
@@ -56,9 +57,10 @@ Terms are listed alphabetically. A badge shows whether the thing is in the build
 | **Slots** | The spawn budget a wave has to spend on enemies. |
 | **Stale** | An enemy alive for three wave ends; pays half rewards. |
 | **Standby Patrol** | Capped, partial offline earnings of data. <span class="badge planned">Planned</span> |
+| **TIMED** | The wave mode where each wave runs on a 24-second clock and leftovers carry over. Available from the start. <span class="badge live">Implemented</span> |
 | **Tick** | One step of the 30-per-second simulation. A wave is 720 ticks. |
 | **Warden** | The class of cybernetic enforcement unit Cinder belongs to. |
-| **Wave** | A 24-second cycle: 18 seconds of spawning, 6 of lull. |
+| **Wave** | In TIMED, a 24-second cycle: 18 seconds of spawning, 6 of lull. In PURGE it ends when its enemies are destroyed. |
 | **Weapon system** | An auto-firing special weapon. <span class="badge planned">Planned</span> |
 
 ## Stats
