@@ -6,4 +6,4 @@ extends RefCounted
 ## Pure refactors and additions that leave every hash unchanged do not bump.
 ## `tests/sim/test_replay.gd` holds a golden hash of a scripted run and fails when it changes.
 
-const CURRENT: int = 2  ## 2 = M3 early-curve retune (Q54), data-driven passives (2026-11-09); 1 = M2/M3 launch rules
+const CURRENT: int = 3  ## 3 = wave modes (TIMED/PURGE), 2026-11-09; 2 = M3 retune (Q54); 1 = M2/M3 launch rules

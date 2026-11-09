@@ -76,3 +76,29 @@ func test_fractional_time_accumulates() -> void:
 		total += driver.advance(w, 0.01, 1)  # 0.3 s of frame time
 	assert_int(total).is_between(8, 9)
 	assert_int(w.tick).is_equal(total)
+
+
+func _purge_driven_hash(speed: int, frame_seed: int) -> String:
+	var cfg: SimConfig = SimConfigLoader.load_default(5)
+	assert_int(SimConfigLoader.apply_mode(cfg, "purge").size()).is_equal(0)
+	cfg.debug_invulnerable = true
+	var w: SimWorld = SimWorld.new(cfg)
+	var driver: TickDriver = TickDriver.new()
+	driver.budget_usec = NO_BUDGET_LIMIT
+	driver.tick_limit = TICKS
+	var frames: Rng = Rng.new(frame_seed, 99)
+	var guard: int = 0
+	while w.tick < TICKS and guard < 1_000_000:
+		var delta: float = FRAME_MIN_S + frames.next_float() * (FRAME_MAX_S - FRAME_MIN_S)
+		@warning_ignore("return_value_discarded")
+		driver.advance(w, delta, speed)
+		guard += 1
+	assert_int(w.tick).is_equal(TICKS)
+	return w.state_hash()
+
+
+func test_purge_speeds_1_2_4_give_the_same_hash() -> void:
+	var base: String = _purge_driven_hash(1, 11)
+	assert_str(_purge_driven_hash(2, 12)).is_equal(base)
+	assert_str(_purge_driven_hash(4, 14)).is_equal(base)
+	assert_str(base).is_not_equal(_driven_hash(1, 11))  # PURGE really is a different run than TIMED

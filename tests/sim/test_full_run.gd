@@ -37,3 +37,25 @@ func test_other_seeds_also_end_with_finite_rewards() -> void:
 		var w: SimWorld = _play(s)
 		assert_bool(w.is_over()).is_true()
 		assert_bool(is_finite(w.run.scrap_earned) and is_finite(w.run.data_earned)).is_true()
+
+
+func _play_purge(seed_value: int) -> SimWorld:
+	var cfg: SimConfig = SimConfigLoader.load_default(seed_value)
+	assert_int(SimConfigLoader.apply_mode(cfg, "purge").size()).is_equal(0)
+	assert_int(cfg.purge_backstop_ticks).is_equal(1800)
+	var w: SimWorld = SimWorld.new(cfg)
+	while not w.is_over() and w.tick < MAX_TICKS:
+		w.step()
+	return w
+
+
+func test_purge_run_ends_with_finite_rewards_and_is_repeatable() -> void:
+	var a: SimWorld = _play_purge(1)
+	assert_bool(a.is_over()).is_true()
+	assert_int(a.tick).is_less(MAX_TICKS)
+	assert_int(a.run.death_wave).is_greater(0)
+	assert_int(a.run.kills).is_greater(0)
+	assert_bool(is_finite(a.run.scrap_earned) and is_finite(a.run.data_earned)).is_true()
+	assert_bool(is_finite(a.run.damage_dealt) and is_finite(a.cinder.hp)).is_true()
+	assert_float(a.run.scrap_earned).is_greater(0.0)
+	assert_str(_play_purge(1).state_hash()).is_equal(a.state_hash())
