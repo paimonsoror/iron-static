@@ -71,11 +71,19 @@ static func foundry_cost(levels: Dictionary) -> float:
 
 ## The config of one run: sector 1 defaults, best wave, Foundry levels and frame applied.
 static func make_config(
-	seed_value: int, sector: int, best_wave: int, foundry_levels: Dictionary, frame_id: String
+	seed_value: int,
+	sector: int,
+	best_wave: int,
+	foundry_levels: Dictionary,
+	frame_id: String,
+	mode_id: String = "timed"
 ) -> SimConfig:
 	var cfg: SimConfig = SimConfigLoader.load_default(seed_value)
 	cfg.sector = sector
 	cfg.best_wave_s1 = best_wave
+	var mode_errors: PackedStringArray = SimConfigLoader.apply_mode(cfg, mode_id)
+	if not mode_errors.is_empty():
+		push_error("BalanceSetup: " + mode_errors[0])
 	if not foundry_levels.is_empty():
 		SimConfigLoader.apply_foundry(cfg, foundry_levels)
 	if frame_id != "vanguard":

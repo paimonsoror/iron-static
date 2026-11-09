@@ -9,6 +9,7 @@ const ENEMY_TABLE_PATH: String = "res://src/data_gen/enemy_table.tres"
 const UPGRADE_TABLE_PATH: String = "res://src/data_gen/upgrade_table.tres"
 const FOUNDRY_TABLE_PATH: String = "res://src/data_gen/foundry_table.tres"
 const FRAME_TABLE_PATH: String = "res://src/data_gen/frame_table.tres"
+const WAVE_MODE_TABLE_PATH: String = "res://src/data_gen/wave_mode_table.tres"
 
 
 ## Default M1 config: sector 1, standard ruleset, all enemies and upgrades in CSV row order.
@@ -102,3 +103,28 @@ static func frame_mods_from(def: FrameDef) -> FrameMods:
 		_:
 			m.passive = FrameMods.PASSIVE_NONE
 	return m
+
+
+## Fills `cfg.wave_mode`, `purge_backstop_ticks` and `reward_mult` from a wave_modes.csv row (M4-02).
+## An unknown or unimplemented id falls back to `timed` (never to purge) and returns one error line;
+## an empty array means the mode was applied as asked. No push_error: callers decide what to do.
+static func apply_mode(cfg: SimConfig, mode_id: String) -> PackedStringArray:
+	var errors: PackedStringArray = PackedStringArray()
+	var table: WaveModeTable = load(WAVE_MODE_TABLE_PATH)
+	var chosen: WaveModeDef = null
+	var fallback: WaveModeDef = null
+	for def: WaveModeDef in table.defs:
+		if def.id == "timed":
+			fallback = def
+		if def.id == mode_id and def.implemented:
+			chosen = def
+	if chosen == null:
+		errors.append("unknown or unimplemented wave mode '%s', using timed" % mode_id)
+		chosen = fallback
+	if chosen == null:
+		errors.append("wave_mode_table has no timed row")
+		return errors
+	cfg.wave_mode = chosen.id
+	cfg.purge_backstop_ticks = Ticks.from_seconds(chosen.backstop_s)
+	cfg.reward_mult = chosen.reward_mult
+	return errors

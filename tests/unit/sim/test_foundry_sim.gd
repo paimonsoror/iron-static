@@ -2,7 +2,8 @@ class_name TestFoundrySim
 extends GdUnitTestSuite
 ## Foundry levels entering the sim as config data (M3-07).
 
-const PRE_M3_CONFIG_HASH: String = "43ca2931080753827c979b9b0f25d6d51a45770bc8ee9c37b1754439a4698337"
+# Re-pinned in M4-02 (the mode section is always hashed).
+const PRE_M3_CONFIG_HASH: String = "8291a16da68c01b972b84a201d9ac4fc8ce4c7e03f19b0552286942849a2c8ac"
 const F_D_LASER: float = 0.06
 const F_D_HULL: float = 0.06
 

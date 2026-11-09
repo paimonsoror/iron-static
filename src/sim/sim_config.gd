@@ -19,3 +19,8 @@ var foundry_f: PackedFloat64Array = PackedFloat64Array()
 ## Cinder frame (M3-22): null or neutral = VANGUARD (identical to pre-frame). `frame_id` is recorded.
 var frame: FrameMods = null
 var frame_id: String = "vanguard"
+## Wave mode (M4-02, Q76): "timed" or "purge". The sim reads only these three fields, never the CSV.
+## `purge_backstop_ticks` 0 = no backstop; `reward_mult` is carried (applied from a later task).
+var wave_mode: String = "timed"
+var purge_backstop_ticks: int = 0
+var reward_mult: float = 1.0

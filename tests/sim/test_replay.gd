@@ -4,7 +4,7 @@ extends GdUnitTestSuite
 
 const MAX_TICKS: int = 60000
 const GOLDEN_SIM_VERSION: int = 2
-const GOLDEN_CONFIG_HASH: String = "43ca2931080753827c979b9b0f25d6d51a45770bc8ee9c37b1754439a4698337"
+const GOLDEN_CONFIG_HASH: String = "8291a16da68c01b972b84a201d9ac4fc8ce4c7e03f19b0552286942849a2c8ac"
 const GOLDEN_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 const GOLDEN_TICKS: int = 3000
 const NO_BUDGET_LIMIT: int = 1_000_000_000
@@ -147,9 +147,15 @@ func test_golden_run_hash_prompts_a_sim_version_bump() -> void:
 	cfg.debug_invulnerable = true
 	var w: SimWorld = _scripted(cfg, GOLDEN_TICKS)
 	var cfg_hash: String = ConfigHash.compute(_cfg(7))
-	if cfg_hash != GOLDEN_CONFIG_HASH:
-		push_warning("data CSVs changed: refresh GOLDEN_CONFIG_HASH/GOLDEN_FINAL_HASH (golden check skipped)")
-		return
+	# A config-hash change used to skip the state check silently, which could hide a sim change (M4-02 review).
+	# Now it fails: after a data CSV or config-field change, refresh GOLDEN_CONFIG_HASH and re-check the final hash.
+	(
+		assert_str(cfg_hash)
+		. override_failure_message(
+			"Config changed (data CSV or SimConfig fields): refresh GOLDEN_CONFIG_HASH, then re-check GOLDEN_FINAL_HASH"
+		)
+		. is_equal(GOLDEN_CONFIG_HASH)
+	)
 	assert_int(SimVersion.CURRENT).is_equal(GOLDEN_SIM_VERSION)
 	(
 		assert_str(w.state_hash())

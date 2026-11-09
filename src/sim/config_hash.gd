@@ -18,6 +18,17 @@ static func compute(cfg: SimConfig) -> String:
 	for u: RunUpgradeDef in cfg.upgrades:
 		_put_resource(ctx, u)
 	_put_foundry(ctx, cfg)
+	_put_text(
+		ctx,
+		(
+			"mode:%s;backstop:%d;reward:%s;"
+			% [
+				cfg.wave_mode,
+				cfg.purge_backstop_ticks,
+				PackedFloat64Array([cfg.reward_mult]).to_byte_array().hex_encode()
+			]
+		)
+	)
 	var fm: FrameMods = cfg.frame
 	if fm != null and not fm.is_neutral():
 		_put_text(ctx, fm.hash_text(cfg.frame_id))
