@@ -14,6 +14,8 @@ const ARG_NOVSYNC: String = "--debug-novsync"
 
 ## key -> true for every setting currently forced by a session arg.
 var session_override: Dictionary = {}
+## The haptics service driven by the `haptics` setting (`Game` binds `Game.haptics`; null in bare unit tests).
+var haptics: Haptics = null
 var _persisted: PlayerSettings = PlayerSettings.new()
 
 
@@ -31,6 +33,9 @@ func apply(
 	game_visual.scanline_intensity = settings.scanline_intensity()
 	game_visual.fps_cap = VisualSettings.snap_fps_cap(settings.fps_cap)
 	NumberFormat.style = settings.number_format_style()
+	game_visual.set_accessibility(settings.colorblind, settings.high_contrast)
+	if haptics != null:
+		haptics.enabled = settings.haptics
 	_apply_session_args(game_visual, game_audio, args)
 	game_audio.apply()
 	game_visual.apply_fps_cap()
@@ -44,6 +49,10 @@ func capture(game_visual: VisualSettings, game_audio: AudioSettings) -> PlayerSe
 	s.reduce_motion = game_visual.reduce_motion
 	s.scanlines = PlayerSettings.scanline_level_for(game_visual.scanline_intensity)
 	s.number_format = NumberFormat.STYLE_NAMES[clampi(NumberFormat.style, 0, 2)]
+	s.colorblind = game_visual.colorblind
+	s.high_contrast = game_visual.high_contrast
+	if haptics != null:
+		s.haptics = haptics.enabled
 	if not session_override.has(KEY_MUTED):
 		s.muted = game_audio.muted
 	if not session_override.has(KEY_SHAKE):

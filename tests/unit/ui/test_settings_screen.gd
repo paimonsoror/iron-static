@@ -229,3 +229,27 @@ func test_wide_layout_is_a_1080_column() -> void:
 	var s: SettingsScreen = _screen(Vector2(1990.0, 1920.0))
 	assert_int(s.layout_mode()).is_equal(LayoutMode.Mode.WIDE)
 	assert_float(s.content.size.x).is_equal(1080.0)
+
+
+func test_accessibility_rows_apply_and_persist() -> void:
+	var s: SettingsScreen = _screen()
+	var old_haptics: bool = Game.haptics.enabled
+	_toggle(s, "haptics", false)
+	assert_bool(Game.haptics.enabled).is_false()
+	assert_bool(_stored().haptics).is_false()
+	_toggle(s, "high_contrast", true)
+	assert_bool(Game.visual.high_contrast).is_true()
+	assert_bool(_stored().high_contrast).is_true()
+	_choose(s, "colorblind", 2)
+	assert_str(Game.visual.colorblind).is_equal("protanopia")
+	assert_str(_stored().colorblind).is_equal("protanopia")
+	assert_bool(_stored().high_contrast).is_true()
+	assert_str((s._value_labels["colorblind"] as Label).text).is_equal("PROTANOPIA")
+	s.enter()
+	assert_int((s.choices["colorblind"] as SettingsChoice).selected).is_equal(2)
+	assert_bool((s.toggles["haptics"] as SettingsToggle).button_pressed).is_false()
+	for key: String in ["haptics", "high_contrast"]:
+		assert_float((s.toggles[key] as SettingsToggle).custom_minimum_size.y).is_greater_equal(148.0)
+	for b: Button in (s.choices["colorblind"] as SettingsChoice).buttons:
+		assert_float(b.custom_minimum_size.y).is_greater_equal(148.0)
+	Game.haptics.enabled = old_haptics

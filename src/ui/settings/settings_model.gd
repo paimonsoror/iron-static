@@ -10,10 +10,23 @@ const KEY_SHAKE: String = "shake"
 const KEY_SCANLINES: String = "scanlines"
 const KEY_NUMBER_FORMAT: String = "number_format"
 const KEY_FPS_CAP: String = "fps_cap"
+const KEY_HAPTICS: String = "haptics"
+const KEY_COLORBLIND: String = "colorblind"
+const KEY_HIGH_CONTRAST: String = "high_contrast"
 
 ## Control order on screen.
 const ORDER: Array[String] = [
-	KEY_SFX, KEY_MUSIC, KEY_MUTED, KEY_REDUCE_MOTION, KEY_SHAKE, KEY_SCANLINES, KEY_NUMBER_FORMAT, KEY_FPS_CAP
+	KEY_SFX,
+	KEY_MUSIC,
+	KEY_MUTED,
+	KEY_REDUCE_MOTION,
+	KEY_SHAKE,
+	KEY_SCANLINES,
+	KEY_NUMBER_FORMAT,
+	KEY_FPS_CAP,
+	KEY_HAPTICS,
+	KEY_COLORBLIND,
+	KEY_HIGH_CONTRAST,
 ]
 ## Row label string key per setting ("Sound" is the `sfx` volume).
 const LABEL_KEYS: Dictionary = {
@@ -25,6 +38,9 @@ const LABEL_KEYS: Dictionary = {
 	KEY_SCANLINES: "settings.scanlines",
 	KEY_NUMBER_FORMAT: "settings.number_format",
 	KEY_FPS_CAP: "settings.fps_cap",
+	KEY_HAPTICS: "settings.haptics",
+	KEY_COLORBLIND: "settings.colorblind",
+	KEY_HIGH_CONTRAST: "settings.high_contrast",
 }
 ## Example number for the number format: 12345678 reads differently in all three styles.
 const EXAMPLE_VALUE: String = "12345678"
@@ -44,6 +60,8 @@ static func options(setting: String) -> Array[String]:
 			return PlayerSettings.LEVEL_NAMES
 		KEY_NUMBER_FORMAT:
 			return NumberFormat.STYLE_NAMES
+		KEY_COLORBLIND:
+			return PlayerSettings.COLORBLIND_NAMES
 		KEY_FPS_CAP:
 			var out: Array[String] = []
 			for c: int in VisualSettings.FPS_CAPS:
@@ -68,6 +86,11 @@ static func option_keys(setting: String) -> Array[String]:
 
 static func index_of(setting: String, option: String) -> int:
 	return maxi(options(setting).find(option), 0)
+
+
+## String key of a colorblind mode's full name (the segment buttons carry short names).
+static func colorblind_full_key(mode: String) -> String:
+	return "settings.cb." + mode
 
 
 ## "70%" for a 0..1 volume.

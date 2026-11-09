@@ -75,13 +75,59 @@ func test_fps_cap_snap_and_reject() -> void:
 
 
 func test_unknown_keys_kept() -> void:
-	var q: PlayerSettings = PlayerSettings.from_dict({"haptics": 2, "music": 0.3})
+	var q: PlayerSettings = PlayerSettings.from_dict({"left_handed": 2, "music": 0.3})
 	var d: Dictionary = q.to_dict()
-	var haptics: int = d["haptics"]
+	var left_handed: int = d["left_handed"]
 	var music: float = d["music"]
-	assert_int(haptics).is_equal(2)
+	assert_int(left_handed).is_equal(2)
 	assert_float(music).is_equal_approx(0.3, 0.0001)
 
 
 func test_enum_text_is_case_insensitive() -> void:
 	assert_str(PlayerSettings.from_dict({"shake": " OFF "}).shake).is_equal("off")
+
+
+func test_accessibility_defaults_and_round_trip() -> void:
+	var s: PlayerSettings = PlayerSettings.from_dict({})
+	assert_bool(s.haptics).is_true()
+	assert_str(s.colorblind).is_equal("off")
+	assert_bool(s.high_contrast).is_false()
+	s.haptics = false
+	s.colorblind = "tritanopia"
+	s.high_contrast = true
+	s.extra["future"] = 7
+	var q: PlayerSettings = PlayerSettings.from_dict(s.to_dict())
+	assert_bool(q.haptics).is_false()
+	assert_str(q.colorblind).is_equal("tritanopia")
+	assert_bool(q.high_contrast).is_true()
+	var future: int = q.extra["future"]
+	assert_int(future).is_equal(7)
+	assert_dict(q.to_dict()).is_equal(s.to_dict())
+	for key: String in ["haptics", "colorblind", "high_contrast"]:
+		assert_bool(PlayerSettings.KNOWN_KEYS.has(key)).is_true()
+		assert_bool(q.extra.has(key)).is_false()
+
+
+func test_invalid_colorblind_falls_back_with_error_entry() -> void:
+	var q: PlayerSettings = PlayerSettings.from_dict({"colorblind": "rainbow", "haptics": "yes", "high_contrast": 1})
+	assert_str(q.colorblind).is_equal("off")
+	assert_bool(q.haptics).is_true()
+	assert_bool(q.high_contrast).is_false()
+	assert_array(q.errors).has_size(1)
+	assert_str(q.errors[0]).contains("rainbow")
+	assert_array(PlayerSettings.from_dict({}).errors).is_empty()
+	assert_str(PlayerSettings.from_dict({"colorblind": " Protanopia "}).colorblind).is_equal("protanopia")
+
+
+func test_v2_fixture_loads_with_accessibility_defaults() -> void:
+	var text: String = FileAccess.get_file_as_string("res://tests/fixtures/save_v2.json")
+	var parsed: Variant = JSON.parse_string(text)
+	assert_bool(parsed is Dictionary).is_true()
+	var root: Dictionary = parsed
+	var profile: Dictionary = root["profile"]
+	var raw_settings: Dictionary = profile["settings"]
+	var s: PlayerSettings = PlayerSettings.from_dict(raw_settings)
+	assert_bool(s.haptics).is_true()
+	assert_str(s.colorblind).is_equal("off")
+	assert_bool(s.high_contrast).is_false()
+	assert_int(s.fps_cap).is_equal(30)

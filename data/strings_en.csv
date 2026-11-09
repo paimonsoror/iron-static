@@ -237,3 +237,13 @@ intel.stats.chain_frame,FRAME {v}
 intel.stats.chain_patch,PATCH {v}
 intel.stats.chain_dps,OUTPUT x RATE x CRIT {v}
 intel.stats.chain_none,NO MODIFIERS
+settings.haptics,HAPTICS
+settings.colorblind,COLORBLIND MODE
+settings.high_contrast,HIGH CONTRAST
+settings.opt.deuteranopia,DEUT
+settings.opt.protanopia,PROT
+settings.opt.tritanopia,TRIT
+settings.cb.off,OFF
+settings.cb.deuteranopia,DEUTERANOPIA
+settings.cb.protanopia,PROTANOPIA
+settings.cb.tritanopia,TRITANOPIA

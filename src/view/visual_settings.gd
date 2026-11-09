@@ -6,6 +6,8 @@ extends RefCounted
 ## helpers every frame (cheap). Listen to `quality_changed` for switches that need rebuilding a material.
 
 signal quality_changed(tier: int)
+## Colorblind mode or high contrast changed (M4-24 palettes and rendering listen to this).
+signal accessibility_changed
 
 enum Shake { OFF, LOW, NORMAL }
 
@@ -25,6 +27,10 @@ var reduce_motion: bool = false
 var scanline_intensity: float = DEFAULT_SCANLINE_INTENSITY
 ## Frame cap in fps (30 or 60; 0 = uncapped for benches). Applied with `apply_fps_cap`.
 var fps_cap: int = DEFAULT_FPS_CAP
+## Colorblind mode, one of `PlayerSettings.COLORBLIND_NAMES` ("off" = the normal palette). Read by M4-24.
+var colorblind: String = "off"
+## High-contrast rendering on/off. Read by M4-24.
+var high_contrast: bool = false
 
 
 ## Builds settings from the user args (`--quality=`, `--shake=`); absent args give the defaults.
@@ -44,6 +50,17 @@ static func parse_shake(text: String) -> Shake:
 		Log.warn("unknown shake '%s' (use off|low|normal), falling back to low" % text)
 		return Shake.LOW
 	return idx as Shake
+
+
+## THE accessibility hook (M4-23): the settings applier and the Settings rows call this; M4-24 consumes
+## `colorblind` / `high_contrast` and the `accessibility_changed` signal. Unknown mode names become "off".
+func set_accessibility(mode: String, contrast: bool) -> void:
+	var m: String = mode if PlayerSettings.COLORBLIND_NAMES.has(mode) else "off"
+	if m == colorblind and contrast == high_contrast:
+		return
+	colorblind = m
+	high_contrast = contrast
+	accessibility_changed.emit()
 
 
 ## Switches the tier (replaces `quality` with the preset) and emits `quality_changed`.

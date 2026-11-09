@@ -27,6 +27,18 @@ static func set_reduce_motion(on: bool) -> void:
 	_persist()
 
 
+static func set_haptics(on: bool) -> void:
+	if Game.haptics != null:
+		Game.haptics.enabled = on
+	_persist()
+
+
+## Stores and applies through the M4-24 hook (`VisualSettings.set_accessibility`).
+static func set_high_contrast(on: bool) -> void:
+	Game.visual.set_accessibility(Game.visual.colorblind, on)
+	_persist()
+
+
 ## `index` into `SettingsModel.options(setting)` for the four choice settings.
 static func set_choice(setting: String, index: int) -> void:
 	var names: Array[String] = SettingsModel.options(setting)
@@ -42,6 +54,8 @@ static func set_choice(setting: String, index: int) -> void:
 		SettingsModel.KEY_FPS_CAP:
 			Game.settings_applier.release_override(SettingsApplier.KEY_FPS_CAP)
 			Game.visual.set_fps_cap(int(opt))
+		SettingsModel.KEY_COLORBLIND:
+			Game.visual.set_accessibility(opt, Game.visual.high_contrast)
 	_persist()
 
 

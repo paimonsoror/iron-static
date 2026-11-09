@@ -69,11 +69,14 @@ func enter() -> void:
 	_slider_set(SettingsModel.KEY_MUSIC, s.music)
 	_toggle_set(SettingsModel.KEY_MUTED, s.muted)
 	_toggle_set(SettingsModel.KEY_REDUCE_MOTION, s.reduce_motion)
+	_toggle_set(SettingsModel.KEY_HAPTICS, s.haptics)
+	_toggle_set(SettingsModel.KEY_HIGH_CONTRAST, s.high_contrast)
 	var picks: Dictionary[String, String] = {
 		SettingsModel.KEY_SHAKE: s.shake,
 		SettingsModel.KEY_SCANLINES: s.scanlines,
 		SettingsModel.KEY_NUMBER_FORMAT: s.number_format,
 		SettingsModel.KEY_FPS_CAP: str(s.fps_cap),
+		SettingsModel.KEY_COLORBLIND: s.colorblind,
 	}
 	for key: String in picks:
 		choices[key].set_selected_silent(SettingsModel.index_of(key, picks[key]))
@@ -142,7 +145,7 @@ func _make_row(setting: String) -> Control:
 			sl.value_changed.connect(_on_slider.bind(setting))
 			sl.drag_released.connect(_on_slider_released)
 			box.add_child(_plate([_header(setting, title_text), sl]))
-		SettingsModel.KEY_MUTED, SettingsModel.KEY_REDUCE_MOTION:
+		SettingsModel.KEY_MUTED, SettingsModel.KEY_REDUCE_MOTION, SettingsModel.KEY_HAPTICS, SettingsModel.KEY_HIGH_CONTRAST:
 			var t := SettingsToggle.new()
 			t.text = title_text
 			t.toggled.connect(_on_toggle.bind(setting))
@@ -212,10 +215,15 @@ func _on_slider_released(changed: bool) -> void:
 
 
 func _on_toggle(on: bool, setting: String) -> void:
-	if setting == SettingsModel.KEY_MUTED:
-		SettingsActions.set_muted(on)
-	else:
-		SettingsActions.set_reduce_motion(on)
+	match setting:
+		SettingsModel.KEY_MUTED:
+			SettingsActions.set_muted(on)
+		SettingsModel.KEY_HAPTICS:
+			SettingsActions.set_haptics(on)
+		SettingsModel.KEY_HIGH_CONTRAST:
+			SettingsActions.set_high_contrast(on)
+		_:
+			SettingsActions.set_reduce_motion(on)
 	_refresh_state()
 
 
@@ -233,3 +241,6 @@ func _refresh_state() -> void:
 		if choices.has(setting) and SettingsModel.dimmed_by_reduce_motion(setting):
 			choices[setting].set_dimmed(reduced)
 	example_label.text = SettingsModel.number_example(NumberFormat.style)
+	_value_labels[SettingsModel.KEY_COLORBLIND].text = Strings.get_text(
+		SettingsModel.colorblind_full_key(Game.visual.colorblind)
+	)
