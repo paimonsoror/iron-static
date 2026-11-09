@@ -6,9 +6,9 @@ shader_type canvas_item;
 // `u_time` is driven by the CPU so reduce motion can freeze the noise at a fixed offset (static smoke).
 render_mode blend_premul_alpha, unshaded;
 
-uniform vec2 rect_px = vec2(1080.0, 1200.0);
-uniform float u_time = 0.0;
-uniform vec2 drift = vec2(0.012, -0.004);     // noise-space units per second (x wind, y rise)
+uniform highp vec2 rect_px = vec2(1080.0, 1200.0);
+uniform highp float u_time = 0.0;
+uniform highp vec2 drift = vec2(0.012, -0.004);     // noise-space units per second (x wind, y rise)
 uniform float noise_scale : hint_range(0.5, 8.0) = 2.4;
 uniform float density : hint_range(0.0, 1.0) = 0.6;
 uniform float additive : hint_range(0.0, 1.0) = 0.0;
@@ -25,7 +25,7 @@ uniform float fade_bottom : hint_range(0.01, 1.0) = 0.25; // uv.y span where it 
 uniform float hi_end : hint_range(0.0, 1.0) = 0.0;
 uniform float hi_density : hint_range(0.0, 1.0) = 0.7;
 uniform float hi_scale : hint_range(0.5, 8.0) = 2.6;
-uniform vec2 hi_drift = vec2(0.01, -0.002);
+uniform highp vec2 hi_drift = vec2(0.01, -0.002);
 uniform float hi_edge_lo : hint_range(0.0, 1.0) = 0.36;
 uniform float hi_edge_hi : hint_range(0.0, 1.0) = 0.7;
 uniform vec4 hi_dark : source_color = vec4(0.045, 0.035, 0.035, 1.0);
@@ -36,28 +36,30 @@ uniform float hi_hole_h : hint_range(0.01, 0.5) = 0.1;
 uniform float hi_hole_amount : hint_range(0.0, 1.0) = 0.5;
 
 
-float hash21(vec2 p) {
+// Every noise step is highp: Godot's Compatibility renderer defaults fragment floats to mediump on Android, and
+// the fp16 hash/fract collapsed the value noise into hard rectangular blocks on the device (desktop is always fp32).
+highp float hash21(highp vec2 p) {
 	p = fract(p * vec2(123.34, 456.21));
 	p += dot(p, p + 45.32);
 	return fract(p.x * p.y);
 }
 
 
-float vnoise(vec2 p) {
-	vec2 i = floor(p);
-	vec2 f = fract(p);
-	vec2 u = f * f * (3.0 - 2.0 * f);
-	float a = hash21(i);
-	float b = hash21(i + vec2(1.0, 0.0));
-	float c = hash21(i + vec2(0.0, 1.0));
-	float d = hash21(i + vec2(1.0, 1.0));
+highp float vnoise(highp vec2 p) {
+	highp vec2 i = floor(p);
+	highp vec2 f = fract(p);
+	highp vec2 u = f * f * (3.0 - 2.0 * f);
+	highp float a = hash21(i);
+	highp float b = hash21(i + vec2(1.0, 0.0));
+	highp float c = hash21(i + vec2(0.0, 1.0));
+	highp float d = hash21(i + vec2(1.0, 1.0));
 	return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
 
 
-float fbm(vec2 p) {
-	float v = 0.0;
-	float a = 0.5;
+highp float fbm(highp vec2 p) {
+	highp float v = 0.0;
+	highp float a = 0.5;
 	for (int i = 0; i < 3; i++) {
 		v += a * vnoise(p);
 		p = p * 2.03 + vec2(17.1, 9.7);
@@ -68,11 +70,11 @@ float fbm(vec2 p) {
 
 
 void fragment() {
-	float aspect = rect_px.x / rect_px.y;
+	highp float aspect = rect_px.x / rect_px.y;
 	if (UV.y < hi_end) {
 		// streaky: stretched along x, slow
-		vec2 hp = vec2(UV.x * aspect * 0.28, UV.y * 1.1) * hi_scale + hi_drift * u_time;
-		float hn = fbm(hp);
+		highp vec2 hp = vec2(UV.x * aspect * 0.28, UV.y * 1.1) * hi_scale + hi_drift * u_time;
+		highp float hn = fbm(hp);
 		float hm = smoothstep(hi_edge_lo, hi_edge_hi, hn);
 		float hole = 1.0 - hi_hole_amount * exp(-pow((UV.y - hi_hole_y) / hi_hole_h, 2.0));
 		float hband = smoothstep(0.0, 0.05, UV.y) * (1.0 - smoothstep(hi_end - 0.1, hi_end, UV.y));
@@ -82,8 +84,8 @@ void fragment() {
 		vec3 hrgb = mix(hi_dark.rgb, hi_warm.rgb, clamp(hwarm * 0.6 + hrim * 0.5, 0.0, 1.0));
 		COLOR = vec4(hrgb * ha, ha * (1.0 - additive * 0.5));
 	} else {
-		vec2 p = vec2(UV.x * aspect * 0.7, UV.y) * noise_scale + drift * u_time;
-		float n = fbm(p);
+		highp vec2 p = vec2(UV.x * aspect * 0.7, UV.y) * noise_scale + drift * u_time;
+		highp float n = fbm(p);
 		float m = smoothstep(edge_lo, edge_hi, n);
 		float band = smoothstep(hi_end, hi_end + fade_top, UV.y) * (1.0 - smoothstep(1.0 - fade_bottom, 1.0, UV.y));
 		float a = m * density * band;
