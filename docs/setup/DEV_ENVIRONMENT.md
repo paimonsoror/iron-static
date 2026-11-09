@@ -145,3 +145,14 @@ better than the emulator on this laptop.
 - Gradle build template is untracked: run `.\tools\setup_android_template.ps1` after a clone or Godot upgrade.
 - Setup docs: `android_export.md`, `gradle_build.md` (export, timings), `smoke_test.md`, `gdunit4.md` (tests), `lint.md`, `ci.md`, `plugin_matrix.md` (plugins and integration checklist).
 - Services boot probe (billing + ads; debug builds on Android only, off by default): temporarily set the export preset option `command_line/extra_args` to `-- --probe-services` (Godot bakes it into the APK; `adb am start --esa command_line_params` does not work because Android strips extras sent to the exported launcher), deploy, look for `probe billing` / `probe ads` lines in logcat, then revert the preset (do not commit it). See `src/services/services.gd`.
+
+## Release tooling (B1, added 2026-11-09)
+
+| Component | Version | Path |
+|---|---|---|
+| bundletool | 1.18.3 (jar, run with JDK 17: `C:\dev\tools\jdk-17\bin\java.exe -jar ...`) | `C:\dev\tools\bundletool\bundletool-all-1.18.3.jar` (outside the repo; pin in `tools/bundletool_version.txt`) |
+| bundletool SHA-256 | `a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29` (matches the digest GitHub lists for the release asset) | download: `https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar` |
+| zipalign | Build-Tools 36.0.0 (35.0.1 also works) | `<sdk>\build-tools\36.0.0\zipalign.exe` |
+| llvm-objdump | NDK r28b | `<sdk>\ndk\28.1.13356709\toolchains\llvm\prebuilt\windows-x86_64\bin\llvm-objdump.exe` |
+
+Release signing and the AAB build: `docs/setup/android_export.md` section "Release AAB", `docs/setup/signing.md`.
