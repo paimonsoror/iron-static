@@ -1,0 +1,10 @@
+REV swarm fresh k=1 runs=12 death_mean=11.6 peak_alive_mean=13 kills_per_s=0.36 tick_avg_us=45
+REV swarm fresh k=2 runs=12 death_mean=12.8 peak_alive_mean=25 kills_per_s=0.78 tick_avg_us=59
+REV swarm fresh k=4 runs=12 death_mean=4.0 peak_alive_mean=39 kills_per_s=0.91 tick_avg_us=76
+REV swarm mid k=1 runs=12 death_mean=46.7 peak_alive_mean=22 kills_per_s=0.64 tick_avg_us=62
+REV swarm mid k=2 runs=12 death_mean=43.8 peak_alive_mean=43 kills_per_s=1.26 tick_avg_us=73
+REV swarm mid k=4 runs=12 death_mean=11.1 peak_alive_mean=59 kills_per_s=1.47 tick_avg_us=102
+REV swarm late k=1 runs=12 death_mean=74.0 peak_alive_mean=27 kills_per_s=0.78 tick_avg_us=71
+REV swarm late k=2 runs=12 death_mean=73.8 peak_alive_mean=50 kills_per_s=1.58 tick_avg_us=82
+REV swarm late k=4 runs=12 death_mean=26.5 peak_alive_mean=127 kills_per_s=1.91 tick_avg_us=137
+REV OK

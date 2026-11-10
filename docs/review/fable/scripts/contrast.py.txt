@@ -1,0 +1,39 @@
+import sys
+
+sys.path.insert(0, sys.argv[1])
+from png_io import read_png
+
+
+def lum(c):
+    def f(v):
+        v /= 255.0
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+
+    return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2])
+
+
+def ratio(a, b):
+    la, lb = lum(a), lum(b)
+    if la < lb:
+        la, lb = lb, la
+    return (la + 0.05) / (lb + 0.05)
+
+
+w, h, px = read_png(sys.argv[2])
+print("size", w, h)
+
+
+def get(x, y):
+    r = px[y]
+    return (r[x * 3], r[x * 3 + 1], r[x * 3 + 2])
+
+
+for spec in sys.argv[3:]:
+    name, x0, y0, x1, y1 = spec.split(",")
+    x0, y0, x1, y1 = map(int, (x0, y0, x1, y1))
+    cols = [get(x, y) for y in range(y0, y1) for x in range(x0, x1)]
+    cols.sort(key=lum)
+    bg = cols[len(cols) // 10]
+    fg = cols[-max(1, len(cols) // 200)]
+    lit = sum(1 for c in cols if ratio(c, bg) >= 3.0) / len(cols)
+    print(f"{name}: bg={bg} fg_peak={fg} contrast={ratio(fg, bg):.1f} ink_share={lit:.3f}")

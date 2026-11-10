@@ -1,0 +1,46 @@
+JOURNEY journey deployments=40 spend=recommended frame=vanguard mode=timed run_policy=greedy4 seed=1 waves=120 set=none
+JOURNEY dep=1 seed=1 frame=vanguard death_wave=11 best=11 data=169 cum_data=169 spent=159 left=10 L=3 C=0 H=3 N=1 min1x=4.40 cum_min_2x=2.20
+JOURNEY dep=2 seed=2 frame=vanguard death_wave=14 best=14 data=235 cum_data=405 spent=239 left=7 L=6 C=0 H=6 N=3 min1x=5.23 cum_min_2x=4.82
+JOURNEY dep=3 seed=3 frame=vanguard death_wave=15 best=15 data=236 cum_data=640 spent=221 left=21 L=8 C=0 H=8 N=5 min1x=5.61 cum_min_2x=7.62
+JOURNEY dep=4 seed=4 frame=vanguard death_wave=18 best=18 data=348 cum_data=989 spent=367 left=3 L=10 C=1 H=10 N=8 min1x=6.99 cum_min_2x=11.12
+JOURNEY dep=5 seed=5 frame=vanguard death_wave=23 best=23 data=585 cum_data=1574 spent=579 left=9 L=13 C=3 H=13 N=10 min1x=8.84 cum_min_2x=15.54
+JOURNEY dep=6 seed=6 frame=vanguard death_wave=24 best=24 data=649 cum_data=2223 spent=593 left=65 L=14 C=5 H=14 N=14 min1x=9.30 cum_min_2x=20.19
+JOURNEY dep=7 seed=7 frame=vanguard death_wave=34 best=34 data=1283 cum_data=3506 spent=1319 left=29 L=19 C=8 H=18 N=16 min1x=13.50 cum_min_2x=26.94
+JOURNEY dep=8 seed=8 frame=vanguard death_wave=28 best=34 data=944 cum_data=4450 spent=863 left=110 L=20 C=10 H=20 N=18 min1x=11.17 cum_min_2x=32.53
+JOURNEY dep=9 seed=9 frame=vanguard death_wave=35 best=35 data=1304 cum_data=5754 spent=1256 left=158 L=21 C=13 H=21 N=21 min1x=13.72 cum_min_2x=39.39
+JOURNEY dep=10 seed=10 frame=vanguard death_wave=27 best=35 data=813 cum_data=6567 spent=738 left=233 L=21 C=16 H=21 N=21 min1x=10.79 cum_min_2x=44.79
+JOURNEY dep=11 seed=11 frame=vanguard death_wave=53 best=53 data=3327 cum_data=9894 spent=3414 left=146 L=28 C=16 H=27 N=25 min1x=20.82 cum_min_2x=55.20
+JOURNEY dep=12 seed=12 frame=vanguard death_wave=71 best=71 data=5805 cum_data=15699 spent=5634 left=317 L=32 C=19 H=32 N=30 min1x=28.38 cum_min_2x=69.39
+JOURNEY dep=13 seed=13 frame=vanguard death_wave=67 best=71 data=5649 cum_data=21348 spent=5698 left=268 L=35 C=22 H=35 N=33 min1x=26.57 cum_min_2x=82.67
+JOURNEY dep=14 seed=14 frame=vanguard death_wave=72 best=72 data=6060 cum_data=27408 spent=6230 left=98 L=38 C=24 H=38 N=35 min1x=28.74 cum_min_2x=97.04
+JOURNEY dep=15 seed=15 frame=vanguard death_wave=70 best=72 data=5510 cum_data=32918 spent=5379 left=229 L=40 C=25 H=40 N=37 min1x=27.79 cum_min_2x=110.93
+JOURNEY dep=16 seed=16 frame=vanguard death_wave=76 best=76 data=6771 cum_data=39689 spent=6399 left=601 L=42 C=27 H=41 N=39 min1x=30.19 cum_min_2x=126.03
+JOURNEY dep=17 seed=17 frame=vanguard death_wave=72 best=76 data=11796 cum_data=51485 spent=11266 left=1131 L=44 C=29 H=44 N=42 min1x=28.57 cum_min_2x=140.31
+JOURNEY dep=18 seed=18 frame=vanguard death_wave=73 best=76 data=6180 cum_data=57665 spent=6858 left=453 L=45 C=31 H=45 N=43 min1x=29.19 cum_min_2x=154.91
+JOURNEY dep=19 seed=19 frame=vanguard death_wave=81 best=81 data=7751 cum_data=65416 spent=7791 left=413 L=48 C=31 H=46 N=44 min1x=32.32 cum_min_2x=171.07
+JOURNEY dep=20 seed=20 frame=vanguard death_wave=78 best=81 data=8240 cum_data=73656 spent=8526 left=127 L=48 C=32 H=48 N=46 min1x=31.11 cum_min_2x=186.63
+JOURNEY dep=21 seed=21 frame=vanguard death_wave=75 best=81 data=6345 cum_data=80001 spent=6090 left=382 L=48 C=33 H=48 N=48 min1x=29.70 cum_min_2x=201.48
+JOURNEY dep=22 seed=22 frame=vanguard death_wave=76 best=81 data=6831 cum_data=86832 spent=7103 left=110 L=48 C=36 H=48 N=48 min1x=30.28 cum_min_2x=216.62
+JOURNEY dep=23 seed=23 frame=vanguard death_wave=65 best=81 data=4713 cum_data=91545 spent=2957 left=1866 L=48 C=37 H=48 N=48 min1x=25.92 cum_min_2x=229.58
+JOURNEY dep=24 seed=24 frame=vanguard death_wave=76 best=81 data=7682 cum_data=99227 spent=7021 left=2527 L=48 C=39 H=48 N=48 min1x=30.31 cum_min_2x=244.73
+JOURNEY dep=25 seed=25 frame=vanguard death_wave=77 best=81 data=6815 cum_data=106042 spent=8808 left=534 L=48 C=41 H=48 N=48 min1x=30.54 cum_min_2x=260.00
+JOURNEY dep=26 seed=26 frame=vanguard death_wave=78 best=81 data=6946 cum_data=112988 spent=5211 left=2269 L=48 C=42 H=48 N=48 min1x=30.91 cum_min_2x=275.45
+JOURNEY dep=27 seed=27 frame=vanguard death_wave=75 best=81 data=13331 cum_data=126319 spent=12374 left=3226 L=48 C=44 H=48 N=48 min1x=30.00 cum_min_2x=290.45
+JOURNEY dep=28 seed=28 frame=vanguard death_wave=74 best=81 data=6118 cum_data=132436 spent=7321 left=2022 L=48 C=45 H=48 N=48 min1x=29.29 cum_min_2x=305.10
+JOURNEY dep=29 seed=29 frame=vanguard death_wave=77 best=81 data=14763 cum_data=147199 spent=8200 left=8585 L=48 C=46 H=48 N=48 min1x=30.52 cum_min_2x=320.36
+JOURNEY dep=30 seed=30 frame=vanguard death_wave=78 best=81 data=13237 cum_data=160436 spent=19470 left=2352 L=48 C=48 H=48 N=48 min1x=31.13 cum_min_2x=335.93
+JOURNEY dep=31 seed=31 frame=vanguard death_wave=77 best=81 data=6788 cum_data=167224 spent=0 left=9140 L=48 C=48 H=48 N=48 min1x=30.43 cum_min_2x=351.14
+JOURNEY dep=32 seed=32 frame=vanguard death_wave=82 best=82 data=7917 cum_data=175141 spent=6308 left=10749 L=49 C=48 H=49 N=49 min1x=32.75 cum_min_2x=367.52
+JOURNEY dep=33 seed=33 frame=vanguard death_wave=68 best=82 data=5697 cum_data=180838 spent=11520 left=4926 L=49 C=49 H=49 N=49 min1x=26.96 cum_min_2x=381.00
+JOURNEY dep=34 seed=34 frame=vanguard death_wave=84 best=84 data=9818 cum_data=190656 spent=6938 left=7806 L=50 C=49 H=50 N=50 min1x=33.36 cum_min_2x=397.68
+JOURNEY dep=35 seed=35 frame=vanguard death_wave=104 best=104 data=15349 cum_data=206005 spent=21604 left=1551 L=54 C=49 H=53 N=51 min1x=41.56 cum_min_2x=418.46
+JOURNEY dep=36 seed=36 frame=vanguard death_wave=103 best=104 data=16454 cum_data=222459 spent=16782 left=1223 L=55 C=49 H=55 N=53 min1x=40.86 cum_min_2x=438.89
+JOURNEY dep=37 seed=37 frame=vanguard death_wave=84 best=104 data=10317 cum_data=232776 spent=11471 left=69 L=56 C=49 H=56 N=54 min1x=33.22 cum_min_2x=455.50
+JOURNEY dep=38 seed=38 frame=vanguard death_wave=104 best=104 data=14966 cum_data=247742 spent=12617 left=2418 L=57 C=49 H=57 N=55 min1x=41.45 cum_min_2x=476.23
+JOURNEY dep=39 seed=39 frame=vanguard death_wave=84 best=104 data=8259 cum_data=256000 spent=9152 left=1524 L=58 C=49 H=58 N=55 min1x=33.44 cum_min_2x=492.94
+JOURNEY dep=40 seed=40 frame=vanguard death_wave=98 best=104 data=21858 cum_data=277858 spent=19993 left=3389 L=59 C=49 H=59 N=57 min1x=39.15 cum_min_2x=512.52
+JOURNEY mark after_3_deployments dep=3 best=15 cum_data=640 cum_min_2x=7.6 (1x 15.2) levels_sum=21
+JOURNEY mark at_35_min_2x dep=9 best=35 cum_data=5754 cum_min_2x=39.4 (1x 78.8) levels_sum=76
+JOURNEY mark first_milestone dep=11 best=53 cum_data=9894 cum_min_2x=55.2 (1x 110.4) levels_sum=96
+JOURNEY mark last dep=40 best=104 cum_data=277858 cum_min_2x=512.5 (1x 1025.0) levels_sum=224
+JOURNEY OK
