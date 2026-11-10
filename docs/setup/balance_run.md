@@ -104,3 +104,43 @@ offers themselves come from the seeded `rng_draft` stream, so the "first offer" 
 bot does not weigh patches (no ranking, no gamble avoidance): median death waves therefore include a random patch
 at wave 10 and 20, which is what the changed medians in the M4-15 commit measure. The game build has no overlay
 until M4-16; until then `RunController` auto-picks the first offer as a stopgap.
+
+## Journey simulator (FO-2, `tools/journey_run.ps1`)
+
+`balance_run` plays one deployment per seed. The journey simulator plays N deployments in a row on one profile: run upgrades are bought inside a deployment by the same `PolicyBot` (`-RunPolicy greedy4` by default), and between deployments all banked Data is spent in the Foundry by a named policy through the real `PlayerProfile.bank_run` and `FoundryService`. It answers pacing questions ("how fast does best wave and Data grow when the player stacks the Foundry"), which a single-run median cannot. Report and measurements: `docs/balance/foundry_early_power.md`.
+
+```
+.\tools\journey_run.ps1 -Spend recommended -Deployments 16 -Seed 1 [-Waves 120] [-Frame vanguard|bulwark|striker] [-Mode timed|purge] [-Name text]
+.\tools\journey_run.ps1 -Probe 800 -Spend laser -Runs 20            # fixed spend from a fresh profile vs fresh, 20 seeds
+.\tools\journey_run.ps1 -ProfileFile tests/profiles/foundry_300.json -Frames -Runs 20   # profile vs fresh per frame, with the start stats and targets.csv status
+.\tools\journey_run.ps1 -SelfCheck                                  # 18 checks of the tool itself
+```
+
+| Flag | Meaning |
+|---|---|
+| `-Spend` | `cheapest` (cheapest next level), `laser` (all-in `laser_output`), `recommended` (mirrors the Foundry RECOMMENDED glow, `FoundryRules.recommended`; waits when the glowing row is not affordable yet), `roundrobin`, `none` (control: never spends). Spending is one level at a time until the pick is unaffordable. |
+| `-Deployments`, `-Seed`, `-Waves` | deployment `i` uses seed `Seed + i - 1`; `Waves` caps a deployment (a capped one is marked `capped`, its Data still banks) |
+| `-Frame` | a non-VANGUARD frame is played from the first deployment after its `unlock_best_wave` (`frames.csv`) is reached; earlier ones use VANGUARD |
+| `-Mode` | `timed` or `purge`; progress (best wave) is that mode's record (info only) |
+| `-Set` | in-memory overrides, nothing on disk changes: `sim.<SimTuning key>=v`, `enemy.<id>.data_base=v`, `enemies.data_scale=x`, `foundry.<row id>.<f\|f_cap\|fc0\|fg>=v` (comma separated) |
+| `-CapK`, `-CapMin` | prototype of a Foundry level cap tied to best wave: every row capped at `max(CapMin, floor(CapK * best wave))` (journey tool only, no game code) |
+| `-Probe`, `-ProfileFile`, `-Frames`, `-Runs` | probe mode (see above) |
+| `-SkipImport` | skip the wrapper's import step (batches; the first call must import so the new `class_name` scripts are known) |
+
+stdout lines start with `JOURNEY` (deterministic; TIMING goes to stderr): one `dep=` line per deployment (death wave, best wave, Data earned and cumulative, Data spent and left, Foundry levels L/C/H/N, game minutes at 2x, state hash), then `mark` lines: after 3 deployments (first session), at 35 minutes of 2x play (Day 1), the first x1.25 Foundry milestone, last. File: `build/journey/<name>.csv`. Exit 0 ok, 2 bad arguments, script error or failed self-check. Run one Godot process at a time. Sources: `tools/journey_run.gd`, `tools/journey/*.gd`. The x1.25-per-10-levels milestone is a code constant (`Curves`), not a `-Set` key.
+
+## Results log: FO-2 journey study (2026-11-09, base main dce40fb, sim as of M4-15)
+
+Change under test: none to the game. New tool `tools/journey_run.ps1` (above) and the study `docs/balance/foundry_early_power.md`. `balance_run` cross-check on the tree (seeds 1-20, greedy4, TIMED, VANGUARD): fresh p10 11 / p50 12 / p90 13 (target 12 PASS), `foundry_300` p50 16 (+4 waves, target 16 PASS), `foundry_1k` p50 30 (target 24, +25%, PASS within 30%).
+
+Journeys (seeds 1-16, greedy4 inside runs, all banked Data spent between runs):
+
+| Foundry policy | best after 3 runs (cum Data) | w45 reached | first deployment ending after 35 min of 2x play | after 16 runs |
+|---|---|---|---|---|
+| none (control) | w12 (497) | never | w13 | w13 |
+| cheapest | w15 (640) | 34 min | w57, 1.06e4 Data | w89 |
+| laser | w24 (1073) | 26 min | w62, 1.01e4 | w75 |
+| recommended | w15 (640) | 36 min | w60, 7.5e3 | w89 |
+| roundrobin | w15 (592) | 45 min | w55, 8.4e3 | w84 |
+
+GDD: first session w20-25 and ~800 Data; Day 1 w35-45 and ~6e3 Data. Verdicts: first session PASS/FLAG (typical play 5 waves short, laser all-in on target); Day 1 FLAG (ahead by 10-17 waves, 25-75% more Data); waves per 300 Data FLAG for concentrated spends (laser 800 Data: +19 waves, 1.8x the design +4 per 300); week 1 / month 1 NOT ASSESSED - NO DATA (sector 1 only). Options measured with the same seeds (A income, B costs, C cap tied to best wave, D milestone reshape, E = D4 + C): see the report; proposed (not applied): x1.75 every 25 Foundry levels (instead of x1.25 every 10) plus a cap of max(3, floor(0.6 * best wave)) per row, which puts both the typical and the single-stat stacker at w35 on Day 1 with the long-run curve intact (late pace within 7%). Option D numbers were measured with `Curves.MILESTONE_FOUNDRY_*` and `FoundryRules.MILESTONE_STEP` temporarily edited and reverted.
