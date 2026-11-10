@@ -1,8 +1,30 @@
 # AAB audit (B1-03)
 
-Changelog: 2026-11-09 v1.0 (B1-03, branch `b1-build`).
+Changelog: 2026-11-09 v1.0 (B1-03, branch `b1-build`); v1.1 (B1-04, branch `b1-plugins`): results after stripping the plugins are in the first section, the pre-B1-04 numbers are kept below as history.
 
 Tool: `tools\aab_check.ps1` (bundletool 1.18.3, zipalign from Build-Tools 36.0.0, llvm-objdump from NDK r28b). Input: `build/release/ironstatic-0.5.0-beta.1-50001-TESTKEY.aab` (66.03 MB, signed with the throwaway test key; the key does not change any result below). The beta preset still contains the M3 service plugins; B1-04 strips them, so the manifest checks FAIL by design today.
+
+## Results after B1-04 (plugins stripped)
+
+Input: `build/release/ironstatic-0.5.0-beta.1-50001-TESTKEY.aab`, 59,279,199 B (56.53 MiB), sha256 `c4d110590ed1c6ef7d7acd6491562a73535009579a573a37c8204db24164d5d4` (test key; hash changes with every build). Built by `tools\release_build.ps1 -TestKey` from a disposable copy of the project without the Billing, AdMob, Sentry and Nakama addons (see `docs/setup/plugin_matrix.md`, section "Beta build: plugins stripped").
+
+`tools\aab_check.ps1`: **AAB CHECK: PASS**. targetSdk 36, minSdk 24, permissions exactly `android.permission.VIBRATE`, allowBackup false, game category, exported components = launcher alias only, `PAGE_ALIGNMENT_16K`, zipalign 16 KB OK, 4/4 `.so` (arm64-v8a and x86_64: `libgodot_android.so`, `libc++_shared.so`) LOAD 2**14 with RELRO, size 56.53 MiB.
+
+| Item | Before (B1-03) | After (B1-04) |
+|---|---|---|
+| Permissions | VIBRATE + ACCESS_NETWORK_STATE, AD_ID x2, FOREGROUND_SERVICE, INTERNET, READ_BASIC_PHONE_STATE, WAKE_LOCK, BILLING, DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION | VIBRATE only |
+| Exported components | SystemJobService, DiagnosticsReceiver, ProfileInstallReceiver (+ launcher) | launcher alias only |
+| Native libraries | 10 (`libsentry*.so` x6) | 4 (engine only) |
+| classes.dex | 10.2 MB (+ classes2, classes3: 21 MB of dex) | 5.1 MB, single dex |
+| AAB size | 66,164,047 B (63.1 MiB) | 59,279,199 B (56.53 MiB), -6.5 MiB |
+
+Merged manifest text (`bundletool dump manifest`) contains none of: `INTERNET`, `AD_ID`, `BILLING`, `ads.APPLICATION_ID`, `sentry`, `ACCESS_NETWORK_STATE`, `WAKE_LOCK`, `FOREGROUND_SERVICE`, `heroiclabs`, `work` (WorkManager). The dex files contain none of `io/sentry`, `com/google/android/gms/ads`, `billingclient`, `heroiclabs`, `androidx/work`, `poing`. The pck has no `billing_android.gd` / `ads_android.gd` and no addon scripts.
+
+The one extra fix needed: AndroidX Core/Startup (engine template, not a plugin) still merged an exported, permission-guarded `androidx.profileinstaller.ProfileInstallReceiver`. `tools\setup_android_template.ps1` now adds a `tools:node="remove"` receiver entry to the template manifest (idempotent, applies to debug builds too; nothing in the game triggers profile installation).
+
+Not run: emulator run of the exact AAB (`smoke_android.ps1`, 16 KB image, Android 16 notes) belongs to B1-07 and was not done here (no emulator or device touched).
+
+## History: results before B1-04
 
 ## Results on the current build (before B1-04)
 

@@ -2,7 +2,7 @@
 
 Changelog: 2026-11-09 v1.0 (B1-09, branch `b1-docs`).
 
-**Precondition: these answers are true only for the B1-04 beta build** (no Billing, no AdMob/UMP, no Sentry, no Nakama, permission list exactly `VIBRATE`) **and only after `tools\aab_check.ps1` passes on the exact AAB.** Today's `docs/release/aab_audit.md` shows the pre-B1-04 bundle failing (INTERNET, AD_ID, BILLING, Sentry libraries). Do not submit the form until B1-04 is done and the evidence table below is filled from the final AAB.
+**Precondition: these answers are true only for the B1-04 beta build** (no Billing, no AdMob/UMP, no Sentry, no Nakama, permission list exactly `VIBRATE`) **and only after `tools\aab_check.ps1` passes on the exact AAB.** `docs/release/aab_audit.md` now shows the B1-04 bundle passing. The evidence table below was filled from a test-key build of the same sources (2026-11-09); re-run `aab_check.ps1` on the real upload AAB and update the sha256 before submitting the form.
 
 Where: Play Console > Policy and programs > App content > Data safety. Policy basis: `docs/release/research_2026-11.md` 2.7 (collected means data leaving the device, including by SDKs; Google does not verify, mismatches can lead to enforcement).
 
@@ -26,14 +26,14 @@ Run `tools\aab_check.ps1` on `build/release/ironstatic-<versionName>-<versionCod
 
 | Item | Expected | Found (fill in) |
 |---|---|---|
-| AAB file and sha256 | recorded by `release_build.ps1` / B1-07 | |
-| Permissions in the merged manifest (`bundletool dump manifest`) | exactly `android.permission.VIBRATE` | |
-| Absent: `INTERNET`, `ACCESS_NETWORK_STATE`, `AD_ID` (both spellings), `BILLING`, `WAKE_LOCK`, `FOREGROUND_SERVICE`, `READ_BASIC_PHONE_STATE` | none found | |
-| Absent: `ads.APPLICATION_ID`, `sentry`, billing activity entries | none found | |
-| Native libraries | only `libgodot_android.so` and `libc++_shared.so` per ABI; no `libsentry*.so` | |
-| Exported components | launcher alias only | |
-| Plugin checkboxes in the beta preset | Billing off, AdMob/UMP off, Sentry excluded, Nakama addon excluded (`docs/setup/plugin_matrix.md` lines from B1-04, `docs/release/beta_build_decisions.md`) | |
-| `allowBackup` | false (`docs/release/aab_audit.md`) | |
+| AAB file and sha256 | recorded by `release_build.ps1` / B1-07 | `ironstatic-0.5.0-beta.1-50001-TESTKEY.aab`, sha256 `c4d11059...d5d4` (test key; replace with the upload AAB) |
+| Permissions in the merged manifest (`bundletool dump manifest`) | exactly `android.permission.VIBRATE` | only `android.permission.VIBRATE` (aab_check PASS) |
+| Absent: `INTERNET`, `ACCESS_NETWORK_STATE`, `AD_ID` (both spellings), `BILLING`, `WAKE_LOCK`, `FOREGROUND_SERVICE`, `READ_BASIC_PHONE_STATE` | none found (text search of the dumped manifest, also `WAKE_LOCK`, `FOREGROUND_SERVICE`, WorkManager) |
+| Absent: `ads.APPLICATION_ID`, `sentry`, billing activity entries | none found (manifest, dex strings and bundle file list: no `io/sentry`, `gms/ads`, `billingclient`, `androidx/work`) |
+| Native libraries | only `libgodot_android.so` and `libc++_shared.so` per ABI; no `libsentry*.so` | 4 libraries: `libgodot_android.so` and `libc++_shared.so` for arm64-v8a and x86_64 |
+| Exported components | launcher alias only | `activity-alias GodotAppLauncher` only (aab_check PASS; `ProfileInstallReceiver` removed in the template manifest) |
+| Plugin checkboxes in the beta preset | Billing off, AdMob/UMP off, Sentry excluded, Nakama addon excluded (`docs/setup/plugin_matrix.md` lines from B1-04, `docs/release/beta_build_decisions.md`) | The beta is exported from a copy of the project without the Billing, AdMob, Sentry and Nakama addons (section Beta build: plugins stripped in plugin_matrix.md); `permissions/internet=false` in the preset | The beta is exported from a copy of the project without the Billing, AdMob, Sentry and Nakama addons (section Beta build: plugins stripped in plugin_matrix.md); `permissions/internet=false` in the preset |
+| `allowBackup` | false (`docs/release/aab_audit.md`) | false (aab_check PASS) |
 
 ## If this changes (Q81 alternative: Sentry kept in the beta)
 
