@@ -23,6 +23,8 @@ var cinder_hits: int = 0
 var last_cinder_damage: int = 0
 ## CPU time of the latest update() call in microseconds (event handling, spawning, ring upload).
 var last_update_usec: int = 0
+## Game speed (set by the host): 4x and 8x cut the hit and kill budgets and the sparks per hit (`SpeedLoad`).
+var play_speed: int = 1
 ## Test hook: sizes of the per-slot arrays; update() must never change it.
 var resize_count: int = 0
 
@@ -81,8 +83,8 @@ func update(world: SimWorld, alpha: float, visual: VisualSettings, band: int) ->
 	_apply_quality(quality, reduce)
 	_renderer.set_time(sim_t)
 	emitter.now = sim_t
-	_hit_budget = FxRecipes.hit_budget(quality.tier)
-	_kill_budget = FxRecipes.kill_budget(quality.tier)
+	_hit_budget = SpeedLoad.scaled(FxRecipes.hit_budget(quality.tier), play_speed)
+	_kill_budget = SpeedLoad.scaled(FxRecipes.kill_budget(quality.tier), play_speed)
 	_cinder_budget = FxRecipes.CINDER_HIT_BUDGET
 	_particle_budget = FxRecipes.particle_budget(quality.tier)
 	_written_start = _written()
@@ -183,7 +185,7 @@ func _embers(band: int, dt: float) -> void:
 
 
 func _apply_quality(quality: VisualQuality, reduce: bool) -> void:
-	emitter.sparks_per_hit = quality.sparks_per_hit
+	emitter.sparks_per_hit = SpeedLoad.scaled(quality.sparks_per_hit, play_speed)
 	emitter.rings_enabled = quality.impact_rings
 	emitter.reduce_motion = reduce
 	emitter.quality_tier = int(quality.tier)

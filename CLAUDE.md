@@ -25,7 +25,7 @@ IRON STATIC (code name `ironstatic`, applicationId `com.normalexception.game`) i
 ## Architecture rules (hard)
 
 - `src/sim/` is pure `RefCounted` code: no Node, SceneTree, Input, OS/Time, autoloads, global `randf`/`randi`. Same for `src/meta/` and `src/save/` (injected interfaces only). Enforced by `tools\lint.ps1`.
-- Fixed 30 Hz tick; one wave = 24 s = 720 ticks; timers in integer ticks; game speed = more ticks per frame (cap 4x), never a scaled tick length. All randomness through `Rng` (PCG32, per-stream). Same `(seed, config, input log)` must give the same state hash.
+- Fixed 30 Hz tick; one wave = 24 s = 720 ticks; timers in integer ticks; game speed = more ticks per frame (cap 8x since R1-03), never a scaled tick length. All randomness through `Rng` (PCG32, per-stream). Same `(seed, config, input log)` must give the same state hash.
 - Entities are packed-array stores with free lists; no Node per enemy or projectile; no allocation inside per-tick loops. Rendering is MultiMesh in `src/view/` and only reads the sim.
 - Number types: `BigNum` for currency and cost values (persist as strings); BigNum is immutable, text form `1.5e12` (`to_text`/`parse`), never use float math for balances, display only through `NumberFormat` (floors, 3 significant digits); `float` for per-tick combat; `int` for `flux`/`cipher`/`merit`, levels, waves, ticks.
 - Save-shape change = bump schema version + migration + fixture in `tests/fixtures/`. Services (ads, billing, analytics, backend) sit behind interfaces in `src/services/` and `src/net/` with desktop stubs.

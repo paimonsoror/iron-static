@@ -23,6 +23,7 @@ const ARG_HOLD: String = "--debug-hold"
 const ARG_NOVSYNC: String = "--debug-novsync"
 const ARG_NO_SAVE: String = "--no-save"
 const ARG_MODE: String = "--mode"
+const PLAY_FLUSH_S: float = 30.0
 
 var controller: RunController = RunController.new()
 var debug_load: bool = false
@@ -57,6 +58,8 @@ var best_wave_s1: int:
 		controller.best_wave_s1 = value
 var _pending_resume: ResumeResult = null
 var _was_paused: bool = false
+## Foreground seconds not yet written to the flight recorder (R1-08); flushed in whole seconds, at least every 30 s.
+var _play_acc: float = 0.0
 
 
 func _ready() -> void:
@@ -88,6 +91,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	controller.update(delta)
+	_count_play_time(delta)
 	if saves != null:
 		if controller.paused and not _was_paused:
 			@warning_ignore("return_value_discarded")  # the pause overlay opened: checkpoint between ticks
@@ -109,6 +113,7 @@ func _notification(what: int) -> void:
 		or (what == NOTIFICATION_APPLICATION_FOCUS_OUT and OS.has_feature("mobile"))
 	)
 	if flush:
+		_flush_play_time()
 		saves.flush_for_background()
 
 
@@ -122,6 +127,7 @@ func setup_persistence(fs: SaveFs, args: PackedStringArray) -> void:
 	var status: LoadResult.Status = saves.load_profile()
 	save_problem = saves.problem
 	notice = saves.notice
+	_note_session()
 	if not saves.last_unlocked_modes.is_empty():  # a mode the load itself unlocked (migrated save): same one-time chip
 		ModeUnlockFlag.mark(saves.profile, saves.last_unlocked_modes)
 		saves.request_save()
@@ -159,6 +165,9 @@ func on_run_banked() -> void:
 func _on_run_ended(ended_world: SimWorld) -> void:  # gdlint: ignore=unused-argument
 	if not saves.last_unlocked_modes.is_empty():  # Home shows the one-time "MODE UNLOCKED" chip (M4-08)
 		ModeUnlockFlag.mark(saves.profile, saves.last_unlocked_modes)
+		saves.request_save()
+	if _records_play():
+		FlightRecorder.note_run(saves.profile, clock, ended_world.config.wave_mode, ended_world.wave)
 		saves.request_save()
 	if saves.last_bank_saved:
 		on_run_banked()
@@ -239,3 +248,36 @@ func start_debug_load(wave: int = 0) -> void:
 ## True when [PERF] lines should be written even with the overlay hidden.
 func perf_logging_forced() -> bool:
 	return debug_perf or debug_load
+
+
+## True when play is recorded locally (R1-08): a real profile, not a debug load or tool run.
+func _records_play() -> bool:
+	return saves != null and save_problem == SaveService.Problem.NONE and not debug_load and not style_frame
+
+
+func _note_session() -> void:
+	if _records_play():
+		FlightRecorder.note_session(saves.profile, clock)
+		saves.request_save()
+
+
+## The player is on `screen` (an `AppFlow.Screen` name, lower case): deepest and last screen of the day.
+func note_screen(screen: String) -> void:
+	if _records_play():
+		FlightRecorder.note_screen(saves.profile, clock, screen)
+		saves.request_save()
+
+
+func _count_play_time(delta: float) -> void:
+	_play_acc += delta
+	if _play_acc >= PLAY_FLUSH_S:
+		_flush_play_time()
+
+
+## Writes the whole seconds counted so far into today's record (the profile save follows with the next save).
+func _flush_play_time() -> void:
+	var whole: int = floori(_play_acc)
+	if whole <= 0 or not _records_play():
+		return
+	_play_acc -= float(whole)
+	FlightRecorder.note_seconds(saves.profile, clock, whole)

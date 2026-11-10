@@ -52,6 +52,7 @@ home.best,BEST  W{n}
 home.best_none,NO DEPLOYMENT YET
 home.deploy,DEPLOY
 home.next_unlock,NEXT UNLOCK  WAVE {w}  {name}
+home.speed_name,{n}X SPEED
 home.all_unlocked,ALL ROWS UNLOCKED
 home.foundry_hint,{n} FOUNDRY UPGRADES AFFORDABLE
 nav.home,HOME
@@ -302,6 +303,18 @@ ftue.skip,SKIP HINTS
 settings.about,ABOUT
 settings.feedback,SEND FEEDBACK
 settings.feedback_hint,OPENS THE IRON STATIC FEEDBACK PAGE IN YOUR BROWSER. NOTHING IS SENT FROM THE GAME.
+summary.title,IRON STATIC PLAY SUMMARY
+summary.version,"Version {v}, {date} UTC"
+summary.none,No play recorded yet.
+summary.totals,"Last {n} days: {days} days played, {sessions} sessions, {minutes} min"
+summary.runs,Runs: {runs}
+summary.runs_none,none
+summary.best,"Best wave in that time: {w} (all-time timed {timed}, purge {purge})"
+summary.screens,Deepest screen: {d}. Last screen before quit: {l}.
+summary.day,"{date}  sessions {s}  min {m}  runs {r}  best {b}  last {l}"
+settings.summary,COPY PLAY SUMMARY
+settings.summary_hint,COPIES A SHORT TEXT SUMMARY OF YOUR RECENT PLAY TO THE CLIPBOARD. IT STAYS ON THIS DEVICE UNLESS YOU PASTE IT SOMEWHERE.
+settings.summary_done,COPIED. NOTHING IS SENT ANYWHERE UNLESS YOU PASTE IT.
 foundry.help,?
 foundry.intro.title,THE FOUNDRY
 foundry.intro.p1,PERMANENT UPGRADES. SCRAP UPGRADES RESET WHEN A DEPLOYMENT ENDS; FOUNDRY LEVELS STAY.

@@ -17,7 +17,10 @@ signal buy_requested(upgrade_index: int, count: int)
 signal field_insets_changed(top_px: float, bottom_px: float)
 signal field_rect_changed(rect: Rect2)
 
-const SPEEDS: Array[int] = [1, 2]
+## Speed label geometry: the dimmed chosen speed sits in the empty left of the right-aligned speed label.
+const CHOSEN_LABEL_LEFT: float = -380.0
+const CHOSEN_LABEL_RIGHT: float = -322.0
+const CHOSEN_FONT_PX: int = 36
 ## Counter plate icon size and offset (inside the 92 px plate).
 const COUNTER_ICON_PX: float = 48.0
 const COUNTER_ICON_POS: Vector2 = Vector2(20.0, 8.0)
@@ -34,7 +37,13 @@ const TOUCH_PAD_PX: float = 23.0
 ## Set true to force reduce motion (it is also read from `Game.visual.reduce_motion`).
 var reduce_motion: bool = false
 
-var _speed_index: int = 0
+## Chosen speed (the button cycles `SpeedRules.unlocked(_best_timed)`), best TIMED wave for the gates, and the
+## fall-back state (R1-03): the effective speed is `SpeedRules.effective(_chosen, _fallen)`.
+var _chosen: int = 1
+var _best_timed: int = 0
+var _fallen: bool = false
+var _fall_world: SimWorld = null
+var _chosen_label: Label = null
 var _paused: bool = false
 var _model: HudModel = HudModel.new()
 var _last_wave: int = -1
@@ -70,6 +79,7 @@ func _ready() -> void:
 	_style_label(_wave_label, Palette.AMBER)
 	_style_label(_timer_label, Palette.TEXT)
 	_style_label(_speed_label, Palette.AMBER_GLOW)
+	_build_chosen_label()
 	_style_label(_hp_label, Palette.TEXT)
 	_style_label(_scrap_label, Palette.SCRAP)
 	_style_label(_data_label, Palette.DATA)
@@ -174,6 +184,7 @@ func wave_banner() -> WaveBanner:
 func refresh(world: SimWorld, now_s: float) -> void:
 	if _panel.bound_world() != world:
 		_panel.bind(world)
+	_update_fall_back(world)
 	_boss_warn.reduce_motion = _reduced()
 	_boss_warn.update(world, field_rect(), _chip_anchor())
 	if not _model.due(now_s):
@@ -201,9 +212,22 @@ func show_values(
 	_apply(wave, wave_tick, hp, max_hp, scrap, data, boss, -1.0)
 
 
-## Current speed multiplier (1 or 2).
+## The chosen speed multiplier (the button's value).
 func speed() -> int:
-	return SPEEDS[_speed_index]
+	return _chosen
+
+
+## The speed the sim runs at: the chosen one, or `SpeedRules.FALL_SPEED` while the fall-back holds (R1-03).
+func effective_speed() -> int:
+	return SpeedRules.effective(_chosen, _fallen)
+
+
+## Best TIMED wave of the profile: gates 4x and 8x. A chosen speed that is no longer unlocked drops to 1x.
+func set_best_timed(best: int) -> void:
+	_best_timed = maxi(best, 0)
+	if not SpeedRules.is_unlocked(_chosen, _best_timed):
+		_chosen = 1
+	_update_speed_text()
 
 
 func is_paused() -> bool:
@@ -212,7 +236,7 @@ func is_paused() -> bool:
 
 ## Sets the button state without emitting a signal.
 func set_speed(multiplier: int) -> void:
-	_speed_index = maxi(SPEEDS.find(multiplier), 0)
+	_chosen = multiplier if SpeedRules.SPEEDS.has(multiplier) else 1
 	_update_speed_text()
 
 
@@ -268,9 +292,9 @@ func _reduced() -> bool:
 
 func _on_speed_pressed() -> void:
 	AudioHooks.tap()
-	_speed_index = (_speed_index + 1) % SPEEDS.size()
+	_chosen = SpeedRules.cycle_next(_chosen, _best_timed)
 	_update_speed_text()
-	speed_changed.emit(SPEEDS[_speed_index])
+	speed_changed.emit(_chosen)
 
 
 func _on_pause_pressed() -> void:
@@ -297,8 +321,43 @@ static func _set_text(label: Label, text: String) -> void:
 
 
 func _update_speed_text() -> void:
-	_set_text(_speed_label, "%dx" % SPEEDS[_speed_index])
+	var eff: int = effective_speed()
+	_set_text(_speed_label, "%dx" % eff)
+	if _chosen_label != null:
+		_chosen_label.visible = eff != _chosen  # fall-back: the chosen speed dimmed, the effective one lit
+		_set_text(_chosen_label, "%dx" % _chosen)
 	_speed_button.tooltip_text = _speed_label.text
+
+
+## Hysteresis of the fall-back, evaluated every refresh (cheap); a new world starts without it.
+func _update_fall_back(world: SimWorld) -> void:
+	if world != _fall_world:
+		_fall_world = world
+		_fallen = false
+	var frac: float = world.cinder.hp / maxf(world.cinder.max_hp, 1.0)
+	var now: bool = SpeedRules.next_fallen(_fallen, _chosen, frac, world.alive_boss_count() > 0)
+	if now != _fallen:
+		_fallen = now
+		_update_speed_text()
+
+
+func _build_chosen_label() -> void:
+	_chosen_label = Label.new()
+	_chosen_label.name = "SpeedChosenLabel"
+	_chosen_label.theme_type_variation = ThemeBuilder.VAR_LABEL_NUMBER
+	_chosen_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_chosen_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_chosen_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_chosen_label.add_theme_font_size_override("font_size", CHOSEN_FONT_PX)
+	_chosen_label.add_theme_color_override("font_color", Palette.TEXT_DIM)
+	_chosen_label.anchor_left = 1.0
+	_chosen_label.anchor_right = 1.0
+	_chosen_label.offset_left = CHOSEN_LABEL_LEFT
+	_chosen_label.offset_right = CHOSEN_LABEL_RIGHT
+	_chosen_label.offset_top = _speed_label.offset_top
+	_chosen_label.offset_bottom = _speed_label.offset_bottom
+	_chosen_label.visible = false
+	_top_bar.add_child(_chosen_label)
 
 
 func _update_pause_text() -> void:

@@ -30,6 +30,8 @@ const RIPPLE_FADE_PX: float = 40.0
 var px_scale: float = 1.0
 ## Optional: reduce motion switches off jitter, wobble and the flare scale animation.
 var visual: VisualSettings
+## Optional floor scorch lines (R1-06), fed on every plain shot; set by the battle view.
+var scorch: BeamScorch
 
 ## Current tier look (VT-2). Replaced only when the laser_output run level crosses a tier; MK I = today's constants.
 var look: BeamLook = BeamLook.new()
@@ -42,6 +44,7 @@ var _born := PackedFloat32Array()
 var _width_mul := PackedFloat32Array()
 var _crit := PackedByteArray()
 var _merged := PackedByteArray()
+var _fade := PackedFloat32Array()
 var _times := PackedFloat64Array()
 var _next: int = 0
 var _last: int = -1
@@ -59,6 +62,7 @@ var _cone: Rect2
 var _cone_pivot_x: float = 0.0
 var _ring: Rect2
 var _calm: bool = false
+var _tier: int = 0
 var _do_flare: bool = false
 var _do_ring: bool = false
 var _do_rim: bool = false
@@ -72,12 +76,14 @@ func _init() -> void:
 	ok = ok and _width_mul.resize(MAX_BEAMS) == OK
 	ok = ok and _crit.resize(MAX_BEAMS) == OK
 	ok = ok and _merged.resize(MAX_BEAMS) == OK
+	ok = ok and _fade.resize(MAX_BEAMS) == OK
 	ok = ok and _times.resize(RATE_RING) == OK
 	if not ok:
 		push_error("BeamRenderer: resize failed")
 	for i: int in MAX_BEAMS:
 		_born[i] = -1000.0
 		_width_mul[i] = 1.0
+		_fade[i] = FADE_S
 	for i: int in RATE_RING:
 		_times[i] = -1000.0
 	var mat := CanvasItemMaterial.new()
@@ -125,6 +131,8 @@ func update(world: SimWorld, now_s: float, px_per_m: float, emitter_px: Vector2,
 	_now_s = now_s
 	_track_level(world)
 	var store: EnemyStore = world.enemies
+	if scorch != null:
+		scorch.update(now_s)
 	while _events.poll(world.events) > 0:
 		for i: int in _events.count:
 			if _events.kind_at(i) != SimEventKind.SHOT_FIRED:
@@ -157,7 +165,8 @@ func shoot(start: Vector2, end: Vector2, now_s: float, crit: bool = false) -> vo
 	var wobbled: Vector2 = end + dir.orthogonal() * jit.y
 	var slot: int = _next
 	var merge: bool = false
-	if _last >= 0 and BeamMath.should_merge(BeamMath.shots_in_window(_times, now_s)):
+	var rate: int = BeamMath.shots_in_window(_times, now_s)
+	if _last >= 0 and BeamMath.should_merge(rate):
 		var age: float = now_s - _born[_last]
 		# Eligible up to 2 x FADE_S: at 8 to 12 shots/s the previous plain beam has just expired (impl).
 		var live: bool = age < 2.0 * FADE_S
@@ -173,6 +182,9 @@ func shoot(start: Vector2, end: Vector2, now_s: float, crit: bool = false) -> vo
 	_end[slot] = wobbled
 	_born[slot] = now_s
 	_width_mul[slot] = jit.x
+	_fade[slot] = BeamAfterglow.core_fade_s(rate)
+	if scorch != null and not merge:
+		scorch.add(start, wobbled, now_s)
 	_crit[slot] = 1 if crit else (_crit[slot] if merge else 0)
 	_last = slot
 
@@ -195,13 +207,13 @@ func _alpha_of(i: int, now_s: float) -> float:
 	var age: float = now_s - _born[i]
 	if _merged[i] != 0:
 		return BeamMath.merged_alpha(age)
-	return BeamMath.fade_alpha(age)
+	return BeamMath.fade_alpha(age, _fade[i])
 
 
 func _any_active() -> bool:
 	for i: int in MAX_BEAMS:
 		var age: float = _now_s - _born[i]
-		if age >= 0.0 and age < 2.0 * FADE_S:
+		if age >= 0.0 and age < BeamAfterglow.GLOW_S:  # the longest beam-layer life (afterglow 0.3 s, merged 0.16 s)
 			return true
 	return false
 
@@ -224,6 +236,8 @@ func _draw() -> void:
 	if _sheet == null:
 		_load_art()
 	_resolve_quality()
+	@warning_ignore("return_value_discarded")
+	_afterglow_pass(true)
 	for i: int in MAX_BEAMS:
 		var f: float = _alpha_of(i, _now_s)
 		if f > 0.0:
@@ -252,6 +266,7 @@ func active_parts() -> PackedStringArray:
 func _resolve_quality() -> void:
 	_calm = visual != null and visual.reduce_motion
 	var q: VisualQuality = null if visual == null else visual.quality
+	_tier = VisualQuality.Tier.HIGH if q == null else q.tier
 	var low: bool = q != null and q.tier == VisualQuality.Tier.LOW
 	var rings_ok: bool = q == null or q.impact_rings
 	var mid_up: bool = q == null or q.tier == VisualQuality.Tier.HIGH
@@ -363,3 +378,35 @@ static func beam_end(
 	if d < 0.001:
 		return p
 	return p * (maxf(d - BEAM_PULLBACK * visual_radius_px, 0.0) / d)
+
+
+## Afterglows drawn now (R1-06): plain beams younger than `BeamAfterglow.GLOW_S`, newest first, at most the tier cap.
+func afterglow_count(now_s: float) -> int:
+	_now_s = now_s
+	_resolve_quality()
+	return _afterglow_pass(false)
+
+
+## Draws (or only counts) the afterglows: a widened, fading copy of the tier's glow layer under the live beam.
+func _afterglow_pass(draw: bool) -> int:
+	var cap: int = BeamAfterglow.glow_cap(_tier)
+	var n: int = 0
+	for k: int in MAX_BEAMS:
+		if n >= cap:
+			break
+		var i: int = posmod(_next - 1 - k, MAX_BEAMS)
+		if _merged[i] != 0:
+			continue
+		var a: float = BeamAfterglow.glow_alpha(_now_s - _born[i], _calm)
+		if a <= 0.0:
+			continue
+		n += 1
+		if draw:
+			var la: Vector2 = BeamMath.length_angle(_start[i], _end[i])
+			var widths: Vector3 = BeamMath.widths_for(look, _crit[i] != 0, _width_mul[i] * px_scale)
+			var w: float = widths.x * BeamAfterglow.GLOW_WIDTH_MUL
+			var col: Color = BeamMath.glow_color(look.whiten)
+			col.a = a
+			draw_set_transform(_start[i], la.y)
+			draw_texture_rect_region(_sheet, Rect2(0.0, -w * 0.5, la.x, w), _strip, col)
+	return n
