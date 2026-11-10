@@ -1,6 +1,6 @@
 # Balance runner (`tools/balance_run.ps1`, M2-14)
 
-Changelog: 2026-11-10 (R1-02: the Foundry soft cap and the milestone constants are `sim_constants.csv` rows, so `-Set sim.foundry_over_cap_mult=2` etc. work in the journey tool; `-Probe` lifts the soft cap) - 2026-11-10 (R1-01: `-Policy cheapest|random`, the report-only "optimizer vs random on fresh" line, journey `streak`/`unspent` columns, the pacing summary and the `journey` rows of targets.csv) - 2026-11-09 (M4-15: the draft pick policy, section "Patch drafts") - 2026-11-09 (M4-10: `-Mode timed|purge`, `mode` column in targets.csv, PURGE row) - 2026-11-09 (`--policy only:<row id>`, Q54 retune) - 2026-11-08 (M3-08, M3-24: Foundry profiles, `--frame`, `--policy none`, frames table, mean line, frame tuning log) - 2026-11-07 created (M2-14).
+Changelog: 2026-11-10 (R1-02 tune: `--draft first|random` for balance_run and journey_run, journey `done_by_35_min_2x` mark and Day-1 target definition, `-Set "a=1;b=2"`, `patches.scale` override, new fresh/foundry_300/foundry_1k targets 14 / 20 / 27, final results log) - 2026-11-10 (R1-02: the Foundry soft cap and the milestone constants are `sim_constants.csv` rows, so `-Set sim.foundry_over_cap_mult=2` etc. work in the journey tool; `-Probe` lifts the soft cap) - 2026-11-10 (R1-01: `-Policy cheapest|random`, the report-only "optimizer vs random on fresh" line, journey `streak`/`unspent` columns, the pacing summary and the `journey` rows of targets.csv) - 2026-11-09 (M4-15: the draft pick policy, section "Patch drafts") - 2026-11-09 (M4-10: `-Mode timed|purge`, `mode` column in targets.csv, PURGE row) - 2026-11-09 (`--policy only:<row id>`, Q54 retune) - 2026-11-08 (M3-08, M3-24: Foundry profiles, `--frame`, `--policy none`, frames table, mean line, frame tuning log) - 2026-11-07 created (M2-14).
 
 The standard "did I break the economy" check (TECH_ARCHITECTURE 10.3). Required in the definition of
 done for every economy or sim change: paste the output in the commit message and compare it to
@@ -177,3 +177,28 @@ Change under test: the Foundry soft cap (levels at or above `max(3, floor(0.6 * 
 | STRIKER recommended, seed 1 | w15 | **w63** | w86 / w112 | 10 | 1.04 |
 
 Main before R1 (86b1069), VANGUARD recommended seed 1: w15 / w35 / w76 after 16 (w104 after 40), max no-best streak 11, max unspent/income 1.36 (9,140 Data left at deployment 31). FO-3 frame numbers (above): BULWARK recommended w22 / w54 / w84, STRIKER recommended w15 / w59 / w85. Reading: the soft cap and the hardening remove the 12-deployment dead stretch for the recommended player (streak 11 to 3 on seed 1; 9 on seed 101, the laser all-in still plateaus at 9-10), keep Day 1 on target for VANGUARD (34-38), leave the first session below target (w15-18 against 20-25: early Data is still to do) and push BULWARK (w55) and STRIKER (w63) Day 1 above 50 (flagged; the 2x-minute of those marks is 39 and 47). `balance_run` (20 seeds, greedy4, TIMED, VANGUARD) before (FO-3 log above) and after: fresh p50 12 and 12 (mean 11.80 to 12.25; the hardening adds half a wave), `foundry_300` 16 and 17, `foundry_1k` 24 and 25. "Optimizer vs random on fresh": greedy4 12.25 against random 12.55.
+
+## Results log: R1-02 final tune on the merged branch (2026-11-10, branch r1-sim, main 2b17f24 merged)
+
+New options: `--draft first|random` (balance_run and journey_run; `first` is the default and takes the ARMS card, the upper bound; `random` is the lower bound), `-Set "a=1;b=2"` for several overrides, `patches.scale=x` and `sim.<foundry/start/g_hp keys>` overrides. The Day-1 metric is now **the best wave after the last deployment that ended by 35 min of 2x play** (`done_by_35_min_2x`; a run still going at minute 35 has not set its best yet). The old mark (first deployment ending after 35 min, runs of 8-12 min overshoot) is still printed as `at_35_min_2x`.
+
+Why a tune beyond the soft cap (measured, VANGUARD TIMED, 12 deployments, `first`): on the merged build before tuning, best after 3 runs was 25-33 and the Day-1 mark w62-78 (target 20-25 and 35-45); with `random` drafts 19-27 and w60-62. The Foundry knobs hardly moved this (cap_k 0.3 with x10 or compounding x1.5 per level: Day 1 still w64-66, because 20 levels per row already give 2.2x), halving Data gave w55-66, `patches.scale` 0.25 gave w34 (but takes the draft out), enemy HP growth `g_hp_1` 1.075 gave w34-46 at the full patch floors. Final knobs: patches at 0.6x of the R1-04 values (overcharge 0.09, plating 0.12, rate 0.06, extraction 0.09, regen 0.30, ceramic 0.025, t_glass x1.35, t_greed x1.5), `g_hp_1` 1.075, `start_scrap` 230, Foundry limit `max(6, floor(0.7 * best))` with x2 flat over it, burn 0.75 / 0.55 / 0.35.
+
+Journey, 40 deployments, VANGUARD TIMED unless noted (`first` drafts):
+
+| Run | best after 3 | Day 1 (done by 35 min) | Day 1 (first run ending after) | best after 16 / 40 | max no-best streak (first 30) | max unspent / income |
+|---|---|---|---|---|---|---|
+| recommended, seed 1 | 22 | 34 | 47 | 73 / 94 | 4 | 0.48 |
+| recommended, seed 101 | 23 | 34 | 48 | 73 / 95 | 2 | 0.54 |
+| laser, seed 1 | 25 | 48 | 62 | 83 / 95 | 3 | 0.55 |
+| laser, seed 101 | 27 | 44 | 56 | 83 / 95 | 5 | 0.60 |
+| BULWARK recommended | 25 | 44 | 48 | 74 / 95 | 5 | 0.57 |
+| STRIKER recommended | 27 | **52** | 62 | 75 / 97 | 3 | 0.52 |
+| recommended seed 1, `random` drafts | 19 | 33 | 33 | 70 / 94 | 5 | 0.65 |
+| laser seed 1, `random` drafts | 24 | 34 | 39 | 73 / 94 | 5 | 0.49 |
+
+Misses: the all-in laser player is above the Day-1 band (48 and 44; the exploit, not the typical player), laser seed 101 is 27 after 3 runs, streaks 5 appear on three runs, STRIKER Day 1 is above 50 (its fire-rate frame multiplier, `frames.csv`; suggested data fix: `cycle_mult` 1.30 to about 1.15, not changed). The best wave plateaus at about w94-97 after 25 deployments (enemy growth 7.5%), where the pre-R1 journey reached w104-107. Draft gap: the death wave of a single run is 15 waves higher with `first` than `random` (deployment 16: 73 vs 55, deployment 40: 94 vs 79), the Day-1 best wave and the plateau are not (the Foundry sets them), so picks matter inside a run, not for the day-level pacing.
+
+`balance_run` (20 seeds, greedy4, TIMED, VANGUARD), before (main 86b1069, no drafts) / now `first` / now `random`: fresh p50 12 / 14 / 13 (mean 11.80 / 14.40 / 13.30), `foundry_300` 16 / 20 / 18, `foundry_1k` 24 / 27 / 23. New `targets.csv` rows: fresh 14, `foundry_300` 20, `foundry_1k` 27 (draft `first`; information rows stay information). Optimizer vs random buyer on fresh: 14.40 vs 15.90 (the random buyer still wins by 1.5 waves: buying choices still do not matter early).
+
+Burn bands (rev_exp2, 20 seeds, seconds at 1x in bands 1+2+3), main 86b1069 / final: fresh 12.5 / 57.2, mid 22.9 / 35.5, late 13.1 / 42.9 (4.6x, 1.55x, 3.3x). The mid profile is a state of the old curve (Foundry L21 C16 H21 N21 at best wave 35) and falls in a few seconds against the 7.5% enemy growth, so hardening has little time to work (not investigated further); the 2.5x floor is met for fresh and late only.

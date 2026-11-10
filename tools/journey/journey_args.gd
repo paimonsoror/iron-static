@@ -66,6 +66,9 @@ func _take(flag: String, raw: String) -> String:
 		"--mode":
 			mode = raw
 			err = _check(flag, raw, MODES)
+		"--draft":
+			err = _check(flag, raw, ["first", "random"])
+			PolicyBot.draft_mode = raw
 		"--frame":
 			frame = raw
 		"--name":

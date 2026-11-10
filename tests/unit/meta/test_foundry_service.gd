@@ -4,7 +4,13 @@ extends GdUnitTestSuite
 
 
 func _service() -> FoundryService:
-	return FoundryService.new(SimConfigLoader.load_foundry_defs(), SimConfigLoader.load_default(1).upgrades)
+	var s: FoundryService = FoundryService.new(
+		SimConfigLoader.load_foundry_defs(), SimConfigLoader.load_default(1).upgrades
+	)
+	s.tuning.foundry_cap_k = 0.6
+	s.tuning.foundry_over_cap_mult = 3.0  # pinned: the x3 tests below were written first
+	s.tuning.foundry_cap_min = 3  # these cases were written for the FO-3 floor; the shipped floor is a tuned data row
+	return s
 
 
 func _profile(data: int) -> PlayerProfile:

@@ -66,6 +66,17 @@ func test_metrics_and_target_lines() -> void:
 	assert_str(text).contains("journey_best_day1 SKIP")
 
 
+func test_day_one_done_index_is_the_last_run_ending_by_35_minutes() -> void:
+	var records: Array[Dictionary] = []
+	for i: int in 5:
+		records.append(_rec(i + 1, true, 0, 10.0, 5.0))
+		records[i]["cum_min_1x"] = 30.0 * float(i + 1)  # 15, 30, 45, 60, 75 min of 2x play
+	assert_int(JourneyPacing.day_one_done_index(records)).is_equal(1)
+	assert_int(JourneyPacing.day_one_index(records)).is_equal(2)
+	var m: Dictionary = JourneyPacing.metrics(records)
+	assert_float(m[JourneyPacing.M_BEST_DAY1]).is_equal(12.0)  # best after deployment 2, not 3
+
+
 func test_upper_bound_status() -> void:
 	assert_str(JourneyPacing.status(JourneyPacing.M_STREAK, 4.0, 4.0, 0.0)).is_equal("PASS")
 	assert_str(JourneyPacing.status(JourneyPacing.M_STREAK, 5.0, 4.0, 0.0)).is_equal("FAIL")

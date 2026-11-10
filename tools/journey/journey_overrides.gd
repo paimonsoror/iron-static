@@ -6,6 +6,7 @@ extends RefCounted
 ##   enemy.<enemy id>.data_base           e.g. enemy.skitter.data_base=0.8
 ##   enemies.data_scale                   multiplies every enemy data_base
 ##   foundry.<row id>.<f|f_cap|fc0|fg>    e.g. foundry.laser_output.fc0=40
+##   patches.scale                        scales the gain of every patch pick (R1-02 tune)
 ## Overrides are applied to the private config and Foundry def copies of each run, never to the shared resources.
 ## The x1.75-per-25-levels milestone is a code constant (Curves), not an override; see the FO-2 and FO-3 reports.
 
@@ -25,6 +26,9 @@ static func parse(specs: PackedStringArray) -> JourneyOverrides:
 			entry["a"] = parts[1]
 			ok = true
 		elif parts[0] == "enemies" and parts.size() == 2 and parts[1] == "data_scale":
+			entry["a"] = parts[1]
+			ok = true
+		elif parts[0] == "patches" and parts.size() == 2 and parts[1] == "scale":
 			entry["a"] = parts[1]
 			ok = true
 		elif parts[0] == "enemy" and parts.size() == 3 and parts[2] == "data_base":
@@ -95,10 +99,23 @@ func apply_to_config(cfg: SimConfig) -> void:
 			"enemies":
 				for def: EnemyDef in cfg.enemies:
 					def.data_base *= value
+			"patches":
+				_scale_patches(cfg, value)
 			"enemy":
 				for def: EnemyDef in cfg.enemies:
 					if def.id == key:
 						def.data_base = value
+
+
+## `patches.scale=x` (R1-02 tune): scales the gain of every patch pick. `bonus`/`add` rows scale `per_pick`; `mult` rows
+## above 1 scale their gain `per_pick - 1`; penalties and costs are left alone.
+func _scale_patches(cfg: SimConfig, scale: float) -> void:
+	for def: PatchDef in cfg.patches:
+		if def.op == "mult":
+			if def.per_pick > 1.0:
+				def.per_pick = 1.0 + (def.per_pick - 1.0) * scale
+		else:
+			def.per_pick *= scale
 
 
 func _validate() -> String:

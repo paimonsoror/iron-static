@@ -57,7 +57,7 @@ else {
     if ($Name) { $argList += @("--name", $Name) }
     if ($ProfileFile) { $argList += @("--profile", $ProfileFile) }
     if ($Frames) { $argList += "--frames" }
-    foreach ($s in $Set) { $argList += @("--set", $s) }
+    foreach ($s in $Set) { foreach ($one in ($s -split ";")) { if ($one) { $argList += @("--set", $one) } } }  # several overrides: -Set "a=1;b=2"
 }
 if ($Extra.Count -gt 0) { $argList += $Extra }
 $r = Invoke-GodotRetry $argList -TimeoutSec 3000

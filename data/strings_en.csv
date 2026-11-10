@@ -177,22 +177,22 @@ results.best_mode,BEST {name} {n}
 hud.mode_purge_left,{n} LEFT
 home.best_mode,BEST {name} {n}
 patch.overcharge.name,OVERCHARGE
-patch.overcharge.desc,LASER OUTPUT +15% PER PICK
+patch.overcharge.desc,LASER OUTPUT +9% PER PICK
 patch.plating.name,PLATING
-patch.plating.desc,HULL INTEGRITY +20% PER PICK
+patch.plating.desc,HULL INTEGRITY +12% PER PICK
 patch.rate.name,RAPID CYCLE
-patch.rate.desc,CYCLE RATE +10% PER PICK
+patch.rate.desc,CYCLE RATE +6% PER PICK
 patch.extraction.name,EXTRACTION
-patch.extraction.desc,SCRAP AND DATA YIELD +15% PER PICK
+patch.extraction.desc,SCRAP AND DATA YIELD +9% PER PICK
 patch.regen.name,NANO REGEN
-patch.regen.desc,NANO REPAIR +50% PER PICK
+patch.regen.desc,NANO REPAIR +30% PER PICK
 patch.ceramic.name,CERAMIC
-patch.ceramic.desc,PLATING +4 POINTS PER PICK
+patch.ceramic.desc,PLATING +2.5 POINTS PER PICK
 patch.t_glass.name,GLASS CANNON
-patch.t_glass.desc,LASER OUTPUT x1.5
+patch.t_glass.desc,LASER OUTPUT x1.35
 patch.t_glass.cost,HULL INTEGRITY x0.7
 patch.t_greed.name,GREED
-patch.t_greed.desc,DATA YIELD x1.8
+patch.t_greed.desc,DATA YIELD x1.5
 patch.t_greed.cost,HULL INTEGRITY x0.5
 patch.t_hardhide.name,HARDHIDE
 patch.t_hardhide.desc,ENEMY DAMAGE x0.6

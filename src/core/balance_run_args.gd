@@ -34,6 +34,8 @@ var sector: int = 1
 var frame: String = "vanguard"
 ## Wave mode: `timed` (default) or `purge` (M4-10).
 var mode: String = "timed"
+## Draft pick policy of the headless bot: `first` (ARMS card, default) or `random` (R1-02).
+var draft: String = "first"
 ## Empty when parsing succeeded, otherwise a one-line reason.
 var error: String = ""
 
@@ -45,7 +47,7 @@ static func parse(args: PackedStringArray) -> BalanceRunArgs:
 	while i < args.size():
 		var flag: String = args[i]
 		var is_int: bool = int_flags.has(flag)
-		if not is_int and not ["--profile", "--policy", "--frame", "--mode"].has(flag):
+		if not is_int and not ["--profile", "--policy", "--frame", "--mode", "--draft"].has(flag):
 			out.error = "unknown argument '%s'" % flag
 			return out
 		if i + 1 >= args.size():
@@ -74,6 +76,11 @@ static func parse(args: PackedStringArray) -> BalanceRunArgs:
 				out.error = "--policy must be greedy4, all, none, cheapest, random or only:<row id>"
 				return out
 			out.policy = raw
+		elif flag == "--draft":
+			if raw != "first" and raw != "random":
+				out.error = "--draft must be first or random"
+				return out
+			out.draft = raw
 		elif flag == "--mode":
 			if not MODES.has(raw):
 				out.error = "--mode must be timed or purge"

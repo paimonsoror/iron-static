@@ -34,7 +34,7 @@ func _render(shot_name: String, show_intro: bool) -> void:
 	var profile: PlayerProfile = PlayerProfile.fresh(0, "fo3")
 	profile.data = BigNum.from_int(640)
 	profile.runs_total = 3
-	profile.best_wave["1"] = 10  # soft cap 6: laser and hull are over it (x3 cost), cycle and nano are below it
+	profile.best_wave["1"] = 8  # soft cap 6: laser and hull are over it (x2 cost), cycle and nano are below it
 	profile.set_foundry_level("laser_output", 6)
 	profile.set_foundry_level("hull_integrity", 6)
 	profile.set_foundry_level("cycle_rate", 2)

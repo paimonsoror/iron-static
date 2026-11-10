@@ -27,6 +27,7 @@ func _initialize() -> void:
 	if not args.error.is_empty():
 		_fail_args(args.error)
 		return
+	PolicyBot.draft_mode = args.draft
 	var profile_name: String = args.profile
 	var best_wave: int = 0
 	var foundry: Dictionary = {}

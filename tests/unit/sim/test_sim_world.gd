@@ -148,7 +148,7 @@ func test_spawn_enemy_fields() -> void:
 	assert_float(w.enemies.dmg[walker]).is_equal_approx(3.0, 0.0001)
 	w.level_hp = 11
 	var later: int = w.spawn_enemy(0, 1.0, 1.0)
-	assert_float(w.enemies.hp[later]).is_equal_approx(14.0 * pow(1.063, 10.0), 0.001)
+	assert_float(w.enemies.hp[later]).is_equal_approx(14.0 * pow(1.075, 10.0), 0.001)
 	assert_int(w.enemies.level_hp[later]).is_equal(11)
 
 

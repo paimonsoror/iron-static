@@ -1,6 +1,6 @@
 # 02 - Combat and In-Run Systems
 
-Changelog: 2026-11-10 (R1-02, SimVersion 6: the run milestone step and multiplier of section 5 are data rows `run_milestone_step` / `run_milestone_mult`; values unchanged) - 2026-11-10 (R1-05, SimVersion 6: 12.1 skin burn bands now harden the frame, damage taken x0.85 / x0.70 / x0.55 in bands 1 / 2 / 3, rows `burn_dr_b1..3` in `sim_constants.csv`; the first Skin Burn modifier; review G-03) - 2026-11-09 (Q54 early-curve retune, SimVersion 2: start scrap 60, laser_output and hull_integrity c0 10 / g 1.108, nano_repair p 0.60, plating_pct +0.06 per level at c0 20; see 03 section 4.7) - 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
+Changelog: 2026-11-10 (R1-02 tune, SimVersion 6: patch gains set to 0.6x of the R1-04 values (floor set by the coordinator: drafts from wave 5 pushed Day 1 to wave 55-66; section 10 table, `patches.csv`), starting scrap 230 in the run (`start_scrap`, sections 1 and 7.4), burn hardening x0.75 / x0.55 / x0.35 (12.1); enemy HP growth `g_hp_1` 1.063 to 1.075 (03 s4.2) takes the rest of the Day-1 power out) - 2026-11-10 (R1-02, SimVersion 6: the run milestone step and multiplier of section 5 are data rows `run_milestone_step` / `run_milestone_mult`; values unchanged) - 2026-11-10 (R1-05, SimVersion 6: 12.1 skin burn bands now harden the frame, damage taken x0.85 / x0.70 / x0.55 in bands 1 / 2 / 3, rows `burn_dr_b1..3` in `sim_constants.csv`; the first Skin Burn modifier; review G-03) - 2026-11-09 (Q54 early-curve retune, SimVersion 2: start scrap 60, laser_output and hull_integrity c0 10 / g 1.108, nano_repair p 0.60, plating_pct +0.06 per level at c0 20; see 03 section 4.7) - 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
 Changelog: 2026-11-10 (R1-04: s10 draft rework, SimVersion 6: drafts end waves 5, 10, 15, 20, then every 10 up to 50, then every 25 (data rows `draft_first_wave`, `draft_interval`, `draft_interval_after`, `draft_interval_mid`, `draft_interval_mid_after`, `draft_interval_late`); each draft offers one ARMS, one CHASSIS and one SYSTEMS card (the `family` column of `data/patches.csv`), the 15 percent gamble roll replaces the card of the gamble's own family, and one reroll per draft (`draft_rerolls`) redraws all three cards as a logged `CMD_REROLL`; decided by the user after review G-02, Q88-Q90) - 2026-11-10 (R1-03: game speed 1x/2x/4x/8x; 4x unlocks at best TIMED wave 30 and 8x at 60 instead of the Lab `game_speed` levels; above 2x the speed falls back to 2x while the hull is under 75% or a boss is alive (returns at 80%); s14 rewritten). Earlier: 2026-11-09 (Q54 early-curve retune, SimVersion 2: start scrap 60, laser_output and hull_integrity c0 10 / g 1.108, nano_repair p 0.60, plating_pct +0.06 per level at c0 20; see 03 section 4.7) - 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
 
 All numbers are first-pass and **tunable** unless marked HARD (a rule, not a balance number). Borrowed mechanics are cited to the research notes: `[CIS n]` = combat_and_in_run_systems.md section n. "Changed" notes say what we altered and why.
@@ -9,7 +9,7 @@ All numbers are first-pass and **tunable** unless marked HARD (a rule, not a bal
 
 ## 1. The run loop (deployment)
 
-1. **Start.** Player taps DEPLOY on the Home screen. Cinder spawns at arena center (0,0). Starting `scrap` = 20 (+Lab `start_scrap`). All run levels reset to 0. Sector, equipped firmware, weapon systems and companions are fixed for the run.
+1. **Start.** Player taps DEPLOY on the Home screen. Cinder spawns at arena center (0,0). Starting `scrap` = 230 (`start_scrap` in `sim_constants.csv`; 20 in the GDD draft, 60 since Q54, 230 since the R1-02 tune; +Lab `start_scrap`). All run levels reset to 0. Sector, equipped firmware, weapon systems and companions are fixed for the run.
 2. **Wave cycle (1x speed).** Each wave = 18 s spawn phase + 6 s lull = 24 s. HARD: the next wave starts when the 24 s timer ends, whether or not enemies remain. Lull halves in Gauntlets (3 s). [CIS 1: 26+9 s; changed to 18+6 because shorter waves cut dead time, a cited complaint in [GENRE A1].]
 3. **Combat.** Cinder auto-fires the laser at the nearest enemy in range. Enemies spawn on a ring (radius 52 m, off-screen), walk toward Cinder, and attack at melee contact (2.0 m) or at their own attack range. Kills pay `scrap` instantly and bank `data` into the run total.
 4. **Spend.** The player taps upgrade rows in the bottom panel (Arms / Chassis / Systems tabs), spending `scrap` for temporary levels. Unspent scrap earns interest (`reinvest`).
@@ -220,12 +220,12 @@ Math: additive patches `total = base_stat * (1 + bonus * qty)`; multiplicative `
 ### 10.1 Standard patches
 | id | Effect | Per pick | Max picks | Tag |
 |---|---|---|---|---|
-| `patch_overcharge` | laser_output x (1 + 0.15 qty) | +15% | 5 | MVP |
-| `patch_plating` | hull_integrity x (1 + 0.20 qty) | +20% | 5 | MVP |
-| `patch_rate` | cycle_rate x (1 + 0.10 qty) | +10% | 5 | MVP |
-| `patch_extraction` | scrap_yield and data_yield x (1 + 0.15 qty) | +15% | 5 | MVP |
-| `patch_regen` | nano_repair x (1 + 0.50 qty) | +50% | 5 | MVP |
-| `patch_ceramic` | plating_pct + 0.04 qty (additive) | +4 pts | 5 | MVP |
+| `patch_overcharge` | laser_output x (1 + 0.09 qty) | +9% | 5 | MVP |
+| `patch_plating` | hull_integrity x (1 + 0.12 qty) | +12% | 5 | MVP |
+| `patch_rate` | cycle_rate x (1 + 0.06 qty) | +6% | 5 | MVP |
+| `patch_extraction` | scrap_yield and data_yield x (1 + 0.09 qty) | +9% | 5 | MVP |
+| `patch_regen` | nano_repair x (1 + 0.30 qty) | +30% | 5 | MVP |
+| `patch_ceramic` | plating_pct + 0.025 qty (additive) | +2.5 pts | 5 | MVP |
 | `patch_reinvest` | reinvest rate x (1 + 0.5 qty) | +50% | 3 | Launch |
 | `patch_razors` | razor_count + 1 qty | +1 | 2 | Launch |
 | `patch_free_level` | free_arms/chassis/systems + 0.04 qty each | +4 pts | 5 | Launch |
@@ -240,8 +240,8 @@ Math: additive patches `total = base_stat * (1 + bonus * qty)`; multiplicative `
 ### 10.2 Gamble patches (trade-offs; always show both sides) [CIS 6 trade-offs, re-tuned]
 | id | Benefit | Cost | Max | Tag |
 |---|---|---|---|---|
-| `patch_t_glass` | laser_output x1.5 | hull_integrity x0.70 | 1 | MVP |
-| `patch_t_greed` | data yield x1.8 | hull_integrity x0.50 | 1 | MVP |
+| `patch_t_glass` | laser_output x1.35 | hull_integrity x0.70 | 1 | MVP |
+| `patch_t_greed` | data yield x1.5 | hull_integrity x0.50 | 1 | MVP |
 | `patch_t_hardhide` | enemy damage x0.60 | laser_output x0.60 | 1 | MVP |
 | `patch_t_slow_swarm` | enemy speed x0.65 | enemy damage x1.8 | 1 | Launch |
 | `patch_t_hoard` | wave-end `scrap` payout x12 of expected kill scrap | kills give no `scrap` | 1 | Launch |
@@ -282,7 +282,7 @@ Defense effective HP: `eHP = (integrity + plating_flat) / (1 - plating_pct)` - d
 | `exp_1` | 0.50 < f <= 0.75 | Scorch: 3 wedges char and flake, ember particles, small sparks | +6% damage, +20% nano_repair |
 | `exp_2` | 0.25 < f <= 0.50 | Exposed: 8 of 12 wedges gone, frame ribs visible, flicker | +12% damage, +40% nano_repair |
 | `exp_3` | f <= 0.25 | White-hot frame, cracked core outline, heartbeat pulse, red vignette | +18% damage, +60% nano_repair |
-**Hardening (R1-05, implemented; the frame hardens as the skin burns).** Damage Cinder takes is multiplied by `burn_dr_b1` 0.85, `burn_dr_b2` 0.70 and `burn_dr_b3` 0.55 in bands 1, 2 and 3 (band 0 takes full damage). It applies in `CinderState.apply_hit` after percent and flat plating (and the damage floor) and before the Bastion hit cap, so plating and the cap still count; the multiplier of the band at the start of the tick is used. The Intel Stats panel shows the current reduction. The damage and repair bonuses in the table above stay Launch.
+**Hardening (R1-05, implemented; the frame hardens as the skin burns).** Damage Cinder takes is multiplied by `burn_dr_b1` 0.75, `burn_dr_b2` 0.55 and `burn_dr_b3` 0.35 (R1-05 started at 0.85 / 0.70 / 0.55; tuned in R1-02) in bands 1, 2 and 3 (band 0 takes full damage). It applies in `CinderState.apply_hit` after percent and flat plating (and the damage floor) and before the Bastion hit cap, so plating and the cap still count; the multiplier of the band at the start of the tick is used. The Intel Stats panel shows the current reduction. The damage and repair bonuses in the table above stay Launch.
 Bands change with 5% hysteresis (a band is re-entered only when f crosses back by 5%) to avoid flicker. Skin wedges do not regrow within a run when going down, but re-form one by one over 1.5 s when integrity returns to a better band. Cosmetic variants (Operation Pass) swap the wedge material (not the silhouette).
 
 ## 13. New mechanics (approved by the user on 2026-11-07, except N5)

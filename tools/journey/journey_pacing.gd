@@ -54,6 +54,17 @@ static func max_unspent(records: Array[Dictionary]) -> Dictionary:
 	return {"ratio": worst, "dep": dep}
 
 
+## Index of the last deployment that ended at or before Day 1 (35 min of 2x play): the best wave a player holds when the
+## day is over (R1-02: a run still in progress at minute 35 has not set its best yet). -1 when none ended that early.
+static func day_one_done_index(records: Array[Dictionary]) -> int:
+	var found: int = -1
+	for i: int in records.size():
+		var cum1: float = records[i]["cum_min_1x"]
+		if cum1 / 2.0 <= DAY_ONE_MINUTES_2X:
+			found = i
+	return found
+
+
 ## Index of the first deployment whose cumulative 2x play reaches Day 1 (35 min); -1 when never.
 static func day_one_index(records: Array[Dictionary]) -> int:
 	for i: int in records.size():
@@ -74,8 +85,8 @@ static func metrics(records: Array[Dictionary]) -> Dictionary:
 	if records.size() >= SESSION_DEPLOYMENTS:
 		var best3: int = records[SESSION_DEPLOYMENTS - 1]["best_after"]
 		out[M_BEST_3] = float(best3)
-	var day: int = day_one_index(records)
-	if day >= 0:
+	var day: int = day_one_done_index(records)
+	if day >= 0 and day_one_index(records) >= 0:
 		var best_day: int = records[day]["best_after"]
 		out[M_BEST_DAY1] = float(best_day)
 	return out

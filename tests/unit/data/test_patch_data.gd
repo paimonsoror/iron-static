@@ -66,12 +66,12 @@ func test_nine_defs_in_order() -> void:
 
 
 func test_standard_values() -> void:
-	_check("patch_overcharge", "laser_output", "bonus", 0.15, 5)
-	_check("patch_plating", "hull_integrity", "bonus", 0.20, 5)
-	_check("patch_rate", "cycle_rate", "bonus", 0.10, 5)
-	_check("patch_extraction", "scrap_yield;data_yield", "bonus", 0.15, 5)
-	_check("patch_regen", "nano_repair", "bonus", 0.50, 5)
-	_check("patch_ceramic", "plating_pct", "add", 0.04, 5)
+	_check("patch_overcharge", "laser_output", "bonus", 0.09, 5)
+	_check("patch_plating", "hull_integrity", "bonus", 0.12, 5)
+	_check("patch_rate", "cycle_rate", "bonus", 0.06, 5)
+	_check("patch_extraction", "scrap_yield;data_yield", "bonus", 0.09, 5)
+	_check("patch_regen", "nano_repair", "bonus", 0.30, 5)
+	_check("patch_ceramic", "plating_pct", "add", 0.025, 5)
 	var ext: PatchDef = _defs()["patch_extraction"]
 	assert_array(Array(ext.stat_ids())).is_equal(["scrap_yield", "data_yield"])
 	for id: String in IDS.slice(0, 6):
@@ -81,8 +81,8 @@ func test_standard_values() -> void:
 
 
 func test_gamble_values() -> void:
-	_check("patch_t_glass", "laser_output", "mult", 1.5, 1)
-	_check("patch_t_greed", "data_yield", "mult", 1.8, 1)
+	_check("patch_t_glass", "laser_output", "mult", 1.35, 1)
+	_check("patch_t_greed", "data_yield", "mult", 1.5, 1)
 	_check("patch_t_hardhide", "enemy_damage", "mult", 0.60, 1)
 	var costs: Dictionary = {
 		"patch_t_glass": ["hull_integrity", 0.70],

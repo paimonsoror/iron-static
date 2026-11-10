@@ -12,7 +12,7 @@ func test_standard_cards_and_title() -> void:
 	assert_str(m.title()).is_equal("WAVE 5 CLEARED")
 	assert_int(m.cards.size()).is_equal(3)
 	assert_str(m.cards[0].title).is_equal("OVERCHARGE")
-	assert_str(m.cards[0].benefit).is_equal("LASER OUTPUT +15% PER PICK")
+	assert_str(m.cards[0].benefit).is_equal("LASER OUTPUT +9% PER PICK")
 	assert_bool(m.cards[0].gamble).is_false()
 	assert_str(m.cards[0].cost_line).is_equal("")
 	assert_int(m.cards[2].slot).is_equal(2)
@@ -22,7 +22,7 @@ func test_gamble_card_shows_both_sides() -> void:
 	var c: RunController = DraftTestWorld.controller_with_draft(["patch_t_greed", "patch_t_glass", "patch_t_hardhide"])
 	var m: DraftModel = DraftModel.from_world(c.world)
 	assert_bool(m.cards[0].gamble).is_true()
-	assert_str(m.cards[0].benefit).is_equal("DATA YIELD x1.8")
+	assert_str(m.cards[0].benefit).is_equal("DATA YIELD x1.5")
 	var s: StatBlock = c.world.stats
 	var hull: String = UpgradeRowModel.format_value("hull_integrity", s.hull_integrity)
 	var laser: String = UpgradeRowModel.format_value("laser_output", s.laser_output)
@@ -82,14 +82,14 @@ func test_card_change_numbers_are_the_stats_before_and_after_one_pick() -> void:
 	var m: DraftModel = DraftModel.from_world(c.world)
 	var s: StatBlock = c.world.stats
 	var laser_a: String = UpgradeRowModel.format_value("laser_output", s.laser_output)
-	var laser_b: String = UpgradeRowModel.format_value("laser_output", s.laser_output * 1.15)
+	var laser_b: String = UpgradeRowModel.format_value("laser_output", s.laser_output * 1.09)
 	assert_array(m.cards[0].change_lines).contains_exactly(["LASER OUTPUT %s > %s" % [laser_a, laser_b]])
 	var hull_a: String = UpgradeRowModel.format_value("hull_integrity", s.hull_integrity)
-	var hull_b: String = UpgradeRowModel.format_value("hull_integrity", s.hull_integrity * 1.2)
+	var hull_b: String = UpgradeRowModel.format_value("hull_integrity", s.hull_integrity * 1.12)
 	assert_array(m.cards[1].change_lines).contains_exactly(["HULL INTEGRITY %s > %s" % [hull_a, hull_b]])
 	assert_int(m.cards[2].change_lines.size()).is_equal(2)  # EXTRACTION changes scrap and data yield
 	assert_str(m.cards[2].change_lines[1]).is_equal(
-		"DATA YIELD %s > %s" % [NumberFormat.format_mult(1.0), NumberFormat.format_mult(1.15)]
+		"DATA YIELD %s > %s" % [NumberFormat.format_mult(1.0), NumberFormat.format_mult(1.09)]
 	)
 	assert_float(c.world.stats.laser_output).is_equal(s.laser_output)  # reading the card changed nothing
 
@@ -103,8 +103,8 @@ func test_a_second_pick_builds_on_the_picks_held() -> void:
 	var s: StatBlock = c.world.stats
 	# DraftTestWorld adds the picks without re-resolving `world.stats`, so `s` is the unpatched base.
 	var base: float = s.laser_output
-	var now: String = UpgradeRowModel.format_value("laser_output", base * 1.3)
-	var want: String = UpgradeRowModel.format_value("laser_output", base * 1.45)
+	var now: String = UpgradeRowModel.format_value("laser_output", base * 1.18)
+	var want: String = UpgradeRowModel.format_value("laser_output", base * 1.27)
 	assert_str(m.cards[0].change_lines[0]).is_equal("LASER OUTPUT %s > %s" % [now, want])
 
 

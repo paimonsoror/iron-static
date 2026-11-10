@@ -20,6 +20,10 @@ const GREEDY4_IDS: PackedStringArray = ["laser_output", "cycle_rate", "hull_inte
 const ONLY_PREFIX: String = "only:"
 const POLICY_CHEAPEST: String = "cheapest"
 const POLICY_RANDOM: String = "random"
+const DRAFT_FIRST: String = "first"
+const DRAFT_RANDOM: String = "random"
+## Headless draft pick policy (`--draft first|random` of balance_run and journey_run): `first` takes slot 0 (ARMS).
+static var draft_mode: String = DRAFT_FIRST
 
 var policy: String = "greedy4"
 var _rng: Rng = null
@@ -32,7 +36,11 @@ func _init(policy_name: String = "greedy4") -> void:
 ## Draft policy hook (M4-15): the offer slot every headless policy takes (the first offer). Deterministic, so a bot run
 ## that picks stays a pure function of (seed, config). Runners call `settle_draft` every iteration, not only on
 ## think ticks, because a draft freezes the tick counter.
-static func pick_offer(_world: SimWorld) -> int:
+static func pick_offer(world: SimWorld) -> int:
+	if draft_mode == DRAFT_RANDOM and not world.draft.offers.is_empty():
+		# Deterministic pseudo-random slot from the seed and the tick (no RNG stream touched): the lower bound of
+		# what drafts are worth (R1-02 tune); `first` (always the ARMS card) is the upper bound.
+		return posmod(world.config.seed_value * 31 + world.tick, world.draft.offers.size())
 	return 0
 
 

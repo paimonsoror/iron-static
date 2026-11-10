@@ -28,7 +28,7 @@ All ids below are final ids from the other documents. Tag meanings are in 00 sec
 - Costs/caps/gates per 02 section 7. Unlock gates use best wave: all 10 are visible by `best_s1` 12 (gates 0, 0, 5, 8, 10, 0, 0, 10, 3, 12). Buy x1 / x10 / x100 / Max included. Milestone ring at every 25 run levels included. Intel tab: Stats panel and Wave panel only.
 
 ### 1.4 Currencies (2)
-`scrap` and `data`. No `flux`, `cipher`, `merit` in the UI. Starting `scrap` = 20. `data` per kill and per wave per 03 section 3 (no `data_per_wave`/`data_yield` upgrades; `patch_extraction` and `patch_t_greed` affect `data`).
+`scrap` and `data`. No `flux`, `cipher`, `merit` in the UI. Starting `scrap` = 230 (R1-02 tune). `data` per kill and per wave per 03 section 3 (no `data_per_wave`/`data_yield` upgrades; `patch_extraction` and `patch_t_greed` affect `data`).
 
 ### 1.5 Patches (drafts) (9)
 Draft waves per 02 section 10 (5, 10, 15, 20, 30, 40, 50, 75, 100, ...). 3 offers, one per family ARMS / CHASSIS / SYSTEMS (gamble roll 15% per family slot, replacing the card of the gamble's own family; the weapon-system share goes to standard since no weapon systems exist), and one reroll per draft. Families: ARMS overcharge, rate, t_glass; CHASSIS plating, regen, ceramic, t_hardhide; SYSTEMS extraction, t_greed. Included patches: standard `patch_overcharge`, `patch_plating`, `patch_rate`, `patch_extraction`, `patch_regen`, `patch_ceramic`; gamble `patch_t_glass`, `patch_t_greed`, `patch_t_hardhide`. Manual pick only (no auto-pick).
@@ -47,7 +47,7 @@ Costs and multipliers per 05 section 1. Local persistent save (best wave, `data`
 - Portrait layout: battlefield top 56%, panel bottom 44% (07 section 2.1) with the three upgrade tabs and cost buttons, wave/scrap/integrity HUD, speed button (1x/2x), pause.
 - Home screen with DEPLOY and best wave; results screen; Foundry screen.
 - Machine-vision vector look with the palette in 07 (enemy outline red on dark fill, amber HUD, Cinder bright center, beam line). Procedural shapes only.
-- **Skin Burn visuals (N2, approved) included**: 12 skin wedges, four bands, embers and heartbeat/vignette at band 3. Modifiers (damage/regen bonuses) are NOT included in MVP (visual only), with one exception added by R1-05 (2026-11-10, review G-03): the frame hardens as the skin burns, damage taken x0.85 / x0.70 / x0.55 in bands 1 / 2 / 3 (`burn_dr_b1..3`, 02 section 12.1).
+- **Skin Burn visuals (N2, approved) included**: 12 skin wedges, four bands, embers and heartbeat/vignette at band 3. Modifiers (damage/regen bonuses) are NOT included in MVP (visual only), with one exception added by R1-05 (2026-11-10, review G-03): the frame hardens as the skin burns, damage taken x0.75 / x0.55 / x0.35 in bands 1 / 2 / 3 (`burn_dr_b1..3`, 02 section 12.1; R1-05 started at 0.85 / 0.70 / 0.55).
 - Damage numbers per 07 section 5.5 (crit + milestone + cap rule).
 - FTUE minutes 0-10 per 07 section 3 (without Lab/notification beats).
 - Audio: placeholder SFX (laser shot, hit, enemy death, player hit, upgrade buy, wave start, boss warning, death, UI tap) and one looping ambient music track.

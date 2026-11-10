@@ -7,7 +7,9 @@ extends RefCounted
 ## not end a run in progress (review C-07).
 ## SimVersion 4 (M4-15): the `draft_*` tuning vars and the patch defs (`cfg.patches`, row order) are hashed.
 
-const META_ONLY_KEYS: PackedStringArray = ["foundry_cap_k", "foundry_cap_min", "foundry_over_cap_mult"]
+const META_ONLY_KEYS: PackedStringArray = [
+	"foundry_cap_k", "foundry_cap_min", "foundry_over_cap_mult", "foundry_over_cap_growth"
+]
 
 
 static func compute(cfg: SimConfig) -> String:

@@ -1,6 +1,6 @@
 # 03 - Enemies, Waves, Scaling and Sectors
 
-Changelog: 2026-11-09 (Q54 early-curve retune, SimVersion 2: `boss_hulk` hp_mult 25 to 8, `n_base` 6 to 4, start scrap 60; section 4.4 and 4.5 samples recomputed, new section 4.7 records the retune and the targets it meets) - 2026-11-07 (M1-26: section 3 and 1.1 implementation notes: scrap_yield at kill time, lancer bolt speed) - number-type note in section 4.6 updated: BigNum for currency/cost values (09 Q5 resolved); enemy HP and damage stay double.
+Changelog: 2026-11-10 (R1-02 tune, SimVersion 6: `g_hp_1` 1.063 to 1.075 (7.5% enemy HP per level up to level 200, section 4.2) because the R1-04 drafts moved Day 1 from wave 35-45 to 55-66; start scrap 230) - 2026-11-09 (Q54 early-curve retune, SimVersion 2: `boss_hulk` hp_mult 25 to 8, `n_base` 6 to 4, start scrap 60; section 4.4 and 4.5 samples recomputed, new section 4.7 records the retune and the targets it meets) - 2026-11-07 (M1-26: section 3 and 1.1 implementation notes: scrap_yield at kill time, lancer bolt speed) - number-type note in section 4.6 updated: BigNum for currency/cost values (09 Q5 resolved); enemy HP and damage stay double.
 
 Citations: `[CIS n]` = combat_and_in_run_systems.md. All numbers are first-pass and tunable; formulas (shape) are HARD unless said otherwise. The research found **no published enemy HP/damage formula** [CIS 5 gaps], so everything in section 4 is original design intended to reproduce the feel (exponential growth, partial skips, per-sector rewards) described in [CIS 5 inferences].
 
@@ -95,7 +95,7 @@ Enemy health level and attack level start at `1 + offset(s)` and each rises by 1
 ### 4.2 Growth curve (three phases)
 ```
 G_hp(l):
-   l <= 200:        exp(k1 * (l - 1))                           k1 = ln(1.063)  (6.3% per level)
+   l <= 200:        exp(k1 * (l - 1))                           k1 = ln(1.075)  (7.5% per level; 6.3% before the R1-02 tune)
    200 < l <= 600:  exp(k1*199 + k2 * (l - 200))                k2 = ln(1.032)  (3.2% per level)
    l > 600:         exp(k1*199 + k2*400 + k3 * (l - 600))       k3 = ln(1.022)  (2.2% per level)
 G_atk(l): same shape with k1a = ln(1.058), k2a = ln(1.028), k3a = ln(1.018)

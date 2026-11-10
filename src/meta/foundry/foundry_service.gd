@@ -114,7 +114,7 @@ func _row(profile: PlayerProfile, def: FoundryDef) -> FoundryRowView:
 	v.cost = FoundryRules.step_cost(def, v.level, v.limit, tuning)
 	v.levels_to_milestone = FoundryRules.levels_to_milestone(v.level, def, tuning)
 	v.over_limit = v.level >= v.limit
-	v.over_mult = tuning.foundry_over_cap_mult
+	v.over_mult = FoundryRules.over_mult_at(maxi(v.level, v.limit), v.limit, tuning)
 	if v.over_limit:
 		v.next_wave = FoundryRules.wave_for_level(v.level + 1, tuning)
 	else:

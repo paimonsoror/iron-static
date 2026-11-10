@@ -88,26 +88,26 @@ func test_recommended_flag_is_copied() -> void:
 
 func test_over_limit_row_texts() -> void:
 	var p: PlayerProfile = _profile(1000)
-	p.best_wave["1"] = 10  # soft cap 6
+	p.best_wave["1"] = 8  # soft cap 6
 	p.set_foundry_level("laser_output", 6)
 	var m: FoundryRowModel = _model(p, 0)
 	assert_bool(m.over_limit).is_true()
-	assert_bool(m.affordable).is_true()  # the x3 cost (3 * 36) is paid from 1000
+	assert_bool(m.affordable).is_true()  # the x2 cost (2 * 36) is paid from 1000
 	assert_int(m.room_below_limit).is_equal(0)
-	assert_str(m.afford_text).is_equal("x3 COST UNTIL WAVE 12")
-	assert_str(m.cost_text).is_equal("108")  # 3 * ceil(20 * 1.1^6 = 35.4) = 3 * 36
-	assert_str(m.tooltip_text).contains("Levels from F6 up cost x3")
-	assert_str(m.tooltip_text).contains("Reach wave 12")
+	assert_str(m.afford_text).is_equal("x2 COST UNTIL WAVE 10")
+	assert_str(m.cost_text).is_equal("72")  # 2 * ceil(20 * 1.1^6 = 35.4) = 2 * 36
+	assert_str(m.tooltip_text).contains("Levels from F6 up cost x2")
+	assert_str(m.tooltip_text).contains("Reach wave 10")
 
 
 func test_below_limit_row_has_no_over_text_and_a_rule_tooltip() -> void:
 	var p: PlayerProfile = _profile(1000)
-	p.best_wave["1"] = 10
+	p.best_wave["1"] = 8
 	var m: FoundryRowModel = _model(p, 0)
 	assert_bool(m.over_limit).is_false()
 	assert_int(m.room_below_limit).is_equal(6)
 	assert_str(m.afford_text).is_equal("AFFORDABLE")
-	assert_str(m.tooltip_text).contains("Levels from F6 up cost x3")
+	assert_str(m.tooltip_text).contains("Levels from F6 up cost x2")
 	assert_str(m.tooltip_text).not_contains("Reach wave")
 
 

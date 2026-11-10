@@ -158,6 +158,7 @@ func _print_marks(records: Array[Dictionary]) -> void:
 			if first_ms < 0 and level >= milestone_step:
 				first_ms = i
 	_mark("at_35_min_2x", records, day_one)
+	_mark("done_by_35_min_2x", records, JourneyPacing.day_one_done_index(records))
 	_mark("first_milestone", records, first_ms)
 	_mark("last", records, records.size() - 1)
 

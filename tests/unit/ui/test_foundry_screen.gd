@@ -106,21 +106,21 @@ func test_recommended_prefers_a_row_near_its_milestone() -> void:
 
 func test_an_over_limit_row_stays_enabled_shows_the_x3_line_and_is_recommended_last() -> void:
 	var p: PlayerProfile = _profile(100000)
-	p.best_wave["1"] = 10  # soft cap 6
+	p.best_wave["1"] = 8  # soft cap 6
 	p.set_foundry_level("hull_integrity", 6)
 	var s: FoundryScreen = _screen(p)
 	var row: FoundryRow = s.row_at(2)
 	assert_bool(row.buy_button().disabled).is_false()
-	assert_str(row.afford_text()).is_equal("x3 COST UNTIL WAVE 12")
+	assert_str(row.afford_text()).is_equal("x2 COST UNTIL WAVE 10")
 	assert_bool(row.is_recommended()).is_false()
 	assert_int(s.recommended_index()).is_not_equal(2)
 	s.row_at(2).buy_pressed.emit(2, 1)
-	assert_int(p.foundry_level("hull_integrity")).is_equal(7)  # bought at x3, not refused
+	assert_int(p.foundry_level("hull_integrity")).is_equal(7)  # bought at x2, not refused
 
 
 func test_the_over_limit_cost_uses_the_readable_over_limit_color() -> void:
 	var p: PlayerProfile = _profile(100000)
-	p.best_wave["1"] = 10
+	p.best_wave["1"] = 8
 	p.set_foundry_level("hull_integrity", 6)
 	var s: FoundryScreen = _screen(p)
 	var over: Button = s.row_at(2).buy_button()
@@ -168,7 +168,7 @@ func test_saved_file_reloads_with_the_same_levels() -> void:
 	var svc := SaveService.new(fs, FakeClock.new(1000), "dev")
 	@warning_ignore("return_value_discarded")
 	svc.load_profile()
-	svc.profile.data = BigNum.from_int(500)
+	svc.profile.data = BigNum.from_int(900)  # levels over the soft cap cost more
 	svc.profile.runs_total = 1
 	var s: FoundryScreen = _screen(svc.profile)
 	s.use_save_hooks(svc.request_save, svc.save_now)

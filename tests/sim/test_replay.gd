@@ -10,18 +10,19 @@ const MAX_TICKS: int = 60000
 ## Foundry levels differ; these goldens use no Foundry levels and the config hash (tuning, defs) did not change,
 ## so every golden hash below is unchanged.
 const GOLDEN_SIM_VERSION: int = 6
-const GOLDEN_CONFIG_HASH: String = "c8878dbcdac6b9d7268e4e253ec0141749a032e2057a5e702b0ad22944e1c3c1"
-const GOLDEN_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
-## SimVersion 2 final hash: unchanged by the 2 to 3 bump (M4-04), asserted separately.
-const SIM_V2_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
+const GOLDEN_CONFIG_HASH: String = "abc18a6f6f856971d04ccabf1997e13b7587fb55f96af7d694cb133662eba206"
+const GOLDEN_FINAL_HASH: String = "02e20fab5092aaf19d663999927f1bf0539ac8d579b9b9bc2b65c31180bed7cf"
+## The TIMED final hash must equal the PURGE-era TIMED value (M4-04: unchanged by the 2 to 3 bump); re-recorded with
+## the R1-02 tune (start_scrap 230 changes the scripted buys), asserted separately.
+const SIM_V2_FINAL_HASH: String = "02e20fab5092aaf19d663999927f1bf0539ac8d579b9b9bc2b65c31180bed7cf"
 ## PURGE twin (M4-04): seed 7, invulnerable, same buys, real data via SimConfigLoader.apply_mode("purge").
-const GOLDEN_PURGE_CONFIG_HASH: String = "7d27eb4b302139a7565f21ab506f8576972bd1f5150ed3cfead1a48228851cb0"
-const GOLDEN_PURGE_FINAL_HASH: String = "636348079d070790fd9139a8c72177f6931c9a237afcf06d09e3bea16dcd75f5"
+const GOLDEN_PURGE_CONFIG_HASH: String = "df977c2c15448ec80bb5d82f5616034953f8df3899fa2f5abf30a12ab5b5632b"
+const GOLDEN_PURGE_FINAL_HASH: String = "102f49cbc84b5fa780d2f010b1daa750f27083c83c58ed4ba3ff2f2ecf96bf44"
 ## SimVersion 4 (M4-15): the config hashes changed (draft tuning and patch defs are hashed); the final hashes did not
 ## (3000 ticks end before the first draft, no patch picked).
 ## Draft twin: seed 7, invulnerable, same buys, the first offer picked at waves 5, 10, 15 and 20, 16000 ticks.
 const GOLDEN_DRAFT_TICKS: int = 16000
-const GOLDEN_DRAFT_FINAL_HASH: String = "068d3e8f7e4493c28f4319674202bead341e1fa04fc65515ad2b443dbaf6245c"
+const GOLDEN_DRAFT_FINAL_HASH: String = "eebe12775509e6c11462620696fb6a15763b379389647d65e0a2e03f6b7e1a6d"
 const GOLDEN_TICKS: int = 3000
 const NO_BUDGET_LIMIT: int = 1_000_000_000
 

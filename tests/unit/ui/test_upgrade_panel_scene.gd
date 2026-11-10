@@ -22,6 +22,7 @@ func test_row_scene_loads_applies_model_and_emits_buy_pressed() -> void:
 	add_child(row)
 	var w: SimWorld = _world()
 	w.run_levels[0] = 24
+	w.economy.scrap = BigNum.from_float(10.0)  # start scrap is tuning data: pin the unaffordable case
 	var p: UpgradePreview = UpgradeSystem.preview(w, 0, 1)
 	row.apply(UpgradeRowModel.from_preview(p, p.affordable, p.level, w.config.upgrades[0]))
 	assert_str((row.get_node("%LevelLabel") as Label).text).is_equal("L24")

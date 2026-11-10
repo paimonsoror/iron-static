@@ -29,16 +29,16 @@ func _kill_skitter(w: SimWorld, stale: bool) -> void:
 	EconomySystem.apply_tick(w)
 
 
-func test_start_scrap_is_60() -> void:
+func test_start_scrap_is_230() -> void:
 	var w: SimWorld = _world()
-	assert_float(w.economy.scrap.to_float()).is_equal_approx(60.0, 1.0e-6)
+	assert_float(w.economy.scrap.to_float()).is_equal_approx(230.0, 1.0e-6)
 	assert_bool(w.economy.data_run.is_zero()).is_true()
 
 
 func test_wave1_skitter_pays_2_scrap_and_1_04_data() -> void:
 	var w: SimWorld = _world()
 	_kill_skitter(w, false)
-	assert_float(w.economy.scrap.to_float()).is_equal_approx(62.0, 1.0e-6)
+	assert_float(w.economy.scrap.to_float()).is_equal_approx(232.0, 1.0e-6)
 	assert_float(w.economy.data_run.to_float()).is_equal_approx(1.04, 1.0e-9)
 	assert_float(w.economy.wave_kill_scrap).is_equal_approx(2.0, 1.0e-9)
 
@@ -49,18 +49,18 @@ func test_scrap_yield_level_10_floors_with_carry() -> void:
 	w.stats = StatBlock.from_resolver(w.config.upgrades, w.run_levels)
 	assert_float(w.stats.scrap_yield).is_equal_approx(1.2, 1.0e-9)
 	_kill_skitter(w, false)
-	assert_float(w.economy.scrap.to_float()).is_equal_approx(62.0, 1.0e-6)  # 2.4 floored
+	assert_float(w.economy.scrap.to_float()).is_equal_approx(232.0, 1.0e-6)  # 2.4 floored
 	assert_float(w.economy.scrap_frac).is_equal_approx(0.4, 1.0e-9)
 	for k: int in 2:
 		_kill_skitter(w, false)
 	# 3 kills = 7.2: 7 whole scrap added, 0.2 carried
-	assert_float(w.economy.scrap.to_float()).is_equal_approx(67.0, 1.0e-6)
+	assert_float(w.economy.scrap.to_float()).is_equal_approx(237.0, 1.0e-6)
 
 
 func test_stale_kill_pays_half() -> void:
 	var w: SimWorld = _world()
 	_kill_skitter(w, true)
-	assert_float(w.economy.scrap.to_float()).is_equal_approx(61.0, 1.0e-6)
+	assert_float(w.economy.scrap.to_float()).is_equal_approx(231.0, 1.0e-6)
 	assert_float(w.economy.data_run.to_float()).is_equal_approx(0.52, 1.0e-9)
 
 
@@ -87,7 +87,7 @@ func test_no_interest_without_reinvest() -> void:
 	var w: SimWorld = _world()
 	w.economy.wave_kill_scrap = 100.0
 	EconomySystem.wave_end(w)
-	assert_float(w.economy.scrap.to_float()).is_equal_approx(60.0, 1.0e-6)
+	assert_float(w.economy.scrap.to_float()).is_equal_approx(230.0, 1.0e-6)
 
 
 func test_3000_tick_run_matches_float_shadow_and_converts_once_per_tick() -> void:
@@ -104,7 +104,7 @@ func test_3000_tick_run_matches_float_shadow_and_converts_once_per_tick() -> voi
 			ticks_with_kills += 1
 	assert_int(ticks_with_kills).is_greater(50)
 	var total: float = w.economy.scrap.to_float() + w.economy.scrap_frac
-	var shadow: float = 60.0 + w.run.scrap_earned
+	var shadow: float = 230.0 + w.run.scrap_earned
 	assert_float(absf(total - shadow) / shadow).is_less(1.0e-9)
 	var data_shadow: float = w.run.data_earned
 	assert_float(absf(w.economy.data_run.to_float() - data_shadow) / data_shadow).is_less(1.0e-9)

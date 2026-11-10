@@ -59,8 +59,14 @@ static func wave_for_level(target_level: int, t: SimTuning) -> int:
 static func step_cost(def: FoundryDef, level: int, limit: int, t: SimTuning) -> BigNum:
 	var base: BigNum = cost(def, level)
 	if level >= limit:
-		return base.mul_float(t.foundry_over_cap_mult).floor_value()
+		return base.mul_float(over_mult_at(level, limit, t)).floor_value()
 	return base
+
+
+## The over-cap multiplier of the step from `level` (>= limit): `foundry_over_cap_mult * foundry_over_cap_growth ^
+## (level - limit)`; growth 1 is the flat first version, above 1 the cost compounds per level over the cap.
+static func over_mult_at(level: int, limit: int, t: SimTuning) -> float:
+	return t.foundry_over_cap_mult * pow(t.foundry_over_cap_growth, float(maxi(level - limit, 0)))
 
 
 ## Type D: `Curves.foundry_mult`. Type C: the starting stat delta `step * F` (0 without `run_def`).
@@ -104,8 +110,18 @@ static func total_cost(def: FoundryDef, level: int, count: int, limit: int, t: S
 		var start: int = level + steps
 		var below: int = clampi(limit - start, 0, rest)
 		total = total.add(_geometric(def, start, below))
-		total = total.add(_geometric(def, start + below, rest - below).mul_float(t.foundry_over_cap_mult))
+		var over_start: int = start + below
+		var over_n: int = rest - below
+		if over_n > 0:
+			var first: BigNum = cost(def, over_start).mul_float(over_mult_at(over_start, limit, t))
+			total = total.add(_geometric_ratio(first, def.fg * t.foundry_over_cap_growth, over_n))
 	return total
+
+
+## `first * (ratio^n - 1) / (ratio - 1)` (the sum of n terms of a geometric series).
+static func _geometric_ratio(first: BigNum, ratio: float, n: int) -> BigNum:
+	var growth: BigNum = BigNum.from_float(ratio).pow_float(float(n)).sub_floor0(BigNum.one())
+	return first.mul(growth).mul_float(1.0 / (ratio - 1.0))
 
 
 ## Closed form of `count` consecutive costs from `level` (no soft cap).

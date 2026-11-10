@@ -46,7 +46,7 @@ func test_laser_row_matches_resolver_and_lists_foundry_and_patch_factors() -> vo
 	assert_str(r.value_text).is_equal(IntelModel.format_value(IntelModel.Kind.NUM, w.stats.laser_output))
 	var f: float = Curves.foundry_mult(3, w.config.foundry_f[0])
 	assert_str(r.chain_text).contains("FOUNDRY " + NumberFormat.format_mult(f))
-	assert_str(r.chain_text).contains("PATCH x1.15")
+	assert_str(r.chain_text).contains("PATCH x1.09")
 	assert_str(r.chain_text).contains("RUN ")
 	assert_str(r.chain_text).starts_with("BASE 10")
 
@@ -86,12 +86,12 @@ func test_burn_hardening_row_shows_the_current_reduction() -> void:
 	assert_str(r.value_text).is_equal("NONE")
 	assert_str(r.chain_text).is_equal("SKIN INTACT: FULL DAMAGE")
 	w.cinder.band = 1
-	assert_str(_row(IntelModel.build(w), "burn_dr").value_text).is_equal("-15%")
+	assert_str(_row(IntelModel.build(w), "burn_dr").value_text).is_equal("-25%")
 	w.cinder.band = 2
-	assert_str(_row(IntelModel.build(w), "burn_dr").value_text).is_equal("-30%")
+	assert_str(_row(IntelModel.build(w), "burn_dr").value_text).is_equal("-45%")
 	w.cinder.band = 3
 	var r3: IntelRow = _row(IntelModel.build(w), "burn_dr")
-	assert_str(r3.value_text).is_equal("-45%")
+	assert_str(r3.value_text).is_equal("-65%")
 	assert_str(r3.chain_text).is_equal("SKIN BURN BAND 3")
 
 

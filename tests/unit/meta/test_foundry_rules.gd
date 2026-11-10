@@ -15,8 +15,13 @@ func _run_def(id: String) -> RunUpgradeDef:
 	return FoundryRules.find_run_def(SimConfigLoader.load_default(1).upgrades, id)
 
 
+## The tuning with the FO-3 era soft cap pinned (x3 flat, k 0.6); shipped values: `test_shipped_soft_cap_rows`.
 func _t() -> SimTuning:
-	return SimConfigLoader.load_tuning()
+	var t: SimTuning = SimConfigLoader.load_tuning()
+	t.foundry_over_cap_mult = 3.0
+	t.foundry_over_cap_growth = 1.0
+	t.foundry_cap_k = 0.6
+	return t
 
 
 func _row(
@@ -95,6 +100,8 @@ func test_milestones_are_data() -> void:
 
 func test_wave_cap_formula() -> void:
 	var t: SimTuning = _t()
+	assert_int(t.foundry_cap_min).is_equal(6)  # the R1-02 tune; the checks below use the original floor of 3
+	t.foundry_cap_min = 3
 	assert_int(FoundryRules.wave_cap(0, t)).is_equal(3)  # cap_min floor
 	assert_int(FoundryRules.wave_cap(5, t)).is_equal(3)
 	assert_int(FoundryRules.wave_cap(6, t)).is_equal(3)
@@ -111,6 +118,7 @@ func test_wave_cap_formula() -> void:
 
 func test_wave_for_level_is_the_smallest_best_wave() -> void:
 	var t: SimTuning = _t()
+	t.foundry_cap_min = 3
 	assert_int(FoundryRules.wave_for_level(3, t)).is_equal(0)
 	for target: int in range(4, 120):
 		var w: int = FoundryRules.wave_for_level(target, t)
@@ -130,6 +138,26 @@ func test_soft_cap_step_cost_is_flat_over_the_limit() -> void:
 	assert_float(FoundryRules.step_cost(laser, 9, 3, t).to_float()).is_equal_approx(3.0 * 48.0, 1.0)
 	t.foundry_over_cap_mult = 2.5
 	assert_float(FoundryRules.step_cost(laser, 3, 3, t).to_float()).is_equal_approx(floorf(2.5 * 27.0), 1e-6)
+
+
+func test_compounding_over_cap_growth() -> void:
+	var laser: FoundryDef = _def("laser_output")
+	var t: SimTuning = _t()
+	assert_float(t.foundry_over_cap_growth).is_greater_equal(1.0)
+	t.foundry_over_cap_mult = 3.0
+	t.foundry_over_cap_growth = 1.5
+	t.foundry_cap_min = 3
+	# limit 3: level 3 costs x3, level 4 x4.5, level 5 x6.75 of the row cost.
+	assert_float(FoundryRules.over_mult_at(3, 3, t)).is_equal_approx(3.0, 1e-9)
+	assert_float(FoundryRules.over_mult_at(5, 3, t)).is_equal_approx(6.75, 1e-9)
+	assert_float(FoundryRules.step_cost(laser, 5, 3, t).to_float()).is_equal_approx(
+		floorf(FoundryRules.cost(laser, 5).to_float() * 6.75), 1.0
+	)
+	var exact: float = 0.0
+	for i: int in 330:
+		exact += FoundryRules.step_cost(laser, i, 3, t).to_float()
+	var big: float = FoundryRules.total_cost(laser, 0, 330, 3, t).to_float()
+	assert_float(big).is_equal_approx(exact, exact * 0.01)
 
 
 func test_total_cost_and_max_affordable() -> void:
@@ -195,6 +223,14 @@ func test_recommended_prefers_rows_below_the_limit() -> void:
 	assert_int(FoundryRules.recommended(all_over)).is_equal(1)
 	var unaffordable_over: Array[FoundryRowView] = [_row("D", 50, 9, false, false, true)]
 	assert_int(FoundryRules.recommended(unaffordable_over)).is_equal(-1)
+
+
+func test_shipped_soft_cap_rows() -> void:
+	var t: SimTuning = SimConfigLoader.load_tuning()  # the R1-02 tune
+	assert_int(t.foundry_cap_min).is_equal(6)
+	assert_float(t.foundry_cap_k).is_equal(0.7)
+	assert_float(t.foundry_over_cap_mult).is_equal(2.0)
+	assert_float(t.foundry_over_cap_growth).is_equal(1.0)  # flat: compounding was not needed
 
 
 func test_fallback_milestones_equal_the_data_rows() -> void:

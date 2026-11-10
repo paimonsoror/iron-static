@@ -3,8 +3,8 @@ extends GdUnitTestSuite
 ## PURGE wave-end rule (M4-03, Q72/Q73): quota cleared or backstop; the TIMED path is untouched.
 
 const TIMED_TICKS: int = 2200
-## State hash of the TIMED scenario below, recorded on main (83139a6) before M4-03 touched sim_world.gd.
-const TIMED_HASH_BEFORE: String = "9ca563d42d03637e84b1c135c74d6d6f0d7a01105dbd3fefa0bba3a8773f3eb7"
+## State hash of the TIMED scenario below (first recorded on main 83139a6 before M4-03; re-recorded for the R1 tune).
+const TIMED_HASH_BEFORE: String = "2797ca1bd85b67f82a32fbcbc4493c09218dc3519237302ab7d16bade3817918"
 const BACKSTOP: int = 900
 const HUGE_HP: float = 1.0e30
 
