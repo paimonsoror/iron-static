@@ -4,7 +4,7 @@ Changelog: 2026-11-09 v1.0 (B1-05, branch `b1-docs`).
 
 Page: `site/docs/privacy.md`, published at `https://paimonsoror.github.io/iron-static/privacy/` after the change reaches `main` and the Pages workflow is green. The text is written for the **B1-04 beta build** (no Billing, no AdMob/UMP, no Sentry, no Nakama, only the VIBRATE permission). **B1-04 must be done and `tools\aab_check.ps1` must PASS before the page is true.** If B1-04 keeps INTERNET (decision still open when this was written), change the "does not request the Android internet permission" sentence and the permissions table.
 
-Placeholders the user fills before the Play submission (do not commit a personal email): `<DEVELOPER NAME>` (exactly as shown on Google Play) and `[SUPPORT EMAIL]` (Q83, public support email). Both are plain text in `site/docs/privacy.md`.
+Placeholder the user fills before the Play submission: `<DEVELOPER NAME>` (exactly as shown on Google Play), plain text in `site/docs/privacy.md`. The contact is the public support address `support@normalexception.net` (Q83, decided 2026-11-09); never commit a personal email.
 
 | Statement on the page | Evidence |
 |---|---|

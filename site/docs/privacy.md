@@ -6,7 +6,7 @@ title: Privacy policy
 
 Effective date: 2026-11-09. Last updated: 2026-11-09.
 
-This page covers the **IRON STATIC** Android game (package `com.ironstatic.game`), open beta version 0.5.x, published by **<DEVELOPER NAME>** ("we"). It is written in plain language on purpose.
+This page covers the **IRON STATIC** Android game (package `com.normalexception.game`), open beta version 0.5.x, published by **<DEVELOPER NAME>** ("we"). It is written in plain language on purpose.
 
 ## The short version
 
@@ -70,4 +70,4 @@ A later version of the game may add online features, ads or purchases. If so, th
 
 ## Contact
 
-Questions about this policy or about your data: **[SUPPORT EMAIL]**
+Questions about this policy or about your data: **[support@normalexception.net](mailto:support@normalexception.net)**
