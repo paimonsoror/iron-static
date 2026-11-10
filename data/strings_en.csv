@@ -19,7 +19,7 @@ panel.intel_stub,INTEL: coming in a later update
 row.max,MAX
 row.level,L{n}
 row.value,{a} > {b}
-tooltip.d,"Base {base}. Each level adds {step} of base. Every 25 levels: x1.5. Level cap {cap}.\nFoundry: {foundry}"
+tooltip.d,"Base {base}. Each level adds {step} of base. Every {ms} levels: x{mm}. Level cap {cap}.\nFoundry: {foundry}"
 tooltip.c,"Base {base}, {step} per level. Level cap {cap}, limit {limit}.\nFoundry: {foundry}"
 tooltip.none,none
 tooltip.foundry_none,--
@@ -62,9 +62,8 @@ foundry.data,DATA {v}
 foundry.level,F{n}
 foundry.value,{a} -> {b}
 foundry.value_start,STARTS AT {v}
-foundry.milestone,MILESTONE F{n}  x1.75
-foundry.capped,CAP
-foundry.next_at,NEXT LEVEL AT WAVE {n}
+foundry.milestone,MILESTONE F{n}  x{m}
+foundry.over_cost,x{m} COST UNTIL WAVE {n}
 foundry.max,MAX
 foundry.recommended,RECOMMENDED
 foundry.afford_now,AFFORDABLE
@@ -72,8 +71,9 @@ foundry.afford_in,~{v} TO AFFORD
 foundry.preview,NEXT RUN  PR {a} -> {b}
 foundry.deploy,DEPLOY
 foundry.back,BACK
-foundry.tooltip_d,"Permanent. Every deployment starts with this stat boosted by your Foundry level, plus x1.75 for every 25 levels. Level F{f}. Next level costs {cost} data. Cap F{cap}."
-foundry.tooltip_cap,"Level limit F{cap} at your best wave. Reach wave {n} to unlock the next level."
+foundry.tooltip_d,"Permanent. Every deployment starts with this stat boosted by your Foundry level, plus x{m} for every {s} levels. Level F{f}. Next level costs {cost} data. Cap F{cap}."
+foundry.tooltip_rule,"Levels from F{cap} up cost x{m} at your best wave. Reaching further waves raises that limit."
+foundry.tooltip_over,"This level costs x{m}. Reach wave {n} to buy it at the normal price."
 foundry.tooltip_c,"Permanent. Every deployment starts with free levels of this stat. Level F{f}. Next level costs {cost} data. Cap F{cap}."
 foundry.locked,COMPLETE A DEPLOYMENT TO UNLOCK
 results.best_delta,BEST {b}  (+{d})
@@ -311,6 +311,6 @@ foundry.intro.title,THE FOUNDRY
 foundry.intro.p1,PERMANENT UPGRADES. SCRAP UPGRADES RESET WHEN A DEPLOYMENT ENDS; FOUNDRY LEVELS STAY.
 foundry.intro.p2,PAID IN DATA FROM KILLS. IT IS BANKED WHEN A DEPLOYMENT ENDS - EVEN IF CINDER FALLS.
 foundry.intro.p3,EACH LEVEL RAISES YOUR STARTING STATS: EVERY DEPLOYMENT BEGINS STRONGER AND REACHES FURTHER.
-foundry.intro.p4,TAP A COST TO BUY. HOLD TO KEEP BUYING. MORE LEVELS OPEN AS YOU REACH FURTHER WAVES.
+foundry.intro.p4,TAP A COST TO BUY. HOLD TO KEEP BUYING. HIGHER LEVELS COST MORE UNTIL YOU REACH FURTHER WAVES.
 foundry.intro.hide,DON'T SHOW THIS AGAIN
 foundry.intro.ok,GOT IT

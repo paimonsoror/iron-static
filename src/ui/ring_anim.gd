@@ -8,16 +8,16 @@ const SWEEP_S: float = 2.0
 const EXPAND_S: float = 0.4
 const PULSE_S: float = 1.2
 const FLASH_S: float = 0.12
-## A row rings within this many levels below a multiple of MILESTONE_EVERY (level 0 never rings).
+## A row rings within this many levels below a multiple of the milestone step (level 0 never rings).
 const RING_LEVELS: int = 3
-const MILESTONE_EVERY: int = 25
 
 
-## True for levels 22..24, 47..49 ...: within RING_LEVELS below the next multiple of 25; level 0 excluded.
-static func ring_for_level(level: int) -> bool:
+## True for levels 22..24, 47..49 ...: within RING_LEVELS below the next multiple of `every` (the run milestone step,
+## 25 with the shipped data; the documented fallback when the caller passes none); level 0 excluded.
+static func ring_for_level(level: int, every: int = Curves.FALLBACK_RUN_STEP) -> bool:
 	if level <= 0:
 		return false
-	var to_next: int = MILESTONE_EVERY - (level % MILESTONE_EVERY)
+	var to_next: int = every - (level % every)
 	return to_next <= RING_LEVELS
 
 

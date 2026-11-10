@@ -48,6 +48,14 @@ static func _clone(source: Resource) -> Resource:
 	return copy
 
 
+## A private copy of the tuning table (data/sim_constants.csv). The meta layer reads its Foundry rows through this
+## (R1-02): `FoundryService` takes it as an optional constructor argument and defaults to this.
+static func load_tuning() -> SimTuning:
+	var src: SimTuning = load(TUNING_PATH)
+	var copy: Variant = _clone(src)
+	return copy
+
+
 ## The Foundry rows from the generated table (private copies), in display order (M3-06).
 static func load_foundry_defs() -> Array[FoundryDef]:
 	var out: Array[FoundryDef] = []

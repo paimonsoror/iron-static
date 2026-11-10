@@ -9,12 +9,12 @@ const MAX_TICKS: int = 60000
 ## Foundry levels differ; these goldens use no Foundry levels and the config hash (tuning, defs) did not change,
 ## so every golden hash below is unchanged.
 const GOLDEN_SIM_VERSION: int = 6
-const GOLDEN_CONFIG_HASH: String = "dea824dfa734e4f319c7fde7840b6ee7b639d5d443c01d9459d3999f430ed0f5"
+const GOLDEN_CONFIG_HASH: String = "6643ba73984c0be706355c6315bd38dc720a7d4b95ab0a4244e64bba47f51605"
 const GOLDEN_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 ## SimVersion 2 final hash: unchanged by the 2 to 3 bump (M4-04), asserted separately.
 const SIM_V2_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 ## PURGE twin (M4-04): seed 7, invulnerable, same buys, real data via SimConfigLoader.apply_mode("purge").
-const GOLDEN_PURGE_CONFIG_HASH: String = "2afb789c387fca3c7789aa7c483a2f5605992eeed968ed5ecd185ce0050140f4"
+const GOLDEN_PURGE_CONFIG_HASH: String = "6c9ad8ac1dfc494ca0e8f0ea56304cab0b52035919d5b8ba5b5ad9dd89ede8fa"
 const GOLDEN_PURGE_FINAL_HASH: String = "636348079d070790fd9139a8c72177f6931c9a237afcf06d09e3bea16dcd75f5"
 ## SimVersion 4 (M4-15): the config hashes changed (draft tuning and patch defs are hashed); the final hashes did not
 ## (3000 ticks end before the wave 10 draft, no patch picked).
@@ -125,6 +125,24 @@ func test_config_hash_changes_with_any_tuning_value() -> void:
 	assert_str(ConfigHash.compute(c3)).is_not_equal(base)
 	var c4: SimConfig = _cfg()
 	c4.enemies[0].speed += 0.5
+	assert_str(ConfigHash.compute(c4)).is_not_equal(base)
+
+
+func test_config_hash_ignores_the_meta_only_foundry_cap_rows_but_not_the_milestones() -> void:
+	var base: String = ConfigHash.compute(_cfg())
+	var c1: SimConfig = _cfg()
+	c1.tuning.foundry_cap_k += 0.1
+	c1.tuning.foundry_cap_min += 1
+	c1.tuning.foundry_over_cap_mult += 1.0
+	assert_str(ConfigHash.compute(c1)).is_equal(base)  # tuning the soft cap does not end a run in progress
+	var c2: SimConfig = _cfg()
+	c2.tuning.foundry_milestone_mult += 0.25
+	assert_str(ConfigHash.compute(c2)).is_not_equal(base)
+	var c3: SimConfig = _cfg()
+	c3.tuning.run_milestone_step += 5
+	assert_str(ConfigHash.compute(c3)).is_not_equal(base)
+	var c4: SimConfig = _cfg()
+	c4.tuning.burn_dr_b2 -= 0.1
 	assert_str(ConfigHash.compute(c4)).is_not_equal(base)
 
 

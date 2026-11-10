@@ -147,6 +147,7 @@ func _print_marks(records: Array[Dictionary]) -> void:
 	_mark("after_%d_deployments" % SESSION_DEPLOYMENTS, records, SESSION_DEPLOYMENTS - 1)
 	var day_one: int = -1
 	var first_ms: int = -1
+	var milestone_step: int = Curves.foundry_step(SimConfigLoader.load_tuning())
 	for i: int in records.size():
 		var cum2: float = records[i]["cum_min_1x"] / 2.0
 		if day_one < 0 and cum2 >= DAY_ONE_MINUTES_2X:
@@ -154,7 +155,7 @@ func _print_marks(records: Array[Dictionary]) -> void:
 		var lv: Dictionary = records[i]["levels"]
 		for id: String in ["laser_output", "hull_integrity", "nano_repair"]:
 			var level: int = lv.get(id, 0)
-			if first_ms < 0 and level >= FoundryRules.MILESTONE_STEP:
+			if first_ms < 0 and level >= milestone_step:
 				first_ms = i
 	_mark("at_35_min_2x", records, day_one)
 	_mark("first_milestone", records, first_ms)

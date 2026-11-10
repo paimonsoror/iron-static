@@ -43,6 +43,10 @@ const ENEMY_ELITE := Color("#FF5A3C")
 const ENEMY_FIRE := Color("#FF4FD8")
 const GHOST := Color(1.0, 0.176, 0.294, 0.15)  # Outline red at 15% alpha
 
+# Foundry level over the soft cap (R1-02): the cost text of a row that costs more than the normal price. Ember orange,
+# 7.4:1 on the button plate (PANEL); never red (red is hostile only).
+const OVER_LIMIT := Color("#FF8A1F")
+
 # Warning
 const WARNING := Color("#FFC21A")
 const CRITICAL := Color("#FF3B30")

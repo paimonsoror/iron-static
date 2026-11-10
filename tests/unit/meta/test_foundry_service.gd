@@ -120,54 +120,81 @@ func _capped_profile(best: int, data: int = 1000000) -> PlayerProfile:
 	return p
 
 
-func test_buy_stops_at_the_wave_cap() -> void:
-	var s: FoundryService = _service()
-	var p: PlayerProfile = _capped_profile(10)  # cap 6
-	assert_int(s.buy(p, "laser_output", 50)).is_equal(6)
-	assert_int(p.foundry_level("laser_output")).is_equal(6)
-	assert_int(s.buy(p, "laser_output", 1)).is_equal(0)
-	p.best_wave["1"] = 12  # cap 7
-	assert_int(s.buy(p, "laser_output", 5)).is_equal(1)
+func _cost_of(s: FoundryService, id: String, level: int, count: int, best: int) -> float:
+	var def: FoundryDef = FoundryRules.find_def(s.defs, id)
+	var limit: int = FoundryRules.wave_cap(best, s.tuning)
+	return FoundryRules.total_cost(def, level, count, limit, s.tuning).to_float()
 
 
-func test_cap_floor_is_three_levels_without_a_best_wave() -> void:
+func test_levels_over_the_wave_cap_are_bought_at_the_multiplied_price() -> void:
 	var s: FoundryService = _service()
-	var p: PlayerProfile = _capped_profile(0)
+	var p: PlayerProfile = _capped_profile(10)  # soft cap 6
+	var before: float = p.data.to_float()
+	assert_int(s.buy(p, "laser_output", 50)).is_equal(50)  # never forbidden
+	assert_int(p.foundry_level("laser_output")).is_equal(50)
+	assert_float(before - p.data.to_float()).is_equal_approx(_cost_of(s, "laser_output", 0, 50, 10), 0.5)
+	assert_float(_cost_of(s, "laser_output", 0, 50, 10)).is_greater(_cost_of(s, "laser_output", 0, 50, 100))
+
+
+func test_the_first_over_cap_level_costs_three_times_the_row_cost() -> void:
+	var s: FoundryService = _service()
+	var p: PlayerProfile = _capped_profile(10)  # soft cap 6
+	p.set_foundry_level("laser_output", 6)
+	var def: FoundryDef = FoundryRules.find_def(s.defs, "laser_output")
+	var normal: float = FoundryRules.cost(def, 6).to_float()
+	p.data = BigNum.from_float(3.0 * normal - 1.0)
+	assert_int(s.buy(p, "laser_output", 1)).is_equal(0)  # one data short of x3
+	p.data = BigNum.from_float(3.0 * normal)
+	assert_int(s.buy(p, "laser_output", 1)).is_equal(1)
+	assert_float(p.data.to_float()).is_equal_approx(0.0, 0.5)
+
+
+func test_cap_floor_is_three_levels_at_the_normal_price_without_a_best_wave() -> void:
+	var s: FoundryService = _service()
+	var p: PlayerProfile = _capped_profile(0, 67)  # 20 + 22 + 25 = the first three laser levels
 	assert_int(s.buy(p, "laser_output", 10)).is_equal(3)
-	assert_int(s.buy(p, "hull_integrity", 10)).is_equal(3)
+	assert_float(p.data.to_float()).is_equal_approx(0.0, 0.5)
+	assert_int(s.buy(p, "hull_integrity", 10)).is_equal(0)
 
 
-func test_capped_row_view_and_hint() -> void:
+func test_over_limit_row_view_and_hint() -> void:
 	var s: FoundryService = _service()
 	var p: PlayerProfile = _capped_profile(10)
 	p.set_foundry_level("laser_output", 6)
 	var r: FoundryRowView = s.rows(p)[0]
-	assert_bool(r.capped).is_true()
+	assert_bool(r.over_limit).is_true()
 	assert_bool(r.maxed).is_false()
-	assert_bool(r.affordable).is_false()
+	assert_bool(r.affordable).is_true()  # still buyable, never locked
 	assert_int(r.limit).is_equal(6)
+	assert_int(r.room_below_limit).is_equal(0)
+	assert_float(r.over_mult).is_equal(3.0)
+	assert_float(r.cost.to_float()).is_equal_approx(3.0 * r.base_cost.to_float(), 1.0)
 	assert_int(r.next_wave).is_equal(12)  # floor(0.6 * 12) = 7
-	assert_bool(s.rows(_capped_profile(10))[0].capped).is_false()
-	assert_int(s.affordable_count(p)).is_equal(3)  # the capped row is not counted
+	var below: FoundryRowView = s.rows(_capped_profile(10))[0]
+	assert_bool(below.over_limit).is_false()
+	assert_int(below.room_below_limit).is_equal(6)
+	assert_int(s.affordable_count(p)).is_equal(3)  # the over-limit row is not counted in the badge
 
 
-func test_grandfathered_levels_are_kept() -> void:
+func test_grandfathered_levels_are_kept_and_cost_more() -> void:
 	var s: FoundryService = _service()
-	var p: PlayerProfile = _capped_profile(10)  # cap 6
+	var p: PlayerProfile = _capped_profile(10)  # soft cap 6
 	p.set_foundry_level("laser_output", 30)
 	var r: FoundryRowView = s.rows(p)[0]
 	assert_int(r.level).is_equal(30)
-	assert_bool(r.capped).is_true()
+	assert_bool(r.over_limit).is_true()
 	assert_int(r.next_wave).is_equal(52)  # 31 levels need floor(0.6 w) >= 31
-	assert_int(s.buy(p, "laser_output", 5)).is_equal(0)
-	assert_int(p.foundry_level("laser_output")).is_equal(30)
-	p.best_wave["1"] = 52
-	assert_int(s.buy(p, "laser_output", 5)).is_equal(1)
+	assert_int(s.buy(p, "laser_output", 5)).is_equal(5)
+	assert_int(p.foundry_level("laser_output")).is_equal(35)
+	p.best_wave["1"] = 100
+	var back: FoundryRowView = s.rows(p)[0]
+	assert_bool(back.over_limit).is_false()
+	assert_float(back.cost.to_float()).is_equal_approx(back.base_cost.to_float(), 1e-9)
 
 
-func test_recommended_skips_a_capped_row() -> void:
+func test_recommended_prefers_a_row_below_the_limit() -> void:
 	var p: PlayerProfile = _capped_profile(10, 500)
-	p.set_foundry_level("nano_repair", 6)  # capped; would be the cheapest
+	p.set_foundry_level("nano_repair", 6)  # over the limit; would be the cheapest
 	p.set_foundry_level("laser_output", 2)
 	var rows: Array[FoundryRowView] = _service().rows(p)
 	assert_bool(rows[3].recommended).is_false()
@@ -177,7 +204,31 @@ func test_recommended_skips_a_capped_row() -> void:
 	assert_int(flagged).is_equal(1)
 
 
-func test_wave_cap_can_be_lifted_for_tools() -> void:
+func test_recommended_falls_back_to_an_over_limit_row_when_all_are_over() -> void:
+	var p: PlayerProfile = _capped_profile(0, 100000)
+	for id: String in ["laser_output", "cycle_rate", "hull_integrity", "nano_repair"]:
+		p.set_foundry_level(id, 3)
+	var flagged: int = 0
+	for r: FoundryRowView in _service().rows(p):
+		flagged += 1 if r.recommended else 0
+	assert_int(flagged).is_equal(1)
+
+
+func test_the_wave_cap_can_be_lifted_for_tools() -> void:
 	var s: FoundryService = _service()
 	s.wave_cap_enabled = false
-	assert_int(s.buy(_capped_profile(0), "laser_output", 10)).is_equal(10)
+	var p: PlayerProfile = _capped_profile(0)
+	assert_int(s.buy(p, "laser_output", 10)).is_equal(10)
+	var def: FoundryDef = FoundryRules.find_def(s.defs, "laser_output")
+	assert_float(1000000.0 - p.data.to_float()).is_equal_approx(
+		FoundryRules.total_cost(def, 0, 10, FoundryRules.NO_LIMIT, s.tuning).to_float(), 0.5
+	)
+
+
+func test_a_tuned_multiplier_changes_the_price() -> void:
+	var s: FoundryService = _service()
+	s.tuning.foundry_over_cap_mult = 5.0
+	var p: PlayerProfile = _capped_profile(0)
+	p.set_foundry_level("laser_output", 3)
+	var r: FoundryRowView = s.rows(p)[0]
+	assert_float(r.cost.to_float()).is_equal_approx(5.0 * r.base_cost.to_float(), 1.0)

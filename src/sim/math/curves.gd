@@ -2,10 +2,15 @@ class_name Curves
 extends RefCounted
 ## GDD formulas as pure static functions (03 sections 2-4, 02 sections 5-6, 05 section 1.2).
 
-const MILESTONE_RUN_STEP: int = 25  # run_factor: x1.5 every 25 levels (02 section 5)
-const MILESTONE_RUN_MULT: float = 1.5
-const MILESTONE_FOUNDRY_STEP: int = 25  # foundry_mult: x1.75 every 25 levels (05 section 1.2, FO-3)
-const MILESTONE_FOUNDRY_MULT: float = 1.75
+## Milestones (02 section 5: run_factor x1.5 every 25 levels; 05 section 1.2: foundry_mult x1.75 every 25 levels) are
+## data since R1-02 (C-07): `run_milestone_step/mult` and `foundry_milestone_step/mult` in data/sim_constants.csv,
+## read from a `SimTuning`. The FALLBACK_* values are the documented fallback for a caller that has no tuning at hand
+## (UI previews, unit tests); `test_curves.gd` asserts they equal the data rows, so they cannot drift silently.
+## Every production path (sim, Foundry, Intel, rows) passes its real tuning.
+const FALLBACK_RUN_STEP: int = 25
+const FALLBACK_RUN_MULT: float = 1.5
+const FALLBACK_FOUNDRY_STEP: int = 25
+const FALLBACK_FOUNDRY_MULT: float = 1.75
 
 
 ## Piecewise exponential growth (03 section 4.2). r1..r3 are growth factors per level;
@@ -41,16 +46,36 @@ static func sector_reward(s: int, growth: float) -> float:
 	return pow(growth, float(s - 1))
 
 
-## Run upgrade multiplier: (1 + p*L) * 1.5^floor(L/25).
-static func run_factor(level: int, p: float) -> float:
-	var steps: int = floori(float(level) / float(MILESTONE_RUN_STEP))
-	return (1.0 + p * float(level)) * pow(MILESTONE_RUN_MULT, float(steps))
+## Levels between run milestones (`run_milestone_step`); `t` null = the documented fallback.
+static func run_step(t: SimTuning = null) -> int:
+	return maxi(1, t.run_milestone_step if t != null else FALLBACK_RUN_STEP)
 
 
-## Foundry multiplier: (1 + f*F) * 1.75^floor(F/25).
-static func foundry_mult(f_level: int, f: float) -> float:
-	var steps: int = floori(float(f_level) / float(MILESTONE_FOUNDRY_STEP))
-	return (1.0 + f * float(f_level)) * pow(MILESTONE_FOUNDRY_MULT, float(steps))
+## Multiplier gained at each run milestone (`run_milestone_mult`).
+static func run_mult(t: SimTuning = null) -> float:
+	return t.run_milestone_mult if t != null else FALLBACK_RUN_MULT
+
+
+## Levels between Foundry milestones (`foundry_milestone_step`).
+static func foundry_step(t: SimTuning = null) -> int:
+	return maxi(1, t.foundry_milestone_step if t != null else FALLBACK_FOUNDRY_STEP)
+
+
+## Multiplier gained at each Foundry milestone (`foundry_milestone_mult`).
+static func foundry_milestone_mult(t: SimTuning = null) -> float:
+	return t.foundry_milestone_mult if t != null else FALLBACK_FOUNDRY_MULT
+
+
+## Run upgrade multiplier: (1 + p*L) * run_mult^floor(L/run_step) (1.5 every 25 levels with the shipped data).
+static func run_factor(level: int, p: float, t: SimTuning = null) -> float:
+	var steps: int = floori(float(level) / float(run_step(t)))
+	return (1.0 + p * float(level)) * pow(run_mult(t), float(steps))
+
+
+## Foundry multiplier: (1 + f*F) * foundry_milestone_mult^floor(F/foundry_step) (1.75 every 25 with the shipped data).
+static func foundry_mult(f_level: int, f: float, t: SimTuning = null) -> float:
+	var steps: int = floori(float(f_level) / float(foundry_step(t)))
+	return (1.0 + f * float(f_level)) * pow(foundry_milestone_mult(t), float(steps))
 
 
 ## Cost of buying the upgrade at `level` (next level): ceil(c0 * g^level).

@@ -80,6 +80,16 @@ extends Resource
 @export var burn_dr_b2: float = 0.0
 @export var burn_dr_b3: float = 0.0
 
+# Milestones and the Foundry soft cap (GDD 02 section 5, 05 sections 1.2 and 1.5; R1-02, review C-07). The three
+# foundry_cap_* / foundry_over_cap_* rows only steer the meta layer (Foundry costs) and are left out of ConfigHash.
+@export var run_milestone_step: int = 0
+@export var run_milestone_mult: float = 0.0
+@export var foundry_milestone_step: int = 0
+@export var foundry_milestone_mult: float = 0.0
+@export var foundry_cap_k: float = 0.0
+@export var foundry_cap_min: int = 0
+@export var foundry_over_cap_mult: float = 0.0
+
 # Patch draft (GDD 02 section 10; M4-13, used by the draft system from M4-15)
 @export var draft_first_wave: int = 0
 @export var draft_interval: int = 0

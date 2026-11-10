@@ -28,6 +28,7 @@ var _index: int = -1
 var _name: String = ""
 var _level: String = ""
 var _level_n: int = -1
+var _ltm: int = -1
 var _value: String = ""
 var _cost: String = ""
 var _icon_id: String = ""
@@ -92,10 +93,12 @@ func apply(model: UpgradeRowModel) -> void:
 		_level = model.level_text
 		_level_label.text = _level
 	if model.level != _level_n:
-		# Crossing a multiple of 25 by a purchase (not the first bind) plays the 0.4 s expansion.
-		if _level_n >= 0 and floori(float(model.level) / 25.0) > floori(float(_level_n) / 25.0):
+		# Crossing a milestone by a purchase (not the first bind) plays the 0.4 s expansion: the distance to the next
+		# milestone jumps up when the level passes one (the step is data, `run_milestone_step`; R1-02).
+		if _level_n >= 0 and model.level > _level_n and model.levels_to_milestone > _ltm:
 			_fx.play_expand()
 		_level_n = model.level
+	_ltm = model.levels_to_milestone
 	if model.value_text != _value:
 		_value = model.value_text
 		_value_label.text = _value

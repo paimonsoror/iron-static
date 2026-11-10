@@ -30,6 +30,7 @@ func run() -> Array[Dictionary]:
 	var cum_data: float = 0.0
 	var cum_ticks: int = 0
 	var streak: int = 0
+	var spend_tuning: SimTuning = foundry_tuning()
 	for dep: int in range(args.deployments):
 		var best: int = profile.best_wave_of_mode(args.mode, 1)
 		var frame_id: String = frame_for(best)
@@ -71,7 +72,7 @@ func run() -> Array[Dictionary]:
 					"spent": data_in.to_float() - profile.data.to_float(),
 					"left": profile.data.to_float(),
 					"bought": bought,
-					"cap": FoundryRules.wave_cap(profile.best_wave_s1()),
+					"cap": FoundryRules.wave_cap(profile.best_wave_s1(), spend_tuning),
 					"levels": profile.foundry.duplicate(),
 					"minutes_1x": float(run_ticks) / float(Ticks.TICK_RATE) / 60.0,
 					"cum_min_1x": float(cum_ticks) / float(Ticks.TICK_RATE) / 60.0,
@@ -90,10 +91,21 @@ func frame_for(best: int) -> String:
 	return args.frame if best >= gate else "vanguard"
 
 
-## The service for one spending phase. The real best-wave level cap (FO-3, `FoundryRules.wave_cap`) applies unless
-## `wave_cap` is false (the probe spends on a fresh profile with no best wave).
+## The tuning of the Foundry rules: the shipped sim_constants.csv with the `--set sim.*` overrides applied, so
+## `sim.foundry_over_cap_mult=2` and the like measure a candidate value (R1-02).
+func foundry_tuning() -> SimTuning:
+	var cfg: SimConfig = SimConfigLoader.load_default(0)
+	overrides.apply_to_config(cfg)
+	return cfg.tuning
+
+
+## The service for one spending phase. The real best-wave soft cap (R1-02, `FoundryRules.wave_cap`: levels above it cost
+## `foundry_over_cap_mult` times more) applies unless `wave_cap` is false (the probe spends on a fresh profile with no
+## best wave).
 func make_service(wave_cap: bool = true) -> FoundryService:
-	var service: FoundryService = FoundryService.new(overrides.foundry_defs(), SimConfigLoader.load_default(0).upgrades)
+	var cfg: SimConfig = SimConfigLoader.load_default(0)
+	overrides.apply_to_config(cfg)
+	var service: FoundryService = FoundryService.new(overrides.foundry_defs(), cfg.upgrades, cfg.tuning)
 	service.wave_cap_enabled = wave_cap
 	return service
 

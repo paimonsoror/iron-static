@@ -81,6 +81,21 @@ func test_foundry_mult() -> void:
 	assert_float(Curves.foundry_mult(0, 0.06)).is_equal(1.0)
 
 
+func test_milestones_follow_the_tuning_rows() -> void:
+	var t: SimTuning = SimConfigLoader.load_tuning()
+	assert_int(t.run_milestone_step).is_equal(25)
+	assert_float(t.run_milestone_mult).is_equal(1.5)
+	assert_float(Curves.run_factor(25, 0.10, t)).is_equal_approx(Curves.run_factor(25, 0.10), 1e-12)
+	t.run_milestone_step = 10
+	t.run_milestone_mult = 2.0
+	assert_float(Curves.run_factor(10, 0.10, t)).is_equal_approx(2.0 * 2.0, 1e-9)
+	assert_float(Curves.run_factor(25, 0.10, t)).is_equal_approx(3.5 * 4.0, 1e-9)
+	t.foundry_milestone_step = 5
+	t.foundry_milestone_mult = 3.0
+	assert_float(Curves.foundry_mult(5, 0.06, t)).is_equal_approx(1.3 * 3.0, 1e-9)
+	assert_int(StatResolver.levels_to_next_milestone(7, t)).is_equal(3)
+
+
 func test_upgrade_cost() -> void:
 	assert_float(Curves.upgrade_cost(15.0, 1.09, 0)).is_equal(15.0)
 	assert_float(Curves.upgrade_cost(15.0, 1.09, 1)).is_equal(17.0)

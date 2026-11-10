@@ -1,6 +1,6 @@
 # 02 - Combat and In-Run Systems
 
-Changelog: 2026-11-10 (R1-05, SimVersion 6: 12.1 skin burn bands now harden the frame, damage taken x0.85 / x0.70 / x0.55 in bands 1 / 2 / 3, rows `burn_dr_b1..3` in `sim_constants.csv`; the first Skin Burn modifier; review G-03) - 2026-11-09 (Q54 early-curve retune, SimVersion 2: start scrap 60, laser_output and hull_integrity c0 10 / g 1.108, nano_repair p 0.60, plating_pct +0.06 per level at c0 20; see 03 section 4.7) - 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
+Changelog: 2026-11-10 (R1-02, SimVersion 6: the run milestone step and multiplier of section 5 are data rows `run_milestone_step` / `run_milestone_mult`; values unchanged) - 2026-11-10 (R1-05, SimVersion 6: 12.1 skin burn bands now harden the frame, damage taken x0.85 / x0.70 / x0.55 in bands 1 / 2 / 3, rows `burn_dr_b1..3` in `sim_constants.csv`; the first Skin Burn modifier; review G-03) - 2026-11-09 (Q54 early-curve retune, SimVersion 2: start scrap 60, laser_output and hull_integrity c0 10 / g 1.108, nano_repair p 0.60, plating_pct +0.06 per level at c0 20; see 03 section 4.7) - 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
 
 All numbers are first-pass and **tunable** unless marked HARD (a rule, not a balance number). Borrowed mechanics are cited to the research notes: `[CIS n]` = combat_and_in_run_systems.md section n. "Changed" notes say what we altered and why.
 
@@ -48,7 +48,7 @@ Two stat types:
 
 **Type D (deep, multiplicative)** - `laser_output`, `hull_integrity`, `nano_repair`, `plating_flat`:
 ```
-run_factor(L)     = (1 + p * L) * 1.5 ^ floor(L / 25)            -- p given per stat, L <= 400
+run_factor(L)     = (1 + p * L) * run_milestone_mult ^ floor(L / run_milestone_step)   -- 1.5 and 25 in data/sim_constants.csv            -- p given per stat, L <= 400
 foundry_mult(F)   = (1 + f * F) * 1.25 ^ floor(F / 10)           -- f given per stat in 05, F <= 200
 final = base * run_factor(L) * foundry_mult(F) * PRODUCT(M)
 ```

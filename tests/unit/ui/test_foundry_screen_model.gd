@@ -68,6 +68,7 @@ func test_type_c_row_has_start_values_and_no_milestone() -> void:
 
 func test_tooltips_carry_level_cost_and_cap() -> void:
 	var p: PlayerProfile = _profile(0)
+	p.best_wave["1"] = 100  # soft cap 60: the next level is at the normal price
 	p.set_foundry_level("laser_output", 3)
 	var d: String = _model(p, 0).tooltip_text
 	assert_str(d).contains("Level F3")
@@ -85,14 +86,38 @@ func test_recommended_flag_is_copied() -> void:
 	assert_bool(FoundryRowModel.from_view(views[2], 2).recommended).is_false()
 
 
-func test_capped_row_texts() -> void:
+func test_over_limit_row_texts() -> void:
 	var p: PlayerProfile = _profile(1000)
-	p.best_wave["1"] = 10  # cap 6
+	p.best_wave["1"] = 10  # soft cap 6
 	p.set_foundry_level("laser_output", 6)
 	var m: FoundryRowModel = _model(p, 0)
-	assert_bool(m.capped).is_true()
-	assert_bool(m.affordable).is_false()
-	assert_bool(m.recommended).is_false()
-	assert_str(m.afford_text).is_equal("NEXT LEVEL AT WAVE 12")
-	assert_str(m.cost_text).is_equal("CAP")
+	assert_bool(m.over_limit).is_true()
+	assert_bool(m.affordable).is_true()  # the x3 cost (3 * 36) is paid from 1000
+	assert_int(m.room_below_limit).is_equal(0)
+	assert_str(m.afford_text).is_equal("x3 COST UNTIL WAVE 12")
+	assert_str(m.cost_text).is_equal("108")  # 3 * ceil(20 * 1.1^6 = 35.4) = 3 * 36
+	assert_str(m.tooltip_text).contains("Levels from F6 up cost x3")
 	assert_str(m.tooltip_text).contains("Reach wave 12")
+
+
+func test_below_limit_row_has_no_over_text_and_a_rule_tooltip() -> void:
+	var p: PlayerProfile = _profile(1000)
+	p.best_wave["1"] = 10
+	var m: FoundryRowModel = _model(p, 0)
+	assert_bool(m.over_limit).is_false()
+	assert_int(m.room_below_limit).is_equal(6)
+	assert_str(m.afford_text).is_equal("AFFORDABLE")
+	assert_str(m.tooltip_text).contains("Levels from F6 up cost x3")
+	assert_str(m.tooltip_text).not_contains("Reach wave")
+
+
+func test_milestone_and_tooltip_numbers_come_from_the_tuning() -> void:
+	var s: FoundryService = _service()
+	s.tuning.foundry_milestone_step = 10
+	s.tuning.foundry_milestone_mult = 2.0
+	s.tuning.foundry_over_cap_mult = 2.5
+	var p: PlayerProfile = _profile(0)
+	var m: FoundryRowModel = FoundryRowModel.from_view(s.rows(p)[0], 0)
+	assert_str(m.milestone_text).is_equal("MILESTONE F10  x2")
+	assert_str(m.tooltip_text).contains("plus x2 for every 10 levels")
+	assert_str(m.tooltip_text).contains("cost x2.5")

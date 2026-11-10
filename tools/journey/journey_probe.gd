@@ -35,7 +35,7 @@ static func run(args: JourneyArgs, overrides: JourneyOverrides) -> String:
 	var cost: float = 0.0
 	for def: FoundryDef in defs:
 		var lvl: int = levels.get(def.id, 0)
-		cost += FoundryRules.total_cost(def, 0, lvl).to_float()
+		cost += FoundryRules.total_cost(def, 0, lvl, FoundryRules.NO_LIMIT, sim.foundry_tuning()).to_float()
 	print(
 		(
 			"JOURNEY probe label=%s levels=%s cost=%.0f bought=%d left=%.0f runs=%d"

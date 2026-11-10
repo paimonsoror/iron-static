@@ -25,6 +25,8 @@ var cost_text: String = ""
 var affordable: bool = false
 var maxed: bool = false
 var milestone_glow: bool = false
+## Levels to the next milestone (-1 unknown); a rise after a purchase means a milestone was crossed (ring expansion).
+var levels_to_milestone: int = -1
 var tooltip_text: String = ""
 var icon_color: Color = Palette.TEXT_DIM
 ## Visual tier mark (VT-6): `tier` 0 = no tiers or below the first mark; `mark_text` "" = no chip; `next_text` is
@@ -44,6 +46,7 @@ static func from_preview(
 	def: RunUpgradeDef,
 	foundry_level: int = 0,
 	foundry_f: float = 0.0,
+	tuning: SimTuning = null,
 ) -> UpgradeRowModel:
 	var m: UpgradeRowModel = UpgradeRowModel.new()
 	m.index = preview.index
@@ -55,6 +58,7 @@ static func from_preview(
 	m.maxed = preview.maxed
 	m.affordable = can_afford and not preview.maxed
 	m.milestone_glow = not preview.maxed and preview.levels_to_milestone <= MILESTONE_GLOW_LEVELS
+	m.levels_to_milestone = preview.levels_to_milestone
 	m.icon_color = TAB_ICON_COLORS.get(def.tab, Palette.TEXT_DIM)
 	var cur: String = format_value(def.id, preview.current_value)
 	if preview.maxed:
@@ -66,7 +70,7 @@ static func from_preview(
 		m.cost_text = NumberFormat.format(preview.cost)
 	m._apply_tier(def.id, lvl)
 	# The strings CSV holds a literal backslash-n; make it a real line break.
-	m.tooltip_text = tooltip_for(def, foundry_level, foundry_f).replace("\\n", "\n")
+	m.tooltip_text = tooltip_for(def, foundry_level, foundry_f, tuning).replace("\\n", "\n")
 	return m
 
 
@@ -95,8 +99,10 @@ static func format_value(id: String, v: float) -> String:
 
 ## Formula text with the numbers of this row (base, per level, milestone, caps) and the Foundry contribution
 ## (`foundry_level` F and Type D factor `foundry_f`; F0 shows `tooltip.foundry_none`).
-static func tooltip_for(def: RunUpgradeDef, foundry_level: int = 0, foundry_f: float = 0.0) -> String:
-	var foundry: String = foundry_text(def, foundry_level, foundry_f)
+static func tooltip_for(
+	def: RunUpgradeDef, foundry_level: int = 0, foundry_f: float = 0.0, tuning: SimTuning = null
+) -> String:
+	var foundry: String = foundry_text(def, foundry_level, foundry_f, tuning)
 	if def.kind == "D":
 		return (
 			Strings
@@ -107,6 +113,8 @@ static func tooltip_for(def: RunUpgradeDef, foundry_level: int = 0, foundry_f: f
 					"step": NumberFormat.format_float(def.step * 100.0, 0) + "%",
 					"cap": str(def.l_cap),
 					"foundry": foundry,
+					"ms": str(Curves.run_step(tuning)),
+					"mm": mult_arg(Curves.run_mult(tuning)),
 				}
 			)
 		)
@@ -138,12 +146,12 @@ static func _delta_text(def: RunUpgradeDef, step: float) -> String:
 
 
 ## "F12  x1.25" (Type D: the Foundry multiplier) or "F12  +0.36" (Type C: the starting stat gain); F0 is `--`.
-static func foundry_text(def: RunUpgradeDef, f_level: int, f: float) -> String:
+static func foundry_text(def: RunUpgradeDef, f_level: int, f: float, tuning: SimTuning = null) -> String:
 	if f_level <= 0:
 		return Strings.get_text("tooltip.foundry_none")
 	var lead: String = Strings.fill1("foundry.level", "n", str(f_level))
 	if def.kind == "D":
-		return lead + "  " + NumberFormat.format_mult(Curves.foundry_mult(f_level, f))
+		return lead + "  " + NumberFormat.format_mult(Curves.foundry_mult(f_level, f, tuning))
 	return lead + "  " + _delta_text(def, def.step * float(f_level))
 
 
@@ -160,3 +168,10 @@ func _apply_tier(id: String, lvl: int) -> void:
 	tier_top = next < 0
 	tier_progress = tiers.progress(id, lvl)
 	next_text = Strings.get_text("vt.top") if tier_top else Strings.fill1("vt.next", "n", str(next))
+
+
+## A multiplier for a string token: `1.5`, `1.75`, `3` (no trailing zeros), so data rows can change without a text edit.
+static func mult_arg(m: float) -> String:
+	if is_equal_approx(m, roundf(m)):
+		return str(roundi(m))
+	return ("%.2f" % m).rstrip("0")

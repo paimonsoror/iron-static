@@ -100,17 +100,25 @@ static func _check_spend_accounting() -> void:
 		_report("spend_%s" % policy, ok, "bought=%d left=%.1f cost=%.1f" % [bought, left, cost])
 
 
+## The soft cap (R1-02): on a fresh profile (best wave 0, so the cap is `foundry_cap_min` levels) the levels above it
+## cost `foundry_over_cap_mult` times more and are still bought, never refused.
 static func _check_cap() -> void:
+	var service: FoundryService = _service(true)
+	var t: SimTuning = service.tuning
+	var def: FoundryDef = FoundryRules.find_def(service.defs, "laser_output")
+	var limit: int = FoundryRules.wave_cap(0, t)
+	var want: float = 0.0
+	for i: int in limit + 1:
+		want += FoundryRules.step_cost(def, i, limit, t).to_float()
 	var profile: PlayerProfile = PlayerProfile.fresh(0, "check")
-	profile.data = BigNum.from_float(1.0e9)
-	var spender: JourneySpend = JourneySpend.new("roundrobin")
-	@warning_ignore("return_value_discarded")
-	spender.spend(profile, _service(true))
-	var worst: int = 0
-	for id: String in profile.foundry.keys():
-		worst = maxi(worst, profile.foundry_level(id))
+	profile.data = BigNum.from_float(want)
+	var bought: int = service.buy(profile, "laser_output", limit + 5)
+	var left: float = profile.data.to_float()
+	var plain: float = FoundryRules.total_cost(def, 0, limit + 1, FoundryRules.NO_LIMIT, t).to_float()
 	_report(
-		"cap_limits_every_row", worst == FoundryRules.CAP_MIN and profile.foundry.size() == 4, "max level %d" % worst
+		"soft_cap_prices_over_levels",
+		bought == limit + 1 and left < 0.5 and want > plain,
+		"bought=%d left=%.1f want=%.0f plain=%.0f" % [bought, left, want, plain]
 	)
 
 
@@ -126,7 +134,7 @@ static func _check_recommended_mirror() -> void:
 	@warning_ignore("return_value_discarded")
 	spender.spend(profile, service)
 	_report("recommended_matches_glow", rec >= 0 and profile.foundry_level(rows[rec].id) >= 1, "rec=%d" % rec)
-	profile.set_foundry_level("hull_integrity", FoundryRules.MILESTONE_STEP - 2)
+	profile.set_foundry_level("hull_integrity", Curves.foundry_step(service.tuning) - 2)
 	rows = service.rows(profile)
 	rec = FoundryRules.recommended(rows)
 	_report("recommended_near_milestone", rec >= 0 and rows[rec].levels_to_milestone <= FoundryRules.NEAR_MILESTONE)
@@ -160,11 +168,15 @@ static func _check_journey() -> void:
 		total += earned
 	var banked: float = sim_b.profile.lifetime_data.to_float()
 	_report("data_banked_in_full", absf(total - banked) < 0.5, "sum=%.1f banked=%.1f" % [total, banked])
+	# Spent Data equals the level costs when the over-cap multiplier is 1 (otherwise the soft cap raises the price).
+	var flat: JourneyOverrides = JourneyOverrides.parse(PackedStringArray(["sim.foundry_over_cap_mult=1"]))
+	var sim_c: JourneySim = JourneySim.new(args, flat)
+	var c: Array[Dictionary] = sim_c.run()
 	var spent_total: float = 0.0
-	for r: Dictionary in a:
+	for r: Dictionary in c:
 		var spent: float = r["spent"]
 		spent_total += spent
-	var cost_total: float = BalanceSetup.foundry_cost(sim_b.profile.foundry)
+	var cost_total: float = BalanceSetup.foundry_cost(sim_c.profile.foundry)
 	_report(
 		"spent_equals_level_costs",
 		absf(spent_total - cost_total) < 0.5,

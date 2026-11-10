@@ -104,18 +104,46 @@ func test_recommended_prefers_a_row_near_its_milestone() -> void:
 	assert_int(s.recommended_index()).is_equal(2)
 
 
-func test_a_capped_row_is_locked_with_the_next_wave_hint_and_never_recommended() -> void:
+func test_an_over_limit_row_stays_enabled_shows_the_x3_line_and_is_recommended_last() -> void:
 	var p: PlayerProfile = _profile(100000)
-	p.best_wave["1"] = 10  # wave cap 6
+	p.best_wave["1"] = 10  # soft cap 6
 	p.set_foundry_level("hull_integrity", 6)
 	var s: FoundryScreen = _screen(p)
 	var row: FoundryRow = s.row_at(2)
-	assert_bool(row.buy_button().disabled).is_true()
-	assert_str(row.afford_text()).is_equal("NEXT LEVEL AT WAVE 12")
+	assert_bool(row.buy_button().disabled).is_false()
+	assert_str(row.afford_text()).is_equal("x3 COST UNTIL WAVE 12")
 	assert_bool(row.is_recommended()).is_false()
 	assert_int(s.recommended_index()).is_not_equal(2)
 	s.row_at(2).buy_pressed.emit(2, 1)
-	assert_int(p.foundry_level("hull_integrity")).is_equal(6)
+	assert_int(p.foundry_level("hull_integrity")).is_equal(7)  # bought at x3, not refused
+
+
+func test_the_over_limit_cost_uses_the_readable_over_limit_color() -> void:
+	var p: PlayerProfile = _profile(100000)
+	p.best_wave["1"] = 10
+	p.set_foundry_level("hull_integrity", 6)
+	var s: FoundryScreen = _screen(p)
+	var over: Button = s.row_at(2).buy_button()
+	var normal: Button = s.row_at(0).buy_button()
+	assert_bool(over.has_theme_color_override("font_color")).is_true()
+	assert_object(over.get_theme_color("font_color")).is_equal(Palette.OVER_LIMIT)
+	assert_bool(normal.has_theme_color_override("font_color")).is_false()
+	# Contrast of the cost text on the dark button plate (the panel color) is at least 4.5:1.
+	assert_float(_contrast(Palette.OVER_LIMIT, Palette.PANEL)).is_greater_equal(4.5)
+	assert_float(_contrast(Palette.OVER_LIMIT, Palette.VOID)).is_greater_equal(4.5)
+
+
+static func _lum(c: Color) -> float:
+	var lin: Array[float] = []
+	for v: float in [c.r, c.g, c.b]:
+		lin.append(v / 12.92 if v <= 0.03928 else pow((v + 0.055) / 1.055, 2.4))
+	return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+
+static func _contrast(a: Color, b: Color) -> float:
+	var la: float = _lum(a)
+	var lb: float = _lum(b)
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
 
 
 func test_buying_updates_profile_requests_save_and_release_saves() -> void:

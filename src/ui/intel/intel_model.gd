@@ -132,9 +132,13 @@ static func _upgrade_row(
 	parts.append(_token("intel.stats.chain_base", format_value(kind, def.base)))
 	if def.kind == "D":
 		if lvl > 0:
-			parts.append(_token("intel.stats.chain_run", NumberFormat.format_mult(Curves.run_factor(lvl, def.step))))
+			parts.append(
+				_token("intel.stats.chain_run", NumberFormat.format_mult(Curves.run_factor(lvl, def.step, cfg.tuning)))
+			)
 		if fl > 0:
-			parts.append(_token("intel.stats.chain_foundry", NumberFormat.format_mult(Curves.foundry_mult(fl, ff))))
+			parts.append(
+				_token("intel.stats.chain_foundry", NumberFormat.format_mult(Curves.foundry_mult(fl, ff, cfg.tuning)))
+			)
 	else:
 		var run_inc: float = def.step * float(lvl)
 		var f_inc: float = def.step * float(clampi(fl, 0, StatResolver.foundry_cap(def)))

@@ -123,7 +123,8 @@ static func _stats(foundry: FoundryService, def: FrameDef, levels: Dictionary) -
 		PackedInt32Array(),
 		FoundryRules.aligned_levels(foundry.upgrades, foundry.defs, levels),
 		FoundryRules.aligned_f(foundry.upgrades, foundry.defs),
-		mods.to_external()
+		mods.to_external(),
+		foundry.tuning
 	)
 
 
