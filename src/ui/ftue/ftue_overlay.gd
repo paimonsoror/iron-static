@@ -30,6 +30,8 @@ var target_resolver: Callable = Callable()
 var persist: Callable = Callable()
 ## Maps a target string to the GLOBAL rect its plate sits next to (`FtueTargets.anchor`); optional.
 var anchor_resolver: Callable = Callable()
+## Optional `() -> bool`: true while a dialog covers the screen (the Foundry explainer); the beat waits, unaged.
+var blocker: Callable = Callable()
 
 var _screen: AppFlow.Screen = AppFlow.Screen.HOME
 var _world: SimWorld = null
@@ -171,6 +173,8 @@ func _shown_beat() -> FtueBeatDef:
 		return null
 	var beat: FtueBeatDef = state.active()
 	if beat == null or FtueScript.is_silent(beat) or not shown_on(beat.target, _screen):
+		return null
+	if blocker.is_valid() and blocker.call():
 		return null
 	return beat
 
