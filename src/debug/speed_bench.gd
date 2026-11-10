@@ -3,7 +3,7 @@ extends Node
 ## R1-03 desktop bench: ms per frame of the production BattleView on a late-run state (debug load, invulnerable,
 ## about 165 enemies at wave 60) at 1x, 2x, 4x and 8x, with the high-speed load shedding (`SpeedLoad`) on and, at 8x,
 ## off. Frames are fixed 1/60 s steps, so 8x runs 4 ticks per frame. Needs a window (vsync is switched off):
-##   godot --path . --windowed --resolution 540x1200 res://src/debug/speed_bench.tscn -- --bench-wave=60 --bench-frames=400
+##   godot --path . --windowed --resolution 540x1200 res://src/debug/speed_bench.tscn -- --bench-wave=60
 ## Prints `SPEEDBENCH ...` lines (avg and p95 frame ms, avg sim ms per frame, ticks per frame).
 
 const FRAME_DT: float = 1.0 / 60.0

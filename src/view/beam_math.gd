@@ -27,11 +27,11 @@ const CONE_PX: float = 90.0
 const CRIT_FLARE_PX: float = 90.0
 
 
-## Linear fade 1 -> 0 over FADE_S; 0 for unborn or expired beams.
-static func fade_alpha(age_s: float) -> float:
-	if age_s < 0.0 or age_s >= FADE_S:
+## Linear fade 1 -> 0 over `fade_s` (default FADE_S; 0.12 s at slow fire rates, R1-06); 0 when unborn or gone.
+static func fade_alpha(age_s: float, fade_s: float = FADE_S) -> float:
+	if age_s < 0.0 or age_s >= fade_s:
 		return 0.0
-	return 1.0 - age_s / FADE_S
+	return 1.0 - age_s / fade_s
 
 
 ## Alpha of a merged (sustained) beam: pulses between MERGED_FLOOR and 1 at the shot rate while shots keep

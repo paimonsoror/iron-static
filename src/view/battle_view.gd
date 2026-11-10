@@ -41,6 +41,7 @@ var _base_position := Vector2.ZERO
 @onready var _background: ArenaBackground = $Background
 @onready var _enemies: EnemyRenderer = $Enemies
 @onready var _beams: BeamRenderer = $Beams
+@onready var _scorch: BeamScorch = $Scorch
 @onready var _cinder: CinderView = $Cinder
 @onready var _numbers: DamageNumberLayer = $DamageNumbers
 
@@ -51,6 +52,8 @@ func _ready() -> void:
 	var settings: VisualSettings = _game_visual()
 	_cinder.visual = settings
 	_beams.visual = settings
+	_scorch.visual = settings
+	_beams.scorch = _scorch
 	_numbers.visual = settings
 	if settings != null:
 		_background.setup_visual(settings)
@@ -293,6 +296,7 @@ func _update_scales() -> void:
 func _apply_scale_to_children() -> void:
 	_cinder.radius_px = cinder_radius_px()
 	_beams.px_scale = _sprite_factor
+	_scorch.px_scale = _sprite_factor
 	_fx.emitter.cinder_radius_px = cinder_radius_px()
 	_fx.emitter.fx_scale = _sprite_factor
 	_numbers.text_scale = _viewport_size.x / 1080.0
