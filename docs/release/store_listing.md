@@ -7,7 +7,7 @@ Changelog: 2026-11-09 v1.0 (B1-09, branch `b1-docs`). Refines the drafts in `PLA
 | App name | 30 | 11 |
 | Short description | 80 | 76 |
 | Full description | 4,000 | 1,506 |
-| Release notes (per release) | 500 | 351 |
+| Release notes (per release) | 500 | 356 |
 
 Changes from the guide's draft, each checked against the build:
 - "armor plates burn away" became "synthetic skin burns away": the game burns Cinder's skin to expose the frame (GDD 00, skin burn), not plates.
@@ -61,7 +61,7 @@ Portrait, one-handed, short sessions or long idle stretches. Built for phones ru
 
 ```
 First beta of IRON STATIC. Play a few deployments and tell us what feels off.
-Try: both wave modes (TIMED, then PURGE once it unlocks), the wave-10 patch pick, the Foundry, the three frames.
+Try: both wave modes (TIMED, then PURGE once it unlocks), the patch picks from wave 5, the Foundry, the three frames.
 Known: first launch can show a black screen for up to 30 seconds while shaders compile.
 No ads, no purchases, no account. Progress is saved on this device only.
 ```

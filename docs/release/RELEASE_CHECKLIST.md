@@ -37,7 +37,7 @@ Owner: **U** = user, **A** = agents.
 5. [ ] `.\tools\aab_check.ps1` PASS; paste the permission list and checks into the release notes file or issue.
 6. [ ] Exact-AAB install (bundletool universal APK) on emulator and phone; `.\tools\smoke_android.ps1` clean (B1-07 procedure); full run to Results and back.
 7. [ ] **Re-do check** (see list below): did anything in this build change data handling? If yes, redo the affected answers and the privacy page first.
-8. [ ] Listing text check: `store_listing.md` still matches the build (mode names TIMED/PURGE, frames VANGUARD/BULWARK/STRIKER, patch at wave 10, "no ads, no purchases, no account" still true). Lengths: name <= 30, short <= 80, full <= 4,000, release notes <= 500.
+8. [ ] Listing text check: `store_listing.md` still matches the build (mode names TIMED/PURGE, frames VANGUARD/BULWARK/STRIKER, first patch pick at wave 5, "no ads, no purchases, no account" still true). Lengths: name <= 30, short <= 80, full <= 4,000, release notes <= 500.
 9. [ ] Scans clean on the changed files: franchise/brand scan and profanity scan of `data/strings_en.csv` (commands below), no email pattern in the privacy page and the record files.
 10. [ ] Release notes written (what changed, what to test, known issues).
     Optional: `tools\play_publish.ps1` can do this upload through the Play API (dry run by default, `--validate`, then `--commit`); setup and safety rules in `docs/release/play_publish.md`.

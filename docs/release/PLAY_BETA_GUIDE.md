@@ -258,7 +258,7 @@ Only available after production access (Path B) or straight away (Path A).
 
 ```
 First beta of IRON STATIC. Play a few deployments and tell us what feels off.
-Try: both wave modes (TIMED, then PURGE once it unlocks), the wave-10 patch pick, the Foundry, the three frames.
+Try: both wave modes (TIMED, then PURGE once it unlocks), the patch picks from wave 5, the Foundry, the three frames.
 Known: first launch can show a black screen for up to 30 seconds while shaders compile.
 No ads, no purchases, no account. Progress is saved on this device only.
 ```
