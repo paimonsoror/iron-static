@@ -12,13 +12,16 @@ const RED_HAZE := Color("#140508")
 # HUD
 const AMBER := Color("#FFB000")
 const AMBER_GLOW := Color("#FFD27A")
-const AMBER_DIM := Color("#8A5F00")
+const AMBER_DIM := Color("#8A5F00")  # lines, frames, ticks only: 3.5:1 on PANEL is too low for text
+## Amber for secondary TEXT (R1-07, I-05): 6.0:1 on PANEL. Use this, not AMBER_DIM, for any label in dim amber.
+const AMBER_TEXT := Color("#B88A1E")
 
 # UI
 const PANEL := Color("#0D1117")
 const TEXT := Color("#F2E6C9")
 const TEXT_DIM := Color("#9A8F78")
-const UNAFFORDABLE := Color("#5C5546")
+## Unaffordable / disabled cost text and its frame (R1-07, I-05, 09 Q48): lifted from #5C5546 (2.6:1) to 4.5:1 or more.
+const UNAFFORDABLE := Color("#8A8170")
 
 # Player
 const CORE := Color("#FFE3A3")
@@ -44,8 +47,9 @@ const ENEMY_FIRE := Color("#FF4FD8")
 const GHOST := Color(1.0, 0.176, 0.294, 0.15)  # Outline red at 15% alpha
 
 # Foundry level over the soft cap (R1-02): the cost text of a row that costs more than the normal price. Ember orange,
-# 7.4:1 on the button plate (PANEL); never red (red is hostile only).
-const OVER_LIMIT := Color("#FF8A1F")
+# 7.0:1 on the button plate (PANEL); never red (red is hostile only). R1-07: moved from #FF8A1F (too close to AMBER:
+# colour distance 11 under deuteranopia) to #FF7A2E (18).
+const OVER_LIMIT := Color("#FF7A2E")
 
 # Warning
 const WARNING := Color("#FFC21A")

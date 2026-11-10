@@ -7,5 +7,5 @@ script = ExtResource("1_script")
 id = "upgrade_hull"
 trigger = "first_damage_taken"
 target = "row:hull_integrity"
-text_key = "ftue.upgrade"
-max_runs = 2
+text_key = "ftue.upgrade_hull"
+max_runs = 3

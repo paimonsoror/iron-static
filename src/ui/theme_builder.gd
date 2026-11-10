@@ -40,6 +40,9 @@ const VAR_TAB_PLATE: StringName = &"TabPlate"
 const VAR_BUTTON_MAXED: StringName = &"ButtonMaxed"
 
 const HEADING_WEIGHT: int = 600
+## Body text weight (R1-07, I-05). Oxanium-Variable.ttf has one axis, wght 200-800, and its default is 200 (ExtraLight):
+## unvaried body text rendered with 11 % lit pixels. 500 (Medium) is the lightest weight that holds up outdoors.
+const BODY_WEIGHT: int = 500
 ## OpenType "wght" axis tag as an int (a StringName key is ignored by FontVariation: headings rendered light).
 const WGHT_TAG: int = 0x77676874
 const CORNER: int = 8
@@ -64,10 +67,10 @@ static func refresh_contrast(on: bool) -> void:
 
 static func build() -> Theme:
 	var theme := Theme.new()
-	var body: Font = load(FONT_BODY_PATH)
+	var body: Font = body_font()
 	var number: Font = load(FONT_NUMBER_PATH)
 	var heading := FontVariation.new()
-	heading.base_font = body
+	heading.base_font = load(FONT_BODY_PATH)
 	heading.variation_opentype = {WGHT_TAG: HEADING_WEIGHT}
 	theme.default_font = body
 	theme.default_font_size = FONT_SIZE_BODY
@@ -79,6 +82,14 @@ static func build() -> Theme:
 	_build_progress(theme)
 	_build_plates(theme)
 	return theme
+
+
+## Oxanium at `BODY_WEIGHT` (the variable font's default axis value is the thinnest weight).
+static func body_font() -> Font:
+	var body := FontVariation.new()
+	body.base_font = load(FONT_BODY_PATH)
+	body.variation_opentype = {WGHT_TAG: BODY_WEIGHT}
+	return body
 
 
 ## WCAG 2.x contrast ratio, 1.0 (identical) to 21.0 (black on white).

@@ -7,5 +7,5 @@ script = ExtResource("1_script")
 id = "upgrade_laser"
 trigger = "run1_start"
 target = "row:laser_output"
-text_key = "ftue.upgrade"
+text_key = "ftue.upgrade_laser"
 max_runs = 1

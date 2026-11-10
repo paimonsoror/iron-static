@@ -34,7 +34,7 @@ func _ready() -> void:
 	custom_minimum_size.y = ROW_H
 	_data_icon = ArtSlots.texture("icon_cur_data")
 	_milestone_label.add_theme_font_size_override("font_size", LINE_SIZE)
-	_milestone_label.add_theme_color_override("font_color", Palette.AMBER_DIM)
+	_milestone_label.add_theme_color_override("font_color", Palette.AMBER_TEXT)
 	_afford_label.add_theme_font_size_override("font_size", LINE_SIZE)
 	_afford_label.add_theme_color_override("font_color", Palette.TEXT_DIM)
 	_tag = Label.new()

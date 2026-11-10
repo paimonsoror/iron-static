@@ -62,4 +62,4 @@ func test_same_tier_buy_and_top_mark_colors() -> void:
 	assert_object(_color(row)).is_equal(Palette.TEAL)
 	_now += 3500
 	row.apply(_model(w, 25))
-	assert_object(_color(row)).is_equal(Palette.AMBER_DIM)  # TOP MARK line
+	assert_object(_color(row)).is_equal(Palette.AMBER_TEXT)  # TOP MARK line

@@ -58,7 +58,7 @@ func test_pointer_rect_equals_the_laser_output_row_rect() -> void:
 	var row: Rect2 = panel.row_rect("laser_output")
 	assert_float(row.size.x).is_greater(0.0)
 	assert_bool(overlay.is_hint_visible()).is_true()
-	assert_str(overlay.label_text()).is_equal("UPGRADE")
+	assert_str(overlay.label_text()).is_equal("TAP: MORE DAMAGE")
 	assert_bool(overlay.pointer().has_target()).is_true()
 	assert_object(overlay.pointer().target_rect()).is_equal(Rect2(row.position - overlay.global_position, row.size))
 
@@ -122,8 +122,8 @@ func test_skip_hints_ends_every_beat_and_persists() -> void:
 	assert_int(_persisted).is_greater(0)  # the overlay's own persist lambda counted it
 
 
-func test_a_profile_past_run_two_shows_nothing() -> void:
-	var rig: Array = _rig(_world(), 2)
+func test_a_profile_past_run_three_shows_nothing() -> void:
+	var rig: Array = _rig(_world(), 3)
 	var overlay: FtueOverlay = rig[0]
 	assert_bool(overlay.is_hint_visible()).is_false()
 	assert_bool(overlay.state.enabled()).is_false()
@@ -174,6 +174,30 @@ func test_scrap_affords_cycle_rate_needs_a_kill_first() -> void:
 		watcher.update(state)
 	assert_bool(watcher.has_fired(FtueScript.SCRAP_AFFORDS_CYCLE_RATE)).is_true()
 	assert_str(state.active().id).is_equal("upgrade_rate")
+
+
+func test_run_one_order_with_the_230_start_scrap_laser_then_rate_never_together() -> void:
+	# R1-02 raised start_scrap to 230: cycle rate is affordable at the first kill. The laser hint is up from run
+	# start, the rate hint waits behind it (one hint on screen), and a row bought meanwhile loses its queued hint.
+	var w: SimWorld = _world()
+	assert_bool(w.economy.scrap.ge(BigNum.from_int(230))).is_true()
+	var state: FtueState = FtueState.load_from(FtueScript.load_default(), _profile())
+	@warning_ignore("return_value_discarded")
+	state.begin_run(0)
+	var watcher := FtueWatcher.new()
+	watcher.bind(w)
+	assert_str(state.active().id).is_equal("upgrade_laser")
+	w.events.push(SimEventKind.ENEMY_KILLED, 0, 0)
+	for i: int in FtueWatcher.CHECK_EVERY:
+		watcher.update(state)
+	assert_bool(watcher.has_fired(FtueScript.SCRAP_AFFORDS_CYCLE_RATE)).is_true()
+	assert_str(state.active().id).is_equal("upgrade_laser")  # still the only hint on screen
+	assert_int(state.queued_count()).is_equal(1)
+	w.events.push(SimEventKind.UPGRADE_BOUGHT, 0, 1)  # laser_output
+	watcher.update(state)
+	assert_str(state.active().id).is_equal("upgrade_rate")
+	assert_int(state.queued_count()).is_equal(0)
+	assert_str(Strings.get_text(state.active().text_key)).is_equal("TAP: FIRE FASTER")
 
 
 func test_results_and_foundry_beats_pulse_and_hand_over() -> void:

@@ -7,5 +7,5 @@ script = ExtResource("1_script")
 id = "upgrade_rate"
 trigger = "scrap_affords_cycle_rate"
 target = "row:cycle_rate"
-text_key = "ftue.upgrade"
+text_key = "ftue.upgrade_rate"
 max_runs = 2

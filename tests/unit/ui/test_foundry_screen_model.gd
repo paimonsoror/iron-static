@@ -94,7 +94,7 @@ func test_over_limit_row_texts() -> void:
 	assert_bool(m.over_limit).is_true()
 	assert_bool(m.affordable).is_true()  # the x2 cost (2 * 36) is paid from 1000
 	assert_int(m.room_below_limit).is_equal(0)
-	assert_str(m.afford_text).is_equal("x2 COST UNTIL WAVE 10")
+	assert_str(m.afford_text).is_equal("x2 cost until wave 10")
 	assert_str(m.cost_text).is_equal("72")  # 2 * ceil(20 * 1.1^6 = 35.4) = 2 * 36
 	assert_str(m.tooltip_text).contains("Levels from F6 up cost x2")
 	assert_str(m.tooltip_text).contains("Reach wave 10")

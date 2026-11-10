@@ -1,11 +1,11 @@
-# FTUE beats (M4-25, docs/design/07 s3). Row order is the 07 s3 order. trigger: an event name from FtueScript.TRIGGERS. target: none (silent, completes at once), draft (drawn by the draft overlay, silent), cold_open (the cold open screen), field (a label over the battlefield), results_foundry (the Results FOUNDRY button), row:<run upgrade id> (pointer on that upgrade row), foundry_row:<foundry id>. max_runs: last run number (1 or 2) that shows the beat; a profile with 2 or more banked runs shows none.
+# FTUE beats (M4-25, docs/design/07 s3). Row order is the 07 s3 order. trigger: an event name from FtueScript.TRIGGERS. target: none (silent, completes at once), draft (drawn by the draft overlay, silent), cold_open (the cold open screen), field (a label over the battlefield), results_foundry (the Results FOUNDRY button), row:<run upgrade id> (pointer on that upgrade row), foundry_row:<foundry id>. max_runs: last run number (1 to 3) that shows the beat; a profile with as many banked runs as the beat's max_runs shows nothing from it (R1-07: the hull hint reaches run 3, everything else stops after run 2).
 id,trigger,target,text_key,max_runs
 cold_open,cold_open,cold_open,ftue.cold.1,1
-upgrade_laser,run1_start,row:laser_output,ftue.upgrade,1
+upgrade_laser,run1_start,row:laser_output,ftue.upgrade_laser,1
 first_kill,first_kill,none,hud.scrap,2
-upgrade_rate,scrap_affords_cycle_rate,row:cycle_rate,ftue.upgrade,2
+upgrade_rate,scrap_affords_cycle_rate,row:cycle_rate,ftue.upgrade_rate,2
 dart_label,dart_first_seen,field,ftue.dart,2
-upgrade_hull,first_damage_taken,row:hull_integrity,ftue.upgrade,2
+upgrade_hull,first_damage_taken,row:hull_integrity,ftue.upgrade_hull,3
 hold_hint,first_damage_taken,row:hull_integrity,ftue.hold,2
 draft_note,draft_open_first,draft,draft.note,2
 death_note,death_first,none,results.title,2
