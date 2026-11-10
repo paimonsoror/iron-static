@@ -34,7 +34,7 @@ Run from the repo root in PowerShell. Judge Godot runs by the wrapper scripts' o
 | Lint (format, lint, layer rules, compile) | `.\tools\lint.ps1` |
 | Format GDScript | `.\tools\format.ps1 [paths]` |
 | CSV to `.tres` | `.\tools\import_data.ps1` |
-| Export, install, launch | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic` |
+| Export, install, launch | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.normalexception.game -Preset IronStatic` |
 | Emulator smoke test | `.\tools\smoke_android.ps1` |
 | Headless sim runs | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` |
 | Balance run against targets | `.\tools\balance_run.ps1 -Profile fresh -Waves 100 -Runs 20` |

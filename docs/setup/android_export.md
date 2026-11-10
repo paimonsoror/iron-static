@@ -6,13 +6,13 @@ Changelog: 2026-11-07 v1.0 (M0-07). Gradle switched on in M0-09, see `gradle_bui
 
 | Option | Value |
 |---|---|
-| `package/unique_name` / `package/name` | `com.ironstatic.game` (provisional) / `IRON STATIC` |
+| `package/unique_name` / `package/name` | `com.normalexception.game` / `IRON STATIC` |
 | `version/code` / `version/name` | `1` / `0.0.1` |
 | architectures | arm64-v8a and x86_64 on; armeabi-v7a and x86 off |
 | `screen/immersive_mode` | `true` |
 | `package/signed` | `true` (Godot debug keystore from editor settings) |
 | `permissions/internet` | `true` |
-| `export_path` | `build/com.ironstatic.game.debug.apk` |
+| `export_path` | `build/com.normalexception.game.debug.apk` |
 | `exclude_filter` | `tests/*, tools/*, docs/*, addons/gdUnit4/*, reports/*, backend/*` |
 | `gradle_build/use_gradle_build` | `true` since M0-09 (was `false` for the M0-07 deploy; M0-07 APK size below is the non-Gradle build) |
 
@@ -20,7 +20,7 @@ Changelog: 2026-11-07 v1.0 (M0-07). Gradle switched on in M0-09, see `gradle_bui
 
 ```powershell
 .\tools\run_emulator.ps1                     # wait 25 s after a cold boot
-.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic -LogSeconds 40
+.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.normalexception.game -Preset IronStatic -LogSeconds 40
 .\tools\smoke_android.ps1 -SkipDeploy
 ```
 
@@ -63,7 +63,7 @@ that the generated resource exists and equals its CSV.
 Check what an APK really contains (after `deploy_android.ps1`, or any export):
 
 ```powershell
-py -3.12 -I -c "import zipfile; z = zipfile.ZipFile(r'C:\dev\tower\build\com.ironstatic.game.debug.apk'); print([n for n in z.namelist() if 'data_gen' in n or n.endswith('.csv')])"
+py -3.12 -I -c "import zipfile; z = zipfile.ZipFile(r'C:\dev\tower\build\com.normalexception.game.debug.apk'); print([n for n in z.namelist() if 'data_gen' in n or n.endswith('.csv')])"
 ```
 
 Expect `assets/src/data_gen/*.tres` (and `.gdc` scripts) and no `data/*.csv`.

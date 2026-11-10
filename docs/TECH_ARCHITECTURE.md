@@ -8,7 +8,7 @@ Changelog: 2026-11-09 v1.6 - M3 closed: no new autoloads. Sections 1.3 and 5 lis
 Changelog: 2026-11-08 v1.4 - Section 2.9 Audio (A1 phase 2a wiring: event router, music state, UI hooks, lifecycle, `--mute`).
 
 Status: v1.1, 2026-11-07. Owner: user (design/playtest). Primary implementers: Claude and AI subagents.
-Scope: Android-first, portrait, free-to-play idle/roguelite defense game, Godot 4, statically typed GDScript. Working title **IRON STATIC**, code name `ironstatic`, provisional applicationId `com.ironstatic.game` (permanent once uploaded to Play Console; confirm first, see open question Q30).
+Scope: Android-first, portrait, free-to-play idle/roguelite defense game, Godot 4, statically typed GDScript. Working title **IRON STATIC**, code name `ironstatic`, applicationId `com.normalexception.game` (decided 2026-11-09, open questions Q30/Q79; permanent once uploaded to Play Console).
 
 **Source-of-truth rule:** the GDD (`docs/design/`) owns game rules, terminology, numbers and ids; this document owns technical decisions. Where they disagree, the GDD wins on game rules and this document wins on technology, and the other document is edited to agree.
 
@@ -410,7 +410,7 @@ Assumptions: ~20 backend calls/DAU/day, saves < 100 KB, leaderboard writes once 
 
 - Godot 4.2+ uses the **Android Gradle build + plugins v2 (`.aar` + `GodotPlugin` registered via `EditorExportPlugin`)** [A: plugin v2 introduced in 4.2; official docs: https://docs.godotengine.org/en/stable/tutorials/platform/android/android_plugin.html]. Every plugin below needs **Project > Install Android Build Template** and **Gradle build enabled** in the export preset (`gradle_build/use_gradle_build=true`) [V for billing: https://github.com/godot-sdk-integrations/godot-google-play-billing].
 - Godot 4.7 ships the GABE (Godot Android Build Environment) companion app as stable; relevant to on-device builds, not required for us [V: https://godotengine.org/article/gabe-stable-release/].
-- Package: provisional applicationId `com.ironstatic.game` (decision 2026-11-07). It is **permanent** once the first build is uploaded to Play Console; confirm it first (open question Q30). The Godot 4.7 export template targets SDK 36 and needs Build-Tools 36.0.0 as well as 35.0.1 (see `docs/setup/DEV_ENVIRONMENT.md`).
+- Package: applicationId `com.normalexception.game` (decision 2026-11-09, replacing the provisional `com.ironstatic.game` of 2026-11-07; it matches the developer domain normalexception.net). It is **permanent** once the first build is uploaded to Play Console (open questions Q30/Q79, resolved). The Godot 4.7 export template targets SDK 36 and needs Build-Tools 36.0.0 as well as 35.0.1 (see `docs/setup/DEV_ENVIRONMENT.md`).
 - Required Gradle setup (documented in `docs/setup/` by the toolchain agent, summarized here): JDK 17, Android SDK platform 35+ with build tools, `target_sdk` per current Play requirement (verify before each release: Play requires targeting a recent API level yearly [A]), `min_sdk` 24 (Android 7.0; covers ~99% of active devices [A]), arm64-v8a (+ armeabi-v7a if size allows, open question Q35) and x86_64 for the emulator, AAB for Play and APK for emulator/dev, release keystore + Play App Signing, `gradle.properties` heap raised (`org.gradle.jvmargs=-Xmx3g`) for the 16 GB machine. **The Gradle build has not been tested yet** (DEV_ENVIRONMENT.md); task M0-09 does that.
 
 ### 7.2 Plugin matrix (all behind interfaces in `src/services/`; desktop/headless builds use stubs)

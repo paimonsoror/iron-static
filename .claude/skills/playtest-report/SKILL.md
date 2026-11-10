@@ -28,7 +28,7 @@ and turn them into actionable follow-ups.
    - Session header to fill: date, build commit (`git log -1 --oneline`), device (emulator
      `tower_phone` or phone model), speed setting, how many runs, tester (user or tester id).
    - How to run it: `.\tools\run_emulator.ps1`, then
-     `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic`
+     `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.normalexception.game -Preset IronStatic`
      (or tell the user it is already running); debug overlay = double tap the top-left corner.
    - The milestone's questions, one per heading, each with a blank answer line and, where useful,
      a 1-5 scale. Add the matching FC preview's pass bar (from 08) so the user sees the target.

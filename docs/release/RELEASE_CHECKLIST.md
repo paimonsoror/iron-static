@@ -18,7 +18,7 @@ Owner: **U** = user, **A** = agents.
 - [ ] **U** Placeholders filled in `site/docs/privacy.md`: `<DEVELOPER NAME>` (exactly as shown on Google Play) and `[SUPPORT EMAIL]`. No personal email committed anywhere (grep below).
 - [ ] **U** Public developer details decided (Q83): name, address and support email shown on the store page; EU trader status read and answered.
 - [ ] **U** Trademark and name search done (Q31): Google Play, USPTO, EUIPO, web, handles. Result recorded. Fallback name EMBER CHASSIS.
-- [ ] **U** Package name final (Q79): `com.ironstatic.game` kept, or changed everywhere before the first upload (permanent afterward).
+- [x] **U** Package name final (Q79): `com.normalexception.game`, decided 2026-11-09 and applied to both presets, the tools and the docs (permanent after the first upload).
 - [ ] **U** Upload keystore created and **backed up in two places** (not in the repo, never pasted into chat); passwords in a password manager; only in `secrets.local.json` or environment variables locally.
 - [ ] **U** Developer account verified, 2-Step Verification on, Play Console app installed on a real device (guide section 3, phase 1).
 - [ ] **U** Account path known (Q78): exempt (open test directly) or Path B (closed test 12 testers x 14 days, then production access).

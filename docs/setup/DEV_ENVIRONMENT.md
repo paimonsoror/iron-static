@@ -141,7 +141,7 @@ better than the emulator on this laptop.
 
 ## Project-specific (IRON STATIC)
 
-- Package id `com.ironstatic.game` (provisional), export preset name `IronStatic`, AVD `tower_phone`, Godot 4.7.2 (`docs/setup/godot_pin_decision.md`).
+- Package id `com.normalexception.game`, export preset name `IronStatic`, AVD `tower_phone`, Godot 4.7.2 (`docs/setup/godot_pin_decision.md`).
 - Gradle build template is untracked: run `.\tools\setup_android_template.ps1` after a clone or Godot upgrade.
 - Setup docs: `android_export.md`, `gradle_build.md` (export, timings), `smoke_test.md`, `gdunit4.md` (tests), `lint.md`, `ci.md`, `plugin_matrix.md` (plugins and integration checklist).
 - Services boot probe (billing + ads; debug builds on Android only, off by default): temporarily set the export preset option `command_line/extra_args` to `-- --probe-services` (Godot bakes it into the APK; `adb am start --esa command_line_params` does not work because Android strips extras sent to the exported launcher), deploy, look for `probe billing` / `probe ads` lines in logcat, then revert the preset (do not commit it). See `src/services/services.gd`.

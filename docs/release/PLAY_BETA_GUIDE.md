@@ -41,7 +41,7 @@ Write the result down: `Account created: ____ / Path: A or B`. Tell the agents (
 
 All of these are one-time. An upload with a wrong answer here can be impossible to undo.
 
-- [ ] **Package name is final.** Today it is `com.ironstatic.game`. It is permanent once uploaded (a different name later means a new listing, losing installs). Play does not check domain ownership, so you can keep it. Recommended: keep it, after the trademark search below.
+- [x] **Package name is final.** `com.normalexception.game` (decided 2026-11-09, matches your domain normalexception.net). It is permanent once uploaded (a different name later means a new listing, losing installs).
 - [ ] **Trademark and name search (Q31).** Search "IRON STATIC" in: Google Play (search the store), USPTO trademark search (tmsearch.uspto.gov), EUIPO eSearch, a web search, and game-name social handles. If a game with that name already exists in a game or software class, tell us before the upload; fallback name is EMBER CHASSIS. Also check that no text or art in the listing uses a franchise name.
 - [ ] **Version scheme agreed.** versionName `0.5.0-beta.1`, versionCode `50001` (formula in B1-02: MAJOR*1,000,000 + MINOR*10,000 + PATCH*100 + BUILD). Every upload needs a higher code than the last one, forever.
 - [ ] **Upload keystore created and backed up** (phase 2). A lost upload key can be reset by Google, but it costs days.
@@ -242,7 +242,7 @@ Only available after production access (Path B) or straight away (Path A).
 | "Feature graphic must be 1024x500 without alpha" | Banner is 1280x640 or a PNG with alpha | Use the B1-06 file |
 | "Your app has a content rating issue" | Questionnaire missing or changed content | Redo the questionnaire (phase 5) |
 | "Target audience: appeals to children" warning | Under-13 selected, or art looks child-directed | Select 13+ only; do not use cartoon mascots; contact policy support if challenged |
-| "Package name already exists / is not available" | Another developer owns `com.ironstatic.game` | Pick a new ID before ever uploading (Q30), update the preset |
+| "Package name already exists / is not available" | Another developer owns `com.normalexception.game` | Pick a new ID before ever uploading (Q30), update the preset |
 | Rejected for impersonation / intellectual property | Listing text or art looks like another game or a film franchise | Remove the offending text or image; the game is original (CLAUDE.md IP rules) |
 | "Closed testing requirement not met" / production access denied | Fewer than 12 opted-in testers, or low engagement | Keep the test open, add testers, ask them to play; reapply |
 | Opt-in link says "item not found" | Tester not on the list, wrong Google account, release not yet approved | Check the Testers tab and the account they use; wait for review |
@@ -279,7 +279,7 @@ These are also in `docs/design/09_open_questions.md` as Q78-Q86. If you do not a
 | Q | Question | Default |
 |---|---|---|
 | Q78 | When was the developer account created, and is it exempt from the 12 testers x 14 days rule (Path A vs B)? | Unknown: treat as Path B until the Dashboard proves otherwise (phase 1) |
-| Q79 | Keep package name `com.ironstatic.game`? | Yes, after the trademark search (Q31); Play does not check domains |
+| Q79 | Keep package name `com.ironstatic.game`? | Decided 2026-11-09: no, it is `com.normalexception.game` |
 | Q80 | Target audience for the beta | 13-15, 16-17, 18+ (not under 13); no age gate in the beta; alternative 16+ only |
 | Q81 | Sentry crash reporting in the beta build? | Remove it from the beta; use Play Console vitals and tester feedback; re-add at M7 with a DSN and an updated Data safety form |
 | Q82 | Feedback channel | A Google Form linked from the codex Feedback page and from Settings; the same link goes in Play's feedback-channel field |

@@ -78,7 +78,7 @@ Windows 11 with PowerShell, Godot 4.7.2 with export templates, JDK 17 and the An
 .\tools\lint.ps1                     # format, lint, layer rules, warnings-as-errors compile
 .\tools\test.ps1                     # the GdUnit4 suite
 .\tools\run_emulator.ps1             # start the emulator, then deploy:
-.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.ironstatic.game -Preset IronStatic
+.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.normalexception.game -Preset IronStatic
 ```
 
 You can also open `project.godot` in Godot 4.7.2 and run it on the desktop. Every other tool (balance runs, perf bench, art and audio pipelines, save inspection) is listed on the [Building and tools](https://paimonsoror.github.io/iron-static/dev/building/) page.
