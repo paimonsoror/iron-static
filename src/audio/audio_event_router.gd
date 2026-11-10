@@ -39,6 +39,9 @@ const MAX_BATCHES: int = 8
 const NO_BEAT: int = -1000000
 const HEAVY_IDS: PackedStringArray = ["walker", "lancer"]
 
+## Game speed (set by the host each frame): 4x and 8x cut the voices per sound id and frame (`SpeedLoad`).
+var speed: int = 1
+
 ## True on the results screen and any menu: the music drops to its menu mix.
 var in_menu: bool = false:
 	set(value):
@@ -199,7 +202,7 @@ func _heartbeat() -> void:
 
 func _play(sfx_id: String, jitter: float = -1.0) -> void:
 	var used: int = _budget.get(sfx_id, 0)
-	if used >= CAP_PER_FRAME:
+	if used >= SpeedLoad.scaled(CAP_PER_FRAME, speed):
 		return
 	_budget[sfx_id] = used + 1
 	@warning_ignore("return_value_discarded")

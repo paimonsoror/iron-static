@@ -179,6 +179,8 @@ func time_scale() -> float:
 
 func set_speed_hint(speed: int) -> void:
 	_speed_hint = speed
+	_fx.play_speed = speed
+	_numbers.speed = speed
 
 
 func impact() -> ImpactDriver:

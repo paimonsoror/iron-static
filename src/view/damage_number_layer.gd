@@ -26,6 +26,8 @@ const LIFT_FRACTION: float = 0.9  ## start height above an enemy, in sprite radi
 var visual: VisualSettings
 ## Px scale of the text (viewport width / 1080).
 var text_scale: float = 1.0
+## Game speed (set by the host): 4x and 8x cut the live-number cap (`SpeedLoad`).
+var speed: int = 1
 ## Cinder's hit radius in px (where the Cinder-damage number appears).
 var cinder_radius_px: float = 65.0
 
@@ -55,7 +57,7 @@ func update(enemies: EnemyRenderer, now_s: float, alpha: float) -> void:
 	if _world == null:
 		return
 	if visual != null and visual.quality != null:
-		model.live_cap = DamageNumberModel.cap_for_tier(visual.quality.tier)
+		model.live_cap = SpeedLoad.scaled(DamageNumberModel.cap_for_tier(visual.quality.tier), speed)
 	model.advance(now_s)
 	var store: EnemyStore = _world.enemies
 	while _events.poll(_world.events) > 0:

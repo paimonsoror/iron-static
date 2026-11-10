@@ -98,8 +98,11 @@ func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
 		_results.ftue_pulse = _ftue.foundry_pulse_wanted()
 	if _controller == null or _controller.world == null or AppFlow.is_menu(_router.current_screen()):
 		return
+	_apply_speed()
 	if _controller.load_wave == 0:
 		_battle.set_speed_hint(_controller.speed)
+		_audio.speed = _controller.speed
+		_haptic_hooks.speed = _controller.speed
 		_battle.render(_controller.driver.acc / TickDriver.DT)
 		_controller.time_scale = _battle.time_scale()  # slow-mo: view-only pacing for the next frame
 		_audio.update()
@@ -112,6 +115,7 @@ func _process(delta: float) -> void:  # gdlint: ignore=unused-argument
 
 
 func _on_run_started(world: SimWorld) -> void:
+	_hud.set_best_timed(_controller.best_wave_s1)  # 4x and 8x unlock at best TIMED waves 30 and 60 (R1-03)
 	_results.hide_results()
 	_tier_banner.cancel()
 	_battle.bind(world)
@@ -129,8 +133,14 @@ func _on_run_ended(world: SimWorld) -> void:
 	_ftue.on_results_shown()
 
 
-func _on_speed_changed(multiplier: int) -> void:
-	_controller.speed = multiplier
+## R1-03: the HUD button sets the chosen speed; the sim runs at the HUD's effective one (automatic fall-back).
+@warning_ignore("unused_parameter")
+func _on_speed_changed(multiplier: int) -> void:  # gdlint: ignore=unused-argument
+	_apply_speed()
+
+
+func _apply_speed() -> void:
+	_controller.speed = _hud.effective_speed()
 
 
 ## The HUD pause button opens the pause menu (it covers the HUD, so it can only toggle on here; off is a safety net).

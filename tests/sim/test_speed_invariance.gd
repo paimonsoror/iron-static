@@ -131,3 +131,34 @@ func test_speeds_give_the_same_hash_across_a_draft_pick() -> void:
 	var base: String = _draft_driven_hash(1, 11)
 	assert_str(_draft_driven_hash(2, 12)).is_equal(base)
 	assert_str(_draft_driven_hash(4, 14)).is_equal(base)
+
+
+## R1-03 (FC11): 8x is a real speed now; 1x, 2x and 8x end on the same state hash, TIMED, PURGE and across a draft.
+func test_r1_03_speeds_1_2_8_give_the_same_hash() -> void:
+	var base: String = _driven_hash(1, 31)
+	assert_str(_driven_hash(2, 32)).is_equal(base)
+	assert_str(_driven_hash(8, 38)).is_equal(base)
+	var purge: String = _purge_driven_hash(1, 31)
+	assert_str(_purge_driven_hash(2, 32)).is_equal(purge)
+	assert_str(_purge_driven_hash(8, 38)).is_equal(purge)
+	var draft: String = _draft_driven_hash(1, 31)
+	assert_str(_draft_driven_hash(2, 32)).is_equal(draft)
+	assert_str(_draft_driven_hash(8, 38)).is_equal(draft)
+
+
+## Mixed speeds in one run (the fall-back flips between the chosen speed and 2x mid-run) land on the same hash.
+func test_r1_03_switching_speed_mid_run_keeps_the_hash() -> void:
+	var base: String = _driven_hash(1, 41)
+	var w: SimWorld = _world()
+	var driver: TickDriver = TickDriver.new()
+	driver.budget_usec = NO_BUDGET_LIMIT
+	driver.tick_limit = TICKS
+	var frames: Rng = Rng.new(42, 99)
+	var chosen: Array[int] = [8, 2, 8, 1, 2]
+	var guard: int = 0
+	while w.tick < TICKS and guard < 1_000_000:
+		var delta: float = FRAME_MIN_S + frames.next_float() * (FRAME_MAX_S - FRAME_MIN_S)
+		@warning_ignore("return_value_discarded")
+		driver.advance(w, delta, chosen[floori(float(w.tick) / 600.0) % chosen.size()])
+		guard += 1
+	assert_str(w.state_hash()).is_equal(base)

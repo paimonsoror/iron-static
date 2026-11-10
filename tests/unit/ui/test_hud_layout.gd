@@ -154,3 +154,35 @@ func test_counters_roll_with_refresh_and_settle_on_the_exact_target() -> void:
 	assert_str(label.text).is_not_equal("SCRAP 1K")  # mid roll
 	hud.refresh(world, 10.6)
 	assert_str(label.text).is_equal("SCRAP 1K")
+
+
+func test_speed_button_cycles_unlocked_speeds_and_shows_both_in_fall_back() -> void:
+	var hud: Hud = _hud(2400.0)
+	var label: Label = hud.get_node("%SpeedLabel")
+	var chosen: Label = hud.get_node("%TopBar/SpeedChosenLabel")
+	var btn: Button = hud.get_node("%SpeedButton")
+	btn.pressed.emit()
+	assert_int(hud.speed()).is_equal(2)
+	btn.pressed.emit()
+	assert_int(hud.speed()).is_equal(1)  # 4x and 8x are locked: 1x, 2x only
+	hud.set_best_timed(60)
+	for expect: int in [2, 4, 8, 1]:
+		btn.pressed.emit()
+		assert_int(hud.speed()).is_equal(expect)
+	hud.set_speed(8)
+	assert_bool(chosen.visible).is_false()
+	assert_str(label.text).is_equal("8x")
+	var world: SimWorld = SimWorld.new(SimConfigLoader.load_default(5))
+	world.cinder.hp = world.cinder.max_hp * 0.5
+	hud.refresh(world, 0.0)
+	assert_int(hud.effective_speed()).is_equal(2)
+	assert_str(label.text).is_equal("2x")
+	assert_bool(chosen.visible).is_true()
+	assert_str(chosen.text).is_equal("8x")
+	world.cinder.hp = world.cinder.max_hp * 0.78
+	hud.refresh(world, 1.0)
+	assert_int(hud.effective_speed()).is_equal(2)  # hysteresis
+	world.cinder.hp = world.cinder.max_hp
+	hud.refresh(world, 2.0)
+	assert_int(hud.effective_speed()).is_equal(8)
+	assert_bool(chosen.visible).is_false()

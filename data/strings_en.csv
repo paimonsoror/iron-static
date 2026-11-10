@@ -52,6 +52,7 @@ home.best,BEST  W{n}
 home.best_none,NO DEPLOYMENT YET
 home.deploy,DEPLOY
 home.next_unlock,NEXT UNLOCK  WAVE {w}  {name}
+home.speed_name,{n}X SPEED
 home.all_unlocked,ALL ROWS UNLOCKED
 home.foundry_hint,{n} FOUNDRY UPGRADES AFFORDABLE
 nav.home,HOME
