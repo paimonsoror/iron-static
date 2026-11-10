@@ -4,6 +4,7 @@ extends SceneTree
 ## ops: bestwave N (sets best_wave["1"] and best_wave_by_mode["timed"]["1"]) | purgebest N (PURGE record)
 ##      | modeflag ID (pending one-time mode-unlock chip) | frames (unlock all implemented, select striker)
 ##      | frames2 | select ID | schema N (re-stamp schema u16)
+##      | lastmode ID (TIMED best 20, ID unlocked and preselected; M4-28 stress run)
 
 
 func _initialize() -> void:
@@ -44,6 +45,14 @@ func _initialize() -> void:
 		prof["frames_unlocked"] = ["vanguard", "bulwark"]
 	elif op == "select":
 		prof["frame_selected"] = a[3]
+	elif op == "lastmode":
+		var bm: Dictionary = prof.get("best_wave_by_mode", {})
+		var tm: Dictionary = bm.get("timed", {})
+		tm["1"] = 20
+		bm["timed"] = tm
+		prof["best_wave_by_mode"] = bm
+		prof["last_mode"] = a[3]
+		prof["modes_unlocked"] = ["timed", a[3]]
 	elif op == "schema":
 		schema = int(a[3])
 	var out: PackedByteArray = SaveCodec.encode("ISAV", schema, SaveSchema.raw_from_document(doc))

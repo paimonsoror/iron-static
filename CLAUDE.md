@@ -9,7 +9,7 @@ IRON STATIC (code name `ironstatic`, applicationId `com.normalexception.game`) i
 | Game rules, terms, numbers, ids (source of truth for the game) | `docs/design/00..09_*.md` (GDD; plus `10_art_bible.md`, `11_title_and_frames.md`). Start with `00_overview.md` section 8 glossary |
 | Technical decisions (source of truth for technology) | `docs/TECH_ARCHITECTURE.md` |
 | Milestones M0-M7, P1, P2, critical path, Play timeline | `docs/ROADMAP.md` |
-| Agent-ready tasks | `docs/tasks/M0.md`, `M1.md`, `M2.md`, `V1.md`, `A1.md`, `M3.md` (meta loop, persistence, title screen and frames; done 2026-11-09, carried items listed at its end), `M4.md` (patches, wave modes, feel, FTUE), `B1.md` (Play open beta: signed AAB, privacy page, store assets, test tracks; user guide `docs/release/PLAY_BETA_GUIDE.md`) (later files are written when the previous milestone closes) |
+| Agent-ready tasks | `docs/tasks/M0.md`, `M1.md`, `M2.md`, `V1.md`, `A1.md`, `M3.md` (meta loop, persistence, title screen and frames; done 2026-11-09, carried items listed at its end), `M4.md` (patches, wave modes, feel, FTUE; closed by M4-28, exit report `docs/playtests/m4/exit.md`, stress scene `docs/perf/m4_stress.md`), `R1.md` (review follow-up feel pass: Phase A done 2026-11-10, B-D planned; SimVersion 6), `B1.md` (Play open beta: signed AAB, privacy page, store assets, test tracks; user guide `docs/release/PLAY_BETA_GUIDE.md`) (later files are written when the previous milestone closes) |
 | Toolchain, emulator, troubleshooting | `docs/setup/DEV_ENVIRONMENT.md` (+ other `docs/setup/*.md` written in M0) |
 | Open questions (ONE list) | `docs/design/09_open_questions.md` |
 | Background research on The Tower | `docs/research/` (comparison only) |
@@ -92,6 +92,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 - `--check-only --script` does not load autoloads; compile checks go through `tools/compile_check.gd` (run by `lint.ps1`).
 - Deliberately broken `.gd` files live in folders with `.gdignore` + `.lintignore`; `test.ps1 -Canary` runs them in a copy under `build/canary/`.
 - Nested `project.godot` files (Gradle template, `build/canary`) make Godot print a stderr warning that aborts `deploy_android.ps1` under PS 5.1: `build/` and `android/build/` must keep their `.gdignore` (tools create them).
+- `Invoke-Godot` (`tools\_common.ps1`) starts the non-console Godot exe (`Godot_v4.7.2-stable_win64.exe`) because the console wrapper (`..._console.exe`) can hang after exit when its output is piped; if an import still hangs, run the plain exe with `--headless --import` once and retry.
 - Run PS tools as `powershell -NoProfile -File tools\<script>.ps1` from `C:\dev\tower`; never run two deploys at once (adb/log collisions).
 - Gradle: first build ~10 min, then ~4 min per deploy; combined debug APK (Billing, AdMob, Sentry) ~179.5 MB. `org.gradle.daemon=false` is required (a daemon hangs the deploy script).
 - Smoke test: `D`/`I AndroidRuntime` lines from `monkey` are normal; only error-level lines fail.

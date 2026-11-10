@@ -1,6 +1,6 @@
 # 05 - Meta Progression
 
-Changelog: 2026-11-10 (R1-07: over-limit cost color `#FF7A2E`, the cap line is sentence case) - 2026-11-10 (R1-02 tune: `foundry_cap_min` 6, `foundry_cap_k` 0.7, `foundry_over_cap_mult` 2.0 flat, `foundry_over_cap_growth` 1.0 (compounding was not needed)) - 2026-11-10 (R1-02, SimVersion 6: section 1.5 is now a SOFT cap, levels at or above `max(3, floor(0.6 * best_s1))` cost x3 instead of being locked; Foundry and run milestone step and multiplier, the cap k and minimum and the over-cap multiplier are data rows in `sim_constants.csv`; tune pending) - 2026-11-09 (FO-3: Foundry milestone x1.75 every 25 levels, new section 1.5 best-wave level cap, option E of the FO-2 study chosen by the user) - 2026-11-08 (M2-16: 1.3 implementation note on the Type C cap) - 2026-11-07 - Gauntlet and Incursion unlocks tagged P1, Cells P2 (online staging); N1-N4 approved (Lab/firmware rows tagged Launch stay as written).
+Changelog: 2026-11-10 (M4-28: section 7 row 11a, the PURGE mode unlock) - 2026-11-10 (R1-07: over-limit cost color `#FF7A2E`, the cap line is sentence case) - 2026-11-10 (R1-02 tune: `foundry_cap_min` 6, `foundry_cap_k` 0.7, `foundry_over_cap_mult` 2.0 flat, `foundry_over_cap_growth` 1.0 (compounding was not needed)) - 2026-11-10 (R1-02, SimVersion 6: section 1.5 is now a SOFT cap, levels at or above `max(3, floor(0.6 * best_s1))` cost x3 instead of being locked; Foundry and run milestone step and multiplier, the cap k and minimum and the over-cap multiplier are data rows in `sim_constants.csv`; tune pending) - 2026-11-09 (FO-3: Foundry milestone x1.75 every 25 levels, new section 1.5 best-wave level cap, option E of the FO-2 study chosen by the user) - 2026-11-08 (M2-16: 1.3 implementation note on the Type C cap) - 2026-11-07 - Gauntlet and Incursion unlocks tagged P1, Cells P2 (online staging); N1-N4 approved (Lab/firmware rows tagged Launch stay as written).
 
 Citations: `[META]` = meta_progression_systems.md, `[CIS]` = combat_and_in_run_systems.md. The research could not retrieve most per-level cost tables [META gaps], so every cost here is original. All numbers tunable. Each system is tagged **MVP / Launch / Post-launch**.
 
@@ -219,6 +219,7 @@ Progress key: best wave reached in Sector 1 (`best_s1`) unless marked.
 | 9 | `best_s1` 12 | `reinvest`, `push_chance`, `push_force` |
 | 10 | `best_s1` 15 | `split_chance`, `split_targets`, `free_arms` |
 | 11 | `best_s1` 20 | `standoff`, `spike_return`, `free_chassis`; Skin Burn exposure bonuses; Adaptation begins affecting at wave 20 |
+| 11a | best TIMED wave 20 (`unlock_best_timed_wave` in `wave_modes.csv`, M4-07, Q71) | PURGE wave mode on the Home mode picker (02 s6); shown locked as "Reach wave 20 in TIMED" until then. Only the TIMED best counts; PURGE keeps its own record that gates nothing. The unlock is permanent and announced once ("PURGE MODE UNLOCKED"). |
 | 12 | `best_s1` 25 | R&D Lab (slot 1), `plating_flat`, `free_systems`, `sensor_reach` (first `shade`) |
 | 13 | `best_s1` 30 | `burst_chance`, `burst_duration`, `siphon_cell`; Sector 2 unlock; Standby Patrol; Overdrive |
 | 14 | `best_s1` 35 | `razor_count`, `razor_speed` |
