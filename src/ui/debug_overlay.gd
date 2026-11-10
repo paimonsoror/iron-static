@@ -45,6 +45,9 @@ var battle_view: BattleView
 ## Set by the owner (main.gd): the tier switch buttons change it.
 var visual: VisualSettings = VisualSettings.new()
 
+## Touch gestures that open the overlay. Debug builds only: a release build can never show it (B1-07-A).
+var gestures_enabled: bool = OS.is_debug_build()
+
 var _controller: RunController
 var _fps := DebugStats.new(FPS_WINDOW)
 var _tick_ms := DebugStats.new(TICK_WINDOW)
@@ -70,6 +73,7 @@ var _press_ms: int = -1
 
 
 func _ready() -> void:
+	set_process_input(gestures_enabled)
 	if _lines.resize(LINE_COUNT) != OK:
 		push_error("DebugOverlay: resize failed")
 	_stats_label.add_theme_color_override("font_color", Palette.AMBER_GLOW)
@@ -124,11 +128,15 @@ func is_shown() -> bool:
 
 
 func toggle() -> void:
+	if not gestures_enabled:
+		return
 	visible = not visible
 	_since_text = TEXT_REFRESH_S
 
 
 func _input(event: InputEvent) -> void:
+	if not gestures_enabled:
+		return
 	var touch: InputEventScreenTouch = event as InputEventScreenTouch
 	if touch == null:
 		return
