@@ -8,6 +8,8 @@ extends Node
 ## Scenarios (the crowd, intel and burn ones are DEBUG scenarios: an invulnerable Cinder, a bot that buys with scrap and
 ## takes the first draft card, played to wave 20; the speed control shows 8x with the fall-back to 2x because a boss is
 ## alive):
+##   draft          the patch draft (three family cards) over the battle at wave 10 (store screenshot)
+##   upgrades       wave 13 with the CHASSIS tab open (store screenshot)
 ##   wave1          fresh deployment a few seconds in (the starting rows, 230 scrap); also saves tooltip (a row's
 ##                  formula tooltip open)
 ##   crowd          wave 20 with the boss hulk, damage numbers and the speed control in fall-back
@@ -17,10 +19,12 @@ extends Node
 ##   numbers        wave 9 mid-fight, a frame with several readable damage numbers (a crit among them)
 ##   home_progress  Home with PURGE unlocked and selected, a best wave and some data
 
-const SIZE: Vector2i = Vector2i(1080, 2400)
+const DEFAULT_SIZE: Vector2i = Vector2i(1080, 2400)
 ## Typical phone cutout and gesture bar (left, top, right, bottom), as in the other harnesses.
 const SAFE: Vector4 = Vector4(0.0, 110.0, 0.0, 70.0)
 const CROWD_WAVE: int = 20
+const DRAFT_WAVE: int = 10
+const UPGRADES_WAVE: int = 13
 const NUMBERS_WAVE: int = 9
 const WAVE1_TICKS: int = 420
 const MAX_FRAMES: int = 6000
@@ -29,6 +33,8 @@ const BANNER_FRAMES: int = 150
 const CRIT_WAIT_FRAMES: int = 60
 
 var _out: String = "build/docs_shots"
+var _size: Vector2i = DEFAULT_SIZE
+var _speed: int = 8
 var _only: PackedStringArray = PackedStringArray()
 
 
@@ -36,6 +42,12 @@ func _ready() -> void:
 	for a: String in OS.get_cmdline_user_args():
 		if a.begins_with("--dx-out="):
 			_out = a.get_slice("=", 1)
+		elif a.begins_with("--dx-size="):
+			var parts: PackedStringArray = a.get_slice("=", 1).split("x")
+			if parts.size() == 2:
+				_size = Vector2i(parts[0].to_int(), parts[1].to_int())
+		elif a.begins_with("--dx-speed="):
+			_speed = a.get_slice("=", 1).to_int()
 		elif a.begins_with("--dx-only="):
 			_only = a.get_slice("=", 1).split(",", false)
 	DirAccess.make_dir_recursive_absolute(_out)
@@ -46,6 +58,10 @@ func _ready() -> void:
 		await _wave1()
 	if _wanted("numbers"):
 		await _numbers_scene()
+	if _wanted("draft"):
+		await _mid_scene(true)
+	if _wanted("upgrades"):
+		await _mid_scene(false)
 	if _wanted("crowd") or _wanted("intel_stats") or _wanted("intel_wave") or _wanted("burn"):
 		await _crowd_family()
 	get_tree().quit()
@@ -57,7 +73,7 @@ func _wanted(shot_name: String) -> bool:
 
 func _viewport() -> SubViewport:
 	var vp := SubViewport.new()
-	vp.size = SIZE
+	vp.size = _size
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	vp.size_2d_override_stretch = false
 	add_child(vp)
@@ -87,7 +103,7 @@ func _home_progress() -> void:
 	var home: HomeScreen = (load("res://src/ui/home/home_screen.tscn") as PackedScene).instantiate() as HomeScreen
 	home.setup(profile)
 	vp.add_child(home)
-	home.size = Vector2(SIZE)
+	home.size = Vector2(_size)
 	home.apply_safe_margins(SAFE)
 	home.enter()
 	await get_tree().create_timer(0.8).timeout
@@ -107,7 +123,7 @@ func _rig(vp: SubViewport, world: SimWorld) -> Array:
 	root.add_child(hud)
 	hud.apply_safe_margins(SAFE)
 	hud.field_rect_changed.connect(battle.set_field_rect)
-	battle.layout(Vector2(SIZE))
+	battle.layout(Vector2(_size))
 	battle.bind(world)
 	hud.upgrade_panel().bind(world)
 	return [battle, hud]
@@ -173,6 +189,71 @@ func _numbers_scene() -> void:
 	await get_tree().process_frame
 
 
+## The patch draft over the live battle: three family cards at the wave-10 patch (store screenshot; offers are staged).
+func _mid_scene(draft: bool) -> void:
+	var vp: SubViewport = _viewport()
+	var world := SimWorld.new(SimConfigLoader.load_default(7))
+	world.cinder.invulnerable = true
+	var rig: Array = _rig(vp, world)
+	var battle: BattleView = rig[0]
+	var hud: Hud = rig[1]
+	var bot := PolicyBot.new("all")
+	var frame: int = 0
+	var target: int = DRAFT_WAVE if draft else UPGRADES_WAVE
+	while frame < MAX_FRAMES and not (world.wave >= target and (world.is_draft_open() or not draft)):
+		world.cinder.hp = world.cinder.max_hp
+		for i: int in 20:
+			if world.tick % 15 == 0:
+				bot.think(world)
+			if world.wave < target or not draft:
+				@warning_ignore("return_value_discarded")
+				PolicyBot.settle_draft(world)
+			if not world.is_draft_open():
+				world.step()
+		battle.render(1.0)
+		hud.refresh(world, 100.0 + float(frame) * 0.05)
+		await get_tree().process_frame
+		frame += 1
+	if not draft:
+		@warning_ignore("return_value_discarded")
+		hud.upgrade_panel().set_tab("chassis")
+		for i: int in BANNER_FRAMES + 10:  # until the wave banner has slid away
+			world.cinder.hp = world.cinder.max_hp
+			for k: int in 2:
+				if world.tick % 15 == 0:
+					bot.think(world)
+				@warning_ignore("return_value_discarded")
+				PolicyBot.settle_draft(world)
+				world.step()
+			battle.render(0.5)
+			hud.refresh(world, 300.0 + float(i))
+			hud.upgrade_panel().reflow()
+			await get_tree().process_frame
+		await _save(vp, "upgrades")
+		vp.queue_free()
+		await get_tree().process_frame
+		return
+	var ids: Array[String] = []
+	for d: PatchDef in world.config.patches:
+		ids.append(d.id)
+	var offers := PackedInt32Array()
+	for id: String in ["patch_overcharge", "patch_plating", "patch_extraction"]:
+		offers.append(ids.find(id))
+	world.draft.offers = offers
+	var overlay: DraftOverlay = (
+		(load("res://src/ui/draft/draft_overlay.tscn") as PackedScene).instantiate() as DraftOverlay
+	)
+	overlay.reduce_motion = true
+	vp.get_child(0).add_child(overlay)
+	overlay.open(world)
+	for i: int in 8:
+		battle.render(0.5)
+		await get_tree().process_frame
+	await _save(vp, "draft")
+	vp.queue_free()
+	await get_tree().process_frame
+
+
 func _crowd_family() -> void:
 	var vp: SubViewport = _viewport()
 	var world := SimWorld.new(SimConfigLoader.load_default(7))
@@ -181,7 +262,7 @@ func _crowd_family() -> void:
 	var battle: BattleView = rig[0]
 	var hud: Hud = rig[1]
 	hud.set_best_timed(60)
-	hud.set_speed(8)
+	hud.set_speed(_speed)
 	var bot := PolicyBot.new("all")
 	var layer: DamageNumberLayer = battle.get_node("DamageNumbers")
 	var frame: int = 0

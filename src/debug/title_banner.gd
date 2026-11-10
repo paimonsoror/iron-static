@@ -15,9 +15,15 @@ const LOGO_Y: float = 905.0
 const CROP: Rect2i = Rect2i(0, 660, 2160, 1080)
 const OUT_SIZE: Vector2i = Vector2i(1280, 640)
 const JPG_QUALITY: float = 0.88
+## Play feature graphic (`--tf-banner-play`): 1024 x 500 (2.048:1) cut from the same stage, logo drawn larger so its
+## text stays above 40 px, and saved without alpha as feature_1024x500.png.
+const PLAY_CROP: Rect2i = Rect2i(0, 620, 2160, 1055)
+const PLAY_SIZE: Vector2i = Vector2i(1024, 500)
+const PLAY_LOGO_SHRINK: float = 0.9
+const PLAY_LOGO_Y: float = 880.0
 
 
-static func run(tf: TitleFrame, out: String) -> void:
+static func run(tf: TitleFrame, out: String, play: bool = false) -> void:
 	DirAccess.make_dir_recursive_absolute(out)
 	var tree: SceneTree = tf.get_tree()
 	var vp: SubViewport = tf.host_viewport()
@@ -27,11 +33,20 @@ static func run(tf: TitleFrame, out: String) -> void:
 	await tree.process_frame
 	sc.buttons().visible = false
 	var logo: TitleLogo = sc.logo()
-	logo.scale *= LOGO_SHRINK
-	logo.position.y = LOGO_Y
+	logo.scale *= PLAY_LOGO_SHRINK if play else LOGO_SHRINK
+	logo.position.y = PLAY_LOGO_Y if play else LOGO_Y
 	await tree.create_timer(SETTLE_S).timeout
 	await RenderingServer.frame_post_draw
 	var img: Image = vp.get_texture().get_image()
+	if play:
+		var feature: Image = img.get_region(PLAY_CROP)
+		feature.resize(PLAY_SIZE.x, PLAY_SIZE.y, Image.INTERPOLATE_LANCZOS)
+		feature.convert(Image.FORMAT_RGB8)
+		if feature.save_png(out.path_join("feature_1024x500.png")) != OK:
+			push_error("feature graphic save failed")
+		print("[BANNER] feature %dx%d" % [feature.get_width(), feature.get_height()])
+		tree.quit()
+		return
 	var ok: bool = img.save_png(out.path_join("banner_full.png")) == OK
 	var band: Image = img.get_region(CROP)
 	band.resize(OUT_SIZE.x, OUT_SIZE.y, Image.INTERPOLATE_LANCZOS)
