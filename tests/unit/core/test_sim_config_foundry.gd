@@ -36,7 +36,7 @@ func test_foundry_changes_the_stat_block() -> void:
 	var a: StatBlock = StatBlock.from_resolver(plain.upgrades, PackedInt32Array())
 	var b: StatBlock = StatBlock.from_resolver(cfg.upgrades, PackedInt32Array(), cfg.foundry_levels, cfg.foundry_f)
 	assert_float(a.laser_output).is_equal(10.0)
-	assert_float(b.laser_output).is_equal_approx(10.0 * 3.9, 10.0 * 3.9 * 0.02)
+	assert_float(b.laser_output).is_equal_approx(10.0 * 4.4, 10.0 * 4.4 * 0.01)
 	assert_float(b.hull_integrity).is_equal(a.hull_integrity)
 
 

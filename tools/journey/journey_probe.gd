@@ -28,7 +28,7 @@ static func run(args: JourneyArgs, overrides: JourneyOverrides) -> String:
 		label = str(dict.get("name", args.profile_file.get_file().get_basename()))
 	else:
 		sim.profile.data = BigNum.from_float(args.probe)
-		bought = sim.spender.spend(sim.profile, sim.make_service(sim.level_cap(0)))
+		bought = sim.spender.spend(sim.profile, sim.make_service(false))
 		levels = sim.profile.foundry.duplicate()
 		label = "spend_%s_%d" % [args.spend, int(args.probe)]
 	var defs: Array[FoundryDef] = overrides.foundry_defs()

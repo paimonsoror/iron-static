@@ -71,7 +71,13 @@ func test_run_factor() -> void:
 
 
 func test_foundry_mult() -> void:
-	assert_float(Curves.foundry_mult(25, 0.06)).is_equal_approx(3.9, 3.9 * 0.02)
+	# FO-3: x1.75 every 25 levels; GDD 05 s1.2 values for f = 0.06 (hull).
+	assert_float(Curves.foundry_mult(24, 0.06)).is_equal_approx(2.44, 1e-9)
+	assert_float(Curves.foundry_mult(25, 0.06)).is_equal_approx(4.4, 4.4 * 0.01)
+	assert_float(Curves.foundry_mult(50, 0.06)).is_equal_approx(12.3, 12.3 * 0.01)
+	assert_float(Curves.foundry_mult(100, 0.06)).is_equal_approx(65.7, 65.7 * 0.01)
+	assert_float(Curves.foundry_mult(200, 0.06)).is_equal_approx(1143.0, 1143.0 * 0.01)
+	assert_float(Curves.foundry_mult(10, 0.06)).is_equal_approx(1.6, 1e-9)  # no early F10 bump
 	assert_float(Curves.foundry_mult(0, 0.06)).is_equal(1.0)
 
 

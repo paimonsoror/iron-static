@@ -179,7 +179,7 @@ func test_a_run_with_two_picks_replays_to_its_final_hash() -> void:
 	assert_int(live.patches.total_picks).is_equal(2)
 	assert_int(live.input_log.size()).is_equal(2)
 	var rec: RunRecord = RunRecord.from_world(live)
-	assert_int(rec.sim_version).is_equal(4)
+	assert_int(rec.sim_version).is_equal(SimVersion.CURRENT)
 	assert_str(Replay.run(_cfg(99), rec, live.tick)).is_equal(rec.final_hash)
 	var back: RunRecord = RunRecord.from_json(rec.to_json())
 	assert_int(back.commands.kinds[0]).is_equal(InputLog.CMD_PICK)

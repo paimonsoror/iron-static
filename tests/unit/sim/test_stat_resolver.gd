@@ -104,8 +104,8 @@ func test_foundry_type_d() -> void:
 	assert_int(n).is_equal(OK)
 	ff[_idx("laser_output")] = 0.06
 	var s: StatBlock = StatResolver.resolve(_defs, PackedInt32Array(), fl, ff, null)
-	# foundry_mult(25, 0.06) = (1 + 1.5) * 1.25^2 = 3.90625
-	assert_float(s.laser_output / 10.0).is_equal_approx(3.9, 0.078)
+	# foundry_mult(25, 0.06) = (1 + 1.5) * 1.75 = 4.375
+	assert_float(s.laser_output / 10.0).is_equal_approx(4.4, 0.044)
 
 
 func test_foundry_zero_is_exact_identity() -> void:

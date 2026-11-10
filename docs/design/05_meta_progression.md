@@ -1,6 +1,6 @@
 # 05 - Meta Progression
 
-Changelog: 2026-11-08 (M2-16: 1.3 implementation note on the Type C cap) - 2026-11-07 - Gauntlet and Incursion unlocks tagged P1, Cells P2 (online staging); N1-N4 approved (Lab/firmware rows tagged Launch stay as written).
+Changelog: 2026-11-09 (FO-3: Foundry milestone x1.75 every 25 levels, new section 1.5 best-wave level cap, option E of the FO-2 study chosen by the user) - 2026-11-08 (M2-16: 1.3 implementation note on the Type C cap) - 2026-11-07 - Gauntlet and Incursion unlocks tagged P1, Cells P2 (online staging); N1-N4 approved (Lab/firmware rows tagged Launch stay as written).
 
 Citations: `[META]` = meta_progression_systems.md, `[CIS]` = combat_and_in_run_systems.md. The research could not retrieve most per-level cost tables [META gaps], so every cost here is original. All numbers tunable. Each system is tagged **MVP / Launch / Post-launch**.
 
@@ -18,12 +18,12 @@ unlock cost (first buy to make the row visible in runs) = 20 * c0_run   (data), 
 Lab `lab_foundry_discount` multiplies cost by `(1 - 0.01 * level)` (max level 30).
 
 ### 1.2 Type D (deep stats) rows
-Foundry multiplier: `foundry_mult(F) = (1 + f * F) * 1.25 ^ floor(F / 10)`, F cap 200.
+Foundry multiplier: `foundry_mult(F) = (1 + f * F) * 1.75 ^ floor(F / 25)`, F cap 200 (2026-11-09, FO-3: was `1.25 ^ floor(F / 10)`; the long-run curve is the same, 1.25^2.5 = 1.75, but the early F10/F20 bumps are gone).
 | id | f | F cap | fc0 | fg | mult at F=25 / 50 / 100 / 200 |
 |---|---|---|---|---|---|
-| `laser_output` | 0.06 | 200 | 20 | 1.10 | 3.9 / 12.2 / 65 / 1,128 |
-| `hull_integrity` | 0.06 | 200 | 20 | 1.10 | 3.9 / 12.2 / 65 / 1,128 |
-| `nano_repair` | 0.05 | 200 | 25 | 1.10 | 3.4 / 10.0 / 54 / 872 |
+| `laser_output` | 0.06 | 200 | 20 | 1.10 | 4.4 / 12.3 / 65.7 / 1,143 |
+| `hull_integrity` | 0.06 | 200 | 20 | 1.10 | 4.4 / 12.3 / 65.7 / 1,143 |
+| `nano_repair` | 0.05 | 200 | 25 | 1.10 | 3.9 / 10.7 / 56.3 / 968 |
 | `plating_flat` | 0.05 | 200 | 40 | 1.10 | same as nano_repair |
 Cumulative cost to reach F: `fc0 * (1.1^F - 1) / 0.1` -> for fc0 = 20: F=10: 319; F=25: 1.97e3; F=50: 2.33e4; F=100: 2.76e6; F=150: 3.24e8; F=200: 3.80e10. (Month-6 free target is F ~ 185 on core stats, see 04.)
 
@@ -32,7 +32,14 @@ For every Type C stat in 02 section 7 (all other ids): `f_inc = r_inc` (same per
 (M2, **(impl)**) In code the cap is `max(1, floor(l_cap / 2))` and the Foundry step `f_inc` is the CSV `step` of the run row (no separate column); the Foundry ships in M3, so M2 only resolves F = 0.
 
 ### 1.4 Foundry UI rules
-Each row shows: current value, next-level value, delta, cost, max, and time/`data` to afford at current farm rate (information is cheap and addresses "opaque systems"). Tap the cost button to buy one level, hold to repeat-buy (no buy-mode selector; 07 s2.2, 2026-11-08). A "Recommended" glow marks the cheapest stat whose next level is a milestone (every 10 levels = x1.25 for D stats).
+Each row shows: current value, next-level value, delta, cost, max, and time/`data` to afford at current farm rate (information is cheap and addresses "opaque systems"). Tap the cost button to buy one level, hold to repeat-buy (no buy-mode selector; 07 s2.2, 2026-11-08). A "Recommended" glow marks the cheapest stat whose next level is within 3 levels of a milestone (every 25 levels = x1.75 for D stats), else the cheapest affordable row; a row held back by the level cap (1.5) is never recommended. The row's milestone line reads "MILESTONE F25  x1.75".
+
+### 1.5 Best-wave level cap (FO-3, 2026-11-09)
+Why: Data arrives fast enough that stacking one Foundry stat in the first minutes ran far ahead of the Day-1 pace (study: `docs/balance/foundry_early_power.md`, option E chosen by the user).
+- Each Foundry row can be bought up to `max(3, floor(0.6 * best_s1))` levels, where `best_s1` is the best TIMED Sector 1 wave (the value the 7 gates use), and never above the row's own F cap. At best wave 0 that is 3 levels, at wave 10 six, at wave 35 twenty-one, at wave 100 sixty.
+- Levels already owned are never removed: a profile above its cap keeps them and can buy again once the cap passes them.
+- A capped row shows its cost button disabled and the line "NEXT LEVEL AT WAVE N", where N is the smallest best wave that lifts the cap enough to allow the next level. Hold-to-buy stops at the cap.
+- Sectors 2 and later are not in the game before M6; the cap rule for them is open (09 Q87). Until it is decided only Sector 1 best wave counts.
 
 ## 2. R&D Lab (timed research) - tag: Launch (MVP: none; MVP has only Foundry) [META Labs]
 

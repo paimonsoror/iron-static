@@ -115,3 +115,12 @@ func test_sim_constants_spot_values() -> void:
 	assert_int(t.boss_interval).is_equal(10)
 	assert_float(t.hp0).is_equal(14.0)
 	assert_int(t.wave_seconds).is_equal(t.spawn_seconds + t.lull_seconds)
+
+
+func test_foundry_multiplier_table_gdd_05_s1_2() -> void:
+	# GDD 05 s1.2 (FO-3): (1 + f*F) * 1.75^floor(F/25), hull f from the generated Foundry table.
+	var hull: FoundryDef = FoundryRules.find_def(SimConfigLoader.load_foundry_defs(), "hull_integrity")
+	var table: Dictionary = {25: 4.4, 50: 12.3, 100: 65.7, 200: 1143.0}
+	for level: int in table.keys():
+		var want: float = table[level]
+		assert_float(FoundryRules.multiplier(hull, level)).is_equal_approx(want, want * 0.01)

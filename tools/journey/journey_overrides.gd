@@ -7,7 +7,7 @@ extends RefCounted
 ##   enemies.data_scale                   multiplies every enemy data_base
 ##   foundry.<row id>.<f|f_cap|fc0|fg>    e.g. foundry.laser_output.fc0=40
 ## Overrides are applied to the private config and Foundry def copies of each run, never to the shared resources.
-## The x1.25-per-10-levels milestone is a code constant (Curves), not an override; see the FO-2 report.
+## The x1.75-per-25-levels milestone is a code constant (Curves), not an override; see the FO-2 and FO-3 reports.
 
 var entries: Array[Dictionary] = []  # {scope, a, b, value}
 var error: String = ""

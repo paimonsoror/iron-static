@@ -98,9 +98,24 @@ func test_rows_hold_still_when_the_preview_disappears() -> void:
 
 func test_recommended_prefers_a_row_near_its_milestone() -> void:
 	var p: PlayerProfile = _profile(100000)
-	p.set_foundry_level("hull_integrity", 8)
+	p.best_wave["1"] = 100
+	p.set_foundry_level("hull_integrity", 22)
 	var s: FoundryScreen = _screen(p)
 	assert_int(s.recommended_index()).is_equal(2)
+
+
+func test_a_capped_row_is_locked_with_the_next_wave_hint_and_never_recommended() -> void:
+	var p: PlayerProfile = _profile(100000)
+	p.best_wave["1"] = 10  # wave cap 6
+	p.set_foundry_level("hull_integrity", 6)
+	var s: FoundryScreen = _screen(p)
+	var row: FoundryRow = s.row_at(2)
+	assert_bool(row.buy_button().disabled).is_true()
+	assert_str(row.afford_text()).is_equal("NEXT LEVEL AT WAVE 12")
+	assert_bool(row.is_recommended()).is_false()
+	assert_int(s.recommended_index()).is_not_equal(2)
+	s.row_at(2).buy_pressed.emit(2, 1)
+	assert_int(p.foundry_level("hull_integrity")).is_equal(6)
 
 
 func test_buying_updates_profile_requests_save_and_release_saves() -> void:

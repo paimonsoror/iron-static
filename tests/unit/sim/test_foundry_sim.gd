@@ -35,11 +35,11 @@ func _set_foundry(cfg: SimConfig, id: String, level: int, f: float = 0.0) -> voi
 	cfg.foundry_f[i] = f
 
 
-func test_laser_output_f25_starts_at_3_9x() -> void:
+func test_laser_output_f25_starts_at_4_4x() -> void:
 	var cfg: SimConfig = _cfg()
 	_set_foundry(cfg, "laser_output", 25, F_D_LASER)
 	var w: SimWorld = SimWorld.new(cfg)
-	assert_float(w.stats.laser_output).is_equal_approx(39.0, 0.02 * 39.0)
+	assert_float(w.stats.laser_output).is_equal_approx(43.75, 0.01 * 43.75)
 	assert_float(w.stats.laser_output).is_equal_approx(10.0 * Curves.foundry_mult(25, F_D_LASER), 1.0e-9)
 
 
@@ -57,14 +57,14 @@ func test_all_zero_foundry_is_bit_identical_to_no_foundry() -> void:
 	assert_str(zero.state_hash()).is_equal(plain.state_hash())
 
 
-func test_hull_f10_raises_start_hp_by_formula() -> void:
+func test_hull_f25_raises_start_hp_by_formula() -> void:
 	var cfg: SimConfig = _cfg()
-	_set_foundry(cfg, "hull_integrity", 10, F_D_HULL)
+	_set_foundry(cfg, "hull_integrity", 25, F_D_HULL)
 	var w: SimWorld = SimWorld.new(cfg)
-	var expected: float = 100.0 * (1.0 + F_D_HULL * 10.0) * 1.25
+	var expected: float = 100.0 * (1.0 + F_D_HULL * 25.0) * 1.75
 	assert_float(w.cinder.hp).is_equal_approx(expected, 1.0e-9)
 	assert_float(w.cinder.max_hp).is_equal_approx(expected, 1.0e-9)
-	assert_float(w.cinder.hp / 100.0).is_equal_approx(1.6 * 1.25, 1.0e-9)
+	assert_float(w.cinder.hp / 100.0).is_equal_approx(2.5 * 1.75, 1.0e-9)
 
 
 func test_cycle_rate_type_c_adds_step_and_clamps_at_cap() -> void:

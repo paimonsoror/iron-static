@@ -123,11 +123,11 @@ until M4-16; until then `RunController` auto-picks the first offer as a stopgap.
 | `-Frame` | a non-VANGUARD frame is played from the first deployment after its `unlock_best_wave` (`frames.csv`) is reached; earlier ones use VANGUARD |
 | `-Mode` | `timed` or `purge`; progress (best wave) is that mode's record (info only) |
 | `-Set` | in-memory overrides, nothing on disk changes: `sim.<SimTuning key>=v`, `enemy.<id>.data_base=v`, `enemies.data_scale=x`, `foundry.<row id>.<f\|f_cap\|fc0\|fg>=v` (comma separated) |
-| `-CapK`, `-CapMin` | prototype of a Foundry level cap tied to best wave: every row capped at `max(CapMin, floor(CapK * best wave))` (journey tool only, no game code) |
+| (cap) | since FO-3 the real best-wave Foundry level cap (`FoundryRules.wave_cap`, GDD 05 s1.5) always applies to the journey's spending; the FO-2 `-CapK`/`-CapMin` prototype flags are gone. `-Probe` lifts it (`FoundryService.wave_cap_enabled = false`) because it spends on a fresh profile |
 | `-Probe`, `-ProfileFile`, `-Frames`, `-Runs` | probe mode (see above) |
 | `-SkipImport` | skip the wrapper's import step (batches; the first call must import so the new `class_name` scripts are known) |
 
-stdout lines start with `JOURNEY` (deterministic; TIMING goes to stderr): one `dep=` line per deployment (death wave, best wave, Data earned and cumulative, Data spent and left, Foundry levels L/C/H/N, game minutes at 2x, state hash), then `mark` lines: after 3 deployments (first session), at 35 minutes of 2x play (Day 1), the first x1.25 Foundry milestone, last. File: `build/journey/<name>.csv`. Exit 0 ok, 2 bad arguments, script error or failed self-check. Run one Godot process at a time. Sources: `tools/journey_run.gd`, `tools/journey/*.gd`. The x1.25-per-10-levels milestone is a code constant (`Curves`), not a `-Set` key.
+stdout lines start with `JOURNEY` (deterministic; TIMING goes to stderr): one `dep=` line per deployment (death wave, best wave, Data earned and cumulative, Data spent and left, Foundry levels L/C/H/N, game minutes at 2x, state hash), then `mark` lines: after 3 deployments (first session), at 35 minutes of 2x play (Day 1), the first Foundry milestone (F25 since FO-3), last. File: `build/journey/<name>.csv`. Exit 0 ok, 2 bad arguments, script error or failed self-check. Run one Godot process at a time. Sources: `tools/journey_run.gd`, `tools/journey/*.gd`. The x1.75-per-25-levels milestone (was x1.25 per 10 before FO-3) is a code constant (`Curves`), not a `-Set` key.
 
 ## Results log: FO-2 journey study (2026-11-09, base main dce40fb, sim as of M4-15)
 
@@ -144,3 +144,20 @@ Journeys (seeds 1-16, greedy4 inside runs, all banked Data spent between runs):
 | roundrobin | w15 (592) | 45 min | w55, 8.4e3 | w84 |
 
 GDD: first session w20-25 and ~800 Data; Day 1 w35-45 and ~6e3 Data. Verdicts: first session PASS/FLAG (typical play 5 waves short, laser all-in on target); Day 1 FLAG (ahead by 10-17 waves, 25-75% more Data); waves per 300 Data FLAG for concentrated spends (laser 800 Data: +19 waves, 1.8x the design +4 per 300); week 1 / month 1 NOT ASSESSED - NO DATA (sector 1 only). Options measured with the same seeds (A income, B costs, C cap tied to best wave, D milestone reshape, E = D4 + C): see the report; proposed (not applied): x1.75 every 25 Foundry levels (instead of x1.25 every 10) plus a cap of max(3, floor(0.6 * best wave)) per row, which puts both the typical and the single-stat stacker at w35 on Day 1 with the long-run curve intact (late pace within 7%). Option D numbers were measured with `Curves.MILESTONE_FOUNDRY_*` and `FoundryRules.MILESTONE_STEP` temporarily edited and reverted.
+
+## Results log: FO-3 Foundry retune (2026-11-10, base main 552ecb1, SimVersion 4 to 5)
+
+Change under test: Foundry milestone x1.75 per 25 levels (was x1.25 per 10) and the best-wave level cap `max(3, floor(0.6 * best_wave_s1))` per row (GDD 05 s1.2, s1.5). Same seeds as FO-2 (journey seeds 1-16 and 101-116, VANGUARD TIMED, greedy4). Baseline numbers are the FO-2 report's (section 4.1 and 5, same tool and seeds; the tool's spending now goes through the real cap).
+
+| Journey (seed 1) | after 3 runs | at the first deployment ending after 35 min 2x | after 16 runs | FO-2 baseline (Day 1 / 16 runs) |
+|---|---|---|---|---|
+| VANGUARD recommended | w15 | w35 (39.4 min) | w76 (126 min) | w60 / w89 |
+| VANGUARD laser | w16 | w35 (39.7 min) | w84 (129 min) | w62 / w75 |
+| BULWARK recommended | w22 | w54 (38.5 min) | w84 | w59 / w100 |
+| STRIKER recommended | w15 | w59 (45.4 min) | w85 | w69 / w99 |
+| BULWARK laser | w25 | w69 (47.3 min) | w84 | w64 / - |
+| STRIKER laser | w22 | w55 (38.0 min) | w85 | w62 / - |
+| VANGUARD recommended, seeds 101+ | w16 | w36 (35.2 min) | w75 | w49 / w87 |
+| VANGUARD laser, seeds 101+ | w16 | w35 (36.9 min) | w75 | w65 / w75 |
+
+`balance_run` (20 seeds, greedy4, TIMED, VANGUARD): fresh p50 12 (target 12 PASS), `foundry_300` 16 (target 16 PASS), `foundry_1k` 24 (target 24 PASS; was 30). Frames with `foundry_1k` (`journey_run -ProfileFile ... -Frames`): fire rate 1.16 / 0.93 / 1.51 (1 : 0.80 : 1.30), hull 160 / 480 / 80 (1 : 3 : 0.5), plating 0 / 0.10 / 0; p50 24 / 28 / 28 (VANGUARD / BULWARK / STRIKER). The profile JSONs keep `best_wave_s1` 0 (they are applied directly to the config, not bought, so the cap does not touch them; they sit above the cap of a real profile and are grandfathered levels).
