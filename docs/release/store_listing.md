@@ -6,7 +6,7 @@ Changelog: 2026-11-09 v1.0 (B1-09, branch `b1-docs`). Refines the drafts in `PLA
 |---|---|---|
 | App name | 30 | 11 |
 | Short description | 80 | 76 |
-| Full description | 4,000 | 1,466 |
+| Full description | 4,000 | 1,506 |
 | Release notes (per release) | 500 | 351 |
 
 Changes from the guide's draft, each checked against the build:
@@ -44,7 +44,7 @@ WHAT YOU DO
 - Buy temporary upgrades with scrap during a deployment: laser output, fire rate, crits, range, hull, repair, plating and more.
 - Bank data between deployments and spend it in the Foundry on permanent upgrades.
 - Play TIMED waves that keep coming on a clock, then unlock PURGE waves that end only when the whole swarm is destroyed.
-- Pick a patch at wave 10 and shape the rest of the deployment.
+- Pick one of three patches at wave 5, and again as you go deeper, to shape the rest of the deployment.
 - Unlock frames (VANGUARD, BULWARK, STRIKER) that change how Cinder plays.
 - Watch Cinder's synthetic skin burn away as the pressure rises.
 
