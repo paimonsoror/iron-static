@@ -1,6 +1,6 @@
 # 08 - MVP Scope
 
-Changelog: 2026-11-07 - number type changed to BigNum for currency/cost values from ROADMAP M2 (section 5); milestone sequencing superseded by `docs/ROADMAP.md` (section 3 note); MVP gate = end of ROADMAP M5, where FC1-FC12 are run; N2 approved, N1/N3/N4 approved for Launch, N5 deferred.
+Changelog: 2026-11-10 - section 1.7: Skin Burn damage-taken hardening (x0.85 / x0.70 / x0.55 in bands 1 / 2 / 3) is the first band modifier, added by R1-05; the other modifiers stay out - 2026-11-07 - number type changed to BigNum for currency/cost values from ROADMAP M2 (section 5); milestone sequencing superseded by `docs/ROADMAP.md` (section 3 note); MVP gate = end of ROADMAP M5, where FC1-FC12 are run; N2 approved, N1/N3/N4 approved for Launch, N5 deferred.
 
 Purpose: the smallest playable build that proves the core loop is fun, playable on an Android emulator within the first few milestones. If this build is not fun, nothing else matters. The MVP deliberately contains **one sector, five enemies, ten run upgrades, two currencies, one meta screen and a small patch draft**.
 
@@ -46,7 +46,7 @@ Costs and multipliers per 05 section 1. Local persistent save (best wave, `data`
 - Portrait layout: battlefield top 56%, panel bottom 44% (07 section 2.1) with the three upgrade tabs and cost buttons, wave/scrap/integrity HUD, speed button (1x/2x), pause.
 - Home screen with DEPLOY and best wave; results screen; Foundry screen.
 - Machine-vision vector look with the palette in 07 (enemy outline red on dark fill, amber HUD, Cinder bright center, beam line). Procedural shapes only.
-- **Skin Burn visuals (N2, approved) included**: 12 skin wedges, four bands, embers and heartbeat/vignette at band 3. Modifiers (damage/regen bonuses) are NOT included in MVP (visual only).
+- **Skin Burn visuals (N2, approved) included**: 12 skin wedges, four bands, embers and heartbeat/vignette at band 3. Modifiers (damage/regen bonuses) are NOT included in MVP (visual only), with one exception added by R1-05 (2026-11-10, review G-03): the frame hardens as the skin burns, damage taken x0.85 / x0.70 / x0.55 in bands 1 / 2 / 3 (`burn_dr_b1..3`, 02 section 12.1).
 - Damage numbers per 07 section 5.5 (crit + milestone + cap rule).
 - FTUE minutes 0-10 per 07 section 3 (without Lab/notification beats).
 - Audio: placeholder SFX (laser shot, hit, enemy death, player hit, upgrade buy, wave start, boss warning, death, UI tap) and one looping ambient music track.

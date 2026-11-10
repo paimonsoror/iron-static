@@ -56,6 +56,9 @@ exposure_t1,0.75,gdd:02 s12.1,Integrity fraction at or below which band 1 starts
 exposure_t2,0.50,gdd:02 s12.1,Integrity fraction at or below which band 2 starts
 exposure_t3,0.25,gdd:02 s12.1,Integrity fraction at or below which band 3 starts
 exposure_hysteresis,0.05,gdd:02 s12.1,Fraction a band is left only after f exceeds threshold plus this
+burn_dr_b1,0.85,impl,Damage taken multiplier in skin burn band 1 (R1-05; the frame hardens as the skin burns)
+burn_dr_b2,0.70,impl,Damage taken multiplier in skin burn band 2 (R1-05)
+burn_dr_b3,0.55,impl,Damage taken multiplier in skin burn band 3 (R1-05)
 draft_first_wave,10,gdd:02 s10,Wave of the first patch draft
 draft_interval,10,gdd:02 s10,Waves between drafts up to draft_interval_after
 draft_interval_after,50,gdd:02 s10,Last wave of the short draft spacing

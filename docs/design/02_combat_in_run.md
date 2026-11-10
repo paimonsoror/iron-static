@@ -1,6 +1,6 @@
 # 02 - Combat and In-Run Systems
 
-Changelog: 2026-11-09 (Q54 early-curve retune, SimVersion 2: start scrap 60, laser_output and hull_integrity c0 10 / g 1.108, nano_repair p 0.60, plating_pct +0.06 per level at c0 20; see 03 section 4.7) - 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
+Changelog: 2026-11-10 (R1-05, SimVersion 6: 12.1 skin burn bands now harden the frame, damage taken x0.85 / x0.70 / x0.55 in bands 1 / 2 / 3, rows `burn_dr_b1..3` in `sim_constants.csv`; the first Skin Burn modifier; review G-03) - 2026-11-09 (Q54 early-curve retune, SimVersion 2: start scrap 60, laser_output and hull_integrity c0 10 / g 1.108, nano_repair p 0.60, plating_pct +0.06 per level at c0 20; see 03 section 4.7) - 2026-11-08 (M2-16: section 7.5 buying and recording rules, section 14 speed note) - 2026-11-07 (M1-26: section 6 implementation notes: flank probability, spawn carry-over, `next_wave_is_boss`, `damage_dealt`, integer `CINDER_HIT`) - novel mechanics N1-N4 approved at their scope tags; N5 deferred to post-launch (section 13). Wave timing, speed cap and caps here are the source of truth for TECH_ARCHITECTURE (720-tick wave at 30 Hz).
 
 All numbers are first-pass and **tunable** unless marked HARD (a rule, not a balance number). Borrowed mechanics are cited to the research notes: `[CIS n]` = combat_and_in_run_systems.md section n. "Changed" notes say what we altered and why.
 
@@ -273,7 +273,7 @@ Exposure Band recalculated after every integrity change.
 
 Defense effective HP: `eHP = (integrity + plating_flat) / (1 - plating_pct)` - displayed in Intel.
 
-### 12.1 Skin Burn: integrity bands (N2, APPROVED 2026-11-07; visuals MVP, modifiers Launch)
+### 12.1 Skin Burn: integrity bands (N2, APPROVED 2026-11-07; visuals MVP, modifiers Launch; damage-taken hardening live since R1-05)
 `f = integrity / max_integrity`
 | band id | Condition | Visual | Modifier (Launch) |
 |---|---|---|---|
@@ -281,6 +281,7 @@ Defense effective HP: `eHP = (integrity + plating_flat) / (1 - plating_pct)` - d
 | `exp_1` | 0.50 < f <= 0.75 | Scorch: 3 wedges char and flake, ember particles, small sparks | +6% damage, +20% nano_repair |
 | `exp_2` | 0.25 < f <= 0.50 | Exposed: 8 of 12 wedges gone, frame ribs visible, flicker | +12% damage, +40% nano_repair |
 | `exp_3` | f <= 0.25 | White-hot frame, cracked core outline, heartbeat pulse, red vignette | +18% damage, +60% nano_repair |
+**Hardening (R1-05, implemented; the frame hardens as the skin burns).** Damage Cinder takes is multiplied by `burn_dr_b1` 0.85, `burn_dr_b2` 0.70 and `burn_dr_b3` 0.55 in bands 1, 2 and 3 (band 0 takes full damage). It applies in `CinderState.apply_hit` after percent and flat plating (and the damage floor) and before the Bastion hit cap, so plating and the cap still count; the multiplier of the band at the start of the tick is used. The Intel Stats panel shows the current reduction. The damage and repair bonuses in the table above stay Launch.
 Bands change with 5% hysteresis (a band is re-entered only when f crosses back by 5%) to avoid flicker. Skin wedges do not regrow within a run when going down, but re-form one by one over 1.5 s when integrity returns to a better band. Cosmetic variants (Operation Pass) swap the wedge material (not the silhouette).
 
 ## 13. New mechanics (approved by the user on 2026-11-07, except N5)

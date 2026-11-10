@@ -6,7 +6,7 @@ extends RefCounted
 ## links (x1, +0) are left out. Frame and patches are separated by resolving the patch-only multipliers apart
 ## (`PatchEffects.compose(null, ...)`); the product of the two equals the combined multiplier the sim used.
 ## Numbers go through `NumberFormat`. Rows follow the upgrade table order with DPS after cycle rate, then the patch-only
-## stats (data yield always, enemy damage only when a patch changed it).
+## stats (data yield always, enemy damage only when a patch changed it), then the burn hardening row (R1-05).
 
 enum Kind { NUM, RATE, PCT, MULT, RANGE }
 
@@ -51,7 +51,20 @@ static func build(world: SimWorld) -> Array[IntelRow]:
 				_token("intel.stats.chain_patch", NumberFormat.format_mult(patch.enemy_damage_mult))
 			)
 		)
+	rows.append(_burn_row(world))
 	return rows
+
+
+## R1-05: the damage reduction of the current skin burn band (`CinderState.burn_damage_mult`), e.g. `-30%` in band 2.
+static func _burn_row(world: SimWorld) -> IntelRow:
+	var band: int = world.cinder.band
+	var mult: float = world.cinder.burn_damage_mult(world.config.tuning)
+	var value: String = Strings.get_text("intel.stats.burn_dr_none")
+	var chain: String = Strings.get_text("intel.stats.chain_burn_none")
+	if band > 0:
+		value = "-" + NumberFormat.format_percent(1.0 - mult)
+		chain = Strings.fill1("intel.stats.chain_burn_band", "v", str(band))
+	return IntelRow.new("burn_dr", Strings.get_text("intel.stats.burn_dr"), value, chain)
 
 
 ## Average damage per second against one target: output x rate x (1 + crit chance x (crit mult - 1)).

@@ -3,16 +3,18 @@ extends GdUnitTestSuite
 ## InputLog, RunRecord, ConfigHash and Replay (M2-07).
 
 const MAX_TICKS: int = 60000
+## SimVersion 6 (R1 Phase A): the config hashes changed (new tuning rows: burn_dr_b1..3 and, from R1-02, the
+## milestone and Foundry cap rows); the scripted runs are invulnerable and short, so the final hashes did not change.
 ## SimVersion 5 (FO-3): the Foundry milestone moved from x1.25 per 10 levels to x1.75 per 25 (`Curves`), so runs with
 ## Foundry levels differ; these goldens use no Foundry levels and the config hash (tuning, defs) did not change,
 ## so every golden hash below is unchanged.
-const GOLDEN_SIM_VERSION: int = 5
-const GOLDEN_CONFIG_HASH: String = "5e8c00f974d442707d6927bdd03404c8488aec3f03f2d4706b6b44f8ed1af2a4"
+const GOLDEN_SIM_VERSION: int = 6
+const GOLDEN_CONFIG_HASH: String = "dea824dfa734e4f319c7fde7840b6ee7b639d5d443c01d9459d3999f430ed0f5"
 const GOLDEN_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 ## SimVersion 2 final hash: unchanged by the 2 to 3 bump (M4-04), asserted separately.
 const SIM_V2_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 ## PURGE twin (M4-04): seed 7, invulnerable, same buys, real data via SimConfigLoader.apply_mode("purge").
-const GOLDEN_PURGE_CONFIG_HASH: String = "ee2d9937d40876d9cba8bb896fa96eab6475cd22f91e53123258c51b5ccb544d"
+const GOLDEN_PURGE_CONFIG_HASH: String = "2afb789c387fca3c7789aa7c483a2f5605992eeed968ed5ecd185ce0050140f4"
 const GOLDEN_PURGE_FINAL_HASH: String = "636348079d070790fd9139a8c72177f6931c9a237afcf06d09e3bea16dcd75f5"
 ## SimVersion 4 (M4-15): the config hashes changed (draft tuning and patch defs are hashed); the final hashes did not
 ## (3000 ticks end before the wave 10 draft, no patch picked).

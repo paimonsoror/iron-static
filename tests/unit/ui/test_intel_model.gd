@@ -80,6 +80,21 @@ func test_gamble_patch_adds_enemy_damage_row() -> void:
 	assert_str(r.value_text).is_equal(NumberFormat.format_mult(w.stats.enemy_damage))
 
 
+func test_burn_hardening_row_shows_the_current_reduction() -> void:
+	var w: SimWorld = _world()
+	var r: IntelRow = _row(IntelModel.build(w), "burn_dr")
+	assert_str(r.value_text).is_equal("NONE")
+	assert_str(r.chain_text).is_equal("SKIN INTACT: FULL DAMAGE")
+	w.cinder.band = 1
+	assert_str(_row(IntelModel.build(w), "burn_dr").value_text).is_equal("-15%")
+	w.cinder.band = 2
+	assert_str(_row(IntelModel.build(w), "burn_dr").value_text).is_equal("-30%")
+	w.cinder.band = 3
+	var r3: IntelRow = _row(IntelModel.build(w), "burn_dr")
+	assert_str(r3.value_text).is_equal("-45%")
+	assert_str(r3.chain_text).is_equal("SKIN BURN BAND 3")
+
+
 func test_build_never_mutates_the_sim() -> void:
 	var w: SimWorld = _world(2)
 	_pick(w, "patch_rate")
