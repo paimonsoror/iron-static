@@ -21,10 +21,16 @@ if (-not (Test-Path $gdIgnore)) { [System.IO.File]::WriteAllText($gdIgnore, "") 
 $AndroidSdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { "$env:LOCALAPPDATA\Android\Sdk" }
 $Adb = "$AndroidSdk\platform-tools\adb.exe"
 
+# Invoke-Godot starts the non-console exe. Its stdout and stderr are redirected to pipes here, so output is still
+# captured. The *_console.exe wrapper sometimes never exits after the real Godot has exited: `--headless --import`
+# hung in 3 of 6 runs, while this exe exited in 6 of 6, in about 13 s (2026-11-10). $Godot stays the console exe for
+# scripts that call it directly with `&`, because PowerShell does not wait for a GUI-subsystem exe in that case.
+$GodotNoConsole = $Godot -replace '_console\.exe$', '.exe'
+
 function Invoke-Godot {
     param([string[]]$ArgList, [int]$TimeoutSec = 300)
     $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = $Godot
+    $psi.FileName = if (Test-Path $GodotNoConsole) { $GodotNoConsole } else { $Godot }
     $all = @('--path', $RepoRoot) + $ArgList
     $psi.Arguments = ($all | ForEach-Object { if ($_ -match '\s') { '"' + $_ + '"' } else { $_ } }) -join ' '
     $psi.UseShellExecute = $false
