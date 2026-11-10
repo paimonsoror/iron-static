@@ -239,7 +239,10 @@ func start_debug_load(wave: int = 0) -> void:
 	if wave > 0:
 		debug_load_wave = wave
 	controller.paused = false
-	controller.start_run(RunController.DEFAULT_SEED, true, debug_load_wave)
+	# The load run follows the mode the player would get (`--mode` override, else the profile's last mode), so the
+	# stress scene can be measured in PURGE too (M4-28); a fresh profile stays TIMED.
+	var load_mode: String = RunMode.resolve(saves.profile, "", mode_override) if saves != null else mode_override
+	controller.start_run(RunController.DEFAULT_SEED, true, debug_load_wave, {}, 0, "", load_mode)
 	debug_load = true
 	Log.info("run started seed=%d" % controller.seed_value)
 	Log.info("debug load: wave=%d invulnerable" % debug_load_wave)
