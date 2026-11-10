@@ -40,6 +40,7 @@ Owner: **U** = user, **A** = agents.
 8. [ ] Listing text check: `store_listing.md` still matches the build (mode names TIMED/PURGE, frames VANGUARD/BULWARK/STRIKER, patch at wave 10, "no ads, no purchases, no account" still true). Lengths: name <= 30, short <= 80, full <= 4,000, release notes <= 500.
 9. [ ] Scans clean on the changed files: franchise/brand scan and profanity scan of `data/strings_en.csv` (commands below), no email pattern in the privacy page and the record files.
 10. [ ] Release notes written (what changed, what to test, known issues).
+    Optional: `tools\play_publish.ps1` can do this upload through the Play API (dry run by default, `--validate`, then `--commit`); setup and safety rules in `docs/release/play_publish.md`.
 11. [ ] **U** Upload the AAB to the chosen track (internal first, then closed/open per the guide). Read the warnings; read the pre-launch report when it arrives; any permission or SDK notice other than vibration means stop.
 12. [ ] Tag the release commit `v<versionName>` (local tag; the user pushes). Record the Play release date, track and versionCode in this file's log below.
 

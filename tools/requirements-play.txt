@@ -1,0 +1,25 @@
+# Pinned for tools/play_publish.py. Install into a venv OUTSIDE the repo:
+#   python -m venv C:\dev\tools\venvs\play
+#   C:\dev\tools\venvs\play\Scripts\python.exe -m pip install -r tools\requirements-play.txt
+google-api-python-client==2.202.0
+google-auth==2.62.2
+google-auth-httplib2==0.4.4
+google-api-core==2.44.0
+googleapis-common-protos==1.76.0
+httplib2==0.32.1
+uritemplate==4.2.0
+proto-plus==1.29.0
+protobuf==7.36.2
+pyasn1==0.6.5
+pyasn1_modules==0.4.2
+cryptography==50.0.2
+cffi==2.1.1
+pycparser==3.12
+requests==2.34.2
+urllib3==2.8.0
+idna==3.20
+charset-normalizer==3.5.2
+certifi==2026.10.23
+pyparsing==3.3.3
+typing_extensions==4.16.0
+opentelemetry-api==1.45.2
