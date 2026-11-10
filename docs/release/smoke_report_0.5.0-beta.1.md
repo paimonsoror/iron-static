@@ -145,6 +145,8 @@ The game was uninstalled from the emulator (`pm list packages` shows nothing for
 
 Order matters: installing a different build or uninstalling wipes the test save, so do the play session first and the optional debug build last.
 
+**Build for the phone session** (rebuilt 2026-11-10 on main d186adf, after the package rename): `build\release\ironstatic-0.5.0-beta.1-50001-TESTKEY.aab`, 58,935,656 B, sha256 `a456d8cfdb5a9f67b760cc33cfe2d02f4e33cfb0225469ddd05c7b117b1cf97a`. `aab_check` PASS; `bundletool dump manifest` shows `package="com.normalexception.games.ironstatic"`, versionCode 50001, versionName 0.5.0-beta.1; no `release/store` images in the bundle; `release/version.json` present. First uninstall any old `com.normalexception.game` install on the phone (a separate app).
+
 ### Checklist
 
 1. [ ] Plug in the phone, unlock it, accept the USB debugging prompt. Check `adb devices` lists `65211FDDJ001TH` as `device`. Note the model and Android version: `adb -s 65211FDDJ001TH shell getprop ro.product.model` and `... ro.build.version.release`. Page size: `adb -s 65211FDDJ001TH shell getconf PAGE_SIZE` (16384 on a 16 KB device).
