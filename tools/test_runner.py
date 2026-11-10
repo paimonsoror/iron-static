@@ -21,8 +21,13 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ANSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
-# Import errors that only mean another Godot process held a GDExtension library copy.
-TRANSIENT_IMPORT_RE = re.compile(r"~lib\S*\.(dll|so)|\.(dll|so)\b|GDExtension|dynamic library", re.IGNORECASE)
+# Import errors that pass on a retry: another Godot process held a GDExtension library copy, or the threaded
+# importer raced a notification ("The caller thread can't call the function `propagate_notification()`", CI runs
+# for 2fead82 and 1a94fc6, the second one after the canary warm-up import of ca0bc11).
+TRANSIENT_IMPORT_RE = re.compile(
+    r"~lib\S*\.(dll|so)|\.(dll|so)\b|GDExtension|dynamic library|caller thread can't call the function",
+    re.IGNORECASE,
+)
 ERROR_PATTERNS = [
     re.compile(p)
     for p in (
@@ -196,12 +201,12 @@ def run_pipeline(godot: str, project: Path, res_path: "str | list[str]", suite: 
 
     rc, imp = run_godot(godot, project, ["--import"], timeout)
     errs = scan_errors(imp, allow)
-    # Parallel runs can collide on the temp copy Godot makes of GDExtension DLLs (e.g.
-    # "Failed to open ...~libsentry...dll"); that is transient, so retry the import.
+    # Parallel runs can collide on the temp copy Godot makes of GDExtension DLLs (e.g. "Failed to open
+    # ...~libsentry...dll"), and CI sometimes hits a threaded-import race; both are transient, so retry the import.
     for attempt in range(2):
         if not errs or not all(TRANSIENT_IMPORT_RE.search(e) for e in errs):
             break
-        print(f"Transient GDExtension copy error during import; retrying ({attempt + 1}/2)")
+        print(f"Transient import error (GDExtension copy or threaded import); retrying ({attempt + 1}/2)")
         time.sleep(15)
         rc, imp = run_godot(godot, project, ["--import"], timeout)
         errs = scan_errors(imp, allow)
@@ -301,6 +306,11 @@ def self_test() -> int:
         (
             "transient dll copy matches",
             int(bool(TRANSIENT_IMPORT_RE.search("ERROR: Failed to open 'res://addons/sentry/bin/~libsentry.dll'."))),
+            1,
+        ),
+        (
+            "threaded import race matches",
+            int(bool(TRANSIENT_IMPORT_RE.search("ERROR: /root: The caller thread can't call the function `x()`"))),
             1,
         ),
         ("parse error is not transient", int(bool(TRANSIENT_IMPORT_RE.search("Parse Error: Expected ')'"))), 0),
