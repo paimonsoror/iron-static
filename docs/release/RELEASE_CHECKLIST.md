@@ -15,8 +15,8 @@ Owner: **U** = user, **A** = agents.
 - [ ] **A** B1-07 smoke test on the exact AAB: emulator and phone, report with AAB sha256.
 - [ ] **U** Real-phone smoke done: install, full run to Results and back, resume after killing the app, haptics, no black screen over 30 seconds.
 - [ ] **A** B1-05 privacy page merged to `main`, Pages workflow green. **U** `https://paimonsoror.github.io/iron-static/privacy/` loads in a private window.
-- [ ] **U** Placeholders filled in `site/docs/privacy.md`: `<DEVELOPER NAME>` (exactly as shown on Google Play) still open; the support email is filled (`support@normalexception.net`, 2026-11-09). No personal email committed anywhere (grep below).
-- [ ] **U** Public developer details decided (Q83): support email decided (`support@normalexception.net`, 2026-11-09); name and address shown on the store page and the EU trader status still open.
+- [x] **U** Placeholders filled in `site/docs/privacy.md` (2026-11-09): developer name `Paimon Sorornejad` (must match the name shown on Google Play) and support email `support@normalexception.net`. No personal email committed anywhere (grep below).
+- [ ] **U** Public developer details decided (Q83): developer name `Paimon Sorornejad` and support email `support@normalexception.net` decided 2026-11-09; the address shown on the store page and the EU trader status still open.
 - [ ] **U** Trademark and name search done (Q31): Google Play, USPTO, EUIPO, web, handles. Result recorded. Fallback name EMBER CHASSIS.
 - [x] **U** Package name final (Q79): `com.normalexception.game`, decided 2026-11-09 and applied to both presets, the tools and the docs (permanent after the first upload).
 - [ ] **U** Upload keystore created and **backed up in two places** (not in the repo, never pasted into chat); passwords in a password manager; only in `secrets.local.json` or environment variables locally.
