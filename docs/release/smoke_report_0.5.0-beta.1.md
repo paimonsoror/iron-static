@@ -18,6 +18,8 @@ Status: emulator half done 2026-11-10. Phone half is open and needs the user (se
 
 **Re-do item for the real upload AAB.** The upload keystore does not exist yet (user's open item), so this run proves the build pipeline and the content, not the file that will be uploaded. When the upload-key AAB exists, repeat on that file: (1) record its sha256 and compare with the `.sha256` next to it, (2) `tools\aab_check.ps1`, (3) `tools\aab_install.ps1 -Aab <file> -Serial emulator-5554 -Uninstall` (it uses the test or debug keystore for the local APK, never the upload key), (4) a short run to Results. The size and the content will not change, the signer will.
 
+**Upload-key AAB (built 2026-11-10 on main 413734f, clean tree, `toolselease_build.ps1`):** `buildelease\ironstatic-0.5.0-beta.1-50001.aab` (git-ignored), 56.21 MB, sha256 `edec05e775b7f5db9f1d61d14475c8963cd19e4e6fe3d875a95c65c227c871db` (matches its `.sha256`). Signer = the upload key, certificate SHA-256 `FF:38:E9:CC:47:E2:4A:42:70:0A:5F:C6:93:39:18:7E:44:B5:8E:9C:1A:CC:7B:52:4B:7A:05:16:80:EC:33:BC` (after the first upload, Play Console > App integrity > Upload key certificate must show the same value). Re-do items: (1) sha256 done, (2) `aab_check` PASS (same results as the test-key build), `play_publish release` dry run PASS (package `com.normalexception.games.ironstatic`, 50001, 0.5.0-beta.1, notes 356/500). (3) and (4) not run on the emulator: the local APK would be re-signed with the test key and carry the same content already tested above; the install of this file through the internal testing track (Google-signed APKs) replaces them and is recorded in the phone section.
+
 ## Emulator
 
 | Item | Value |
@@ -145,7 +147,7 @@ The game was uninstalled from the emulator (`pm list packages` shows nothing for
 
 Order matters: installing a different build or uninstalling wipes the test save, so do the play session first and the optional debug build last.
 
-**Build for the phone session** (rebuilt 2026-11-10 on main d186adf, after the package rename): `build\release\ironstatic-0.5.0-beta.1-50001-TESTKEY.aab`, 58,935,656 B, sha256 `a456d8cfdb5a9f67b760cc33cfe2d02f4e33cfb0225469ddd05c7b117b1cf97a`. `aab_check` PASS; `bundletool dump manifest` shows `package="com.normalexception.games.ironstatic"`, versionCode 50001, versionName 0.5.0-beta.1; no `release/store` images in the bundle; `release/version.json` present. First uninstall any old `com.normalexception.game` install on the phone (a separate app).
+**Build for the phone session** (rebuilt 2026-11-10 on main d186adf, after the package rename): `build\release\ironstatic-0.5.0-beta.1-50001-TESTKEY.aab`, 58,935,656 B, sha256 `a456d8cfdb5a9f67b760cc33cfe2d02f4e33cfb0225469ddd05c7b117b1cf97a`. `aab_check` PASS; `bundletool dump manifest` shows `package="com.normalexception.games.ironstatic"`, versionCode 50001, versionName 0.5.0-beta.1; no `release/store` images in the bundle; `release/version.json` present. First uninstall any old `com.normalexception.game` install on the phone (a separate app). Since testers install from Play (user decision 2026-11-10), the phone session can use the internal-track install of the upload-key AAB instead; a sideloaded test-key build of the same package must be uninstalled before Play can install over it (different signer).
 
 ### Checklist
 
