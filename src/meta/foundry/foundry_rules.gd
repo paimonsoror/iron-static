@@ -5,10 +5,17 @@ extends RefCounted
 ## so F = 200 stays finite.
 
 const EXACT_LIMIT: float = 1.0e15
-const MILESTONE_STEP: int = 10  ## Curves.MILESTONE_FOUNDRY_STEP
+const MILESTONE_STEP: int = Curves.MILESTONE_FOUNDRY_STEP
 const SUM_STEP_CAP: int = 300  ## total_cost sums at most this many levels exactly; more uses the closed form
 ## `recommended` considers a Type D row near a milestone when it is at most this many levels away.
 const NEAR_MILESTONE: int = 3
+## Best-wave level cap (FO-3, option E of docs/balance/foundry_early_power.md; GDD 05 section 1.5): a Foundry row can be
+## bought up to `max(CAP_MIN, floor(CAP_K * best_wave_s1))` levels, never above the row's own cap. Constants rather than
+## sim_constants.csv: the rule lives in the meta layer, which has no SimTuning, and keeping it out of the config hash
+## leaves the sim untouched by it.
+const CAP_K: float = 0.6
+const CAP_MIN: int = 3
+const CAP_EPS: float = 1.0e-9
 
 
 ## `ceil(fc0 * fg ^ level)` data for the step level -> level + 1.
@@ -27,6 +34,26 @@ static func level_cap(def: FoundryDef, run_def: RunUpgradeDef) -> int:
 	return def.f_cap
 
 
+## Levels a row may reach at `best_wave` (TIMED sector 1) before its own cap: `max(CAP_MIN, floor(CAP_K * best_wave))`.
+static func wave_cap(best_wave: int) -> int:
+	return maxi(CAP_MIN, floori(CAP_K * float(maxi(best_wave, 0)) + CAP_EPS))
+
+
+## The level a row can be bought up to now: `min(wave_cap(best_wave), level_cap)`. A profile above it keeps its levels.
+static func level_limit(def: FoundryDef, run_def: RunUpgradeDef, best_wave: int) -> int:
+	return mini(wave_cap(best_wave), level_cap(def, run_def))
+
+
+## Smallest best wave at which `wave_cap` reaches `target_level` (the N of "NEXT LEVEL AT WAVE N").
+static func wave_for_level(target_level: int) -> int:
+	if target_level <= CAP_MIN:
+		return 0
+	var w: int = maxi(ceili(float(target_level) / CAP_K) - 2, 0)
+	while wave_cap(w) < target_level:
+		w += 1
+	return w
+
+
 ## Type D: `Curves.foundry_mult`. Type C: the starting stat delta `step * F` (0 without `run_def`).
 static func multiplier(def: FoundryDef, level: int, run_def: RunUpgradeDef = null) -> float:
 	if def.kind == "D":
@@ -41,12 +68,12 @@ static func start_value(def: FoundryDef, run_def: RunUpgradeDef, level: int) -> 
 	return StatResolver.value_at(run_def, 0, level, def.f)
 
 
-## The next multiple of 10 above `level` (Type D milestone).
+## The next multiple of MILESTONE_STEP above `level` (Type D milestone).
 static func next_milestone(level: int) -> int:
 	return (floori(float(maxi(level, 0)) / float(MILESTONE_STEP)) + 1) * MILESTONE_STEP
 
 
-## Levels to the next x1.25 milestone: 1 at F9, 10 at F10. -1 for a Type C `def` (no milestones).
+## Levels to the next x1.75 milestone: 1 at F24, 25 at F25. -1 for a Type C `def` (no milestones).
 static func levels_to_milestone(level: int, def: FoundryDef = null) -> int:
 	if def != null and def.kind == "C":
 		return -1
@@ -81,21 +108,21 @@ static func max_affordable(def: FoundryDef, level: int, data: BigNum, cap_count:
 	return bought
 
 
-## Index of the "Recommended" row or -1 (Q58, impl): among Type D rows not maxed with at most
-## NEAR_MILESTONE levels to the next milestone the cheapest next level; else the cheapest affordable row;
-## else none. Ties go to the first row.
+## Index of the "Recommended" row or -1 (Q58, impl): among Type D rows not maxed and not capped by the best wave
+## with at most NEAR_MILESTONE levels to the next milestone the cheapest next level; else the cheapest affordable
+## row; else none. Capped rows are skipped (FO-3). Ties go to the first row.
 static func recommended(rows: Array[FoundryRowView]) -> int:
 	var best: int = -1
 	for i: int in rows.size():
 		var r: FoundryRowView = rows[i]
-		var near: bool = r.kind == "D" and not r.maxed and r.levels_to_milestone <= NEAR_MILESTONE
+		var near: bool = r.kind == "D" and not r.maxed and not r.capped and r.levels_to_milestone <= NEAR_MILESTONE
 		if near and (best < 0 or r.cost.lt(rows[best].cost)):
 			best = i
 	if best >= 0:
 		return best
 	for i: int in rows.size():
 		var r: FoundryRowView = rows[i]
-		if r.affordable and not r.maxed and (best < 0 or r.cost.lt(rows[best].cost)):
+		if r.affordable and not r.maxed and not r.capped and (best < 0 or r.cost.lt(rows[best].cost)):
 			best = i
 	return best
 

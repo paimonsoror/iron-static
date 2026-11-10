@@ -26,7 +26,7 @@ func test_laser_f0_to_f1_texts() -> void:
 	assert_str(m.value_text).is_equal("x1.00 -> x1.06")
 	assert_bool(m.delta_text.begins_with("+")).is_true()
 	assert_str(m.cost_text).is_equal("20")
-	assert_str(m.milestone_text).is_equal("MILESTONE F10  x1.25")
+	assert_str(m.milestone_text).is_equal("MILESTONE F25  x1.75")
 	assert_bool(m.affordable).is_false()
 	assert_str(m.value_line()).is_equal(m.value_text + "  " + m.delta_text)
 
@@ -78,7 +78,21 @@ func test_tooltips_carry_level_cost_and_cap() -> void:
 
 func test_recommended_flag_is_copied() -> void:
 	var p: PlayerProfile = _profile(1000)
-	p.set_foundry_level("laser_output", 8)
+	p.best_wave["1"] = 100
+	p.set_foundry_level("laser_output", 22)
 	var views: Array[FoundryRowView] = _service().rows(p)
 	assert_bool(FoundryRowModel.from_view(views[0], 0).recommended).is_true()
 	assert_bool(FoundryRowModel.from_view(views[2], 2).recommended).is_false()
+
+
+func test_capped_row_texts() -> void:
+	var p: PlayerProfile = _profile(1000)
+	p.best_wave["1"] = 10  # cap 6
+	p.set_foundry_level("laser_output", 6)
+	var m: FoundryRowModel = _model(p, 0)
+	assert_bool(m.capped).is_true()
+	assert_bool(m.affordable).is_false()
+	assert_bool(m.recommended).is_false()
+	assert_str(m.afford_text).is_equal("NEXT LEVEL AT WAVE 12")
+	assert_str(m.cost_text).is_equal("CAP")
+	assert_str(m.tooltip_text).contains("Reach wave 12")

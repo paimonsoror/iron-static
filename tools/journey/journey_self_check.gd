@@ -28,13 +28,9 @@ static func _report(check_name: String, ok: bool, detail: String = "") -> void:
 
 static func _check_args() -> void:
 	var good: JourneyArgs = JourneyArgs.parse(
-		PackedStringArray(
-			["--spend", "laser", "--deployments", "4", "--set", "sim.data_level_coef=0.03", "--cap-k", "1.5"]
-		)
+		PackedStringArray(["--spend", "laser", "--deployments", "4", "--set", "sim.data_level_coef=0.03"])
 	)
-	_report(
-		"args_parse", good.error.is_empty() and good.spend == "laser" and good.deployments == 4 and good.cap_k == 1.5
-	)
+	_report("args_parse", good.error.is_empty() and good.spend == "laser" and good.deployments == 4)
 	var bad_spend: JourneyArgs = JourneyArgs.parse(PackedStringArray(["--spend", "bogus"]))
 	var bad_set: JourneyArgs = JourneyArgs.parse(PackedStringArray(["--set", "sim.x"]))
 	var bad_flag: JourneyArgs = JourneyArgs.parse(PackedStringArray(["--nope", "1"]))
@@ -74,11 +70,9 @@ static func _check_overrides() -> void:
 	)
 
 
-static func _service(cap: int) -> FoundryService:
-	var args: JourneyArgs = JourneyArgs.new()
-	args.cap_k = 1.0 if cap > 0 else 0.0
-	var sim: JourneySim = JourneySim.new(args, JourneyOverrides.new())
-	return sim.make_service(cap)
+static func _service(wave_cap: bool) -> FoundryService:
+	var sim: JourneySim = JourneySim.new(JourneyArgs.new(), JourneyOverrides.new())
+	return sim.make_service(wave_cap)
 
 
 ## Every policy: spent Data equals the exact sum of the level costs, nothing is bought above the balance, and the
@@ -89,7 +83,7 @@ static func _check_spend_accounting() -> void:
 		var profile: PlayerProfile = PlayerProfile.fresh(0, "check")
 		profile.data = BigNum.from_float(1000.0)
 		var spender: JourneySpend = JourneySpend.new(policy)
-		var bought: int = spender.spend(profile, _service(0))
+		var bought: int = spender.spend(profile, _service(false))
 		var cost: float = BalanceSetup.foundry_cost(profile.foundry)
 		var left: float = profile.data.to_float()
 		var ok: bool = bought > 0 and absf((1000.0 - left) - cost) < 0.5 and left >= 0.0
@@ -110,17 +104,19 @@ static func _check_cap() -> void:
 	profile.data = BigNum.from_float(1.0e9)
 	var spender: JourneySpend = JourneySpend.new("roundrobin")
 	@warning_ignore("return_value_discarded")
-	spender.spend(profile, _service(4))
+	spender.spend(profile, _service(true))
 	var worst: int = 0
 	for id: String in profile.foundry.keys():
 		worst = maxi(worst, profile.foundry_level(id))
-	_report("cap_limits_every_row", worst == 4 and profile.foundry.size() == 4, "max level %d" % worst)
+	_report(
+		"cap_limits_every_row", worst == FoundryRules.CAP_MIN and profile.foundry.size() == 4, "max level %d" % worst
+	)
 
 
 ## The recommended policy's first purchase is the row `FoundryRules.recommended` flags (with the cheapest-affordable
 ## fallback on a fresh profile) and the glow moves to a milestone-near row once one is within 3 levels.
 static func _check_recommended_mirror() -> void:
-	var service: FoundryService = _service(0)
+	var service: FoundryService = _service(false)
 	var profile: PlayerProfile = PlayerProfile.fresh(0, "check")
 	profile.data = BigNum.from_float(25.0)
 	var rows: Array[FoundryRowView] = service.rows(profile)
@@ -129,7 +125,7 @@ static func _check_recommended_mirror() -> void:
 	@warning_ignore("return_value_discarded")
 	spender.spend(profile, service)
 	_report("recommended_matches_glow", rec >= 0 and profile.foundry_level(rows[rec].id) >= 1, "rec=%d" % rec)
-	profile.set_foundry_level("hull_integrity", 8)
+	profile.set_foundry_level("hull_integrity", FoundryRules.MILESTONE_STEP - 2)
 	rows = service.rows(profile)
 	rec = FoundryRules.recommended(rows)
 	_report("recommended_near_milestone", rec >= 0 and rows[rec].levels_to_milestone <= FoundryRules.NEAR_MILESTONE)

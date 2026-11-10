@@ -33,10 +33,11 @@ func _on_bought(idx: int, count: int) -> void:
 	_bought.append(Vector2i(idx, count))
 
 
-func _make(data: BigNum, maxed_laser: bool = false) -> PlayerProfile:
+func _make(data: BigNum, maxed_laser: bool = false, best_wave: int = 500) -> PlayerProfile:
 	var p: PlayerProfile = PlayerProfile.fresh(0, "test")
 	p.data = data
 	p.runs_total = 1
+	p.best_wave["1"] = best_wave
 	@warning_ignore("return_value_discarded")
 	FoundryIntroFlag.set_hidden(p, true)  # the explainer dialog would swallow the touches
 	if maxed_laser:
@@ -189,3 +190,17 @@ func test_row_body_tap_toggles_the_formula_tooltip() -> void:
 	_mouse(pos, true)
 	_mouse(pos, false)
 	assert_bool(row.is_tooltip_visible()).is_false()
+
+
+func test_a_hold_stops_at_the_best_wave_cap() -> void:
+	var p: PlayerProfile = _make(BigNum.from_float(1.0e12), false, 10)  # wave cap 6
+	await await_millis(60)
+	var row: FoundryRow = _screen.row_at(0)
+	var pos: Vector2 = _press(row)
+	for i: int in 60:
+		assert_int(i).is_greater_equal(0)
+		row.advance_hold(0.1)
+	_mouse(pos, false)
+	assert_int(p.foundry_level("laser_output")).is_equal(6)
+	assert_bool(row.buy_button().disabled).is_true()
+	assert_str(row.afford_text()).is_equal("NEXT LEVEL AT WAVE 12")

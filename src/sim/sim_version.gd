@@ -6,6 +6,6 @@ extends RefCounted
 ## Pure refactors and additions that leave every hash unchanged do not bump.
 ## `tests/sim/test_replay.gd` holds a golden hash of a scripted run and fails when it changes.
 
-## 4 = patches and the draft (M4-15), 2026-11-09; 3 = wave modes (TIMED/PURGE); 2 = M3 retune (Q54);
-## 1 = M2/M3 launch rules.
-const CURRENT: int = 4
+## 5 = Foundry milestone x1.75 every 25 levels (FO-3), 2026-11-09; 4 = patches and the draft (M4-15), 2026-11-09;
+## 3 = wave modes (TIMED/PURGE); 2 = M3 retune (Q54); 1 = M2/M3 launch rules.
+const CURRENT: int = 5

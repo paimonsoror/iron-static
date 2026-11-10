@@ -62,7 +62,9 @@ foundry.data,DATA {v}
 foundry.level,F{n}
 foundry.value,{a} -> {b}
 foundry.value_start,STARTS AT {v}
-foundry.milestone,MILESTONE F{n}  x1.25
+foundry.milestone,MILESTONE F{n}  x1.75
+foundry.capped,CAP
+foundry.next_at,NEXT LEVEL AT WAVE {n}
 foundry.max,MAX
 foundry.recommended,RECOMMENDED
 foundry.afford_now,AFFORDABLE
@@ -70,7 +72,8 @@ foundry.afford_in,~{v} TO AFFORD
 foundry.preview,NEXT RUN  PR {a} -> {b}
 foundry.deploy,DEPLOY
 foundry.back,BACK
-foundry.tooltip_d,"Permanent. Every deployment starts with this stat boosted by your Foundry level, plus x1.25 for every 10 levels. Level F{f}. Next level costs {cost} data. Cap F{cap}."
+foundry.tooltip_d,"Permanent. Every deployment starts with this stat boosted by your Foundry level, plus x1.75 for every 25 levels. Level F{f}. Next level costs {cost} data. Cap F{cap}."
+foundry.tooltip_cap,"Level limit F{cap} at your best wave. Reach wave {n} to unlock the next level."
 foundry.tooltip_c,"Permanent. Every deployment starts with free levels of this stat. Level F{f}. Next level costs {cost} data. Cap F{cap}."
 foundry.locked,COMPLETE A DEPLOYMENT TO UNLOCK
 results.best_delta,BEST {b}  (+{d})
@@ -304,6 +307,6 @@ foundry.intro.title,THE FOUNDRY
 foundry.intro.p1,PERMANENT UPGRADES. SCRAP UPGRADES RESET WHEN A DEPLOYMENT ENDS; FOUNDRY LEVELS STAY.
 foundry.intro.p2,PAID IN DATA FROM KILLS. IT IS BANKED WHEN A DEPLOYMENT ENDS - EVEN IF CINDER FALLS.
 foundry.intro.p3,EACH LEVEL RAISES YOUR STARTING STATS: EVERY DEPLOYMENT BEGINS STRONGER AND REACHES FURTHER.
-foundry.intro.p4,TAP A COST TO BUY ONE LEVEL. HOLD TO KEEP BUYING.
+foundry.intro.p4,TAP A COST TO BUY. HOLD TO KEEP BUYING. MORE LEVELS OPEN AS YOU REACH FURTHER WAVES.
 foundry.intro.hide,DON'T SHOW THIS AGAIN
 foundry.intro.ok,GOT IT

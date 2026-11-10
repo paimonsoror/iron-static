@@ -2,7 +2,7 @@
 # tools/journey_run.gd. stdout is deterministic ("JOURNEY ..." lines); TIMING and engine noise go to stderr.
 # Exit 0 ok, 2 script error, bad arguments or a failed self-check. Run ONE at a time (memory); never in parallel.
 # Usage: .\tools\journey_run.ps1 [-Spend cheapest|laser|recommended|roundrobin|none] [-Deployments 12] [-Seed 1] [-Waves 120]
-#        [-Frame vanguard] [-Mode timed|purge] [-RunPolicy greedy4] [-CapK 0] [-CapMin 3] [-Probe 0 -Runs 20] [-Name text]
+#        [-Frame vanguard] [-Mode timed|purge] [-RunPolicy greedy4] [-Probe 0 -Runs 20] [-Name text]
 #        [-ProfileFile tests/profiles/foundry_300.json] [-Frames] [-SkipImport] [-Set "sim.data_level_coef=0.03","foundry.laser_output.fc0=40"] [-SelfCheck]
 # Flags not listed are forwarded to the script as given (--flag value).
 [CmdletBinding(PositionalBinding = $false)]
@@ -14,8 +14,6 @@ param(
     [string]$Frame = "vanguard",
     [string]$Mode = "timed",
     [string]$RunPolicy = "greedy4",
-    [double]$CapK = 0,
-    [int]$CapMin = 3,
     [double]$Probe = 0,
     [int]$Runs = 20,
     [string]$Name = "",
@@ -53,7 +51,7 @@ $argList = @("--headless", "-s", "res://tools/journey_run.gd", "--")
 if ($SelfCheck) { $argList += "--self-check" }
 else {
     $argList += @("--spend", $Spend, "--deployments", "$Deployments", "--seed", "$Seed", "--waves", "$Waves",
-        "--frame", $Frame, "--mode", $Mode, "--run-policy", $RunPolicy, "--cap-k", "$CapK", "--cap-min", "$CapMin",
+        "--frame", $Frame, "--mode", $Mode, "--run-policy", $RunPolicy,
         "--runs", "$Runs")
     if ($Probe -gt 0) { $argList += @("--probe", "$Probe") }
     if ($Name) { $argList += @("--name", $Name) }

@@ -4,8 +4,8 @@ extends RefCounted
 
 const MILESTONE_RUN_STEP: int = 25  # run_factor: x1.5 every 25 levels (02 section 5)
 const MILESTONE_RUN_MULT: float = 1.5
-const MILESTONE_FOUNDRY_STEP: int = 10  # foundry_mult: x1.25 every 10 levels (05 section 1.2)
-const MILESTONE_FOUNDRY_MULT: float = 1.25
+const MILESTONE_FOUNDRY_STEP: int = 25  # foundry_mult: x1.75 every 25 levels (05 section 1.2, FO-3)
+const MILESTONE_FOUNDRY_MULT: float = 1.75
 
 
 ## Piecewise exponential growth (03 section 4.2). r1..r3 are growth factors per level;
@@ -47,7 +47,7 @@ static func run_factor(level: int, p: float) -> float:
 	return (1.0 + p * float(level)) * pow(MILESTONE_RUN_MULT, float(steps))
 
 
-## Foundry multiplier: (1 + f*F) * 1.25^floor(F/10).
+## Foundry multiplier: (1 + f*F) * 1.75^floor(F/25).
 static func foundry_mult(f_level: int, f: float) -> float:
 	var steps: int = floori(float(f_level) / float(MILESTONE_FOUNDRY_STEP))
 	return (1.0 + f * float(f_level)) * pow(MILESTONE_FOUNDRY_MULT, float(steps))

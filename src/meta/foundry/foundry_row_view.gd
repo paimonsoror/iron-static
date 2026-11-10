@@ -8,6 +8,12 @@ var kind: String = ""  ## "D" or "C"
 var level: int = 0
 var cap: int = 0
 var maxed: bool = false
+## Best-wave cap (FO-3): `limit` is the level the row can be bought up to now (`min(wave cap, cap)`); `capped` means
+## the row is not maxed but sits at or above `limit`; `next_wave` is the smallest best wave that lifts the limit by
+## one (0 when not capped). `level` is never lowered below what the profile owns.
+var limit: int = 0
+var capped: bool = false
+var next_wave: int = 0
 ## Cost of the next level (zero when maxed).
 var cost: BigNum = BigNum.zero()
 ## Foundry multiplier now / after one more level (Type D); for Type C the starting stat delta `step * F`.
@@ -19,7 +25,7 @@ var start_next: float = 0.0
 var delta: float = 0.0
 var affordable: bool = false
 var recommended: bool = false
-## Levels until the next x1.25 milestone (Type D); -1 for Type C and for maxed rows.
+## Levels until the next x1.75 milestone (Type D); -1 for Type C and for maxed rows.
 var levels_to_milestone: int = -1
 ## Game minutes at 1x until the next level is affordable: 0 when affordable now, -1 when unknown (no farm
 ## rate yet) or maxed.

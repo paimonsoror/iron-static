@@ -2,14 +2,14 @@ class_name JourneyArgs
 extends RefCounted
 ## Argument parsing for tools/journey_run.gd (FO-2). Flags: --spend cheapest|laser|recommended|roundrobin|none,
 ## --deployments N, --seed S, --waves W, --frame ID, --mode timed|purge, --run-policy greedy4|all|none,
-## --set key=value (repeatable in-memory override, see JourneyOverrides), --cap-k K, --cap-min M,
+## --set key=value (repeatable in-memory override, see JourneyOverrides),
 ## --probe DATA, --profile FILE.json, --frames, --runs N, --name TEXT, --self-check.
 
 const USAGE: String = (
 	"usage: journey_run [--spend cheapest|laser|recommended|roundrobin|none] [--deployments N] [--seed S]"
 	+ " [--waves W] [--frame ID] [--mode timed|purge] [--run-policy greedy4|all|none] [--set key=value]..."
-	+ " [--cap-k K] [--cap-min M] [--probe DATA] [--profile FILE.json] [--frames] [--runs N] [--name TEXT] [--self-check]"
-	+ "  (defaults: cheapest, 12, 1, 120, vanguard, timed, greedy4, no cap, 20 runs)"
+	+ " [--probe DATA] [--profile FILE.json] [--frames] [--runs N] [--name TEXT] [--self-check]"
+	+ "  (defaults: cheapest, 12, 1, 120, vanguard, timed, greedy4, 20 runs; the Foundry best-wave cap always applies)"
 )
 const SPEND_POLICIES: PackedStringArray = ["cheapest", "laser", "recommended", "roundrobin", "none"]
 const RUN_POLICIES: PackedStringArray = ["greedy4", "all", "none"]
@@ -23,9 +23,6 @@ var frame: String = "vanguard"
 var mode: String = "timed"
 var run_policy: String = "greedy4"
 var sets: PackedStringArray = PackedStringArray()
-## Option C prototype: Foundry level cap = max(cap_min, floor(cap_k * best wave)); 0 = no cap.
-var cap_k: float = 0.0
-var cap_min: int = 3
 ## > 0: probe mode, spend this much Data from a fresh profile and compare `runs` seeds against fresh.
 var probe: float = 0.0
 var runs: int = 20
@@ -80,14 +77,12 @@ func _take(flag: String, raw: String) -> String:
 				err = "--set needs key=number ('%s')" % raw
 			elif sets.append(raw):
 				err = "append failed"
-		"--cap-k", "--probe":
+		"--probe":
 			if not raw.is_valid_float() or raw.to_float() < 0.0:
 				err = "%s needs a number >= 0" % flag
-			elif flag == "--cap-k":
-				cap_k = raw.to_float()
 			else:
 				probe = raw.to_float()
-		"--deployments", "--seed", "--waves", "--cap-min", "--runs":
+		"--deployments", "--seed", "--waves", "--runs":
 			err = _take_int(flag, raw)
 		_:
 			err = "unknown argument '%s'" % flag
@@ -107,8 +102,6 @@ func _take_int(flag: String, raw: String) -> String:
 			seed_value = value
 		"--waves":
 			waves = value
-		"--cap-min":
-			cap_min = value
 		_:
 			runs = value
 	return ""

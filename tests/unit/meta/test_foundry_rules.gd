@@ -15,13 +15,16 @@ func _run_def(id: String) -> RunUpgradeDef:
 	return FoundryRules.find_run_def(SimConfigLoader.load_default(1).upgrades, id)
 
 
-func _row(kind: String, cost: int, to_milestone: int, affordable: bool, maxed: bool = false) -> FoundryRowView:
+func _row(
+	kind: String, cost: int, to_milestone: int, affordable: bool, maxed: bool = false, capped: bool = false
+) -> FoundryRowView:
 	var r: FoundryRowView = FoundryRowView.new()
 	r.kind = kind
 	r.cost = BigNum.from_int(cost)
 	r.levels_to_milestone = to_milestone
 	r.affordable = affordable
 	r.maxed = maxed
+	r.capped = capped
 	return r
 
 
@@ -47,13 +50,15 @@ func test_caps() -> void:
 
 
 func test_multipliers_match_gdd() -> void:
+	# GDD 05 s1.2 (FO-3): (1 + f*F) * 1.75^floor(F/25); hull f = 0.06 gives 4.4 / 12.3 / 65.7 / 1143.
 	var hull: FoundryDef = _def("hull_integrity")
-	assert_float(FoundryRules.multiplier(hull, 25)).is_equal_approx(3.9, 3.9 * 0.02)
-	assert_float(FoundryRules.multiplier(hull, 50)).is_equal_approx(12.2, 12.2 * 0.02)
-	# GDD 1.2 prints 3.4 for nano_repair F25; the formula (1 + 0.05 * 25) * 1.25^2 gives 3.516.
+	assert_float(FoundryRules.multiplier(hull, 24)).is_equal_approx(2.44, 1e-9)  # no bump before F25
+	assert_float(FoundryRules.multiplier(hull, 25)).is_equal_approx(4.375, 1e-9)
+	assert_float(FoundryRules.multiplier(hull, 50)).is_equal_approx(12.25, 1e-9)
+	assert_float(FoundryRules.multiplier(hull, 100)).is_equal_approx(65.66, 0.01)
+	assert_float(FoundryRules.multiplier(hull, 200)).is_equal_approx(1143.5, 0.5)
 	var nano: FoundryDef = _def("nano_repair")
-	assert_float(FoundryRules.multiplier(nano, 25)).is_equal_approx(2.25 * 1.5625, 1e-9)
-	assert_float(FoundryRules.multiplier(nano, 25)).is_equal_approx(3.4, 3.4 * 0.04)
+	assert_float(FoundryRules.multiplier(nano, 25)).is_equal_approx(2.25 * 1.75, 1e-9)
 
 
 func test_type_c_multiplier_is_start_delta() -> void:
@@ -68,11 +73,40 @@ func test_start_value_uses_the_resolver() -> void:
 
 
 func test_milestones() -> void:
-	assert_int(FoundryRules.levels_to_milestone(9)).is_equal(1)
-	assert_int(FoundryRules.levels_to_milestone(10)).is_equal(10)
-	assert_int(FoundryRules.levels_to_milestone(0)).is_equal(10)
-	assert_int(FoundryRules.next_milestone(10)).is_equal(20)
-	assert_int(FoundryRules.levels_to_milestone(9, _def("cycle_rate"))).is_equal(-1)
+	assert_int(FoundryRules.MILESTONE_STEP).is_equal(Curves.MILESTONE_FOUNDRY_STEP)
+	assert_int(FoundryRules.levels_to_milestone(24)).is_equal(1)
+	assert_int(FoundryRules.levels_to_milestone(25)).is_equal(25)
+	assert_int(FoundryRules.levels_to_milestone(0)).is_equal(25)
+	assert_int(FoundryRules.next_milestone(25)).is_equal(50)
+	assert_int(FoundryRules.levels_to_milestone(24, _def("cycle_rate"))).is_equal(-1)
+
+
+func test_wave_cap_formula() -> void:
+	assert_int(FoundryRules.wave_cap(0)).is_equal(3)  # cap_min floor
+	assert_int(FoundryRules.wave_cap(5)).is_equal(3)
+	assert_int(FoundryRules.wave_cap(6)).is_equal(3)
+	assert_int(FoundryRules.wave_cap(10)).is_equal(6)
+	assert_int(FoundryRules.wave_cap(15)).is_equal(9)
+	assert_int(FoundryRules.wave_cap(35)).is_equal(21)
+	assert_int(FoundryRules.wave_cap(100)).is_equal(60)
+	assert_int(FoundryRules.wave_cap(-4)).is_equal(3)
+
+
+func test_level_limit_never_exceeds_the_row_cap() -> void:
+	var cycle: FoundryDef = _def("cycle_rate")  # row cap 50
+	assert_int(FoundryRules.level_limit(cycle, _run_def("cycle_rate"), 0)).is_equal(3)
+	assert_int(FoundryRules.level_limit(cycle, _run_def("cycle_rate"), 60)).is_equal(36)
+	assert_int(FoundryRules.level_limit(cycle, _run_def("cycle_rate"), 500)).is_equal(50)
+
+
+func test_wave_for_level_is_the_smallest_best_wave() -> void:
+	assert_int(FoundryRules.wave_for_level(3)).is_equal(0)
+	for target: int in range(4, 120):
+		var w: int = FoundryRules.wave_for_level(target)
+		assert_int(FoundryRules.wave_cap(w)).is_greater_equal(target)
+		assert_int(FoundryRules.wave_cap(w - 1)).is_less(target)
+	assert_int(FoundryRules.wave_for_level(4)).is_equal(7)
+	assert_int(FoundryRules.wave_for_level(10)).is_equal(17)
 
 
 func test_total_cost_and_max_affordable() -> void:
@@ -108,3 +142,12 @@ func test_recommended_falls_back_to_cheapest_affordable_then_none() -> void:
 	assert_int(FoundryRules.recommended(none)).is_equal(-1)
 	var maxed: Array[FoundryRowView] = [_row("D", 0, -1, false, true)]
 	assert_int(FoundryRules.recommended(maxed)).is_equal(-1)
+
+
+func test_recommended_skips_capped_rows() -> void:
+	var rows: Array[FoundryRowView] = [
+		_row("D", 5, 1, false, false, true), _row("D", 40, 20, true), _row("D", 10, 2, false, false, true)
+	]
+	assert_int(FoundryRules.recommended(rows)).is_equal(1)
+	var all_capped: Array[FoundryRowView] = [_row("D", 5, 1, false, false, true)]
+	assert_int(FoundryRules.recommended(all_capped)).is_equal(-1)

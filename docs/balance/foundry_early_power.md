@@ -1,6 +1,8 @@
 # Foundry early-power study (FO-2)
 
-Date: 2026-11-09. Branch `m4-foundry-balance`, based on `main` dce40fb (SimVersion as of M4-15). Tool: `tools/journey_run.ps1` (documented in `docs/setup/balance_run.md`, section "Journey simulator"). Nothing in `data/*.csv`, `src/` or the GDD was changed; every option below is a measurement of an in-memory override or of a temporarily edited constant (list in section 9). **The numbers in section 7 are a PROPOSAL; the user chooses.**
+Date: 2026-11-09. Branch `m4-foundry-balance`, based on `main` dce40fb (SimVersion as of M4-15). Tool: `tools/journey_run.ps1` (documented in `docs/setup/balance_run.md`, section "Journey simulator"). Nothing in `data/*.csv`, `src/` or the GDD was changed; every option below is a measurement of an in-memory override or of a temporarily edited constant (list in section 9). **The numbers in section 7 were a PROPOSAL; the user chose option E on 2026-11-09 (see the Decision line below).**
+
+**Decision: the user chose option E on 2026-11-09; implemented in FO-3.** Real implementation, same seeds, journey VANGUARD TIMED: `recommended` best wave 15 after 3 runs, w35 at the first deployment ending after 35 min of 2x play (39.4 min), w53 at the next, w76 after 16 runs; `laser` w16 / w35 (39.7 min) / w84. Baseline was w60 / w62 on Day 1 (section 4.1); late pace -15% (recommended, 89 to 76) and +12% (laser, 75 to 84). `balance_run` fresh 12, `foundry_300` 16, `foundry_1k` 24 (was 30). Details in `docs/setup/balance_run.md` (results log FO-3) and the FO-3 commit.
 
 ## 1. Question
 

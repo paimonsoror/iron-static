@@ -45,8 +45,7 @@ func run() -> Array[Dictionary]:
 		if not profile.bank_run(summary):
 			push_error("JourneySim: bank_run refused run %d" % dep)
 		var data_in: BigNum = profile.data
-		var cap: int = level_cap(profile.best_wave_of_mode(args.mode, 1))
-		var bought: int = spender.spend(profile, make_service(cap))
+		var bought: int = spender.spend(profile, make_service())
 		var earned: float = data_run.to_float()
 		cum_data += earned
 		cum_ticks += run_ticks
@@ -67,7 +66,7 @@ func run() -> Array[Dictionary]:
 					"spent": data_in.to_float() - profile.data.to_float(),
 					"left": profile.data.to_float(),
 					"bought": bought,
-					"cap": cap,
+					"cap": FoundryRules.wave_cap(profile.best_wave_s1()),
 					"levels": profile.foundry.duplicate(),
 					"minutes_1x": float(run_ticks) / float(Ticks.TICK_RATE) / 60.0,
 					"cum_min_1x": float(cum_ticks) / float(Ticks.TICK_RATE) / 60.0,
@@ -86,24 +85,12 @@ func frame_for(best: int) -> String:
 	return args.frame if best >= gate else "vanguard"
 
 
-## Foundry level cap for the Option C prototype (0 = none).
-func level_cap(best: int) -> int:
-	if args.cap_k <= 0.0:
-		return 0
-	return maxi(args.cap_min, floori(args.cap_k * float(best)))
-
-
-## The service for one spending phase. `cap` > 0 lowers every row's level cap (Type D `f_cap`; Type C through
-## the matching run row's `l_cap` on a private upgrade copy, since the cap there is `floor(l_cap / 2)`).
-func make_service(cap: int) -> FoundryService:
-	var defs: Array[FoundryDef] = overrides.foundry_defs()
-	var upgrades: Array[RunUpgradeDef] = SimConfigLoader.load_default(0).upgrades
-	if cap > 0:
-		for def: FoundryDef in defs:
-			def.f_cap = mini(def.f_cap, cap)
-		for up: RunUpgradeDef in upgrades:
-			up.l_cap = mini(up.l_cap, 2 * cap)
-	return FoundryService.new(defs, upgrades)
+## The service for one spending phase. The real best-wave level cap (FO-3, `FoundryRules.wave_cap`) applies unless
+## `wave_cap` is false (the probe spends on a fresh profile with no best wave).
+func make_service(wave_cap: bool = true) -> FoundryService:
+	var service: FoundryService = FoundryService.new(overrides.foundry_defs(), SimConfigLoader.load_default(0).upgrades)
+	service.wave_cap_enabled = wave_cap
+	return service
 
 
 ## SimConfig of one deployment with overrides and the profile's Foundry levels applied.

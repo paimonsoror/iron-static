@@ -3,7 +3,10 @@ extends GdUnitTestSuite
 ## InputLog, RunRecord, ConfigHash and Replay (M2-07).
 
 const MAX_TICKS: int = 60000
-const GOLDEN_SIM_VERSION: int = 4
+## SimVersion 5 (FO-3): the Foundry milestone moved from x1.25 per 10 levels to x1.75 per 25 (`Curves`), so runs with
+## Foundry levels differ; these goldens use no Foundry levels and the config hash (tuning, defs) did not change,
+## so every golden hash below is unchanged.
+const GOLDEN_SIM_VERSION: int = 5
 const GOLDEN_CONFIG_HASH: String = "5e8c00f974d442707d6927bdd03404c8488aec3f03f2d4706b6b44f8ed1af2a4"
 const GOLDEN_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 ## SimVersion 2 final hash: unchanged by the 2 to 3 bump (M4-04), asserted separately.

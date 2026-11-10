@@ -1,6 +1,6 @@
 # 04 - Economy
 
-Changelog: 2026-11-08 - M2-16: (impl) rules from the M2 build folded in (section 2.1 scrap rounding and interest cap, section 5 BigNum text/parse/rounding). 2026-11-07 - Standby Patrol (section 4) approved by the user; number type (section 5) changed to BigNum for currency/cost values; Gauntlet-related sources are P1 (06 section 0).
+Changelog: 2026-11-09 - FO-3: note under the section 3 table (Foundry level cap by best wave). 2026-11-08 - M2-16: (impl) rules from the M2 build folded in (section 2.1 scrap rounding and interest cap, section 5 BigNum text/parse/rounding). 2026-11-07 - Standby Patrol (section 4) approved by the user; number type (section 5) changed to BigNum for currency/cost values; Gauntlet-related sources are P1 (06 section 0).
 
 Citations: `[ECON n]` = economy_monetization_liveops.md section n; `[META]` = meta_progression_systems.md. Target: **5 currencies**. The Tower has about 10 (Cash, Coins, Gems, Power Stones, Medals, Elite Cells, Keys, Tokens, Bits, Shards) [ECON 1]; "too many currencies for too many purposes" is a repeated complaint [ECON 7]. All earn-rate targets are first-pass and tunable; the later headless simulation must reproduce the cumulative targets in section 3.
 
@@ -70,7 +70,7 @@ Assumed play: engaged free player, 3 sessions/day, ~35 minutes active play/day, 
 | `flux` (cumulative) | 150 | 700 | 2,400 | 13,000 | D1 includes ~60 tutorial/starter bonus |
 | `cipher` (cumulative) | 0 | 15 | 150 | 2,500 | Gauntlet unlocks at S1 w60, about day 4 |
 | `merit` (cumulative) | 0 | 20 | 500 | 5,000 | Incursions unlock at S1 w70 |
-| Foundry levels (avg of 8 core stats) | 14 | 55 | 100 | 185 | cost `20 * 1.1^F` per level |
+| Foundry levels (avg of 8 core stats) | 14 | 55 | 100 | 185 | cost `20 * 1.1^F` per level; from FO-3 limited to `max(3, floor(0.6 * best_s1))` levels per row (05 section 1.5, Day 1 at w35-45 allows F21-27) |
 | Typical best sector/wave | S1 w40 | S2 w45 | S5 w50 | S9 w120 | see 03 section 6 (to be re-validated) |
 
 Intended pacing checks:

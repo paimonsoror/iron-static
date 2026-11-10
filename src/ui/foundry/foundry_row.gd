@@ -64,6 +64,7 @@ func apply_foundry(model: FoundryRowModel) -> void:
 	_afford_label.visible = model.afford_text != ""
 	_afford_label.add_theme_color_override("font_color", Palette.AMBER_GLOW if model.affordable else Palette.TEXT_DIM)
 	_tag.visible = model.recommended
+	_buy_button.disabled = model.maxed or model.capped  # a capped row cannot be pressed at all (FO-3)
 	if _state == CostState.AFFORDABLE:
 		_buy_button.icon = _data_icon
 

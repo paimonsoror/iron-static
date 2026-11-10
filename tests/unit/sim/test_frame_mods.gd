@@ -95,7 +95,7 @@ func test_frame_stats_include_foundry_on_top() -> void:
 	cfg.foundry_levels = lv
 	cfg.foundry_f = ff
 	var w: SimWorld = SimWorld.new(cfg)
-	assert_float(w.stats.hull_integrity).is_equal_approx(100.0 * 1.6 * 1.6 * 1.25, 1.0e-9)
+	assert_float(w.stats.hull_integrity).is_equal_approx(100.0 * 1.6 * 1.6, 1.0e-9)
 
 
 func test_frame_config_hash_differs_and_is_pinned_for_neutral() -> void:

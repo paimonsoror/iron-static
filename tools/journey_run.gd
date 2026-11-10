@@ -58,11 +58,10 @@ func _fail(message: String) -> void:
 
 
 func _header(args: JourneyArgs, overrides: JourneyOverrides, what: String) -> String:
-	var cap: String = "none" if args.cap_k <= 0.0 else "k=%s,min=%d" % [args.cap_k, args.cap_min]
 	var sets: String = "none" if overrides.is_empty() else overrides.describe()
 	return (
-		"JOURNEY %s spend=%s frame=%s mode=%s run_policy=%s seed=%d waves=%d cap=%s set=%s"
-		% [what, args.spend, args.frame, args.mode, args.run_policy, args.seed_value, args.waves, cap, sets]
+		"JOURNEY %s spend=%s frame=%s mode=%s run_policy=%s seed=%d waves=%d set=%s"
+		% [what, args.spend, args.frame, args.mode, args.run_policy, args.seed_value, args.waves, sets]
 	)
 
 
@@ -150,7 +149,7 @@ func _print_marks(records: Array[Dictionary]) -> void:
 			if first_ms < 0 and level >= FoundryRules.MILESTONE_STEP:
 				first_ms = i
 	_mark("at_35_min_2x", records, day_one)
-	_mark("first_x1.25_milestone", records, first_ms)
+	_mark("first_milestone", records, first_ms)
 	_mark("last", records, records.size() - 1)
 
 
