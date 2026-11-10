@@ -20,7 +20,7 @@ Changes from the guide's draft, each checked against the build:
 
 ## Fields
 
-- **App name:** `IRON STATIC`
+- **App name:** `Iron Static` (mixed case to match the Android launcher label, user 2026-11-09; the in-game logo keeps its all-caps art)
 - **Default language:** English (United States). **App or game:** Game. **Free or paid:** Free.
 - **Category:** Game > Strategy. **Tags** (only those Play offers, up to 5): Strategy, Idle, Tower defense, Sci-fi, Offline.
 - **Developer name:** `Paimon Sorornejad` (decided 2026-11-09, Q83; must match the privacy page).

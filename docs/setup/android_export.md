@@ -6,7 +6,7 @@ Changelog: 2026-11-07 v1.0 (M0-07). Gradle switched on in M0-09, see `gradle_bui
 
 | Option | Value |
 |---|---|
-| `package/unique_name` / `package/name` | `com.normalexception.game` / `IRON STATIC` |
+| `package/unique_name` / `package/name` | `com.normalexception.game` / `Iron Static` (launcher label; mixed case, user 2026-11-09) |
 | `version/code` / `version/name` | `1` / `0.0.1` |
 | architectures | arm64-v8a and x86_64 on; armeabi-v7a and x86 off |
 | `screen/immersive_mode` | `true` |

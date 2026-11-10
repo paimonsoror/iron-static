@@ -85,7 +85,7 @@ Play requires a privacy policy URL even if you collect nothing.
 ## 7. Phase 4 - Create the app (YOU)
 
 1. [ ] Play Console > **Create app**.
-2. [ ] App name: `IRON STATIC`. Default language: English (United States). App or game: **Game**. Free or paid: **Free**. Tick the declarations (Developer Program Policies, US export laws). Create.
+2. [ ] App name: `Iron Static`. Default language: English (United States). App or game: **Game**. Free or paid: **Free**. Tick the declarations (Developer Program Policies, US export laws). Create.
 3. [ ] On the **Dashboard**, the "Set up your app" list is your to-do list. The next phases fill it in. (If you are on Path B, the testing-requirement card shows here too.)
 
 ## 8. Phase 5 - App content declarations (YOU)
@@ -123,7 +123,7 @@ Play Console > **Grow users > Store presence > Main store listing** (or "Store p
 
 **Texts (drafts; change what you like, keep within the limits):**
 
-- App name (30 max): `IRON STATIC`
+- App name (30 max): `Iron Static`
 - Short description (80 max, this draft is 76): `Auto-fire a laser, buy upgrades, hold the line. An idle sci-fi defense game.`
 - Full description (4,000 max):
 
