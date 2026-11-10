@@ -29,6 +29,7 @@ func run() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	var cum_data: float = 0.0
 	var cum_ticks: int = 0
+	var streak: int = 0
 	for dep: int in range(args.deployments):
 		var best: int = profile.best_wave_of_mode(args.mode, 1)
 		var frame_id: String = frame_for(best)
@@ -47,6 +48,8 @@ func run() -> Array[Dictionary]:
 		var data_in: BigNum = profile.data
 		var bought: int = spender.spend(profile, make_service())
 		var earned: float = data_run.to_float()
+		var best_after: int = profile.best_wave_of_mode(args.mode, 1)
+		streak = JourneyPacing.next_streak(streak, best_after > best)
 		cum_data += earned
 		cum_ticks += run_ticks
 		ticks_total += run_ticks
@@ -60,7 +63,9 @@ func run() -> Array[Dictionary]:
 					"best_before": best,
 					"death_wave": death_wave,
 					"capped": res["capped"],
-					"best_after": profile.best_wave_of_mode(args.mode, 1),
+					"best_after": best_after,
+					"no_best_streak": streak,
+					"data_unspent": profile.data.to_float(),
 					"data": earned,
 					"cum_data": cum_data,
 					"spent": data_in.to_float() - profile.data.to_float(),

@@ -2,18 +2,19 @@ class_name BalanceRunArgs
 extends RefCounted
 ## Argument parsing and target comparison for tools/balance_run.gd (M2-14). Kept out of the tool script so
 ## it is unit-testable. Flags: --profile fresh|<json path>, --waves W, --runs N, --seed S,
-## --policy greedy4|all|none, --sector K, --frame ID|all (M3-24), --mode timed|purge (M4-10).
+## --policy greedy4|all|none|cheapest|random, --sector K, --frame ID|all (M3-24), --mode timed|purge (M4-10).
 
 const USAGE: String = (
 	"usage: balance_run [--profile fresh|FILE.json] [--waves W] [--runs N] [--seed S]"
-	+ " [--policy greedy4|all|none|only:ID] [--sector K] [--frame ID|all]"
+	+ " [--policy greedy4|all|none|cheapest|random|only:ID] [--sector K] [--frame ID|all]"
 	+ " [--mode timed|purge]  (defaults: fresh, 100, 20, 1, greedy4, 1, vanguard, timed)"
 )
 const DEFAULT_WAVES: int = 100
 const DEFAULT_RUNS: int = 20
 const DEFAULT_SEED: int = 1
 ## `none` never buys (only the starting stats matter; M3-24).
-const POLICIES: PackedStringArray = ["greedy4", "all", "none"]
+## `cheapest` and `random` (R1-01) are the honesty-check buyers: every visible row, cheapest first / random affordable.
+const POLICIES: PackedStringArray = ["greedy4", "all", "none", "cheapest", "random"]
 ## `only:<row id>` buys just that run-upgrade row (check of early hull, plating and repair purchases).
 const ONLY_PREFIX: String = "only:"
 const FRAME_ALL: String = "all"
@@ -70,7 +71,7 @@ static func parse(args: PackedStringArray) -> BalanceRunArgs:
 					out.sector = value
 		elif flag == "--policy":
 			if not POLICIES.has(raw) and not raw.begins_with(ONLY_PREFIX):
-				out.error = "--policy must be greedy4, all, none or only:<row id>"
+				out.error = "--policy must be greedy4, all, none, cheapest, random or only:<row id>"
 				return out
 			out.policy = raw
 		elif flag == "--mode":

@@ -15,6 +15,7 @@ static func run() -> int:
 	_check_cap()
 	_check_recommended_mirror()
 	_check_journey()
+	_check_pacing()
 	_check_probe()
 	print("JOURNEY SELFCHECK %s" % ("PASS" if _failed == 0 else "FAIL"))
 	return 0 if _failed == 0 else 2
@@ -171,6 +172,26 @@ static func _check_journey() -> void:
 	)
 	var cfg: SimConfig = sim_b.make_config(7, 0, {"laser_output": 5}, "vanguard")
 	_report("levels_reach_config", cfg.foundry_levels.size() > 0 and cfg.foundry_levels[0] == 5)
+
+
+## R1-01 pacing columns: the streak counts deployments since the last new best, the unspent column is the Data left.
+static func _check_pacing() -> void:
+	var args: JourneyArgs = JourneyArgs.parse(PackedStringArray(["--deployments", "4", "--waves", "8", "--seed", "5"]))
+	var records: Array[Dictionary] = JourneySim.new(args, JourneyOverrides.new()).run()
+	var ok: bool = records.size() == 4
+	var expect: int = 0
+	for r: Dictionary in records:
+		var best_before: int = r["best_before"]
+		var best_after: int = r["best_after"]
+		expect = JourneyPacing.next_streak(expect, best_after > best_before)
+		var streak: int = r["no_best_streak"]
+		var unspent: float = r["data_unspent"]
+		var left: float = r["left"]
+		ok = ok and streak == expect and absf(unspent - left) < 0.001
+	_report("pacing_columns", ok)
+	var worst: Dictionary = JourneyPacing.max_unspent(records)
+	var ratio: float = worst["ratio"]
+	_report("pacing_summary", ratio >= 0.0 and JourneyPacing.max_streak(records) <= 4)
 
 
 ## Probe mode on the checked-in foundry_300 profile: runs, prints, and the profile's cost matches the file's total.

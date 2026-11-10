@@ -1,6 +1,6 @@
 # Balance runner (`tools/balance_run.ps1`, M2-14)
 
-Changelog: 2026-11-09 (M4-15: the draft pick policy, section "Patch drafts") - 2026-11-09 (M4-10: `-Mode timed|purge`, `mode` column in targets.csv, PURGE row) - 2026-11-09 (`--policy only:<row id>`, Q54 retune) - 2026-11-08 (M3-08, M3-24: Foundry profiles, `--frame`, `--policy none`, frames table, mean line, frame tuning log) - 2026-11-07 created (M2-14).
+Changelog: 2026-11-10 (R1-01: `-Policy cheapest|random`, the report-only "optimizer vs random on fresh" line, journey `streak`/`unspent` columns, the pacing summary and the `journey` rows of targets.csv) - 2026-11-09 (M4-15: the draft pick policy, section "Patch drafts") - 2026-11-09 (M4-10: `-Mode timed|purge`, `mode` column in targets.csv, PURGE row) - 2026-11-09 (`--policy only:<row id>`, Q54 retune) - 2026-11-08 (M3-08, M3-24: Foundry profiles, `--frame`, `--policy none`, frames table, mean line, frame tuning log) - 2026-11-07 created (M2-14).
 
 The standard "did I break the economy" check (TECH_ARCHITECTURE 10.3). Required in the definition of
 done for every economy or sim change: paste the output in the commit message and compare it to
@@ -18,7 +18,7 @@ done for every economy or sim change: paste the output in the commit message and
 | `-Waves` | 100 | cap: a run that is still alive after this wave reports death wave = cap |
 | `-Runs` | 20 | seeds are `Seed .. Seed+Runs-1` |
 | `-Seed` | 1 | first seed |
-| `-Policy` | `greedy4` | `PolicyBot` policy: `greedy4`, `all`, `none` (never buys: only the starting stats matter, M3-24) or `only:<row id>` (buys only that run-upgrade row, e.g. `only:hull_integrity`; used in the Q54 retune to check that early hull, plating and repair purchases extend runs; a gated row such as `plating_pct`, best wave 10, needs a profile whose `best_wave_s1` has unlocked it) |
+| `-Policy` | `greedy4` | `PolicyBot` policy: `greedy4`, `all`, `none` (never buys: only the starting stats matter, M3-24), `cheapest` or `random` (R1-01 honesty-check buyers over every visible row: always the cheapest next level, or a random affordable row from the stream `policy_random` of the config seed) or `only:<row id>` (buys only that run-upgrade row, e.g. `only:hull_integrity`; used in the Q54 retune to check that early hull, plating and repair purchases extend runs; a gated row such as `plating_pct`, best wave 10, needs a profile whose `best_wave_s1` has unlocked it) |
 | `-Sector` | 1 | sector number (sets `SimConfig.sector`) |
 | `-Frame` | `vanguard` | Cinder frame id from `data/frames.csv` (implemented ones: vanguard, bulwark, striker), or `all` to run every implemented frame on the same seeds and print a frames table (M3-24). Unknown or unimplemented id exits 2. |
 
@@ -85,6 +85,7 @@ the Foundry targets. Deaths: lancer 45%, skitter 40%, dart 15%. The result is a 
   `BALANCE FOUNDRY delta median vs fresh: +N waves (...; mean +x.xx)` against a silent fresh run on the same seeds;
   with `-Frame all` one header and block per implemented frame (header gets ` frame=<id>` for non-VANGUARD) and a
   closing `BALANCE frames frame=.. policy=.. mean=.. median=.. p10=.. p90=.. delta_mean_vs_vanguard=..%` table.
+- R1-01: a fresh-profile run with `greedy4`/`all` also prints `BALANCE optimizer vs random on fresh: ... (report only)`, the same seeds with the `random` buyer. The review (G-01) measured 11.7 against 11.9; it is the honesty check that later phases which make buying matter should open a gap on. Not a gate.
 - `-Policy none` never buys (the runner skips `PolicyBot`); `targets.csv` rows are only compared for VANGUARD with a
   buying policy. Foundry profile target rows (`foundry_300` 13, `foundry_1k` 24) are information only: a FAIL
   there is printed as WARN (**impl**).
@@ -113,7 +114,7 @@ until M4-16; until then `RunController` auto-picks the first offer as a stopgap.
 .\tools\journey_run.ps1 -Spend recommended -Deployments 16 -Seed 1 [-Waves 120] [-Frame vanguard|bulwark|striker] [-Mode timed|purge] [-Name text]
 .\tools\journey_run.ps1 -Probe 800 -Spend laser -Runs 20            # fixed spend from a fresh profile vs fresh, 20 seeds
 .\tools\journey_run.ps1 -ProfileFile tests/profiles/foundry_300.json -Frames -Runs 20   # profile vs fresh per frame, with the start stats and targets.csv status
-.\tools\journey_run.ps1 -SelfCheck                                  # 18 checks of the tool itself
+.\tools\journey_run.ps1 -SelfCheck                                  # 20 checks of the tool itself
 ```
 
 | Flag | Meaning |
@@ -127,7 +128,7 @@ until M4-16; until then `RunController` auto-picks the first offer as a stopgap.
 | `-Probe`, `-ProfileFile`, `-Frames`, `-Runs` | probe mode (see above) |
 | `-SkipImport` | skip the wrapper's import step (batches; the first call must import so the new `class_name` scripts are known) |
 
-stdout lines start with `JOURNEY` (deterministic; TIMING goes to stderr): one `dep=` line per deployment (death wave, best wave, Data earned and cumulative, Data spent and left, Foundry levels L/C/H/N, game minutes at 2x, state hash), then `mark` lines: after 3 deployments (first session), at 35 minutes of 2x play (Day 1), the first Foundry milestone (F25 since FO-3), last. File: `build/journey/<name>.csv`. Exit 0 ok, 2 bad arguments, script error or failed self-check. Run one Godot process at a time. Sources: `tools/journey_run.gd`, `tools/journey/*.gd`. The x1.75-per-25-levels milestone (was x1.25 per 10 before FO-3) is a code constant (`Curves`), not a `-Set` key.
+stdout lines start with `JOURNEY` (deterministic; TIMING goes to stderr): one `dep=` line per deployment (death wave, best wave, Data earned and cumulative, Data spent and left, `streak` = deployments since the last new best, `unspent` = Data left after the spend, Foundry levels L/C/H/N, game minutes at 2x, state hash), then `mark` lines: after 3 deployments (first session), at 35 minutes of 2x play (Day 1), the first Foundry milestone (F25 since FO-3), last, then (R1-01) a `pacing` line (longest no-new-best streak in the first 30 deployments; largest unspent Data as a multiple of that deployment's Data income) and report-only `target` lines against the `journey` rows of `data/targets.csv` (best after 3 deployments 20-25, Day 1 35-45, streak at most 4, unspent at most 1.5x income; `max` metrics are upper bounds; never a gate). File: `build/journey/<name>.csv`. Exit 0 ok, 2 bad arguments, script error or failed self-check. Run one Godot process at a time. Sources: `tools/journey_run.gd`, `tools/journey/*.gd`. The x1.75-per-25-levels milestone (was x1.25 per 10 before FO-3) is a code constant (`Curves`), not a `-Set` key.
 
 ## Results log: FO-2 journey study (2026-11-09, base main dce40fb, sim as of M4-15)
 

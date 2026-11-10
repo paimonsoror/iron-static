@@ -1,18 +1,18 @@
 class_name JourneyArgs
 extends RefCounted
 ## Argument parsing for tools/journey_run.gd (FO-2). Flags: --spend cheapest|laser|recommended|roundrobin|none,
-## --deployments N, --seed S, --waves W, --frame ID, --mode timed|purge, --run-policy greedy4|all|none,
+## --deployments N, --seed S, --waves W, --frame ID, --mode timed|purge, --run-policy greedy4|all|none|cheapest|random,
 ## --set key=value (repeatable in-memory override, see JourneyOverrides),
 ## --probe DATA, --profile FILE.json, --frames, --runs N, --name TEXT, --self-check.
 
 const USAGE: String = (
 	"usage: journey_run [--spend cheapest|laser|recommended|roundrobin|none] [--deployments N] [--seed S]"
-	+ " [--waves W] [--frame ID] [--mode timed|purge] [--run-policy greedy4|all|none] [--set key=value]..."
+	+ " [--waves W] [--frame ID] [--mode timed|purge] [--run-policy greedy4|all|none|cheapest|random] [--set key=value]..."
 	+ " [--probe DATA] [--profile FILE.json] [--frames] [--runs N] [--name TEXT] [--self-check]"
 	+ "  (defaults: cheapest, 12, 1, 120, vanguard, timed, greedy4, 20 runs; the Foundry best-wave cap always applies)"
 )
 const SPEND_POLICIES: PackedStringArray = ["cheapest", "laser", "recommended", "roundrobin", "none"]
-const RUN_POLICIES: PackedStringArray = ["greedy4", "all", "none"]
+const RUN_POLICIES: PackedStringArray = ["greedy4", "all", "none", "cheapest", "random"]
 const MODES: PackedStringArray = ["timed", "purge"]
 
 var spend: String = "cheapest"

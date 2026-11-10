@@ -7,3 +7,7 @@ fresh,timed,median_death_wave,12,0.30,gdd:03 s6
 foundry_300,timed,median_death_wave,16,0.30,gdd:04 s3 fresh median 12 + 4 (info only)
 foundry_1k,timed,median_death_wave,24,0.30,gdd:03 s6 x2 impl guess (info only)
 fresh,purge,median_death_wave,16,0.30,impl
+journey,timed,journey_best_after_3,22.5,0.111,gdd:05 s8 first session 20-25 (R1-01; report only; journey_run VANGUARD TIMED recommended 40 deployments)
+journey,timed,journey_best_day1,40,0.125,gdd:04 s3 Day 1 35-45 (R1-01; report only)
+journey,timed,journey_max_no_best_streak_30,4,0,review G-15: never more than 4 deployments without a new best in the first 30 (upper bound; R1-01; report only)
+journey,timed,journey_unspent_vs_income_max,1.5,0,review G-15/G-06: unspent Data at most 1.5x that deployment's income (upper bound; R1-01; report only)

@@ -2,7 +2,7 @@
 # stdout is deterministic ("BALANCE ..." lines); TIMING and engine noise go to stderr so two runs diff clean.
 # Exit 0 ok (PASS/WARN), 1 a targets.csv row is FAIL, 2 script error or bad arguments.
 # Usage: .\tools\balance_run.ps1 [-Profile fresh|file.json] [-Waves 100] [-Runs 20] [-Seed 1]
-#        [-Policy greedy4|all|none] [-Sector 1] [-Frame vanguard|bulwark|striker|all] [-Mode timed|purge]   (unknown flags are forwarded and rejected by the script)
+#        [-Policy greedy4|all|none|cheapest|random] [-Sector 1] [-Frame vanguard|bulwark|striker|all] [-Mode timed|purge]   (unknown flags are forwarded and rejected by the script)
 [CmdletBinding(PositionalBinding = $false)]
 param(
     [string]$Profile = "fresh",

@@ -1,13 +1,17 @@
 extends SceneTree
 ## Headless balance runner (M2-14). Run through tools\balance_run.ps1.
 ## Usage: godot --headless --path . -s res://tools/balance_run.gd -- [--profile fresh|FILE.json] [--waves W]
-##   [--runs N] [--seed S] [--policy greedy4|all|none] [--sector K] [--frame ID|all] [--mode timed|purge]
+##   [--runs N] [--seed S] [--policy greedy4|all|none|cheapest|random] [--sector K] [--frame ID|all]
+##   [--mode timed|purge]
 ## stdout (deterministic, every line starts with "BALANCE"): header, per-run lines, death wave percentiles and
 ## mean, mean game minutes, cause-of-death histogram, curve excerpt, target comparison, RESULT and "BALANCE OK".
 ## A profile with foundry_levels (M3-08) applies them through SimConfigLoader.apply_foundry and prints a
 ## "BALANCE FOUNDRY delta" line against a silent fresh run on the same seeds. `--frame all` (M3-24) runs every
 ## implemented frame in frames.csv and prints a frames table. `--policy none` never buys. `--mode purge` (M4-10)
 ## runs PURGE waves, labels the header and target lines with the mode and compares the `purge` rows.
+## R1-01: a fresh-profile run with a buying optimizer (greedy4 / all) also prints a report-only "optimizer vs random on
+## fresh" line (the same seeds with the `random` policy; the review measured 11.7 against 11.9). The honesty check for
+## later phases that make buying matter; not a gate.
 ## Wall-clock info is on a "TIMING" line (the wrapper sends it to stderr).
 ## Files: build/balance/curve.csv (per-wave averages), build/balance/run0_buys.csv (run 0 purchases).
 ## Exit code: 0 ok, 1 when a target row is FAIL, 2 on bad arguments or a script error.
@@ -70,6 +74,7 @@ func _initialize() -> void:
 			overall = BalanceRunArgs.worst(overall, _compare_targets(profile_name, measured, args.mode))
 	if frames.size() > 1:
 		_print_frames_table(table, args.policy)
+	total_ticks += _print_optimizer_vs_random(args, table)
 	print("BALANCE RESULT %s" % overall)
 	var elapsed: float = float(Time.get_ticks_usec() - t0) / 1000000.0
 	var game_s: float = float(total_ticks) / float(Ticks.TICK_RATE)
@@ -188,6 +193,36 @@ func _run_set(
 	):
 		return {"error": "cannot write %s" % OUT_DIR}
 	return out
+
+
+## R1-01: report-only honesty line, "optimizer vs random on fresh". Runs the `random` buyer on the same seeds for a
+## fresh profile when the policy is an optimizer; returns the extra ticks simulated (0 when nothing was printed).
+func _print_optimizer_vs_random(args: BalanceRunArgs, table: Array[Dictionary]) -> int:
+	if args.profile != "fresh" or not ["greedy4", "all"].has(args.policy):
+		return 0
+	var base: Dictionary = {}
+	for res: Dictionary in table:
+		if res["frame"] == BASE_FRAME:
+			base = res
+	if base.is_empty():
+		return 0
+	var random_args: BalanceRunArgs = BalanceRunArgs.new()
+	random_args.waves = args.waves
+	random_args.runs = args.runs
+	random_args.seed_value = args.seed_value
+	random_args.sector = args.sector
+	random_args.mode = args.mode
+	random_args.policy = PolicyBot.POLICY_RANDOM
+	var rnd: Dictionary = _run_set(random_args, BASE_FRAME, "fresh", 0, {}, false)
+	var opt_mean: float = base["mean"]
+	var rnd_mean: float = rnd["mean"]
+	print(
+		(
+			"BALANCE optimizer vs random on fresh: %s mean=%.2f random mean=%.2f diff=%+.2f waves (report only)"
+			% [args.policy, opt_mean, rnd_mean, opt_mean - rnd_mean]
+		)
+	)
+	return rnd["ticks"]
 
 
 ## One line per frame: mean and median death wave and the mean delta against VANGUARD (first row).

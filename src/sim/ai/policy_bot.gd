@@ -4,7 +4,9 @@ extends RefCounted
 ## `world.command_buy` (so runs are recorded and replayable) and reads costs through `UpgradeSystem.preview`.
 ## The runner calls `think(world)` every THINK_INTERVAL ticks (before that tick's `step()`).
 ## Policies: "greedy4" = the four starting rows (ids in GREEDY4_IDS), "all" = every visible row,
-## "only:<row id>" = that single row (M3 balance check).
+## "only:<row id>" = that single row (M3 balance check). R1-01 honesty-check policies over every visible row:
+## "cheapest" = always the row with the cheapest next level, "random" = a random affordable row (own `Rng` stream
+## derived from the config seed, so a run stays a pure function of (seed, config)).
 ## Rule: for each candidate row, gain = score(after one more level) / score(now) - 1 with
 ## score = ref_dmg * ref_ehp; ratio = gain / cost; the best ratio wins (lowest row index on ties).
 ## **(impl)** If the winner is unaffordable the bot waits (saves). After a purchase it re-evaluates in the
@@ -16,8 +18,11 @@ const MAX_BUYS_PER_THINK: int = 64
 const GREEDY4_IDS: PackedStringArray = ["laser_output", "cycle_rate", "hull_integrity", "nano_repair"]
 ## `only:<row id>` policy: buys just that row (balance check of single purchases).
 const ONLY_PREFIX: String = "only:"
+const POLICY_CHEAPEST: String = "cheapest"
+const POLICY_RANDOM: String = "random"
 
 var policy: String = "greedy4"
+var _rng: Rng = null
 
 
 func _init(policy_name: String = "greedy4") -> void:
@@ -38,6 +43,12 @@ static func settle_draft(world: SimWorld) -> bool:
 
 func think(world: SimWorld) -> void:
 	var allowed: PackedInt32Array = _candidates(world)
+	if policy == POLICY_CHEAPEST:
+		_buy_cheapest(world, allowed)
+		return
+	if policy == POLICY_RANDOM:
+		_buy_random(world, allowed)
+		return
 	for buy_round: int in MAX_BUYS_PER_THINK:
 		var base_score: float = PowerRating.score(world.stats)
 		if base_score <= 0.0:
@@ -64,6 +75,40 @@ func think(world: SimWorld) -> void:
 			return
 		if world.command_buy(best, 1) == 0:
 			return  # best row not affordable yet: wait and save
+
+
+## Always the visible row with the cheapest next level (first row on ties); waits and saves when it is not affordable.
+func _buy_cheapest(world: SimWorld, allowed: PackedInt32Array) -> void:
+	for buy_round: int in MAX_BUYS_PER_THINK:
+		var best: int = -1
+		var best_cost: float = INF
+		for i: int in allowed:
+			var p: UpgradePreview = UpgradeSystem.preview(world, i, 1)
+			if p.maxed or not p.visible:
+				continue
+			var cost: float = p.cost.to_float()
+			if cost < best_cost:
+				best_cost = cost
+				best = i
+		if best < 0 or world.command_buy(best, 1) == 0:
+			return
+
+
+## A uniformly random affordable visible row, until nothing is affordable.
+func _buy_random(world: SimWorld, allowed: PackedInt32Array) -> void:
+	if _rng == null:
+		_rng = Rng.derive(world.config.seed_value, "policy_random")
+	for buy_round: int in MAX_BUYS_PER_THINK:
+		var ok: PackedInt32Array = PackedInt32Array()
+		for i: int in allowed:
+			var p: UpgradePreview = UpgradeSystem.preview(world, i, 1)
+			if not p.maxed and p.visible and p.affordable:
+				if ok.append(i):
+					push_error("PolicyBot: append failed")
+		if ok.is_empty():
+			return
+		if world.command_buy(ok[_rng.range_int(0, ok.size() - 1)], 1) == 0:
+			return
 
 
 func _candidates(world: SimWorld) -> PackedInt32Array:
