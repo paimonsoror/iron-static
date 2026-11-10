@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = "patch_t_greed"
 kind = "gamble"
 stat = "data_yield"
+family = "systems"
 op = "mult"
 per_pick = 1.8
 max_picks = 1

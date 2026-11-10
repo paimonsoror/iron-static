@@ -13,7 +13,7 @@ Changes from the guide's draft, each checked against the build:
 - "armor plates burn away" became "synthetic skin burns away": the game burns Cinder's skin to expose the frame (GDD 00, skin burn), not plates.
 - PURGE is not available from the start: it unlocks by reaching a TIMED wave (`mode.locked`, `mode.unlocked_toast`). The text now says "unlock PURGE".
 - Frames: VANGUARD, BULWARK, STRIKER are in the build and unlock by best wave. SALVAGER and LONGSHOT exist in the data but are M6 (`data/frames.csv`), so they are not named.
-- The first patch pick is at wave 10 (`draft_first_wave,10` in `data/sim_constants.csv`).
+- The first patch pick is at wave 5 (`draft_first_wave,5` in `data/sim_constants.csv`; R1-04).
 - Upgrade list names only things that exist (`upgrade.*` strings: laser output, cycle rate, crit, optic range, hull integrity, nano repair, plating, scrap yield, reinvest).
 - The Settings feedback link is part of B1-08. If B1-08 is not in the uploaded build, delete the sentence "use the feedback link in Settings" and say "use the feedback link on the store page".
 - No franchise names, no competitor names and no look-alike wording (CLAUDE.md IP guardrails; the scan command is in `docs/release/RELEASE_CHECKLIST.md`).

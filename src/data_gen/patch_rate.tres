@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = "patch_rate"
 kind = "standard"
 stat = "cycle_rate"
+family = "arms"
 op = "bonus"
 per_pick = 0.1
 max_picks = 5

@@ -186,6 +186,15 @@ func command_pick(slot: int) -> bool:
 	return true
 
 
+## Rerolls all cards of the open draft once (R1-04). Logged like a pick, at the tick about to run; false (nothing
+## logged) when no draft is open or the reroll is used up. Call between frames only.
+func command_reroll() -> bool:
+	if run.ended or not DraftSystem.reroll(self):
+		return false
+	input_log.append(tick, InputLog.CMD_REROLL, 0, 0)
+	return true
+
+
 func is_draft_open() -> bool:
 	return draft.open
 
@@ -224,14 +233,6 @@ func waves_until_boss() -> int:
 	if interval <= 0:
 		return -1
 	return interval - wave % interval
-
-
-## Waves from the current wave to the end of the next draft wave (0 = the end of this wave opens one); -1 when the
-## config has no patches or no draft is ever due. Read-only (M4-19).
-func waves_until_draft() -> int:
-	if config.patches.is_empty():
-		return -1
-	return DraftSystem.waves_until(config.tuning, wave)
 
 
 ## Living enemies marked stale (they passed the third wave end after spawning and pay half). Read-only (M4-19).

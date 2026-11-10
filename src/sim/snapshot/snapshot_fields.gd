@@ -24,7 +24,7 @@ const TABLE: Dictionary = {
 		"economy": "SAVED: BigNum mantissa and exponent plus the float shadows",
 		"run_levels": "SAVED: packed array",
 		"patches": "SAVED: the picks array; restore calls PatchState.set_picks before resolve_stats (M4-15)",
-		"draft": "SAVED: open flag, wave and offers (a snapshot taken behind an open draft restores it)",
+		"draft": "SAVED: open flag, wave, offers and rerolls used (a snapshot taken behind an open draft restores it)",
 		"visible": "SAVED: packed array",
 		"tick_scrap": "SAVED: scalar",
 		"tick_data": "SAVED: scalar",
@@ -71,6 +71,7 @@ const TABLE: Dictionary = {
 		"open": "SAVED: bool",
 		"wave": "SAVED: int",
 		"offers": "SAVED: packed array",
+		"rerolls_used": "SAVED: int",
 	},
 	"RunStats":
 	{

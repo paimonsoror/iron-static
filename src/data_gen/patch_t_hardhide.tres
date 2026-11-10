@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = "patch_t_hardhide"
 kind = "gamble"
 stat = "enemy_damage"
+family = "chassis"
 op = "mult"
 per_pick = 0.6
 max_picks = 1

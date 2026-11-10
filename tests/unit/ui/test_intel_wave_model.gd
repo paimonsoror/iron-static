@@ -32,7 +32,7 @@ func test_wave_10_timed_shows_slots_boss_and_draft_now() -> void:
 	assert_str(_row(rows, "boss").value_text).is_equal("NOW")
 	assert_str(_row(rows, "draft").value_text).is_equal("NOW")
 	assert_int(IntelWaveModel.boss_in(w)).is_equal(0)
-	assert_int(w.waves_until_draft()).is_equal(0)
+	assert_int(DraftSystem.waves_until_draft(w)).is_equal(0)
 	assert_str(_row(rows, "time_left").value_text).is_equal("24s")
 	assert_object(_row(rows, "quota")).is_null()
 
@@ -47,9 +47,9 @@ func test_wave_7_boss_in_three_and_draft_in_three() -> void:
 	assert_str(_row(IntelWaveModel.build(w), "boss").value_text).is_equal("IN 1 WAVE")
 
 
-func test_after_the_first_draft_the_next_is_wave_20() -> void:
+func test_after_the_wave_10_draft_the_next_is_wave_15() -> void:
 	var w: SimWorld = _world("timed", 11)
-	assert_int(w.waves_until_draft()).is_equal(9)
+	assert_int(DraftSystem.waves_until_draft(w)).is_equal(4)  # wave 15
 	assert_int(IntelWaveModel.boss_in(w)).is_equal(9)
 
 
@@ -57,7 +57,7 @@ func test_no_patches_means_no_draft_row() -> void:
 	var cfg: SimConfig = SimConfigLoader.load_default(5)
 	cfg.patches.clear()
 	var w := SimWorld.new(cfg)
-	assert_int(w.waves_until_draft()).is_equal(-1)
+	assert_int(DraftSystem.waves_until_draft(w)).is_equal(-1)
 	assert_object(_row(IntelWaveModel.build(w), "draft")).is_null()
 
 

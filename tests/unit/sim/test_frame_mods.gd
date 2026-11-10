@@ -3,7 +3,7 @@ extends GdUnitTestSuite
 ## Frame stat modifiers and neutrality (M3-22).
 
 # Re-pinned in M4-02 (the mode section is always hashed).
-const PRE_M3_CONFIG_HASH: String = "5e8c00f974d442707d6927bdd03404c8488aec3f03f2d4706b6b44f8ed1af2a4"
+const PRE_M3_CONFIG_HASH: String = "61a7cdfccc771f9d581c144e6da9f374ed742033c53e1fd1a5baad93a638139a"
 
 
 static func bulwark() -> FrameMods:

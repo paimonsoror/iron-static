@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = "patch_plating"
 kind = "standard"
 stat = "hull_integrity"
+family = "chassis"
 op = "bonus"
 per_pick = 0.2
 max_picks = 5

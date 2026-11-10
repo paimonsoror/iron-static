@@ -56,10 +56,13 @@ exposure_t1,0.75,gdd:02 s12.1,Integrity fraction at or below which band 1 starts
 exposure_t2,0.50,gdd:02 s12.1,Integrity fraction at or below which band 2 starts
 exposure_t3,0.25,gdd:02 s12.1,Integrity fraction at or below which band 3 starts
 exposure_hysteresis,0.05,gdd:02 s12.1,Fraction a band is left only after f exceeds threshold plus this
-draft_first_wave,10,gdd:02 s10,Wave of the first patch draft
-draft_interval,10,gdd:02 s10,Waves between drafts up to draft_interval_after
-draft_interval_after,50,gdd:02 s10,Last wave of the short draft spacing
-draft_interval_late,25,gdd:02 s10,Waves between drafts after draft_interval_after
+draft_first_wave,5,gdd:02 s10,Wave of the first patch draft (R1-04 schedule: 5-10-15-20 then every 10 to 50 then every 25)
+draft_interval,5,gdd:02 s10,Waves between drafts up to draft_interval_after
+draft_interval_after,20,gdd:02 s10,Last wave of the short draft spacing
+draft_interval_mid,10,gdd:02 s10,Waves between drafts after draft_interval_after up to draft_interval_mid_after
+draft_interval_mid_after,50,gdd:02 s10,Last wave of the middle draft spacing
+draft_interval_late,25,gdd:02 s10,Waves between drafts after draft_interval_mid_after
 draft_offer_count,3,gdd:02 s10,Distinct patches offered per draft
 draft_mix_standard,0.70,gdd:02 s10,Offer share of standard patches (the weapon-system share is folded in until Launch)
 draft_mix_gamble,0.15,gdd:02 s10,Offer share of gamble patches
+draft_rerolls,1,gdd:02 s10,Rerolls of all three cards per draft

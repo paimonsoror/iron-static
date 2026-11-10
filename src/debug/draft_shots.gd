@@ -1,8 +1,8 @@
 class_name DraftShots
 extends Node
-## Desktop capture harness of the patch draft overlay (M4-16). Renders the production `DraftOverlay` over a plain
-## backdrop for a standard draft, a draft with a gamble card and picks so far, and the wide 1990 x 1920 layout, then
-## saves PNGs and quits:
+## Desktop capture harness of the patch draft overlay (M4-16, R1-04). Renders the production `DraftOverlay` over a plain
+## backdrop for a standard draft (ARMS, CHASSIS, SYSTEMS), a draft with a gamble card and picks so far, a draft whose
+## reroll is used, and the wide 1990 x 1920 layout, then saves PNGs and quits (windowed renderer, not --headless):
 ##   godot --path . --windowed --resolution 540x600 res://src/debug/draft_shots.tscn -- [--ds-out=build/m4_draft]
 
 const SCENE: String = "res://src/ui/draft/draft_overlay.tscn"
@@ -16,25 +16,28 @@ func _ready() -> void:
 		if a.begins_with("--ds-out="):
 			out = a.get_slice("=", 1)
 	DirAccess.make_dir_recursive_absolute(out)
-	await _shot(out, "standard", PORTRAIT, ["patch_overcharge", "patch_plating", "patch_rate"], {})
+	await _shot(out, "standard", PORTRAIT, ["patch_overcharge", "patch_plating", "patch_extraction"], {})
 	await _shot(
 		out,
 		"gamble_picks",
 		PORTRAIT,
-		["patch_regen", "patch_t_greed", "patch_t_hardhide"],
-		{"patch_overcharge": 2, "patch_plating": 1, "patch_t_glass": 1}
+		["patch_rate", "patch_regen", "patch_t_greed"],
+		{"patch_overcharge": 2, "patch_plating": 1, "patch_extraction": 1}
 	)
-	await _shot(out, "gamble_wide", WIDE, ["patch_extraction", "patch_t_glass", "patch_ceramic"], {"patch_rate": 3})
+	await _shot(
+		out, "reroll_used", PORTRAIT, ["patch_t_glass", "patch_t_hardhide", "patch_extraction"], {"patch_rate": 3}, 1
+	)
+	await _shot(out, "gamble_wide", WIDE, ["patch_t_glass", "patch_ceramic", "patch_extraction"], {"patch_rate": 3})
 	get_tree().quit()
 
 
-func _world(offer_ids: Array[String], picks: Dictionary[String, int]) -> SimWorld:
+func _world(offer_ids: Array[String], picks: Dictionary[String, int], rerolls_used: int = 0) -> SimWorld:
 	var c := RunController.new()
 	c.auto_pick_draft = false
 	@warning_ignore("return_value_discarded")
 	c.start_run(7, true)
 	@warning_ignore("return_value_discarded")
-	c.fast_forward(20 * Ticks.WAVE_TICKS)
+	c.fast_forward(6 * Ticks.WAVE_TICKS)
 	var w: SimWorld = c.world
 	var ids: Array[String] = []
 	for d: PatchDef in w.config.patches:
@@ -43,6 +46,7 @@ func _world(offer_ids: Array[String], picks: Dictionary[String, int]) -> SimWorl
 	for id: String in offer_ids:
 		offers.append(ids.find(id))
 	w.draft.offers = offers
+	w.draft.rerolls_used = rerolls_used
 	for id: String in picks:
 		for n: int in picks[id]:
 			@warning_ignore("return_value_discarded")
@@ -51,7 +55,12 @@ func _world(offer_ids: Array[String], picks: Dictionary[String, int]) -> SimWorl
 
 
 func _shot(
-	out: String, shot_name: String, size: Vector2i, offer_ids: Array[String], picks: Dictionary[String, int]
+	out: String,
+	shot_name: String,
+	size: Vector2i,
+	offer_ids: Array[String],
+	picks: Dictionary[String, int],
+	rerolls_used: int = 0
 ) -> void:
 	var vp := SubViewport.new()
 	vp.size = size
@@ -64,7 +73,7 @@ func _shot(
 	var overlay: DraftOverlay = (load(SCENE) as PackedScene).instantiate() as DraftOverlay
 	overlay.reduce_motion = shot_name != "standard"  # the first shot catches the rings mid-flight
 	vp.add_child(overlay)
-	overlay.open(_world(offer_ids, picks))
+	overlay.open(_world(offer_ids, picks, rerolls_used))
 	if not overlay.reduce_motion:
 		overlay.advance(0.3)
 	for i: int in 6:

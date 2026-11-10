@@ -54,7 +54,7 @@ func route(kind: int, a: int = -1, b: int = 0) -> void:
 			_haptics.death()
 
 
-## Hook for the wave-10 draft overlay (no sim event: the pick is a UI action).
+## Hook for the draft overlay (no sim event: the pick is a UI action).
 func draft_pick() -> void:
 	if _haptics != null:
 		_haptics.draft_pick()

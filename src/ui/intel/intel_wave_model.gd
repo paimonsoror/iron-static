@@ -33,7 +33,7 @@ static func build(world: SimWorld) -> Array[IntelRow]:
 				Strings.fill1("intel.wave.chain_boss", "n", str(world.config.tuning.boss_interval))
 			)
 		)
-	var draft: int = world.waves_until_draft()
+	var draft: int = DraftSystem.waves_until_draft(world)
 	if draft >= 0:
 		rows.append(
 			IntelRow.new(
