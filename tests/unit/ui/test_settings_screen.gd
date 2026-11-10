@@ -312,3 +312,14 @@ func test_choice_option_texts_are_not_clipped_at_1080x2400() -> void:
 				room
 			)
 			assert_float(b.custom_minimum_size.y).is_greater_equal(148.0)
+
+
+func test_copy_play_summary_puts_the_text_on_the_clipboard_and_confirms() -> void:
+	var s: SettingsScreen = _screen()
+	var clip: Array[String] = []
+	s.clipboard_setter = func(text: String) -> void: clip.append(text)
+	assert_float(s.summary_button.custom_minimum_size.y).is_greater_equal(148.0)
+	s.summary_button.pressed.emit()
+	assert_int(clip.size()).is_equal(1)
+	assert_str(clip[0]).starts_with("IRON STATIC PLAY SUMMARY")
+	assert_str(s.summary_hint.text).is_equal(Strings.get_text("settings.summary_done"))

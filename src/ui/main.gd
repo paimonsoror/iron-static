@@ -29,7 +29,7 @@ var _tier_banner: TierBanner
 
 
 func _ready() -> void:
-	if Game.style_frame:
+	if Game.style_frame and OS.is_debug_build():  # R1-08: src/debug is excluded from the release preset
 		get_tree().change_scene_to_file.call_deferred("res://src/debug/style_frame.tscn")
 		return
 	Log.info("boot ok")
@@ -249,6 +249,8 @@ func _on_draft_picked(_slot: int) -> void:
 
 
 func _on_screen_changed(screen: AppFlow.Screen) -> void:
+	var screen_name: String = AppFlow.Screen.keys()[screen]
+	Game.note_screen(screen_name.to_lower())  # R1-08 flight recorder
 	_ftue.set_screen(screen)
 	if screen == AppFlow.Screen.FOUNDRY:
 		_ftue.on_foundry_opened()

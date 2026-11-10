@@ -4,7 +4,7 @@ title: Privacy policy
 
 # Privacy policy
 
-Effective date: 2026-11-09. Last updated: 2026-11-09.
+Effective date: 2026-11-09. Last updated: 2026-11-10.
 
 This page covers the **IRON STATIC** Android game (package `com.normalexception.game`), open beta version 0.5.x, published by **Paimon Sorornejad** ("we"). It is written in plain language on purpose.
 
@@ -29,6 +29,7 @@ The game keeps these files in its own private storage on your phone, where other
 - **Your save**: your profile (currencies, upgrade levels, unlocked frames, best waves), a snapshot of the deployment in progress so you can resume it, and a backup copy of the previous good save. The save is signed so the game can notice a damaged or edited file. It also contains a random identifier generated on your phone the first time you play. That identifier is not linked to you, is not an advertising id, and is never sent anywhere.
 - **Your settings**: volume, haptics, accessibility and display choices, kept inside the save.
 - **A last-run record**: a small text file with the summary of your most recent deployment (wave reached, time, kills). It is overwritten by each run.
+- **A play summary**: a few counters per day for the last 30 days (sessions, runs, minutes played, best wave, the deepest screen you reached and the last screen you were on), kept inside the save. The Settings button COPY PLAY SUMMARY puts a short text version on your clipboard; it stays on your device and is only shared if you paste it somewhere yourself.
 
 All of this stays on your device.
 
