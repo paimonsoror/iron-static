@@ -82,6 +82,10 @@ func test_foundry_tap_opens_foundry_and_back_returns_to_results() -> void:
 	assert_bool((overlay.get_node("%FoundryButton") as Control).visible).is_true()
 	(overlay.get_node("%FoundryButton") as Button).pressed.emit()
 	assert_int(router.current_screen()).is_equal(AppFlow.Screen.FOUNDRY)
+	assert_bool((router.active_screen() as FoundryScreen).intro_open()).is_true()  # FO-1: the first back closes it
+	@warning_ignore("return_value_discarded")
+	router.handle_back(false)
+	assert_int(router.current_screen()).is_equal(AppFlow.Screen.FOUNDRY)
 	assert_int(router.handle_back(false)).is_equal(BackPolicy.Action.GO_BACK)
 	assert_int(router.current_screen()).is_equal(AppFlow.Screen.RESULTS)
 	assert_bool(overlay.visible).is_true()

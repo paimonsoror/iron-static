@@ -30,6 +30,8 @@ func _profile(data: int, runs: int = 1) -> PlayerProfile:
 	var p: PlayerProfile = PlayerProfile.fresh(0, "test")
 	p.data = BigNum.from_int(data)
 	p.runs_total = runs
+	@warning_ignore("return_value_discarded")
+	FoundryIntroFlag.set_hidden(p, true)  # the explainer dialog has its own tests (test_foundry_intro.gd)
 	return p
 
 

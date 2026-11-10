@@ -66,6 +66,7 @@ func _ready() -> void:
 	_ftue.target_resolver = _ftue_rect
 	_ftue.anchor_resolver = _ftue_anchor
 	_ftue.persist = _persist_ftue
+	_ftue.blocker = _ftue_blocked
 	_router.screen_changed.connect(_on_screen_changed)
 	_draft = (load("res://src/ui/draft/draft_overlay.tscn") as PackedScene).instantiate() as DraftOverlay
 	add_child(_draft)  # above the router screens, below the pause overlay (back opens the pause menu over a draft)
@@ -241,6 +242,12 @@ func _on_screen_changed(screen: AppFlow.Screen) -> void:
 	_ftue.set_screen(screen)
 	if screen == AppFlow.Screen.FOUNDRY:
 		_ftue.on_foundry_opened()
+
+
+## True while the Foundry explainer dialog is open: the FTUE pointer must not show under it.
+func _ftue_blocked() -> bool:
+	var screen: FoundryScreen = _router.active_screen() as FoundryScreen
+	return screen != null and screen.intro_open()
 
 
 func _ftue_anchor(target: String) -> Rect2:

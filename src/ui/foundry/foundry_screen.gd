@@ -18,9 +18,12 @@ const BACK_W: float = 300.0
 const BODY_SEPARATION: int = 10
 const HEADING_SIZE: int = 64
 const DATA_PAD: float = 16.0
+const HELP_W: float = 148.0
 
 var service: FoundryService = null
 var back_button: Button = null
+var help_button: Button = null
+var intro: FoundryIntro = null
 var deploy_button: Button = null
 var data_label: Label = null
 var preview_label: Label = null
@@ -62,6 +65,9 @@ func _build() -> void:
 	content.add_child(scroll)
 	deploy_button = make_button("foundry.deploy", _on_deploy)
 	content.add_child(deploy_button)
+	intro = FoundryIntro.new()
+	intro.dismissed.connect(_on_intro_dismissed)
+	add_child(intro)
 	set_process(false)
 	enter()
 
@@ -72,6 +78,9 @@ func _build_top_bar() -> HBoxContainer:
 	back_button = make_button("foundry.back", _on_back)
 	back_button.custom_minimum_size.x = BACK_W
 	bar.add_child(back_button)
+	help_button = make_button("foundry.help", _on_help)
+	help_button.custom_minimum_size.x = HELP_W
+	bar.add_child(help_button)
 	data_label = label("", &"LabelNumber", Palette.AMBER, DATA_SIZE)
 	data_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	data_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -107,12 +116,16 @@ func enter() -> void:
 	_close_tips()
 	refresh(true)
 	scroll.scroll_vertical = 0
+	var profile: PlayerProfile = _the_profile()
+	if profile != null and not _locked and not FoundryIntroFlag.is_hidden(profile):
+		intro.open(false)
 
 
 func leave() -> void:
 	if list == null:
 		return
 	_close_tips()
+	intro.close()
 	_save()
 
 
@@ -124,6 +137,7 @@ func refresh(instant: bool = false) -> void:
 	_ensure_service()
 	_locked = not MetaUnlocks.foundry_screen_unlocked(profile)
 	locked_label.visible = _locked
+	help_button.visible = not _locked
 	scroll.visible = not _locked
 	_views = service.rows(profile)
 	_ensure_rows(_views.size())
@@ -131,6 +145,16 @@ func refresh(instant: bool = false) -> void:
 		_rows[i].apply_foundry(FoundryRowModel.from_view(_views[i], i))
 	_set_data(profile.data, instant)
 	_set_preview(profile)
+
+
+## True while the explainer dialog is up (the FTUE pointer waits for it to close).
+func intro_open() -> bool:
+	return intro.is_open()
+
+
+## The back gesture closes the explainer first (like GOT IT); the screen itself goes back on the next one.
+func on_back() -> bool:
+	return intro.dismiss()
 
 
 func is_locked() -> bool:
@@ -263,6 +287,24 @@ func _the_profile() -> PlayerProfile:
 	if Game.saves == null:
 		return null
 	return Game.profile()
+
+
+func _on_help() -> void:
+	AudioHooks.tap()
+	var profile: PlayerProfile = _the_profile()
+	intro.open(profile != null and FoundryIntroFlag.is_hidden(profile))
+
+
+func _on_intro_dismissed(hide_next_time: bool) -> void:
+	var profile: PlayerProfile = _the_profile()
+	if profile == null:
+		return
+	if FoundryIntroFlag.set_hidden(profile, hide_next_time):
+		if _request_save.is_valid():
+			_request_save.call()
+		elif Game.saves != null:
+			Game.saves.request_save()
+		_save()
 
 
 func _on_deploy() -> void:

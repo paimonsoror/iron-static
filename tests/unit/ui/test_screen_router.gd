@@ -128,6 +128,10 @@ func test_results_to_foundry_and_back_restores_results() -> void:
 	Game.controller.fast_forward(MAX_TICKS)
 	assert_bool(r.dispatch(AppFlow.Event.OPEN_FOUNDRY)).is_true()
 	assert_bool(_visible(main, "%ResultsOverlay")).is_false()
+	assert_bool((r.active_screen() as FoundryScreen).intro_open()).is_true()  # FO-1: the first back closes it
+	@warning_ignore("return_value_discarded")
+	r.handle_back(false)
+	assert_int(r.current_screen()).is_equal(AppFlow.Screen.FOUNDRY)
 	assert_int(r.handle_back(false)).is_equal(BackPolicy.Action.GO_BACK)
 	assert_int(r.current_screen()).is_equal(AppFlow.Screen.RESULTS)
 	assert_bool(_visible(main, "%ResultsOverlay")).is_true()

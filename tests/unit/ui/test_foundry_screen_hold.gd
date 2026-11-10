@@ -37,6 +37,8 @@ func _make(data: BigNum, maxed_laser: bool = false) -> PlayerProfile:
 	var p: PlayerProfile = PlayerProfile.fresh(0, "test")
 	p.data = data
 	p.runs_total = 1
+	@warning_ignore("return_value_discarded")
+	FoundryIntroFlag.set_hidden(p, true)  # the explainer dialog would swallow the touches
 	if maxed_laser:
 		p.set_foundry_level("laser_output", 200)
 	_vp = auto_free(SubViewport.new())
