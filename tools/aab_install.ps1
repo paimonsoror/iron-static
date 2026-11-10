@@ -8,7 +8,7 @@
   3. bundletool install-apks to the device, then (unless -NoLaunch) am start -W and a logcat scan for
      SCRIPT ERROR, ArtSlots:, Strings:, FATAL and any ERROR line.
   -Serial is mandatory and every adb call carries it. Nothing else on the device is touched.
-  -Uninstall removes com.normalexception.game afterwards (this wipes the save).
+  -Uninstall removes com.normalexception.games.ironstatic afterwards (this wipes the save).
   Exit: 0 ok, 1 install/scan failure, 2 usage/tool error.
 #>
 param(
@@ -17,7 +17,7 @@ param(
     [string]$Ks = '',
     [string]$KsAlias = 'testkey',
     [string]$KsPassFile = '',
-    [string]$Package = 'com.normalexception.game',
+    [string]$Package = 'com.normalexception.games.ironstatic',
     [string]$OutDir = '',
     [int]$WaitSeconds = 45,
     [switch]$NoLaunch,

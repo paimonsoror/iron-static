@@ -1,6 +1,6 @@
 # CLAUDE.md - IRON STATIC
 
-IRON STATIC (code name `ironstatic`, applicationId `com.normalexception.game`) is an original Android-first, portrait, free-to-play idle defense game in Godot 4.7.2 (statically typed GDScript). You are CINDER, a reprogrammed combat cyborg at the Relay; rogue machine swarms attack from every side; Cinder auto-fires a hitscan laser; the player buys temporary upgrades with `scrap` during a deployment and permanent ones with `data` between deployments. The user directs and playtests on the emulator; Claude and AI agents write nearly all code.
+IRON STATIC (code name `ironstatic`, applicationId `com.normalexception.games.ironstatic`) is an original Android-first, portrait, free-to-play idle defense game in Godot 4.7.2 (statically typed GDScript). You are CINDER, a reprogrammed combat cyborg at the Relay; rogue machine swarms attack from every side; Cinder auto-fires a hitscan laser; the player buys temporary upgrades with `scrap` during a deployment and permanent ones with `data` between deployments. The user directs and playtests on the emulator; Claude and AI agents write nearly all code.
 
 ## Doc map (read the one you need, not all)
 
@@ -50,7 +50,7 @@ Headless Godot can exit 0 on failure: never judge by exit code alone and never c
 | Format GDScript (gdformat + CRLF->LF; never run gdformat directly) | `.\tools\format.ps1 [paths]` | done |
 | Start emulator (AVD `tower_phone`, wait 25 s after cold boot; `-ColdBoot`, `-PublicDns`) | `.\tools\run_emulator.ps1` | done |
 | Install/repair Gradle build template (untracked; after clone or Godot upgrade) | `.\tools\setup_android_template.ps1` (`-Force` reinstalls) | done (M0-09) |
-| Export, install, launch on emulator | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.normalexception.game -Preset IronStatic` | done (M0-07) |
+| Export, install, launch on emulator | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.normalexception.games.ironstatic -Preset IronStatic` | done (M0-07) |
 | Emulator smoke test (log scan + screenshot check) | `.\tools\smoke_android.ps1` (`-SkipDeploy`; `-Soak <s>`, `-MinFps <n>` need `--debug-perf`; `-ImagePath <png>` checks a screenshot offline) | done (M0-08, M1-25/26) |
 | CSV to `.tres` importer | `.\tools\import_data.ps1` | done (M1-02; flags -DataDir -OutDir -SkipImport) |
 | Headless sim runs (M1 exit: p50 death wave 3-12) | `.\tools\sim_run.ps1 -Runs 20 -Seed 1` | done (M1-16; TIMING on stderr) |

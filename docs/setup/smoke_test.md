@@ -9,7 +9,7 @@ One command that proves the installed app launched, logged no errors and drew so
 .\tools\smoke_android.ps1 -SkipDeploy    # check the app that is already installed
 ```
 
-Parameters: `-Package com.normalexception.game -Preset IronStatic -WaitSeconds 35 -SkipDeploy -Serial "" -ExpectColor "#FFB000"`,
+Parameters: `-Package com.normalexception.games.ironstatic -Preset IronStatic -WaitSeconds 35 -SkipDeploy -Serial "" -ExpectColor "#FFB000"`,
 plus `-BlankThreshold 0.999`, `-GridSize 256`, `-MinColorShare 0.0005`, `-ImagePath <png>`, `-MinFps <n>` (fps gate, below), `-Soak <seconds>` and `-PerfWarmup 40`.
 
 ## Checks (in order)
@@ -58,4 +58,4 @@ Prints `SMOKE OK` (exit 0) or `SMOKE FAIL: <reason>` (exit 1).
 - The `-ExpectColor` result is reported last, so the fps lines still print when the colour check fails. The denser,
   share-based colour gate (v1.2) passes the battle screen; pass `-ExpectColor ""` to skip it.
 - Safe to run in a cold-booted emulator only after the first launch has settled; the first launch after a cold boot can lose
-  its process once (relaunch) - relaunch with `adb shell monkey -p com.normalexception.game -c android.intent.category.LAUNCHER 1`.
+  its process once (relaunch) - relaunch with `adb shell monkey -p com.normalexception.games.ironstatic -c android.intent.category.LAUNCHER 1`.

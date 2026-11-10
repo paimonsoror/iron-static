@@ -71,7 +71,7 @@ One-line pitch: "Hold the last relay. Burn away what is left of being human. Go 
 
 ## 6. Working-title candidates and Google Play collision check
 
-**Decision (2026-11-07): the working title is IRON STATIC**, codename `ironstatic`, with EMBER CHASSIS as the fallback. The Android applicationId is `com.normalexception.game` (decided 2026-11-09, replacing the provisional `com.ironstatic.game`; permanent once uploaded to Play Console, 09 Q30). The trademark and Google Play name search below has not been done yet (09 Q31).
+**Decision (2026-11-07): the working title is IRON STATIC**, codename `ironstatic`, with EMBER CHASSIS as the fallback. The Android applicationId is `com.normalexception.games.ironstatic` (user decision 2026-11-10, replacing `com.normalexception.game` of 2026-11-09 and the provisional `com.ironstatic.game`; permanent once uploaded to Play Console, 09 Q30). The trademark and Google Play name search below has not been done yet (09 Q31).
 
 Method: web search per title on 2026-11-07. Web search cannot enumerate Google Play directly, so "no results" is not proof of availability. Before commit: search Google Play, USPTO TESS/TSDR, EUIPO and run a domain/social handle check; consult an IP lawyer [GENRE B2].
 

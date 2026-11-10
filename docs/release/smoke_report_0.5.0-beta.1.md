@@ -150,7 +150,7 @@ Order matters: installing a different build or uninstalling wipes the test save,
 3. [ ] Install the APK derived from the same AAB (never touches other packages):
    `powershell -File tools\aab_install.ps1 -Aab build\release\ironstatic-0.5.0-beta.1-50001-TESTKEY.aab -Serial 65211FDDJ001TH -NoLaunch`
    Install result: ______
-4. [ ] Cold-start timing. Force stop, then launch by tapping the icon with a stopwatch (or `adb -s 65211FDDJ001TH shell am start -W -n com.normalexception.game/com.godot.game.GodotAppLauncher`). Time to first frame (any Godot frame): ______ s. Time to the title with buttons: ______ s.
+4. [ ] Cold-start timing. Force stop, then launch by tapping the icon with a stopwatch (or `adb -s 65211FDDJ001TH shell am start -W -n com.normalexception.games.ironstatic/com.godot.game.GodotAppLauncher`). Time to first frame (any Godot frame): ______ s. Time to the title with buttons: ______ s.
 5. [ ] Play for 10 minutes: cold open, run 1 with upgrades, the wave-5 draft, death, Results, the FOUNDRY pointer, run 2, Foundry purchases, Settings, one pause and resume, one app switch away and back, screen lock and unlock.
 6. [ ] fps feel (smooth / occasional stutter / bad), at a crowded wave: ______
 7. [ ] Haptics (on kills, damage, UI taps; Settings toggle works): ______
@@ -158,7 +158,7 @@ Order matters: installing a different build or uninstalling wipes the test save,
 9. [ ] Double-tap and long-press (about 1 s) the top-left corner during a run. The debug overlay must NOT open (B1-07-A fix). Result: ______
 10. [ ] `adb -s 65211FDDJ001TH logcat -d | findstr /C:"SCRIPT ERROR" /C:"ArtSlots:" /C:"Strings:" /C:"FATAL"` counts: ______
 11. [ ] Screenshots (Home, Battle) saved to `docs/release/smoke_0.5.0-beta.1/phone_*.jpg`: ______
-12. [ ] Uninstall (wipes the test save, warn the tester): `adb -s 65211FDDJ001TH uninstall com.normalexception.game`. Skip this if step 13 is about to run, it replaces the package anyway.
+12. [ ] Uninstall (wipes the test save, warn the tester): `adb -s 65211FDDJ001TH uninstall com.normalexception.games.ironstatic`. Skip this if step 13 is about to run, it replaces the package anyway.
 13. [ ] **Optional, last.** Real-device draw-call and fps reading. The M4-28 emulator run showed about 70 battlefield draw calls against a hard limit of 40 (`docs/perf/m4_stress.md`); a phone reading matters. Install a debug build (preset `IronStatic`, `tools\deploy_android.ps1 -Serial 65211FDDJ001TH` with `--debug-perf`, see `docs/setup/android_export.md`), play to a crowded wave (about 20+), then read the `[PERF]` lines: `adb -s 65211FDDJ001TH logcat -d | findstr "[PERF]"`. Record fps, min, tick_ms, draws, vid_mb: ______. A debug build is signed with a different key, so installing it over the release build needs an uninstall first, which wipes the save. That is why this step is last.
 
 ### Sign-off

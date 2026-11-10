@@ -22,12 +22,12 @@ a number for "later". Fun and feel are never assessed by an agent: they are ques
 | Input | How to get it |
 |---|---|
 | Running emulator/device | `.\tools\run_emulator.ps1` (add `-ColdBoot` if adb shows "offline"; add `-PublicDns` only when ads are involved) |
-| Debug build of the current commit | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.normalexception.game -Preset IronStatic` |
+| Debug build of the current commit | `.\tools\deploy_android.ps1 -ProjectPath C:\dev\tower -Package com.normalexception.games.ironstatic -Preset IronStatic` |
 | `[PERF]` lines (`fps`, `min`, `tick_ms`, `enemies`) | debug overlay enabled, or the `--debug-perf` / `--debug-load` user args via the export preset `command_line/extra_args` (see `docs/setup/DEV_ENVIRONMENT.md`; Android strips intent extras). Revert the preset afterwards. |
-| Memory samples | `adb shell dumpsys meminfo com.normalexception.game` (TOTAL PSS) |
-| Crash/error scan | `adb logcat -d` filtered for `FATAL EXCEPTION`, error-level `AndroidRuntime`, `SCRIPT ERROR`, `ANR in com.normalexception.game` |
+| Memory samples | `adb shell dumpsys meminfo com.normalexception.games.ironstatic` (TOTAL PSS) |
+| Crash/error scan | `adb logcat -d` filtered for `FATAL EXCEPTION`, error-level `AndroidRuntime`, `SCRIPT ERROR`, `ANR in com.normalexception.games.ironstatic` |
 | Screenshots | `cmd /c "cd /d C:\ && adb exec-out screencap -p > C:\dev\tower\build\soak\<name>.png"` (must run from `C:\`) |
-| Process alive | `adb shell pidof com.normalexception.game` |
+| Process alive | `adb shell pidof com.normalexception.games.ironstatic` |
 
 If `tools\smoke_android.ps1` has `-Soak`/`-MinFps` options (added in M1-25), prefer them for the run
 and log parsing, and use this skill for the extra sampling and the report.

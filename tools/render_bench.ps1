@@ -25,7 +25,7 @@ param(
     [switch]$HideBattlefield,
     [switch]$HideHud,
     [string]$Tag = "",
-    [string]$Package = "com.normalexception.game",
+    [string]$Package = "com.normalexception.games.ironstatic",
     [string]$Serial = ""
 )
 $ErrorActionPreference = "Continue"

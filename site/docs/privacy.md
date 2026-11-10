@@ -6,7 +6,7 @@ title: Privacy policy
 
 Effective date: 2026-11-09. Last updated: 2026-11-10.
 
-This page covers the **IRON STATIC** Android game (package `com.normalexception.game`), open beta version 0.5.x, published by **Paimon Sorornejad** ("we"). It is written in plain language on purpose.
+This page covers the **IRON STATIC** Android game (package `com.normalexception.games.ironstatic`), open beta version 0.5.x, published by **Paimon Sorornejad** ("we"). It is written in plain language on purpose.
 
 ## The short version
 

@@ -18,7 +18,7 @@ Owner: **U** = user, **A** = agents.
 - [x] **U** Placeholders filled in `site/docs/privacy.md` (2026-11-09): developer name `Paimon Sorornejad` (must match the name shown on Google Play) and support email `support@normalexception.net`. No personal email committed anywhere (grep below).
 - [ ] **U** Public developer details decided (Q83): developer name `Paimon Sorornejad` and support email `support@normalexception.net` decided 2026-11-09; the address shown on the store page and the EU trader status still open.
 - [ ] **U** Trademark and name search done (Q31): Google Play, USPTO, EUIPO, web, handles. Result recorded. Fallback name EMBER CHASSIS.
-- [x] **U** Package name final (Q79): `com.normalexception.game`, decided 2026-11-09 and applied to both presets, the tools and the docs (permanent after the first upload).
+- [x] **U** Package name final (Q79): `com.normalexception.games.ironstatic`, decided 2026-11-10 (replacing `com.normalexception.game`) and applied to both presets, the tools and the docs (permanent after the first upload).
 - [ ] **U** Upload keystore created and **backed up in two places** (not in the repo, never pasted into chat); passwords in a password manager; only in `secrets.local.json` or environment variables locally.
 - [ ] **U** Developer account verified, 2-Step Verification on, Play Console app installed on a real device (guide section 3, phase 1).
 - [ ] **U** Account path known (Q78): exempt (open test directly) or Path B (closed test 12 testers x 14 days, then production access).

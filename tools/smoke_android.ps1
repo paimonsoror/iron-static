@@ -9,7 +9,7 @@ PerfWarmup-second warm-up and fails if the lowest per-line fps average is below 
 Prints SMOKE OK or "SMOKE FAIL: <reason>"; exit 0 / 1.
 #>
 param(
-    [string]$Package = "com.normalexception.game",
+    [string]$Package = "com.normalexception.games.ironstatic",
     [string]$Preset = "IronStatic",
     [int]$WaitSeconds = 35,
     [switch]$SkipDeploy,
