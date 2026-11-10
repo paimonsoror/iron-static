@@ -3,7 +3,13 @@ extends RefCounted
 ## SHA-256 over the field values of tuning, enemies and upgrades (M2-07). Fields come from each def's
 ## script variables (every `@export`), sorted by name, so new fields are included automatically. Floats
 ## are hashed as raw 64-bit values; order of the enemy and upgrade rows matters.
+## R1-02: `META_ONLY_KEYS` (the Foundry soft cap rows) steer only the meta layer and are not hashed, so tuning them does
+## not end a run in progress (review C-07).
 ## SimVersion 4 (M4-15): the `draft_*` tuning vars and the patch defs (`cfg.patches`, row order) are hashed.
+
+const META_ONLY_KEYS: PackedStringArray = [
+	"foundry_cap_k", "foundry_cap_min", "foundry_over_cap_mult", "foundry_over_cap_growth"
+]
 
 
 static func compute(cfg: SimConfig) -> String:
@@ -11,7 +17,7 @@ static func compute(cfg: SimConfig) -> String:
 	if ctx.start(HashingContext.HASH_SHA256) != OK:
 		push_error("ConfigHash: start failed")
 		return ""
-	_put_resource(ctx, cfg.tuning)
+	_put_resource(ctx, cfg.tuning, META_ONLY_KEYS)
 	_put_text(ctx, "enemies:%d" % cfg.enemies.size())
 	for e: EnemyDef in cfg.enemies:
 		_put_resource(ctx, e)
@@ -47,12 +53,14 @@ static func _put_text(ctx: HashingContext, text: String) -> void:
 		push_error("ConfigHash: update failed")
 
 
-static func _put_resource(ctx: HashingContext, res: Resource) -> void:
+static func _put_resource(ctx: HashingContext, res: Resource, skip: PackedStringArray = PackedStringArray()) -> void:
 	var names: PackedStringArray = PackedStringArray()
 	for p: Dictionary in res.get_property_list():
 		var usage: int = p["usage"]
 		if usage & PROPERTY_USAGE_SCRIPT_VARIABLE and usage & PROPERTY_USAGE_STORAGE:
 			var prop_name: String = p["name"]
+			if skip.has(prop_name):
+				continue
 			if names.append(prop_name):
 				push_error("ConfigHash: append failed")
 	names.sort()

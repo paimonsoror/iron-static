@@ -4,11 +4,13 @@ extends RefCounted
 ## `FoundryService` (costs, caps, `FoundryRules.recommended`), one level at a time, until the policy's pick is not
 ## affordable (it then saves the Data) or nothing is left to buy.
 ##   cheapest     the row with the cheapest next level (ties: first row)
-##   laser        all-in `laser_output`; at its limit (row cap or best-wave cap, FO-3) the Data goes to the cheapest row
+##   laser        all-in `laser_output` while it is below its soft cap (levels at or above it cost x3, R1-02);
+##                at the limit (or the row cap) the Data goes to the cheapest row, which is a row still below its cap
 ##   recommended  mirrors the Foundry glow (`FoundryRules.recommended`, FoundryRowView.recommended): a Type D row at
-##                most 3 levels from its x1.25 milestone, else the cheapest affordable row. Buys only the glowing row;
+##                most 3 levels from its milestone, else the cheapest affordable row, rows below the soft cap first.
+##                Buys only the glowing row;
 ##                when it glows on a row the player cannot afford yet, the player waits (no fallback purchase).
-##   roundrobin   rows in Foundry order, one level each, skipping maxed and capped rows; waits when the next row
+##   roundrobin   rows in Foundry order, one level each, skipping maxed rows; waits when the next row
 ##                is unaffordable
 ##   none         never spends
 
@@ -51,10 +53,11 @@ func _pick(rows: Array[FoundryRowView]) -> int:
 	return -1
 
 
-## `laser_output` while it is below its level limit; at the limit (row cap or best-wave cap) the cheapest other row.
+## `laser_output` while it is below its soft cap; at the cap (or the row cap) the cheapest row (its price includes the
+## over-cap multiplier, so a row still below its cap wins).
 func _laser(rows: Array[FoundryRowView]) -> int:
 	for i: int in rows.size():
-		if rows[i].id == "laser_output" and not _blocked(rows[i]):
+		if rows[i].id == "laser_output" and not _blocked(rows[i]) and not rows[i].over_limit:
 			return i
 	return _cheapest(rows)
 
@@ -84,6 +87,6 @@ func _cheapest(rows: Array[FoundryRowView]) -> int:
 	return best
 
 
-## A row that cannot be bought now: at its own cap, or held back by the best-wave cap (FO-3).
+## A row that cannot be bought: at its own cap. The best-wave soft cap never blocks (R1-02); it only raises the price.
 func _blocked(row: FoundryRowView) -> bool:
-	return row.maxed or row.capped
+	return row.maxed

@@ -1,21 +1,23 @@
 class_name FoundryRules
 extends RefCounted
-## Foundry formulas as pure static functions (GDD 05 sections 1.1-1.4, M3-06). Costs are BigNum: exact
+## Foundry formulas as pure static functions (GDD 05 sections 1.1-1.5, M3-06). Costs are BigNum: exact
 ## integers (plain float math, below 1e15) for everything the MVP reaches, BigNum `pow_float` above that
 ## so F = 200 stays finite.
+## The Foundry soft cap (R1-02, review G-06, Q89; GDD 05 section 1.5) and the Foundry milestone are DATA: rows of
+## data/sim_constants.csv read through a `SimTuning` (`foundry_cap_k`, `foundry_cap_min`, `foundry_over_cap_mult`,
+## `foundry_milestone_step`, `foundry_milestone_mult`). Every function that needs one takes `t`. FO-3 had them as
+## constants here because the meta layer had no tuning; `FoundryService` now carries one (default
+## `SimConfigLoader.load_tuning()`), so there is one source and no code constant left except the ones below.
 
 const EXACT_LIMIT: float = 1.0e15
-const MILESTONE_STEP: int = Curves.MILESTONE_FOUNDRY_STEP
 const SUM_STEP_CAP: int = 300  ## total_cost sums at most this many levels exactly; more uses the closed form
-## `recommended` considers a Type D row near a milestone when it is at most this many levels away.
+## `recommended` considers a Type D row near a milestone when it is at most this many levels away (a UI glow rule, the
+## same distance as `UpgradeRowModel.MILESTONE_GLOW_LEVELS`; not a balance number).
 const NEAR_MILESTONE: int = 3
-## Best-wave level cap (FO-3, option E of docs/balance/foundry_early_power.md; GDD 05 section 1.5): a Foundry row can be
-## bought up to `max(CAP_MIN, floor(CAP_K * best_wave_s1))` levels, never above the row's own cap. Constants rather than
-## sim_constants.csv: the rule lives in the meta layer, which has no SimTuning, and keeping it out of the config hash
-## leaves the sim untouched by it.
-const CAP_K: float = 0.6
-const CAP_MIN: int = 3
+## Float epsilon of `wave_cap` (the floor of an exact product such as 0.6 * 5).
 const CAP_EPS: float = 1.0e-9
+## "No best-wave limit": tools and the journey probe lift the soft cap with this limit (every level at a normal price).
+const NO_LIMIT: int = 1 << 30
 
 
 ## `ceil(fc0 * fg ^ level)` data for the step level -> level + 1.
@@ -34,73 +36,109 @@ static func level_cap(def: FoundryDef, run_def: RunUpgradeDef) -> int:
 	return def.f_cap
 
 
-## Levels a row may reach at `best_wave` (TIMED sector 1) before its own cap: `max(CAP_MIN, floor(CAP_K * best_wave))`.
-static func wave_cap(best_wave: int) -> int:
-	return maxi(CAP_MIN, floori(CAP_K * float(maxi(best_wave, 0)) + CAP_EPS))
+## Soft cap of the Foundry (TIMED sector 1): a level whose index (the level being bought from) is at or above
+## `max(foundry_cap_min, floor(foundry_cap_k * best_wave))` costs `foundry_over_cap_mult` times more. Never a lock.
+static func wave_cap(best_wave: int, t: SimTuning) -> int:
+	return maxi(t.foundry_cap_min, floori(t.foundry_cap_k * float(maxi(best_wave, 0)) + CAP_EPS))
 
 
-## The level a row can be bought up to now: `min(wave_cap(best_wave), level_cap)`. A profile above it keeps its levels.
-static func level_limit(def: FoundryDef, run_def: RunUpgradeDef, best_wave: int) -> int:
-	return mini(wave_cap(best_wave), level_cap(def, run_def))
-
-
-## Smallest best wave at which `wave_cap` reaches `target_level` (the N of "NEXT LEVEL AT WAVE N").
-static func wave_for_level(target_level: int) -> int:
-	if target_level <= CAP_MIN:
+## Smallest best wave at which `wave_cap` is at least `target_level`, i.e. the wave from which buying the level whose
+## index is `target_level - 1` is no longer over the cap (the N of "x3 COST UNTIL WAVE N").
+static func wave_for_level(target_level: int, t: SimTuning) -> int:
+	if target_level <= t.foundry_cap_min:
 		return 0
-	var w: int = maxi(ceili(float(target_level) / CAP_K) - 2, 0)
-	while wave_cap(w) < target_level:
+	var w: int = maxi(ceili(float(target_level) / t.foundry_cap_k) - 2, 0)
+	while wave_cap(w, t) < target_level:
 		w += 1
 	return w
 
 
+## Cost of the step `level` -> `level + 1` with the soft cap at `limit`: `cost(def, level)`, times
+## `foundry_over_cap_mult` when `level >= limit`. The first version is flat; compounding (`mult ^ levels_over`) is an
+## option the journey targets can ask for (R1-02).
+static func step_cost(def: FoundryDef, level: int, limit: int, t: SimTuning) -> BigNum:
+	var base: BigNum = cost(def, level)
+	if level >= limit:
+		return base.mul_float(over_mult_at(level, limit, t)).floor_value()
+	return base
+
+
+## The over-cap multiplier of the step from `level` (>= limit): `foundry_over_cap_mult * foundry_over_cap_growth ^
+## (level - limit)`; growth 1 is the flat first version, above 1 the cost compounds per level over the cap.
+static func over_mult_at(level: int, limit: int, t: SimTuning) -> float:
+	return t.foundry_over_cap_mult * pow(t.foundry_over_cap_growth, float(maxi(level - limit, 0)))
+
+
 ## Type D: `Curves.foundry_mult`. Type C: the starting stat delta `step * F` (0 without `run_def`).
-static func multiplier(def: FoundryDef, level: int, run_def: RunUpgradeDef = null) -> float:
+static func multiplier(def: FoundryDef, level: int, run_def: RunUpgradeDef = null, t: SimTuning = null) -> float:
 	if def.kind == "D":
-		return Curves.foundry_mult(maxi(level, 0), def.f)
+		return Curves.foundry_mult(maxi(level, 0), def.f, t)
 	if run_def == null:
 		return 0.0
 	return run_def.step * float(clampi(level, 0, level_cap(def, run_def)))
 
 
 ## Stat value of a run that starts at run level 0 with Foundry level `level` (no frame, no externals).
-static func start_value(def: FoundryDef, run_def: RunUpgradeDef, level: int) -> float:
-	return StatResolver.value_at(run_def, 0, level, def.f)
+static func start_value(def: FoundryDef, run_def: RunUpgradeDef, level: int, t: SimTuning = null) -> float:
+	return StatResolver.value_at(run_def, 0, level, def.f, 1.0, 0.0, t)
 
 
-## The next multiple of MILESTONE_STEP above `level` (Type D milestone).
-static func next_milestone(level: int) -> int:
-	return (floori(float(maxi(level, 0)) / float(MILESTONE_STEP)) + 1) * MILESTONE_STEP
+## The next multiple of the Foundry milestone step above `level` (Type D milestone).
+static func next_milestone(level: int, t: SimTuning) -> int:
+	var step: int = Curves.foundry_step(t)
+	return (floori(float(maxi(level, 0)) / float(step)) + 1) * step
 
 
-## Levels to the next x1.75 milestone: 1 at F24, 25 at F25. -1 for a Type C `def` (no milestones).
-static func levels_to_milestone(level: int, def: FoundryDef = null) -> int:
+## Levels to the next Foundry milestone (x1.75 every 25 with the shipped data): 1 at F24, 25 at F25. -1 for a Type C
+## `def` (no milestones).
+static func levels_to_milestone(level: int, def: FoundryDef, t: SimTuning) -> int:
 	if def != null and def.kind == "C":
 		return -1
-	return next_milestone(level) - maxi(level, 0)
+	return next_milestone(level, t) - maxi(level, 0)
 
 
-## Cost of buying `count` levels starting at `level`: the exact sum of per-level costs (at most
-## SUM_STEP_CAP steps; beyond that the closed form fc0 * fg^F * (fg^n - 1) / (fg - 1), documented fallback).
-static func total_cost(def: FoundryDef, level: int, count: int) -> BigNum:
+## Cost of buying `count` levels starting at `level` with the soft cap at `limit`: the exact sum of the step costs (at
+## most SUM_STEP_CAP steps; beyond that the closed form fc0 * fg^F * (fg^n - 1) / (fg - 1) per segment, below and at or
+## above the limit; documented fallback).
+static func total_cost(def: FoundryDef, level: int, count: int, limit: int, t: SimTuning) -> BigNum:
 	var total: BigNum = BigNum.zero()
 	var steps: int = mini(maxi(count, 0), SUM_STEP_CAP)
 	for i: int in steps:
-		total = total.add(cost(def, level + i))
+		total = total.add(step_cost(def, level + i, limit, t))
 	var rest: int = count - steps
 	if rest > 0:
-		var first: BigNum = cost(def, level + steps)
-		var growth: BigNum = BigNum.from_float(def.fg).pow_float(float(rest)).sub_floor0(BigNum.one())
-		total = total.add(first.mul(growth).mul_float(1.0 / (def.fg - 1.0)))
+		var start: int = level + steps
+		var below: int = clampi(limit - start, 0, rest)
+		total = total.add(_geometric(def, start, below))
+		var over_start: int = start + below
+		var over_n: int = rest - below
+		if over_n > 0:
+			var first: BigNum = cost(def, over_start).mul_float(over_mult_at(over_start, limit, t))
+			total = total.add(_geometric_ratio(first, def.fg * t.foundry_over_cap_growth, over_n))
 	return total
 
 
-## Most levels (at most `cap_count`) that `data` pays for, buying one after the other.
-static func max_affordable(def: FoundryDef, level: int, data: BigNum, cap_count: int) -> int:
+## `first * (ratio^n - 1) / (ratio - 1)` (the sum of n terms of a geometric series).
+static func _geometric_ratio(first: BigNum, ratio: float, n: int) -> BigNum:
+	var growth: BigNum = BigNum.from_float(ratio).pow_float(float(n)).sub_floor0(BigNum.one())
+	return first.mul(growth).mul_float(1.0 / (ratio - 1.0))
+
+
+## Closed form of `count` consecutive costs from `level` (no soft cap).
+static func _geometric(def: FoundryDef, level: int, count: int) -> BigNum:
+	if count <= 0:
+		return BigNum.zero()
+	var first: BigNum = cost(def, level)
+	var growth: BigNum = BigNum.from_float(def.fg).pow_float(float(count)).sub_floor0(BigNum.one())
+	return first.mul(growth).mul_float(1.0 / (def.fg - 1.0))
+
+
+## Most levels (at most `cap_count`) that `data` pays for, buying one after the other, with the soft cap at `limit`.
+static func max_affordable(def: FoundryDef, level: int, data: BigNum, cap_count: int, limit: int, t: SimTuning) -> int:
 	var left: BigNum = data
 	var bought: int = 0
 	while bought < cap_count:
-		var c: BigNum = cost(def, level + bought)
+		var c: BigNum = step_cost(def, level + bought, limit, t)
 		if not covers(left, c):
 			break
 		left = left.sub_floor0(c)
@@ -108,21 +146,33 @@ static func max_affordable(def: FoundryDef, level: int, data: BigNum, cap_count:
 	return bought
 
 
-## Index of the "Recommended" row or -1 (Q58, impl): among Type D rows not maxed and not capped by the best wave
-## with at most NEAR_MILESTONE levels to the next milestone the cheapest next level; else the cheapest affordable
-## row; else none. Capped rows are skipped (FO-3). Ties go to the first row.
+## Index of the "Recommended" row or -1 (Q58, impl): among Type D rows not maxed with at most NEAR_MILESTONE levels to
+## the next milestone the cheapest next level; else the cheapest affordable row; else none. Rows below the soft cap
+## are preferred (R1-02): rows at or above it (x3 cost) are only recommended when no row below the cap qualifies.
+## Ties go to the first row.
 static func recommended(rows: Array[FoundryRowView]) -> int:
+	var below: int = _recommended(rows, false)
+	if below >= 0:
+		return below
+	return _recommended(rows, true)
+
+
+static func _recommended(rows: Array[FoundryRowView], allow_over: bool) -> int:
 	var best: int = -1
 	for i: int in rows.size():
 		var r: FoundryRowView = rows[i]
-		var near: bool = r.kind == "D" and not r.maxed and not r.capped and r.levels_to_milestone <= NEAR_MILESTONE
+		if r.maxed or (r.over_limit and not allow_over):
+			continue
+		var near: bool = r.kind == "D" and r.levels_to_milestone <= NEAR_MILESTONE
 		if near and (best < 0 or r.cost.lt(rows[best].cost)):
 			best = i
 	if best >= 0:
 		return best
 	for i: int in rows.size():
 		var r: FoundryRowView = rows[i]
-		if r.affordable and not r.maxed and not r.capped and (best < 0 or r.cost.lt(rows[best].cost)):
+		if r.maxed or (r.over_limit and not allow_over):
+			continue
+		if r.affordable and (best < 0 or r.cost.lt(rows[best].cost)):
 			best = i
 	return best
 

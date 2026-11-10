@@ -3,7 +3,11 @@
 # mode is timed or purge (M4-10); a file without the mode column is read as all timed.
 # Foundry profile rows (M3-08) and every PURGE row (M4-10) are information only: balance_run reports a FAIL there as WARN (Q54 territory; PURGE until the user signs off). x4 37 and x10 60 rows follow with the real Foundry profiles.
 profile,mode,metric,target,tolerance,source
-fresh,timed,median_death_wave,12,0.30,gdd:03 s6
-foundry_300,timed,median_death_wave,16,0.30,gdd:04 s3 fresh median 12 + 4 (info only)
-foundry_1k,timed,median_death_wave,24,0.30,gdd:03 s6 x2 impl guess (info only)
+fresh,timed,median_death_wave,14,0.30,gdd:03 s6 12 + 2 for the R1-04 drafts (R1-02 tune; draft first and random 14)
+foundry_300,timed,median_death_wave,20,0.30,gdd:04 s3 fresh median + 6 with drafts (R1-02 tune; draft first 20 and random 18; info only)
+foundry_1k,timed,median_death_wave,27,0.30,gdd:03 s6 fresh + 14 with drafts (R1-02 tune; draft first 27-28 and random 23; info only)
 fresh,purge,median_death_wave,16,0.30,impl
+journey,timed,journey_best_after_3,22.5,0.111,gdd:05 s8 first session 20-25 (R1-01; report only; journey_run VANGUARD TIMED recommended 40 deployments)
+journey,timed,journey_best_day1,40,0.125,gdd:04 s3 Day 1 35-45: best after the last deployment ending by 35 min of 2x play (R1-02; report only)
+journey,timed,journey_max_no_best_streak_30,4,0,review G-15: never more than 4 deployments without a new best in the first 30 (upper bound; R1-01; report only)
+journey,timed,journey_unspent_vs_income_max,1.5,0,review G-15/G-06: unspent Data at most 1.5x that deployment's income (upper bound; R1-01; report only)

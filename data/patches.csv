@@ -1,11 +1,11 @@
 # In-run patches (M4-13, GDD 02 s10). op: bonus = stat x (1 + per_pick x qty); mult = stat x per_pick^qty; add = stat + per_pick x qty points (plating_pct only). stat may list several stats separated by ";" (patch_extraction). family (arms, chassis, systems) is the draft slot the patch fills (R1-04); it matches the tab of its stat in run_upgrades.csv where the stat is an upgrade row. A gamble row names its cost: cost_stat cost_op cost_value, applied once per pick together with the benefit (cost_op is always mult). Strings come from data/strings_en.csv through name_key and desc_key.
 id,kind,stat,family,op,per_pick,max_picks,cost_stat,cost_op,cost_value,name_key,desc_key,tag,source
-patch_overcharge,standard,laser_output,arms,bonus,0.15,5,,,,patch.overcharge.name,patch.overcharge.desc,MVP,gdd:02 s10.1
-patch_plating,standard,hull_integrity,chassis,bonus,0.20,5,,,,patch.plating.name,patch.plating.desc,MVP,gdd:02 s10.1
-patch_rate,standard,cycle_rate,arms,bonus,0.10,5,,,,patch.rate.name,patch.rate.desc,MVP,gdd:02 s10.1
-patch_extraction,standard,scrap_yield;data_yield,systems,bonus,0.15,5,,,,patch.extraction.name,patch.extraction.desc,MVP,gdd:02 s10.1
-patch_regen,standard,nano_repair,chassis,bonus,0.50,5,,,,patch.regen.name,patch.regen.desc,MVP,gdd:02 s10.1
-patch_ceramic,standard,plating_pct,chassis,add,0.04,5,,,,patch.ceramic.name,patch.ceramic.desc,MVP,gdd:02 s10.1
-patch_t_glass,gamble,laser_output,arms,mult,1.5,1,hull_integrity,mult,0.70,patch.t_glass.name,patch.t_glass.desc,MVP,gdd:02 s10.2
-patch_t_greed,gamble,data_yield,systems,mult,1.8,1,hull_integrity,mult,0.50,patch.t_greed.name,patch.t_greed.desc,MVP,gdd:02 s10.2
+patch_overcharge,standard,laser_output,arms,bonus,0.09,5,,,,patch.overcharge.name,patch.overcharge.desc,MVP,gdd:02 s10.1
+patch_plating,standard,hull_integrity,chassis,bonus,0.12,5,,,,patch.plating.name,patch.plating.desc,MVP,gdd:02 s10.1
+patch_rate,standard,cycle_rate,arms,bonus,0.06,5,,,,patch.rate.name,patch.rate.desc,MVP,gdd:02 s10.1
+patch_extraction,standard,scrap_yield;data_yield,systems,bonus,0.09,5,,,,patch.extraction.name,patch.extraction.desc,MVP,gdd:02 s10.1
+patch_regen,standard,nano_repair,chassis,bonus,0.30,5,,,,patch.regen.name,patch.regen.desc,MVP,gdd:02 s10.1
+patch_ceramic,standard,plating_pct,chassis,add,0.025,5,,,,patch.ceramic.name,patch.ceramic.desc,MVP,gdd:02 s10.1
+patch_t_glass,gamble,laser_output,arms,mult,1.35,1,hull_integrity,mult,0.70,patch.t_glass.name,patch.t_glass.desc,MVP,gdd:02 s10.2
+patch_t_greed,gamble,data_yield,systems,mult,1.5,1,hull_integrity,mult,0.50,patch.t_greed.name,patch.t_greed.desc,MVP,gdd:02 s10.2
 patch_t_hardhide,gamble,enemy_damage,chassis,mult,0.60,1,laser_output,mult,0.60,patch.t_hardhide.name,patch.t_hardhide.desc,MVP,gdd:02 s10.2

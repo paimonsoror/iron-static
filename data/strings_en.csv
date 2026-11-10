@@ -19,7 +19,7 @@ panel.intel_stub,INTEL: coming in a later update
 row.max,MAX
 row.level,L{n}
 row.value,{a} > {b}
-tooltip.d,"Base {base}. Each level adds {step} of base. Every 25 levels: x1.5. Level cap {cap}.\nFoundry: {foundry}"
+tooltip.d,"Base {base}. Each level adds {step} of base. Every {ms} levels: x{mm}. Level cap {cap}.\nFoundry: {foundry}"
 tooltip.c,"Base {base}, {step} per level. Level cap {cap}, limit {limit}.\nFoundry: {foundry}"
 tooltip.none,none
 tooltip.foundry_none,--
@@ -63,9 +63,8 @@ foundry.data,DATA {v}
 foundry.level,F{n}
 foundry.value,{a} -> {b}
 foundry.value_start,STARTS AT {v}
-foundry.milestone,MILESTONE F{n}  x1.75
-foundry.capped,CAP
-foundry.next_at,NEXT LEVEL AT WAVE {n}
+foundry.milestone,MILESTONE F{n}  x{m}
+foundry.over_cost,x{m} COST UNTIL WAVE {n}
 foundry.max,MAX
 foundry.recommended,RECOMMENDED
 foundry.afford_now,AFFORDABLE
@@ -73,8 +72,9 @@ foundry.afford_in,~{v} TO AFFORD
 foundry.preview,NEXT RUN  PR {a} -> {b}
 foundry.deploy,DEPLOY
 foundry.back,BACK
-foundry.tooltip_d,"Permanent. Every deployment starts with this stat boosted by your Foundry level, plus x1.75 for every 25 levels. Level F{f}. Next level costs {cost} data. Cap F{cap}."
-foundry.tooltip_cap,"Level limit F{cap} at your best wave. Reach wave {n} to unlock the next level."
+foundry.tooltip_d,"Permanent. Every deployment starts with this stat boosted by your Foundry level, plus x{m} for every {s} levels. Level F{f}. Next level costs {cost} data. Cap F{cap}."
+foundry.tooltip_rule,"Levels from F{cap} up cost x{m} at your best wave. Reaching further waves raises that limit."
+foundry.tooltip_over,"This level costs x{m}. Reach wave {n} to buy it at the normal price."
 foundry.tooltip_c,"Permanent. Every deployment starts with free levels of this stat. Level F{f}. Next level costs {cost} data. Cap F{cap}."
 foundry.locked,COMPLETE A DEPLOYMENT TO UNLOCK
 results.best_delta,BEST {b}  (+{d})
@@ -177,22 +177,22 @@ results.best_mode,BEST {name} {n}
 hud.mode_purge_left,{n} LEFT
 home.best_mode,BEST {name} {n}
 patch.overcharge.name,OVERCHARGE
-patch.overcharge.desc,LASER OUTPUT +15% PER PICK
+patch.overcharge.desc,LASER OUTPUT +9% PER PICK
 patch.plating.name,PLATING
-patch.plating.desc,HULL INTEGRITY +20% PER PICK
+patch.plating.desc,HULL INTEGRITY +12% PER PICK
 patch.rate.name,RAPID CYCLE
-patch.rate.desc,CYCLE RATE +10% PER PICK
+patch.rate.desc,CYCLE RATE +6% PER PICK
 patch.extraction.name,EXTRACTION
-patch.extraction.desc,SCRAP AND DATA YIELD +15% PER PICK
+patch.extraction.desc,SCRAP AND DATA YIELD +9% PER PICK
 patch.regen.name,NANO REGEN
-patch.regen.desc,NANO REPAIR +50% PER PICK
+patch.regen.desc,NANO REPAIR +30% PER PICK
 patch.ceramic.name,CERAMIC
-patch.ceramic.desc,PLATING +4 POINTS PER PICK
+patch.ceramic.desc,PLATING +2.5 POINTS PER PICK
 patch.t_glass.name,GLASS CANNON
-patch.t_glass.desc,LASER OUTPUT x1.5
+patch.t_glass.desc,LASER OUTPUT x1.35
 patch.t_glass.cost,HULL INTEGRITY x0.7
 patch.t_greed.name,GREED
-patch.t_greed.desc,DATA YIELD x1.8
+patch.t_greed.desc,DATA YIELD x1.5
 patch.t_greed.cost,HULL INTEGRITY x0.5
 patch.t_hardhide.name,HARDHIDE
 patch.t_hardhide.desc,ENEMY DAMAGE x0.6
@@ -249,6 +249,10 @@ intel.stats.chain_frame,FRAME {v}
 intel.stats.chain_patch,PATCH {v}
 intel.stats.chain_dps,OUTPUT x RATE x CRIT {v}
 intel.stats.chain_none,NO MODIFIERS
+intel.stats.burn_dr,BURN HARDENING
+intel.stats.burn_dr_none,NONE
+intel.stats.chain_burn_band,SKIN BURN BAND {v}
+intel.stats.chain_burn_none,SKIN INTACT: FULL DAMAGE
 settings.haptics,HAPTICS
 settings.colorblind,COLORBLIND MODE
 settings.high_contrast,HIGH CONTRAST
@@ -328,6 +332,6 @@ foundry.intro.title,THE FOUNDRY
 foundry.intro.p1,PERMANENT UPGRADES. SCRAP UPGRADES RESET WHEN A DEPLOYMENT ENDS; FOUNDRY LEVELS STAY.
 foundry.intro.p2,PAID IN DATA FROM KILLS. IT IS BANKED WHEN A DEPLOYMENT ENDS - EVEN IF CINDER FALLS.
 foundry.intro.p3,EACH LEVEL RAISES YOUR STARTING STATS: EVERY DEPLOYMENT BEGINS STRONGER AND REACHES FURTHER.
-foundry.intro.p4,TAP A COST TO BUY. HOLD TO KEEP BUYING. MORE LEVELS OPEN AS YOU REACH FURTHER WAVES.
+foundry.intro.p4,TAP A COST TO BUY. HOLD TO KEEP BUYING. HIGHER LEVELS COST MORE UNTIL YOU REACH FURTHER WAVES.
 foundry.intro.hide,DON'T SHOW THIS AGAIN
 foundry.intro.ok,GOT IT

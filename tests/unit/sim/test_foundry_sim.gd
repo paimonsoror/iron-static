@@ -3,7 +3,8 @@ extends GdUnitTestSuite
 ## Foundry levels entering the sim as config data (M3-07).
 
 # Re-pinned in M4-02 (the mode section is always hashed).
-const PRE_M3_CONFIG_HASH: String = "61a7cdfccc771f9d581c144e6da9f374ed742033c53e1fd1a5baad93a638139a"
+## The neutral-config hash is the replay golden (R1: it changes with every new tuning row; pinned once).
+const PRE_M3_CONFIG_HASH: String = TestReplay.GOLDEN_CONFIG_HASH
 const F_D_LASER: float = 0.06
 const F_D_HULL: float = 0.06
 

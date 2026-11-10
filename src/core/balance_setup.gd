@@ -57,15 +57,16 @@ static func implemented_frames() -> PackedStringArray:
 	return out
 
 
-## Total `data` the given Foundry levels cost from level 0 (float, exact below 1e15).
+## Total `data` the given Foundry levels cost from level 0 at the normal price, no soft cap (float, exact below 1e15).
 static func foundry_cost(levels: Dictionary) -> float:
 	var defs: Array[FoundryDef] = SimConfigLoader.load_foundry_defs()
+	var tuning: SimTuning = SimConfigLoader.load_tuning()
 	var total: float = 0.0
 	for def: FoundryDef in defs:
 		var raw: Variant = levels.get(def.id, 0)
 		var num: float = raw if (raw is int or raw is float) else 0.0
 		var lvl: int = int(num)
-		total += FoundryRules.total_cost(def, 0, lvl).to_float()
+		total += FoundryRules.total_cost(def, 0, lvl, FoundryRules.NO_LIMIT, tuning).to_float()
 	return total
 
 

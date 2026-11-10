@@ -192,8 +192,8 @@ func test_row_body_tap_toggles_the_formula_tooltip() -> void:
 	assert_bool(row.is_tooltip_visible()).is_false()
 
 
-func test_a_hold_stops_at_the_best_wave_cap() -> void:
-	var p: PlayerProfile = _make(BigNum.from_float(1.0e12), false, 10)  # wave cap 6
+func test_a_hold_stops_at_the_first_over_limit_level_and_a_fresh_tap_continues() -> void:
+	var p: PlayerProfile = _make(BigNum.from_float(1.0e12), false, 8)  # soft cap 6
 	await await_millis(60)
 	var row: FoundryRow = _screen.row_at(0)
 	var pos: Vector2 = _press(row)
@@ -201,6 +201,32 @@ func test_a_hold_stops_at_the_best_wave_cap() -> void:
 		assert_int(i).is_greater_equal(0)
 		row.advance_hold(0.1)
 	_mouse(pos, false)
+	assert_int(p.foundry_level("laser_output")).is_equal(6)  # the hold never crossed the limit
+	assert_bool(row.buy_button().disabled).is_false()  # never locked
+	assert_str(row.afford_text()).is_equal("x2 COST UNTIL WAVE 10")
+	assert_int(_spy.buy_ends).is_equal(1)
+	# A hold that starts over the limit buys nothing (it ends on its first repeat) ...
+	var again: Vector2 = _press(row)
+	for i: int in 20:
+		assert_int(i).is_greater_equal(0)
+		row.advance_hold(0.1)
+	_mouse(again, false)
 	assert_int(p.foundry_level("laser_output")).is_equal(6)
-	assert_bool(row.buy_button().disabled).is_true()
-	assert_str(row.afford_text()).is_equal("NEXT LEVEL AT WAVE 12")
+	# ... a fresh tap buys one level at the multiplied price.
+	var data_before: BigNum = p.data
+	var tap: Vector2 = _press(row)
+	_mouse(tap, false)
+	assert_int(p.foundry_level("laser_output")).is_equal(7)
+	assert_bool(p.data.lt(data_before)).is_true()
+
+
+func test_hold_steps_never_cross_the_limit() -> void:
+	var p: PlayerProfile = _make(BigNum.from_float(1.0e12), false, 40)  # soft cap 28
+	await await_millis(60)
+	var row: FoundryRow = _screen.row_at(0)
+	var pos: Vector2 = _press(row)
+	for i: int in 80:
+		assert_int(i).is_greater_equal(0)
+		row.advance_hold(0.1)
+	_mouse(pos, false)
+	assert_int(p.foundry_level("laser_output")).is_equal(28)

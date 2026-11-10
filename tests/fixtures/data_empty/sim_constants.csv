@@ -56,6 +56,17 @@ exposure_t1,0.75,gdd:02 s12.1,Integrity fraction at or below which band 1 starts
 exposure_t2,0.50,gdd:02 s12.1,Integrity fraction at or below which band 2 starts
 exposure_t3,0.25,gdd:02 s12.1,Integrity fraction at or below which band 3 starts
 exposure_hysteresis,0.05,gdd:02 s12.1,Fraction a band is left only after f exceeds threshold plus this
+burn_dr_b1,0.85,impl,Damage taken multiplier in skin burn band 1 (R1-05; the frame hardens as the skin burns)
+burn_dr_b2,0.70,impl,Damage taken multiplier in skin burn band 2 (R1-05)
+burn_dr_b3,0.55,impl,Damage taken multiplier in skin burn band 3 (R1-05)
+run_milestone_step,25,gdd:02 s5,Run upgrade levels between milestones (R1-02; was Curves.MILESTONE_RUN_STEP)
+run_milestone_mult,1.5,gdd:02 s5,Run upgrade multiplier gained at each milestone (R1-02; was Curves.MILESTONE_RUN_MULT)
+foundry_milestone_step,25,gdd:05 s1.2,Foundry levels between milestones (R1-02; was Curves.MILESTONE_FOUNDRY_STEP)
+foundry_milestone_mult,1.75,gdd:05 s1.2,Foundry multiplier gained at each milestone (R1-02; was Curves.MILESTONE_FOUNDRY_MULT)
+foundry_cap_k,0.6,gdd:05 s1.5,Foundry soft cap: levels from max(foundry_cap_min; floor(foundry_cap_k * best wave)) up cost more (R1-02; was FoundryRules.CAP_K; meta only so not hashed)
+foundry_cap_min,3,gdd:05 s1.5,Foundry soft cap floor in levels (R1-02; was FoundryRules.CAP_MIN; meta only so not hashed)
+foundry_over_cap_mult,2.0,impl,Cost multiplier of a Foundry level at or above the soft cap (R1-02; Q89; meta only so not hashed)
+foundry_over_cap_growth,1.0,impl,Extra cost factor per Foundry level above the soft cap on top of foundry_over_cap_mult (1 = flat; R1-02 tune; meta only so not hashed)
 draft_first_wave,5,gdd:02 s10,Wave of the first patch draft (R1-04 schedule: 5-10-15-20 then every 10 to 50 then every 25)
 draft_interval,5,gdd:02 s10,Waves between drafts up to draft_interval_after
 draft_interval_after,20,gdd:02 s10,Last wave of the short draft spacing

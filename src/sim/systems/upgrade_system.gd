@@ -41,7 +41,7 @@ static func preview(world: SimWorld, index: int, count: int) -> UpgradePreview:
 	p.level = level
 	p.visible = world.visible[index] != 0
 	p.maxed = level >= def.l_cap
-	p.levels_to_milestone = StatResolver.levels_to_next_milestone(level)
+	p.levels_to_milestone = StatResolver.levels_to_next_milestone(level, world.config.tuning)
 	p.current_value = _value(world, index, level)
 	if p.maxed:
 		p.next_value = p.current_value
@@ -83,5 +83,5 @@ static func _value(world: SimWorld, index: int, level: int) -> float:
 	var ff: float = cfg.foundry_f[index] if index < cfg.foundry_f.size() else 0.0
 	var ext: ExternalMults = world.frame_ext
 	if ext == null:
-		return StatResolver.value_at(def, level, fl, ff)
-	return StatResolver.value_at(def, level, fl, ff, ext.mult_for(def.id), ext.add_for(def.id))
+		return StatResolver.value_at(def, level, fl, ff, 1.0, 0.0, cfg.tuning)
+	return StatResolver.value_at(def, level, fl, ff, ext.mult_for(def.id), ext.add_for(def.id), cfg.tuning)

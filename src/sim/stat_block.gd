@@ -34,9 +34,10 @@ static func from_resolver(
 	run_levels: PackedInt32Array,
 	foundry_levels: PackedInt32Array = PackedInt32Array(),
 	foundry_f: PackedFloat64Array = PackedFloat64Array(),
-	mults: ExternalMults = null
+	mults: ExternalMults = null,
+	tuning: SimTuning = null
 ) -> StatBlock:
-	return StatResolver.resolve(defs, run_levels, foundry_levels, foundry_f, mults)
+	return StatResolver.resolve(defs, run_levels, foundry_levels, foundry_f, mults, tuning)
 
 
 ## Sets the field named by an upgrade row id; unknown ids are ignored.

@@ -10,18 +10,19 @@ const MAX_TICKS: int = 60000
 ## Foundry levels differ; these goldens use no Foundry levels and the config hash (tuning, defs) did not change,
 ## so every golden hash below is unchanged.
 const GOLDEN_SIM_VERSION: int = 6
-const GOLDEN_CONFIG_HASH: String = "61a7cdfccc771f9d581c144e6da9f374ed742033c53e1fd1a5baad93a638139a"
-const GOLDEN_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
-## SimVersion 2 final hash: unchanged by the 2 to 3 bump (M4-04), asserted separately.
-const SIM_V2_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
+const GOLDEN_CONFIG_HASH: String = "abc18a6f6f856971d04ccabf1997e13b7587fb55f96af7d694cb133662eba206"
+const GOLDEN_FINAL_HASH: String = "02e20fab5092aaf19d663999927f1bf0539ac8d579b9b9bc2b65c31180bed7cf"
+## The TIMED final hash must equal the PURGE-era TIMED value (M4-04: unchanged by the 2 to 3 bump); re-recorded with
+## the R1-02 tune (start_scrap 230 changes the scripted buys), asserted separately.
+const SIM_V2_FINAL_HASH: String = "02e20fab5092aaf19d663999927f1bf0539ac8d579b9b9bc2b65c31180bed7cf"
 ## PURGE twin (M4-04): seed 7, invulnerable, same buys, real data via SimConfigLoader.apply_mode("purge").
-const GOLDEN_PURGE_CONFIG_HASH: String = "c04873f6b2957051c24d73d813c0d429491ae7aed0ea931fb6753517a50abda9"
-const GOLDEN_PURGE_FINAL_HASH: String = "636348079d070790fd9139a8c72177f6931c9a237afcf06d09e3bea16dcd75f5"
+const GOLDEN_PURGE_CONFIG_HASH: String = "df977c2c15448ec80bb5d82f5616034953f8df3899fa2f5abf30a12ab5b5632b"
+const GOLDEN_PURGE_FINAL_HASH: String = "102f49cbc84b5fa780d2f010b1daa750f27083c83c58ed4ba3ff2f2ecf96bf44"
 ## SimVersion 4 (M4-15): the config hashes changed (draft tuning and patch defs are hashed); the final hashes did not
 ## (3000 ticks end before the first draft, no patch picked).
 ## Draft twin: seed 7, invulnerable, same buys, the first offer picked at waves 5, 10, 15 and 20, 16000 ticks.
 const GOLDEN_DRAFT_TICKS: int = 16000
-const GOLDEN_DRAFT_FINAL_HASH: String = "c0b354a759bcec51c25bfdc59238bb540803d7a755263ea58255a955753ee756"
+const GOLDEN_DRAFT_FINAL_HASH: String = "eebe12775509e6c11462620696fb6a15763b379389647d65e0a2e03f6b7e1a6d"
 const GOLDEN_TICKS: int = 3000
 const NO_BUDGET_LIMIT: int = 1_000_000_000
 
@@ -126,6 +127,24 @@ func test_config_hash_changes_with_any_tuning_value() -> void:
 	assert_str(ConfigHash.compute(c3)).is_not_equal(base)
 	var c4: SimConfig = _cfg()
 	c4.enemies[0].speed += 0.5
+	assert_str(ConfigHash.compute(c4)).is_not_equal(base)
+
+
+func test_config_hash_ignores_the_meta_only_foundry_cap_rows_but_not_the_milestones() -> void:
+	var base: String = ConfigHash.compute(_cfg())
+	var c1: SimConfig = _cfg()
+	c1.tuning.foundry_cap_k += 0.1
+	c1.tuning.foundry_cap_min += 1
+	c1.tuning.foundry_over_cap_mult += 1.0
+	assert_str(ConfigHash.compute(c1)).is_equal(base)  # tuning the soft cap does not end a run in progress
+	var c2: SimConfig = _cfg()
+	c2.tuning.foundry_milestone_mult += 0.25
+	assert_str(ConfigHash.compute(c2)).is_not_equal(base)
+	var c3: SimConfig = _cfg()
+	c3.tuning.run_milestone_step += 5
+	assert_str(ConfigHash.compute(c3)).is_not_equal(base)
+	var c4: SimConfig = _cfg()
+	c4.tuning.burn_dr_b2 -= 0.1
 	assert_str(ConfigHash.compute(c4)).is_not_equal(base)
 
 

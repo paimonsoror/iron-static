@@ -5,15 +5,18 @@ extends SceneTree
 ## (cheapest, laser, recommended, roundrobin, none; see tools/journey/journey_spend.gd). Banking, best wave, Foundry
 ## costs and caps use the real PlayerProfile / FoundryService / FoundryRules. See docs/balance/foundry_early_power.md.
 ## Usage: godot --headless --path . -s res://tools/journey_run.gd -- [--spend P] [--deployments N] [--seed S]
-##   [--waves W] [--frame ID] [--mode timed|purge] [--run-policy greedy4|all|none] [--set key=value]...
+##   [--waves W] [--frame ID] [--mode timed|purge] [--run-policy greedy4|all|none|cheapest|random] [--set key=value]...
 ##   [--cap-k K --cap-min M] [--probe DATA | --profile FILE.json] [--frames] [--runs N] [--name TEXT] [--self-check]
 ## In-memory overrides (--set): sim.<key>, enemy.<id>.data_base, enemies.data_scale, foundry.<id>.<f|f_cap|fc0|fg>.
-## stdout (deterministic, every line starts with "JOURNEY"): header, one "dep" line per deployment, marks
-## (after 3 deployments, at 35 min of 2x play, first x1.25 milestone, last), "JOURNEY OK". Probe mode prints the
+## stdout (deterministic, every line starts with "JOURNEY"): header, one "dep" line per deployment (with the R1-01
+## `streak` = deployments since the last new best and `unspent` = Data left after the spend), marks (after 3
+## deployments, at 35 min of 2x play, first x1.25 milestone, last), a "pacing" summary and the report-only
+## `journey` target lines (data/targets.csv), "JOURNEY OK". Probe mode prints the
 ## death-wave gain of a fixed Data spend. TIMING goes to its own line (the wrapper sends it to stderr).
 ## File: build/journey/<name>.csv (one row per deployment). Exit code: 0 ok, 2 bad arguments, error or failed check.
 
 const OUT_DIR: String = "res://build/journey"
+const TARGETS_PATH: String = "res://data/targets.csv"
 const SESSION_DEPLOYMENTS: int = 3  ## GDD 05 section 8: the first session is 3 runs
 const DAY_ONE_MINUTES_2X: float = 35.0  ## GDD 04 section 3: about 35 active minutes per day at 2x
 const ROWS: PackedStringArray = ["laser_output", "cycle_rate", "hull_integrity", "nano_repair"]
@@ -70,7 +73,7 @@ func _journey(args: JourneyArgs, overrides: JourneyOverrides) -> bool:
 	var sim: JourneySim = JourneySim.new(args, overrides)
 	var records: Array[Dictionary] = sim.run()
 	var csv: String = (
-		"dep,seed,frame,best_before,death_wave,capped,best_after,data,cum_data,spent,left,"
+		"dep,seed,frame,best_before,death_wave,capped,best_after,no_best_streak,data,cum_data,spent,left,data_unspent,"
 		+ "laser_output,cycle_rate,hull_integrity,nano_repair,minutes_1x,cum_min_1x,cum_min_2x,hash\n"
 	)
 	for r: Dictionary in records:
@@ -80,7 +83,7 @@ func _journey(args: JourneyArgs, overrides: JourneyOverrides) -> bool:
 			(
 				(
 					"JOURNEY dep=%d seed=%d frame=%s death_wave=%d best=%d data=%.0f cum_data=%.0f spent=%.0f left=%.0f"
-					+ " L=%d C=%d H=%d N=%d min1x=%.2f cum_min_2x=%.2f hash=%s%s"
+					+ " streak=%d unspent=%.0f L=%d C=%d H=%d N=%d min1x=%.2f cum_min_2x=%.2f hash=%s%s"
 				)
 				% [
 					r["dep"],
@@ -92,6 +95,8 @@ func _journey(args: JourneyArgs, overrides: JourneyOverrides) -> bool:
 					r["cum_data"],
 					r["spent"],
 					r["left"],
+					r["no_best_streak"],
+					r["data_unspent"],
 					lv.get("laser_output", 0),
 					lv.get("cycle_rate", 0),
 					lv.get("hull_integrity", 0),
@@ -104,7 +109,7 @@ func _journey(args: JourneyArgs, overrides: JourneyOverrides) -> bool:
 			)
 		)
 		csv += (
-			"%d,%d,%s,%d,%d,%s,%d,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d,%.3f,%.3f,%.3f,%s\n"
+			"%d,%d,%s,%d,%d,%s,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d,%.3f,%.3f,%.3f,%s\n"
 			% [
 				r["dep"],
 				r["seed"],
@@ -113,10 +118,12 @@ func _journey(args: JourneyArgs, overrides: JourneyOverrides) -> bool:
 				r["death_wave"],
 				r["capped"],
 				r["best_after"],
+				r["no_best_streak"],
 				r["data"],
 				r["cum_data"],
 				r["spent"],
 				r["left"],
+				r["data_unspent"],
 				lv.get("laser_output", 0),
 				lv.get("cycle_rate", 0),
 				lv.get("hull_integrity", 0),
@@ -128,6 +135,7 @@ func _journey(args: JourneyArgs, overrides: JourneyOverrides) -> bool:
 			]
 		)
 	_print_marks(records)
+	_print_pacing(records)
 	var name_text: String = args.name_text
 	if name_text.is_empty():
 		name_text = "%s_%s_%s" % [args.spend, args.frame, args.mode]
@@ -139,6 +147,7 @@ func _print_marks(records: Array[Dictionary]) -> void:
 	_mark("after_%d_deployments" % SESSION_DEPLOYMENTS, records, SESSION_DEPLOYMENTS - 1)
 	var day_one: int = -1
 	var first_ms: int = -1
+	var milestone_step: int = Curves.foundry_step(SimConfigLoader.load_tuning())
 	for i: int in records.size():
 		var cum2: float = records[i]["cum_min_1x"] / 2.0
 		if day_one < 0 and cum2 >= DAY_ONE_MINUTES_2X:
@@ -146,11 +155,32 @@ func _print_marks(records: Array[Dictionary]) -> void:
 		var lv: Dictionary = records[i]["levels"]
 		for id: String in ["laser_output", "hull_integrity", "nano_repair"]:
 			var level: int = lv.get(id, 0)
-			if first_ms < 0 and level >= FoundryRules.MILESTONE_STEP:
+			if first_ms < 0 and level >= milestone_step:
 				first_ms = i
 	_mark("at_35_min_2x", records, day_one)
+	_mark("done_by_35_min_2x", records, JourneyPacing.day_one_done_index(records))
 	_mark("first_milestone", records, first_ms)
 	_mark("last", records, records.size() - 1)
+
+
+## R1-01 pacing summary (review G-15): the longest no-new-best streak in the first 30 deployments, the largest unspent
+## Data as a multiple of that deployment's income, and the report-only comparison with the `journey` target rows.
+func _print_pacing(records: Array[Dictionary]) -> void:
+	var worst: Dictionary = JourneyPacing.max_unspent(records)
+	var dep: int = worst["dep"]
+	var ratio: float = worst["ratio"]
+	print(
+		(
+			"JOURNEY pacing max_no_best_streak_%d=%d max_unspent_vs_income=%.2f (dep %d)"
+			% [JourneyPacing.STREAK_WINDOW, JourneyPacing.max_streak(records), ratio, dep]
+		)
+	)
+	var table: CsvTable = CsvTable.load_file(TARGETS_PATH)
+	if not table.error.is_empty():
+		print("JOURNEY target table unreadable: %s" % table.error)
+		return
+	for line: String in JourneyPacing.target_lines(table, JourneyPacing.metrics(records)):
+		print(line)
 
 
 func _mark(label: String, records: Array[Dictionary], index: int) -> void:

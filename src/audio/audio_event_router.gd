@@ -180,7 +180,7 @@ func _route(kind: int, a: int, b: int) -> void:
 			var tier: int = _tiers.observe(a, b)
 			if tier > 0:
 				_play(SFX_MILESTONE if _tiers.is_top(a, tier) else SFX_TIER_UP)
-			elif b > 0 and b % StatResolver.MILESTONE_STEP == 0:
+			elif b > 0 and b % Curves.run_step(_world.config.tuning) == 0:
 				_play(SFX_MILESTONE)
 
 

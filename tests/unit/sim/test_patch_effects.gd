@@ -91,40 +91,40 @@ func _each_qty(id: String, max_picks: int, factor_fn: Callable) -> void:
 
 
 func test_overcharge() -> void:
-	_each_qty("patch_overcharge", 5, func(q: int) -> Array: return [{"laser_output": 1.0 + 0.15 * q}, {}])
+	_each_qty("patch_overcharge", 5, func(q: int) -> Array: return [{"laser_output": 1.0 + 0.09 * q}, {}])
 
 
 func test_plating() -> void:
-	_each_qty("patch_plating", 5, func(q: int) -> Array: return [{"hull_integrity": 1.0 + 0.20 * q}, {}])
+	_each_qty("patch_plating", 5, func(q: int) -> Array: return [{"hull_integrity": 1.0 + 0.12 * q}, {}])
 
 
 func test_rate() -> void:
-	_each_qty("patch_rate", 5, func(q: int) -> Array: return [{"cycle_rate": 1.0 + 0.10 * q}, {}])
+	_each_qty("patch_rate", 5, func(q: int) -> Array: return [{"cycle_rate": 1.0 + 0.06 * q}, {}])
 
 
 func test_extraction() -> void:
 	_each_qty(
 		"patch_extraction",
 		5,
-		func(q: int) -> Array: return [{"scrap_yield": 1.0 + 0.15 * q, "data_yield": 1.0 + 0.15 * q}, {}]
+		func(q: int) -> Array: return [{"scrap_yield": 1.0 + 0.09 * q, "data_yield": 1.0 + 0.09 * q}, {}]
 	)
 
 
 func test_regen() -> void:
-	_each_qty("patch_regen", 5, func(q: int) -> Array: return [{"nano_repair": 1.0 + 0.50 * q}, {}])
+	_each_qty("patch_regen", 5, func(q: int) -> Array: return [{"nano_repair": 1.0 + 0.30 * q}, {}])
 
 
 func test_ceramic() -> void:
-	_each_qty("patch_ceramic", 5, func(q: int) -> Array: return [{}, {"plating_pct": 0.04 * q}])
+	_each_qty("patch_ceramic", 5, func(q: int) -> Array: return [{}, {"plating_pct": 0.025 * q}])
 	var w: SimWorld = SimWorld.new(cfg_with_patches())  # level 0: plating_pct base is 0
-	assert_float(_with_picks(w, {"patch_ceramic": 5}).plating_pct).is_equal_approx(0.20, EPS)
+	assert_float(_with_picks(w, {"patch_ceramic": 5}).plating_pct).is_equal_approx(0.125, EPS)
 
 
 func test_glass_applies_benefit_and_cost() -> void:
 	_each_qty(
 		"patch_t_glass",
 		1,
-		func(q: int) -> Array: return [{"laser_output": pow(1.5, q), "hull_integrity": pow(0.70, q)}, {}]
+		func(q: int) -> Array: return [{"laser_output": pow(1.35, q), "hull_integrity": pow(0.70, q)}, {}]
 	)
 
 
@@ -132,7 +132,7 @@ func test_greed() -> void:
 	_each_qty(
 		"patch_t_greed",
 		1,
-		func(q: int) -> Array: return [{"data_yield": pow(1.8, q), "hull_integrity": pow(0.50, q)}, {}]
+		func(q: int) -> Array: return [{"data_yield": pow(1.5, q), "hull_integrity": pow(0.50, q)}, {}]
 	)
 
 
@@ -154,7 +154,7 @@ func test_two_patches_stack_after_run_levels_and_with_the_frame() -> void:
 	w.run_levels.fill(LEVEL)
 	var base: StatBlock = _with_picks(w, {})
 	var got: StatBlock = _with_picks(w, {"patch_overcharge": 2, "patch_t_glass": 1, "patch_t_hardhide": 1})
-	var want: float = base.laser_output * (1.0 + 0.30) * 1.5 * 0.60
+	var want: float = base.laser_output * (1.0 + 0.18) * 1.35 * 0.60
 	assert_float(got.laser_output).is_equal_approx(want, EPS)
 	assert_float(got.hull_integrity).is_equal_approx(base.hull_integrity * 0.70, EPS)
 	assert_float(got.enemy_damage).is_equal_approx(0.60, EPS)
@@ -181,7 +181,7 @@ func test_pick_moves_the_hull_and_respects_max_picks() -> void:
 	assert_int(w.patches.total_picks).is_equal(1)
 	assert_bool(PatchEffects.pick(w, 99)).is_false()
 	assert_bool(PatchEffects.pick(w, _index(w, "patch_plating"))).is_true()
-	assert_float(w.cinder.max_hp).is_equal_approx(hull * 0.70 * 1.2, EPS)
+	assert_float(w.cinder.max_hp).is_equal_approx(hull * 0.70 * 1.12, EPS)
 
 
 func test_greed_scales_the_kill_data_reward() -> void:
@@ -195,7 +195,7 @@ func test_greed_scales_the_kill_data_reward() -> void:
 			w.step()
 	assert_int(plain.run.kills).is_equal(1)
 	assert_int(greedy.run.kills).is_equal(1)
-	assert_float(greedy.run.data_earned).is_equal_approx(plain.run.data_earned * 1.8, 1.0e-6)
+	assert_float(greedy.run.data_earned).is_equal_approx(plain.run.data_earned * 1.5, 1.0e-6)
 
 
 func test_hardhide_scales_melee_damage() -> void:

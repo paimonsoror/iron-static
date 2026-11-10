@@ -67,3 +67,42 @@ func test_all_policy_only_buys_visible_rows() -> void:
 	assert_int(w.input_log.size()).is_greater(0)
 	for i: int in w.input_log.size():
 		assert_int(w.visible[w.input_log.arg_a[i]]).is_equal(1)
+
+
+func test_cheapest_buys_the_row_with_the_cheapest_next_level() -> void:
+	var w: SimWorld = _world(0)
+	var cheapest: float = INF
+	var cheapest_row: int = -1
+	for i: int in w.config.upgrades.size():
+		var p: UpgradePreview = UpgradeSystem.preview(w, i, 1)
+		if p.visible and not p.maxed and p.cost.to_float() < cheapest:
+			cheapest = p.cost.to_float()
+			cheapest_row = i
+	w.economy.scrap = BigNum.from_float(cheapest)
+	PolicyBot.new("cheapest").think(w)
+	assert_int(w.input_log.size()).is_greater_equal(1)
+	assert_int(w.input_log.arg_a[0]).is_equal(cheapest_row)
+
+
+func test_cheapest_waits_when_nothing_is_affordable() -> void:
+	var w: SimWorld = _world(0)
+	w.economy.scrap = BigNum.zero()
+	PolicyBot.new("cheapest").think(w)
+	assert_int(w.input_log.size()).is_equal(0)
+
+
+func test_random_policy_is_deterministic_and_only_buys_visible_rows() -> void:
+	var a: SimWorld = _world(0)
+	_run(a, "random", 4000)
+	var b: SimWorld = _world(0)
+	_run(b, "random", 4000)
+	assert_str(a.state_hash()).is_equal(b.state_hash())
+	assert_int(a.input_log.size()).is_greater(3)
+	for i: int in a.input_log.size():
+		assert_int(a.visible[a.input_log.arg_a[i]]).is_equal(1)
+
+
+func test_random_and_cheapest_policies_are_accepted_by_the_tools() -> void:
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--policy", "random"])).error).is_empty()
+	assert_str(BalanceRunArgs.parse(PackedStringArray(["--policy", "cheapest"])).error).is_empty()
+	assert_str(JourneyArgs.parse(PackedStringArray(["--run-policy", "random"])).error).is_empty()

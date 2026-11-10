@@ -17,15 +17,19 @@ var value_text: String = ""
 var delta_text: String = ""
 ## MILESTONE F25  x1.75 (Type D) or MAX; "" for a Type C row that is not capped.
 var milestone_text: String = ""
-## AFFORDABLE / ~12m 30s TO AFFORD / NEXT LEVEL AT WAVE N (capped); "" when unknown (no farm rate yet) or maxed.
+## AFFORDABLE / ~12m 30s TO AFFORD / x3 COST UNTIL WAVE N (over the soft cap); "" when unknown or maxed.
 var afford_text: String = ""
 var cost_text: String = ""
 var tooltip_text: String = ""
 var affordable: bool = false
 var maxed: bool = false
-## Held back by the best-wave cap (FO-3): cost button disabled and CAP, the afford line NEXT LEVEL AT WAVE N.
-var capped: bool = false
+## Over the soft cap (R1-02): the cost is multiplied, the button stays enabled in the over-limit color, the afford line
+## reads "x3 COST UNTIL WAVE N". `room_below_limit` is how many more levels cost the normal price (a hold stops at 0).
+var over_limit: bool = false
+var room_below_limit: int = 0
 var recommended: bool = false
+## Levels to the next milestone (-1 for Type C and a maxed row); the row uses it to spot a crossed milestone.
+var levels_to_milestone: int = -1
 
 
 static func from_view(view: FoundryRowView, row_index: int) -> FoundryRowModel:
@@ -38,19 +42,30 @@ static func from_view(view: FoundryRowView, row_index: int) -> FoundryRowModel:
 	m.level_text = Strings.fill1("foundry.level", "n", str(view.level))
 	m.maxed = view.maxed
 	m.affordable = view.affordable and not view.maxed
-	m.recommended = view.recommended and not view.maxed and not view.capped
-	m.capped = view.capped
+	m.recommended = view.recommended and not view.maxed
+	m.over_limit = view.over_limit
+	m.room_below_limit = view.room_below_limit
+	m.levels_to_milestone = view.levels_to_milestone
 	m.value_text = _value(view)
 	if view.maxed:
 		m.milestone_text = Strings.get_text("foundry.max")
 		m.cost_text = Strings.get_text("foundry.max")
 	else:
-		m.cost_text = Strings.get_text("foundry.capped") if view.capped else NumberFormat.format(view.cost)
+		m.cost_text = NumberFormat.format(view.cost)
 		if view.delta != 0.0:
 			m.delta_text = "+" + UpgradeRowModel.format_value(view.id, view.delta)
 		if view.kind == "D":
-			m.milestone_text = Strings.fill1("foundry.milestone", "n", str(view.level + view.levels_to_milestone))
-		m.afford_text = Strings.fill1("foundry.next_at", "n", str(view.next_wave)) if view.capped else _afford(view)
+			m.milestone_text = (
+				Strings
+				. fill(
+					"foundry.milestone",
+					{
+						"n": str(view.level + view.levels_to_milestone),
+						"m": UpgradeRowModel.mult_arg(view.milestone_mult),
+					}
+				)
+			)
+		m.afford_text = _over_text(view) if view.over_limit else _afford(view)
 	m.tooltip_text = _tooltip(view)
 	return m
 
@@ -74,6 +89,11 @@ static func _value(view: FoundryRowView) -> String:
 	return Strings.fill("foundry.value", {"a": now, "b": nxt})
 
 
+## "x3 COST UNTIL WAVE 24": the over-the-soft-cap line.
+static func _over_text(view: FoundryRowView) -> String:
+	return Strings.fill("foundry.over_cost", {"m": UpgradeRowModel.mult_arg(view.over_mult), "n": str(view.next_wave)})
+
+
 static func _afford(view: FoundryRowView) -> String:
 	if view.affordable:
 		return Strings.get_text("foundry.afford_now")
@@ -87,9 +107,24 @@ static func _afford(view: FoundryRowView) -> String:
 static func _tooltip(view: FoundryRowView) -> String:
 	var key: String = "foundry.tooltip_d" if view.kind == "D" else "foundry.tooltip_c"
 	var cost: String = "-" if view.maxed else NumberFormat.format(view.cost)
-	var text: String = Strings.fill(key, {"f": str(view.level), "cost": cost, "cap": str(view.cap)})
-	if view.capped:
-		text += "\n" + Strings.fill("foundry.tooltip_cap", {"n": str(view.next_wave), "cap": str(view.limit)})
+	var text: String = (
+		Strings
+		. fill(
+			key,
+			{
+				"f": str(view.level),
+				"cost": cost,
+				"cap": str(view.cap),
+				"m": UpgradeRowModel.mult_arg(view.milestone_mult),
+				"s": str(view.milestone_step),
+			}
+		)
+	)
+	if not view.maxed:
+		var over_m: String = UpgradeRowModel.mult_arg(view.over_mult)
+		text += "\n" + Strings.fill("foundry.tooltip_rule", {"cap": str(view.limit), "m": over_m})
+		if view.over_limit:
+			text += "\n" + Strings.fill("foundry.tooltip_over", {"m": over_m, "n": str(view.next_wave)})
 	var start: String = UpgradeRowModel.format_value(view.id, view.start_now)
 	return text + "\n" + Strings.fill1("foundry.value_start", "v", start)
 

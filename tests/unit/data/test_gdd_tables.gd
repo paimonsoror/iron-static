@@ -107,7 +107,7 @@ func test_upgrades_match_gdd_02() -> void:
 
 func test_sim_constants_spot_values() -> void:
 	var t: SimTuning = SimConfigLoader.load_default(1).tuning
-	assert_float(t.g_hp_1).is_equal(1.063)
+	assert_float(t.g_hp_1).is_equal(1.075)
 	assert_int(t.alive_cap_normal).is_equal(160)
 	assert_float(t.exposure_hysteresis).is_equal(0.05)
 	assert_float(t.lancer_bolt_speed).is_equal(18.0)
