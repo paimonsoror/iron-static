@@ -45,6 +45,7 @@ Run from the repo root in PowerShell. Judge Godot runs by the wrapper scripts' o
 | Render all audio | `.\tools\audio_gen.ps1` |
 | Start the emulator | `.\tools\run_emulator.ps1` |
 | Re-render the README banner | `godot --path . res://src/debug/title_frame.tscn -- --tf-banner=<dir> --mute` |
+| Re-render the README and codex screenshots | `godot --path . --windowed --resolution 540x600 res://src/debug/docs_shots.tscn -- --dx-out=<dir> --mute --no-save`, then `godot --headless --path . --script res://src/debug/img_tool.gd -- --out=<file.jpg> --width=540 <png>` to crop and downscale |
 
 ## Continuous integration
 
@@ -68,7 +69,7 @@ src/
   audio/       buses, SFX pool, adaptive music
   services/    ads and billing behind interfaces (desktop stubs)
   net/         offline backend stub
-  debug/       desktop capture harnesses (style frames, title shots, README banner)
+  debug/       desktop capture harnesses (style frames, title shots, README banner, screenshots for the README and the codex)
 tests/         GdUnit4 unit and sim tests, fixtures, perf baseline
 tools/         PowerShell and Python tooling (test, lint, deploy, balance, art, audio)
 addons/        GdUnit4, Billing, AdMob, Nakama client, Sentry

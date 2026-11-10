@@ -27,7 +27,7 @@ Terms are listed alphabetically. A badge shows whether the thing is in the build
 | **CHORUS** | The hostile machine intelligence. |
 | **Companion drone** | A drone that orbits Cinder and fires a timed ability. <span class="badge planned">Planned</span> |
 | **Deployment** | One run, from wave 1 until Cinder's integrity reaches 0. |
-| **Draft** | A moment when three patches are offered. <span class="badge planned">Planned</span> |
+| **Draft** | A moment when three patches are offered, one per family, with one reroll. See [Patch drafts](patches.md). <span class="badge live">Implemented</span> |
 | **Exposure band** | One of four integrity bands of skin burn. |
 | **Firmware** | Collectible chips (lanterns) that give permanent effects. <span class="badge planned">Planned</span> |
 | **Flank group** | A clump of 3 to 6 enemies that spawns within a narrow arc. |
@@ -38,7 +38,7 @@ Terms are listed alphabetically. A badge shows whether the thing is in the build
 | **Hollow Accord** | The human holdouts who send briefings. |
 | **Incursion** | A two-week live event. <span class="badge planned">Planned</span> |
 | **Integrity** | Cinder's hit points. |
-| **Intel** | The in-game view that shows enemy and stat information. <span class="badge planned">Planned M4</span> |
+| **Intel** | The fourth tab of the upgrade panel, with STATS and WAVE sub-tabs. See [Intel](intel.md). <span class="badge live">Implemented</span> |
 | **Lab** | Timed research bought with data and time. <span class="badge planned">Planned</span> |
 | **Lantern Cell** | The Accord hackers who rewrote Cinder; the source of firmware. |
 | **Lull** | The last 6 seconds of a wave, with no spawns. |
@@ -47,18 +47,20 @@ Terms are listed alphabetically. A badge shows whether the thing is in the build
 | **Orrery Combine** | The deceased corporation that built the grid and the Wardens. |
 | **Overclock** | STRIKER's passive: each kill adds fire rate until the wave ends. |
 | **Overdrive** | An optional ability that trades integrity for burst power. <span class="badge planned">Planned</span> |
-| **Patch** | A temporary in-run perk chosen from a draft. <span class="badge planned">Planned M4</span> |
+| **Patch** | A temporary in-run perk chosen from a draft. <span class="badge live">Implemented</span> |
 | **PURGE** | The wave mode where a wave ends when every enemy in it is destroyed, with a 60-second limit. Unlocks at best TIMED wave 20. <span class="badge live">Implemented</span> <!-- 20 and 60 s: data/wave_modes.csv --> |
 | **Relay** | The arena center; the thing Cinder holds. |
 | **Reinvest** | The run upgrade that pays interest on unspent scrap. |
 | **Salvage cache** | A drop from elites and bosses that you tap for a reward choice. <span class="badge planned">Planned</span> |
 | **Sector** | A rung on the difficulty ladder; twelve at launch. |
-| **Skin burn** | Cinder's armor burning away as integrity falls. |
+| **Skin burn** | Cinder's armor burning away as integrity falls; the frame also takes less damage in each band. |
 | **Slots** | The spawn budget a wave has to spend on enemies. |
+| **Soft cap (Foundry)** | Foundry levels at or above a best-wave limit cost twice as much. See [The Foundry](foundry.md#the-best-wave-soft-cap). <span class="badge live">Implemented</span> |
 | **Stale** | An enemy alive for three wave ends; pays half rewards. |
 | **Standby Patrol** | Capped, partial offline earnings of data. <span class="badge planned">Planned</span> |
 | **TIMED** | The wave mode where each wave runs on a 24-second clock and leftovers carry over. Available from the start. <span class="badge live">Implemented</span> |
 | **Tick** | One step of the 30-per-second simulation. A wave is 720 ticks. |
+| **Visual tier (MK I to IV)** | A new look for the beam, hull, plating or repair as an upgrade reaches certain levels. See [Run upgrades](upgrades.md#visual-tiers). <span class="badge live">Implemented</span> |
 | **Warden** | The class of cybernetic enforcement unit Cinder belongs to. |
 | **Wave** | In TIMED, a 24-second cycle: 18 seconds of spawning, 6 of lull. In PURGE it ends when its enemies are destroyed. |
 | **Weapon system** | An auto-firing special weapon. <span class="badge planned">Planned</span> |

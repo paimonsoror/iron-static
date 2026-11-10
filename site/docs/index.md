@@ -37,24 +37,36 @@ This codex is the player-facing guide to the game: its story, its characters and
 <figcaption>The frame bay</figcaption>
 </figure>
 <figure markdown>
-![Wave 1: Cinder at the center, the ARMS tab open](assets/img/wave1.png)
+![Home with the TIMED and PURGE wave mode picker above DEPLOY](assets/img/home_modes.jpg)
+<figcaption>Home picks a wave mode: TIMED or PURGE</figcaption>
+</figure>
+<figure markdown>
+![Wave 1: Cinder at the center, the ARMS tab open](assets/img/wave1.jpg)
 <figcaption>Wave 1, a calm start</figcaption>
 </figure>
 <figure markdown>
-![Wave 20: a lancer crowd and the boss hulk](assets/img/crowd_boss.png)
+![Wave 20: a lancer crowd and the boss hulk, with the speed control at 8x falling back to 2x](assets/img/crowd_boss.jpg)
 <figcaption>Wave 20, lancers and the boss hulk</figcaption>
 </figure>
 <figure markdown>
-![Upgrade rows with a formula tooltip](assets/img/upgrades.png)
+![A patch draft: three cards and a reroll](assets/img/draft.jpg)
+<figcaption>A patch draft: one card per family, one reroll</figcaption>
+</figure>
+<figure markdown>
+![The Intel tab showing the wave, the next boss and the next draft](assets/img/intel_wave.jpg)
+<figcaption>The Intel tab shows what the game is using</figcaption>
+</figure>
+<figure markdown>
+![Upgrade rows with a formula tooltip](assets/img/upgrades.jpg)
 <figcaption>Upgrades show their formulas</figcaption>
 </figure>
 <figure markdown>
-![The results screen after a deployment](assets/img/results.png)
+![The results screen after a deployment](assets/img/results.jpg)
 <figcaption>Results after Cinder falls</figcaption>
 </figure>
 </div>
 
-*Captures of the current build, downscaled. The menu screens were taken on a 1080 by 2400 phone-sized window with test profiles. The wave 20 shot is a debug scenario (invulnerable, fast-forwarded), so its crowd is denser than a real run.*
+*Captures of the current build, downscaled. They were rendered on a desktop at 1080 by 2400, the size of a phone screen, with test profiles. The wave 20 and Intel shots are debug scenarios (an invulnerable Cinder played by a bot, with the 8x speed setting forced on), so the crowd is denser than a real run. The draft is shown over a plain backdrop.*
 
 ## Status badges
 
@@ -96,8 +108,8 @@ Is it free? Are there ads? What can I do offline?
 | Platform | Android, portrait, one-handed |
 | Genre | Idle defense with a deployment loop and permanent upgrades |
 | Model | Free to play. Rewarded, opt-in ads only; no forced ads, no interstitials <span class="badge planned">Planned</span> |
-| Wave length | 24 seconds at 1x speed |
+| Wave length | 24 seconds at 1x speed in TIMED mode; PURGE waves end when their enemies are destroyed |
 | Your job | Buy upgrades, choose a build, decide when to retry. You never aim |
-| Build today | The full loop: title screen, deployments with five enemy types, ten run upgrades and skin burn, results, the Foundry for permanent upgrades, three frames, settings and crash-safe saving with resume |
+| Build today | The full loop: title screen and guided first runs, deployments in two wave modes (TIMED and PURGE) with five enemy types, ten run upgrades with MK I to IV looks, patch drafts, skin burn, the Intel tab, speeds up to 8x, results, the Foundry for permanent upgrades, three frames, settings with accessibility options, and crash-safe saving with resume |
 
 Privacy: the beta collects no data and stores progress only on your device. See the [privacy policy](privacy.md).

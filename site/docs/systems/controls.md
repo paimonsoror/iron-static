@@ -12,14 +12,39 @@ IRON STATIC is built to be played one-handed in portrait. **You never aim and th
 | Buy many levels | **Hold** the cost button: repeat-buy that accelerates (first repeat after 0.35 s; 10 levels per step after 3 s; 100 per step after 6 s) |
 | See a row's formula | **Tap the row** (anywhere but the cost button) |
 | Switch panels | Tap **ARMS**, **CHASSIS**, **SYSTEMS** or **INTEL** |
-| Change speed | The speed button in the top bar (1x and 2x; 3x and 4x will be unlocked by research) |
+| Change speed | The speed button in the top bar: each tap goes to the next unlocked speed (1x, 2x, 4x, 8x). See [Game speed](#game-speed) |
+| Pick a patch | **Tap** a card in a [patch draft](patches.md); **REROLL ALL** redraws the three cards once |
+| Read the numbers | The **INTEL** tab: [Intel](intel.md) |
 | Pause | The pause button in the top bar, or the back gesture (opens the [pause menu](#pause-menu)) |
 | Redeploy | The REDEPLOY button on the results screen (FOUNDRY and HOME are next to it) |
 | Start over | NEW GAME on the title screen, with a confirmation if you have progress |
 
 Partial buys are allowed: if you cannot afford the whole amount you buy what you can.
 
-![The HUD and upgrade panel](../assets/img/upgrades.png){ width="260" }
+![The HUD and upgrade panel with a formula tooltip open](../assets/img/upgrades.jpg){ width="260" }
+
+## Game speed
+
+<span class="badge live">Implemented</span>
+
+The speed button in the top bar cycles through the speeds you have unlocked. Speed only changes how many simulation ticks run per frame, never the length of a tick, so a run gives the same result at any speed.
+
+| Speed | Unlocked |
+|---|---|
+| 1x | From the start |
+| 2x | From the start |
+| 4x | When your best TIMED wave reaches 30 |
+| 8x | When your best TIMED wave reaches 60 |
+
+<!-- Gates and fall-back: src/meta/speed/speed_rules.gd (UNLOCK_WAVES, FALL_BELOW, BACK_AT). -->
+
+Locked speeds are not shown on the button. Home names the next one in its unlock line, for example "NEXT UNLOCK WAVE 30 4X SPEED".
+
+**Automatic fall-back.** Above 2x, the game runs at 2x instead while Cinder's hull is below 75 percent or a boss is alive. It returns to your chosen speed once the hull is back to 80 percent or more and no boss is alive. The top bar shows both: your chosen speed dimmed and the speed in effect lit. The rule is the same in TIMED and PURGE. At 4x and 8x the game also thins out sound effects, haptics, damage numbers and sparks so the frame rate holds.
+
+![The top bar at 8x with the fall-back to 2x lit while a boss is alive](../assets/img/speed_fallback.jpg)
+
+<sub>A debug scenario at wave 20 with a boss alive: the chosen 8x is dimmed and the 2x in effect is lit.</sub>
 
 ## Android back gesture
 
@@ -47,7 +72,7 @@ The first death unlocks the Foundry; before that, Home shows only DEPLOY and the
 
 ## Pause menu
 
-The pause menu opens on the first back gesture, on the pause button, when the app goes to the background and when you continue a saved run. The battle stops and sound freezes. Three buttons:
+The pause menu opens on the first back gesture, on the pause button, when the app goes to the background and when you continue a saved run. The battle stops and sound freezes. A patch draft that is open stays open behind it. Three buttons:
 
 | Button | What it does |
 |---|---|
@@ -70,6 +95,6 @@ When the app goes to the background, the **run pauses automatically** and stays 
 
 - **Overdrive button** (bottom-left of the field) and **weapon-system toggles** (bottom-right) in M6.
 - **Tap a salvage cache** to pick its reward in M6.
-- **Draft cards** at wave 10 and beyond in M4, with an optional auto-pick.
+- An optional **auto-pick** for patch drafts, and **auto-buy**, with Lab research.
 
 Next: [Look and sound](audio-visual.md).

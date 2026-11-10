@@ -6,15 +6,15 @@
 
 One attempt at holding the Relay is a **deployment** (a run).
 
-1. **Start.** Cinder appears at the center of the arena with 60 scrap. Every run upgrade is at level 0.
+1. **Start.** Cinder appears at the center of the arena with 230 scrap. Every run upgrade is at level 0.
 2. **Waves.** The game is a sequence of waves. In TIMED mode each wave is 24 seconds; in PURGE mode a wave ends when its enemies are destroyed (see [Wave modes](#wave-modes)). Enemies spawn at the edge and walk in.
 3. **Combat.** Cinder fires on its own at the nearest enemy in range. Kills pay scrap instantly and add data to the run total.
 4. **Spend.** You buy upgrades from the bottom panel with scrap. See [Run upgrades](upgrades.md).
 5. **End of wave.** Interest is paid and the enemy level rises (see below).
-6. **Death.** When integrity reaches 0 the deployment ends. The results screen shows the wave reached, time survived, kills, cause of death, the data banked (and your new total), scrap, and your best wave in the mode you played, with the gain ("BEST 12 (+3)", plus "NEW BEST" when you beat it).
-7. **Redeploy.** One tap starts the next deployment with a new seed. The results screen also has FOUNDRY (showing how many upgrades you can afford) and HOME, and a "FRAME UNLOCKED" line when your best wave unlocks a frame.
+6. **Death.** When integrity reaches 0 the deployment ends. The results screen shows the wave reached, the enemy that destroyed Cinder, time survived, kills, the data banked (and your new total), scrap, a strip of how many of each enemy you destroyed, and your best wave in the mode you played, with "NEW BEST" when you beat it.
+7. **Redeploy.** One tap starts the next deployment with a new seed. The results screen also has FOUNDRY (showing how many upgrades you can afford) and HOME, and a chip when your best wave unlocks a frame ("FRAME UNLOCKED") or PURGE mode ("PURGE MODE UNLOCKED").
 
-![The results screen with a FRAME UNLOCKED line, NEW BEST, and the REDEPLOY, FOUNDRY and HOME buttons](../assets/img/results_unlock.jpg){ width="260" }
+![The results screen after a PURGE death by the boss hulk: NEW BEST, a kill strip and a PURGE MODE UNLOCKED chip above REDEPLOY, FOUNDRY and HOME](../assets/img/results_new_best.jpg){ width="260" }
 
 What you keep and lose at death:
 
@@ -27,7 +27,7 @@ What you keep and lose at death:
 
 Typical run length at 1x speed is 2 to 4 minutes for a first run, about 8 to 12 minutes after a week, and 15 to 25 minutes for deep runs, which are normally played at 2x.
 
-![The results screen](../assets/img/results.png){ width="260" }
+![The results screen after a TIMED death](../assets/img/results.jpg){ width="260" }
 
 ## Wave modes
 
@@ -36,6 +36,10 @@ Typical run length at 1x speed is 2 to 4 minutes for a first run, about 8 to 12 
 <!-- Mode numbers (20, 60 s) come from data/wave_modes.csv. Update this section if that file is retuned. -->
 
 You pick a **wave mode** on Home, in a two-segment picker above DEPLOY. There are two modes.
+
+![Home with the TIMED and PURGE picker above DEPLOY, PURGE selected](../assets/img/home_modes.jpg){ width="260" }
+
+<sub>A test profile with PURGE unlocked and selected. On a fresh profile the PURGE segment is locked.</sub>
 
 | | TIMED | PURGE |
 |---|---|---|
@@ -48,14 +52,14 @@ You pick a **wave mode** on Home, in a two-segment picker above DEPLOY. There ar
 - **TIMED** is the default and is preselected on a fresh profile. It is the game as described in [Wave timing](#wave-timing).
 - **PURGE** ends a wave when the boss (if there is one) and every other enemy that spawned in it are destroyed, and all the wave's planned spawns have appeared. The next wave starts immediately. If 60 seconds pass first, the wave ends anyway and leftovers carry over, just like a TIMED wave end.
 - On the HUD, PURGE shows **"N LEFT"** (enemies of this wave still to destroy) and a thin bar for the 60-second limit.
-- **Locked PURGE.** Until you unlock it, the PURGE segment reads "Reach wave 20 in TIMED to unlock" and shows your best TIMED wave so far. A one-time "PURGE MODE UNLOCKED" chip appears when you reach it.
+- **Locked PURGE.** Until you unlock it, the PURGE segment is dimmed with a lock. Tapping it shows "Reach wave 20 in TIMED to unlock" and your best TIMED wave so far. A one-time "PURGE MODE UNLOCKED" chip appears when you reach it.
 - **Remembered choice.** The game remembers your last mode, and REDEPLOY repeats it.
 - **Separate records.** Each mode keeps its own best wave. Home and Results show the record of the mode you are in, with NEW BEST for that mode. Only the TIMED best unlocks upgrade rows and frames.
 - **Offline earnings.** The planned Standby Patrol will use the TIMED earning rate.
 
-First-pass balance runs on a fresh profile put the median death wave at about 12 in TIMED and about 16 in PURGE. PURGE waves average about 33 seconds against TIMED's 24. These numbers may change.
+The first-pass balance targets for a fresh profile put the median death wave at about 14 in TIMED and about 16 in PURGE (`data/targets.csv`). PURGE waves averaged about 33 seconds against TIMED's 24 in the first runs. These numbers may change.
 
-Patch drafts (below) are planned to use the same wave numbers in both modes.
+[Patch drafts](patches.md) open at the same wave numbers in both modes.
 
 ## Wave timing
 
@@ -64,7 +68,7 @@ This section describes TIMED mode. In PURGE the wave clock only acts as the 60-s
 - **The next wave starts when the timer ends** in TIMED, whether or not enemies remain. Slow down and they stack up.
 - During the lull nothing spawns. A SKIP LULL button is <span class="badge planned">Planned</span> (Launch; unlocked by research).
 - A boss wave comes every 10 waves. The HUD shows a chevron one wave ahead.
-- Game speed is 1x or 2x today and the engine supports up to 4x. Speed changes how many ticks run per frame, never the length of a tick, so results are identical at any speed.
+- Game speed is 1x, 2x, 4x or 8x. 4x unlocks when your best TIMED wave reaches 30 and 8x at 60, and above 2x the game drops back to 2x on its own when Cinder's hull is low or a boss is alive. See [Game speed](controls.md#game-speed). Speed changes how many ticks run per frame, never the length of a tick, so results are identical at any speed.
 
 ## How many enemies spawn
 
@@ -100,11 +104,11 @@ enemy_damage =  2 * G_atk(level) * dmg_mult(type)
 
 | Level range | Health growth per level | Attack growth per level |
 |---|---|---|
-| 1 to 200 | 6.3 percent | 5.8 percent |
+| 1 to 200 | 7.5 percent | 5.8 percent |
 | 201 to 600 | 3.2 percent | 2.8 percent |
 | 601 and up | 2.2 percent | 1.8 percent |
 
-Health roughly doubles every 11 levels at first. Attack grows a little slower than health at every stage, so survivability stays relevant.
+Health roughly doubles every 10 levels at first. Attack grows a little slower than health at every stage, so survivability stays relevant.
 
 ### Melee bite and stale enemies
 
@@ -120,12 +124,10 @@ data  = data_base(type) * (1 + 0.04 * level) * sector reward * data yield
 
 Scrap tracks enemy health at a slightly lower exponent on purpose: the run is a race that you eventually lose. The sector reward is 1.6 to the power of (sector minus 1).
 
-## The wave counter and Intel
+## Intel and patch drafts
 
-Tapping the wave counter will open the **Intel** view with enemy weights, health, attack and speed per type. The tab exists today as a stub ("coming in a later update"); the full panels are <span class="badge planned">Planned M4</span>.
+The **INTEL** tab of the upgrade panel shows the current wave, the time or quota left, the next boss and the next draft, the enemy mix and the stats the game is using. See [Intel](intel.md).
 
-## Patch drafts <span class="badge planned">Planned M4</span>
-
-At waves 10, 20, 30, 40 and 50 (then every 25 waves) the game will pause and offer three **patches**: temporary perks that last the deployment. Most are straight bonuses (for example +15 percent laser output); some are gambles that show a benefit and a cost, such as +50 percent laser output for 30 percent less hull. You pick one; there is no reroll.
+At waves 5, 10, 15 and 20, then every 10 waves to 50 and every 25 after that, the game pauses and offers three **patches**: temporary perks for the rest of the deployment, one per upgrade family, with one reroll and an occasional gamble. See [Patch drafts](patches.md).
 
 Next: [Combat](combat.md).

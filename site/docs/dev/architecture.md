@@ -23,9 +23,9 @@ flowchart LR
 
 The simulation runs at a fixed 30 Hz. It is pure `RefCounted` code: no nodes, no input, no clock and no global random, enforced by `tools\lint.ps1`. Randomness goes through a per-stream PCG32 `Rng`. Entities live in packed-array stores with free lists, so there is no node per enemy or bullet.
 
-Game speed means more ticks per frame, never a longer tick. Every run produces a **state hash**, an **input log** (`tick, upgrade, count`) and a replay. Golden hashes in `tests/sim/test_replay.gd` catch any unintended change in behavior, and the same seed, config and inputs give the same hash at 1x, 2x or 4x. Any intended change to the rules bumps `SimVersion`.
+Game speed means more ticks per frame, never a longer tick. Every run produces a **state hash**, an **input log** (`tick, upgrade, count`) and a replay. Golden hashes in `tests/sim/test_replay.gd` catch any unintended change in behavior, and the same seed, config and inputs give the same hash at 1x, 2x or 8x. Any intended change to the rules bumps `SimVersion`.
 
-Foundry levels, the chosen frame and the wave mode enter the simulation only as data in its config, and are recorded with the run, so replays stay valid.
+Foundry levels, the chosen frame and the wave mode enter the simulation only as data in its config, and are recorded with the run, so replays stay valid. Patch picks and rerolls are commands in the input log and come from the same seeded stream, so drafts replay too.
 
 ## Numbers
 

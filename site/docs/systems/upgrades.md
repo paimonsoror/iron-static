@@ -4,11 +4,11 @@
 
 Run upgrades are **temporary**. You buy them with scrap during a deployment and they reset to level 0 when it ends. Permanent versions of the same stats come from the [Foundry](foundry.md).
 
-![The upgrade panel with a formula tooltip](../assets/img/upgrades.png){ width="260" }
+![The upgrade panel with a formula tooltip](../assets/img/upgrades.jpg){ width="260" }
 
 ## The panel
 
-The bottom of the screen is the upgrade panel with three tabs (and an Intel tab, still a stub).
+The bottom of the screen is the upgrade panel with three upgrade tabs and a fourth, read-only tab, [Intel](intel.md).
 
 | Tab | Purpose |
 |---|---|
@@ -42,7 +42,7 @@ Rows you have not unlocked are not shown. A single line at the bottom says "Next
 | Scrap Yield | SYSTEMS | Multiplier on all scrap gained | x1.00 | +0.02 | 100 | x3.0 | 50 | x1.10 | 3 |
 | Reinvest | SYSTEMS | Interest on unspent scrap at wave end | 0% | +0.06 points | 99 | 5.94% | 300 | x1.11 | 12 |
 
-(The first-level cost shown is the cost at level 0. Gates use your best wave in Sector 1. You start each deployment with 60 scrap, enough for several early levels.)
+(The first-level cost shown is the cost at level 0. Gates use your best wave in Sector 1. You start each deployment with 230 scrap, enough for several early levels.)
 
 ## The formulas
 
@@ -84,6 +84,31 @@ Permanent bonuses multiply the final value: `final = base * run factor * Foundry
 ## Reinvest in detail
 
 At the end of each wave Reinvest pays `floor(unspent scrap * rate)`, capped at half of the scrap earned from kills that wave. Every payout is rounded down to whole scrap and the fraction carries over, so nothing is lost or invented.
+
+## Visual tiers
+
+<span class="badge live">Implemented</span>
+
+<!-- Thresholds and effect sizes: data/visual_tiers.csv (docs/design/12_upgrade_visual_tiers.md). -->
+
+Four upgrades change how Cinder looks as you level them. The look is purely visual: it never changes a stat. Each row shows its current mark (for example "MK III") and when the next look arrives ("NEXT LOOK AT L25"); at the top mark it reads TOP MARK.
+
+| Upgrade | Marks and the run level where each starts | What changes |
+|---|---|---|
+| Laser Output | MK I at 0, MK II at 5, MK III at 12, MK IV at 25 | The beam grows: a wider glow, a thicker core, an impact flare, then a ring and a white-hot core at MK IV |
+| Hull Integrity | MK I at 0, MK II at 5, MK III at 12, MK IV at 25 | Armor plates are added around Cinder: corner plates, then a bridge, then a lip |
+| Plating | PLATED I at 3, II at 8, III at 16, IV at 30 | Deflection sparks on incoming hits, more of them with each mark |
+| Nano Repair | MK I at 0, MK II at 5, MK III at 12, MK IV at 25 | Repair motes drift toward Cinder, 5, 10 and then 16 at a time |
+
+![The laser beam at MK I, MK II, MK III and MK IV](../assets/img/tiers_beam.jpg)
+
+<sub>The beam at Laser Output MK I to IV (run levels 0, 5, 12 and 25), rendered by a debug harness on the production battle view.</sub>
+
+![Cinder's hull at MK I, MK II, MK III and MK IV](../assets/img/tiers_hull.jpg)
+
+<sub>Hull Integrity MK I to IV (run levels 0, 5, 12 and 25). The plates stay while skin burn scorches the rest.</sub>
+
+Reaching a new mark is a small moment: a flash around Cinder, a banner such as "LASER - BEAM OUTPUT TIER UP", a sound, a short haptic pulse and a teal line on the row. A run you resume does not replay it.
 
 ## Planned upgrades <span class="badge planned">Planned M6</span>
 

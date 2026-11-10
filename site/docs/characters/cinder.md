@@ -4,7 +4,7 @@
 
 Cinder is the only thing you control, and you do not control it directly. It stands fixed at the center of the arena and fires on its own. You decide what it becomes.
 
-![The wave 1 view with Cinder in the center](../assets/img/wave1.png){ width="260" }
+![The wave 1 view with Cinder in the center](../assets/img/wave1.jpg){ width="260" }
 
 ## Starting stats <span class="badge live">Implemented</span>
 
