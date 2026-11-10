@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = "patch_overcharge"
 kind = "standard"
 stat = "laser_output"
+family = "arms"
 op = "bonus"
 per_pick = 0.15
 max_picks = 5

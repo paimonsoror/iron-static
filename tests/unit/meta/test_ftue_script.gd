@@ -197,7 +197,7 @@ func test_every_text_key_exists_in_strings() -> void:
 		assert_bool(Strings.has_key(key)).is_true()
 	assert_str(Strings.get_text("ftue.cold.1")).is_equal("RELAY 06 ONLINE")
 	assert_str(Strings.get_text("ftue.dart")).is_equal("DART - FAST")
-	assert_str(Strings.get_text("draft.note")).is_equal("PATCHES LAST THIS DEPLOYMENT")
+	assert_str(Strings.get_text("draft.note")).is_equal("PATCHES LAST THIS DEPLOYMENT. ONE REROLL PER DRAFT.")  # R1-04
 
 
 func test_targets_parse() -> void:

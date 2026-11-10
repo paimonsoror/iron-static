@@ -54,5 +54,8 @@ static func _apply_due(w: SimWorld, cmds: InputLog, start: int) -> int:
 		elif cmds.ticks[i] == w.tick and cmds.kinds[i] == InputLog.CMD_PICK:
 			@warning_ignore("return_value_discarded")
 			w.command_pick(cmds.arg_a[i])
+		elif cmds.ticks[i] == w.tick and cmds.kinds[i] == InputLog.CMD_REROLL:
+			@warning_ignore("return_value_discarded")
+			w.command_reroll()
 		i += 1
 	return i

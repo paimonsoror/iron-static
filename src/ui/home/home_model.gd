@@ -65,7 +65,7 @@ static func build(
 		m.hint_text = Strings.fill("home.next_unlock", values)
 	else:
 		m.all_unlocked = true
-		m.hint_text = Strings.get_text("home.all_unlocked")
+		m.hint_text = _speed_hint(best)
 	m.affordable = foundry.affordable_count(profile)
 	m.foundry_hint_text = Strings.fill1("home.foundry_hint", "n", str(m.affordable))
 	m.frame_id = FrameRules.selected_id(profile, frame_defs)
@@ -114,3 +114,13 @@ func _fill_modes(profile: PlayerProfile, mode_defs: Array[WaveModeDef]) -> void:
 				break
 	if not ModeUnlockFlag.pending(profile).is_empty():
 		unlock_chip_text = Strings.get_text("mode.unlocked_toast")
+
+
+## Once every run row is open, the unlock chip names the next game speed (R1-03: 4x at best TIMED wave 30, 8x at 60);
+## `home.all_unlocked` when nothing is left.
+static func _speed_hint(best: int) -> String:
+	var ns: Vector2i = SpeedRules.next_unlock(best)
+	if ns.x <= 0:
+		return Strings.get_text("home.all_unlocked")
+	var values: Dictionary[String, String] = {"w": str(ns.y), "name": Strings.fill1("home.speed_name", "n", str(ns.x))}
+	return Strings.fill("home.next_unlock", values)

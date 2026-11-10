@@ -1,9 +1,10 @@
 class_name TestDraftSystem
 extends GdUnitTestSuite
-## Draft trigger, seeded offers, pick command, replay and snapshot while open (M4-15).
+## Draft trigger, seeded offers, pick command, replay and snapshot while open (M4-15; schedule R1-04).
 
 const MAX_TICKS: int = 60000
 const WAVE_10_END_TICK: int = 10 * Ticks.WAVE_TICKS
+const WAVE_5_END_TICK: int = 5 * Ticks.WAVE_TICKS
 
 
 func _cfg(seed_value: int = 3, mode: String = "timed") -> SimConfig:
@@ -37,21 +38,21 @@ func test_schedule_matches_the_gdd() -> void:
 	for w: int in range(1, 201):
 		if DraftSystem.is_draft_wave(t, w):
 			waves.append(w)
-	assert_array(waves).is_equal(PackedInt32Array([10, 20, 30, 40, 50, 75, 100, 125, 150, 175, 200]))
+	assert_array(waves).is_equal(PackedInt32Array([5, 10, 15, 20, 30, 40, 50, 75, 100, 125, 150, 175, 200]))
 	assert_int(DraftSystem.waves_until(t, 10)).is_equal(0)
 	assert_int(DraftSystem.waves_until(t, 7)).is_equal(3)
 	assert_int(DraftSystem.waves_until(t, 51)).is_equal(24)
 
 
-func test_timed_and_purge_open_the_draft_at_wave_10() -> void:
+func test_timed_and_purge_open_the_first_draft_at_wave_5() -> void:
 	for mode: String in ["timed", "purge"]:
 		var w: SimWorld = SimWorld.new(_cfg(3, mode))
 		_to_draft(w)
 		assert_bool(w.is_draft_open()).is_true()
-		assert_int(w.draft.wave).is_equal(10)
+		assert_int(w.draft.wave).is_equal(5)
 		assert_int(w.draft.offers.size()).is_equal(3)
 		if mode == "timed":
-			assert_int(w.tick).is_equal(WAVE_10_END_TICK)
+			assert_int(w.tick).is_equal(WAVE_5_END_TICK)
 
 
 func test_no_patch_defs_means_no_draft() -> void:
@@ -93,7 +94,7 @@ func test_open_draft_freezes_step_and_buys_until_a_pick() -> void:
 func test_events_draft_opened_and_patch_picked() -> void:
 	var w: SimWorld = SimWorld.new(_cfg())
 	_to_draft(w)
-	assert_object(_last_event(w, SimEventKind.DRAFT_OPENED)).is_equal(Vector2i(10, 3))
+	assert_object(_last_event(w, SimEventKind.DRAFT_OPENED)).is_equal(Vector2i(5, 3))
 	var index: int = w.draft.offers[0]
 	assert_bool(w.command_pick(0)).is_true()
 	assert_object(_last_event(w, SimEventKind.PATCH_PICKED)).is_equal(Vector2i(index, 1))
@@ -146,7 +147,7 @@ func test_fewer_eligible_patches_than_slots_shrinks_the_offer_and_none_means_no_
 	picks[1] = defs[1].max_picks
 	w.patches.set_picks(picks)
 	assert_int(DraftSystem.roll_offers(w).size()).is_equal(0)
-	DraftSystem.check(w, 10)
+	DraftSystem.check(w, 5)
 	assert_bool(w.is_draft_open()).is_false()
 
 
@@ -176,8 +177,8 @@ func _run_with_picks(cfg: SimConfig, picks: PackedInt32Array, until_wave: int) -
 
 func test_a_run_with_two_picks_replays_to_its_final_hash() -> void:
 	var live: SimWorld = _run_with_picks(_cfg(7), PackedInt32Array([1, 2]), 22)
-	assert_int(live.patches.total_picks).is_equal(2)
-	assert_int(live.input_log.size()).is_equal(2)
+	assert_int(live.patches.total_picks).is_equal(4)  # drafts at waves 5, 10, 15, 20
+	assert_int(live.input_log.size()).is_equal(4)
 	var rec: RunRecord = RunRecord.from_world(live)
 	assert_int(rec.sim_version).is_equal(SimVersion.CURRENT)
 	assert_str(Replay.run(_cfg(99), rec, live.tick)).is_equal(rec.final_hash)

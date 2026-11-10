@@ -122,13 +122,16 @@ func _csv_rows(path: String) -> Array[PackedStringArray]:
 
 func test_draft_tuning_loads() -> void:
 	var t: SimTuning = load(TUNING_PATH)
-	assert_int(t.draft_first_wave).is_equal(10)
-	assert_int(t.draft_interval).is_equal(10)
-	assert_int(t.draft_interval_after).is_equal(50)
+	assert_int(t.draft_first_wave).is_equal(5)
+	assert_int(t.draft_interval).is_equal(5)
+	assert_int(t.draft_interval_after).is_equal(20)
+	assert_int(t.draft_interval_mid).is_equal(10)
+	assert_int(t.draft_interval_mid_after).is_equal(50)
 	assert_int(t.draft_interval_late).is_equal(25)
 	assert_int(t.draft_offer_count).is_equal(3)
 	assert_float(t.draft_mix_standard).is_equal(0.70)
 	assert_float(t.draft_mix_gamble).is_equal(0.15)
+	assert_int(t.draft_rerolls).is_equal(1)
 
 
 func _expect_rejected(fixture: String, expected_text: String) -> void:
@@ -148,3 +151,19 @@ func test_importer_rejections_name_the_row() -> void:
 	_expect_rejected("patches_gamble_no_cost.csv", "row 1 (patch_t_glass) cost_stat: missing required value")
 	_expect_rejected("patches_zero_max.csv", "row 1 (patch_overcharge): max_picks must be > 0")
 	_expect_rejected("patches_missing_name_key.csv", "row 1 (patch_overcharge) name_key: missing required value")
+	_expect_rejected("patches_bad_family.csv", "row 1 (patch_overcharge): family must be arms, chassis or systems")
+
+
+func test_family_matches_the_tab_of_the_stat_and_every_family_has_a_standard_patch() -> void:
+	var tabs: Dictionary = {}
+	for u: RunUpgradeDef in SimConfigLoader.load_default(1).upgrades:
+		tabs[u.id] = u.tab
+	var standard_by_family: Dictionary = {}
+	for d: PatchDef in _defs().values():
+		assert_bool(DraftSystem.FAMILIES.has(d.family)).is_true()
+		for s: String in d.stat_ids():
+			if tabs.has(s):
+				assert_str(d.family).is_equal(tabs[s])
+		if not d.is_gamble():
+			standard_by_family[d.family] = true
+	assert_int(standard_by_family.size()).is_equal(3)

@@ -1,8 +1,9 @@
 class_name DraftOverlay
 extends Control
 ## The patch draft overlay (07 s2.9, M4-16): a 60% dim over the frozen battle, one plate with the title
-## ("WAVE 10 CLEARED", M4-27), the first-draft note, three `DraftCard`s (gamble cards: dashed amber border, benefit and
-## cost) and the picks so far. `open(world)` shows it for the open draft; a completed tap on a card calls
+## ("WAVE 5 CLEARED", M4-27), the first-draft note, three `DraftCard`s (gamble cards: dashed amber border, benefit and
+## cost) and the picks so far, then a REROLL ALL button (R1-04: one reroll per draft redraws all three cards).
+## `open(world)` shows it for the open draft; a completed tap on a card calls
 ## `world.command_pick(slot)`, closes, plays the pick sound and emits `picked(slot)` (main.gd turns that into the
 ## haptic pulse). It runs from an input event, so the pick always lands between frames, never inside
 ## `TickDriver.advance`. No timer, no auto-pick. Back and the pause menu are handled by `MobileShell` (the pause
@@ -15,6 +16,7 @@ signal picked(slot: int)
 const PLATE_W: float = 1080.0 - 2.0 * UiKit.MENU_SIDE_MARGIN
 const DIM_ALPHA: float = 0.6
 const SLOTS: int = 3
+const REROLL_H: float = 156.0
 
 ## Set true to force reduce motion (it is also read from `Game.visual.reduce_motion`).
 var reduce_motion: bool = false
@@ -26,6 +28,7 @@ var _t: float = 0.0
 var _title: Label = null
 var _note: Label = null
 var _picks: Label = null
+var _reroll: Button = null
 var _cards: Array[DraftCard] = []
 var _plate: PanelContainer = null
 var _fx: Control = null
@@ -68,6 +71,11 @@ func _ready() -> void:
 		item.chosen.connect(_on_card_chosen)
 		column.add_child(item)
 		_cards.append(item)
+	_reroll = Button.new()
+	_reroll.custom_minimum_size = Vector2(0.0, REROLL_H)
+	_reroll.add_theme_font_size_override("font_size", 48)
+	_reroll.pressed.connect(_on_reroll_pressed)
+	column.add_child(_reroll)
 	_picks = _label(ThemeBuilder.VAR_LABEL_NUMBER, Palette.TEXT_DIM, 38)
 	column.add_child(_picks)
 	set_process(false)
@@ -78,7 +86,20 @@ func open(world: SimWorld) -> void:
 	if world == null or not world.is_draft_open():
 		return
 	_world = world
-	_model = DraftModel.from_world(world)
+	_populate()
+	_t = 0.0
+	var was_open: bool = _open
+	_open = true
+	show()
+	_apply_fx()
+	set_process(true)
+	if not was_open:
+		AudioHooks.draft_open()
+
+
+## Fills the title, cards, picks line and reroll button from the open draft (also after a reroll).
+func _populate() -> void:
+	_model = DraftModel.from_world(_world)
 	_title.text = _model.title()
 	_note.text = _model.note()
 	_note.visible = _note.text != ""
@@ -89,14 +110,11 @@ func open(world: SimWorld) -> void:
 		_cards[i].visible = has
 		if has:
 			_cards[i].set_data(_model.cards[i])
-	_t = 0.0
-	var was_open: bool = _open
-	_open = true
-	show()
-	_apply_fx()
-	set_process(true)
-	if not was_open:
-		AudioHooks.draft_open()
+	_reroll.text = _model.reroll_text()
+	_reroll.disabled = not _model.can_reroll()
+	_reroll.theme_type_variation = (
+		ThemeBuilder.VAR_BUTTON_PLATE if _model.can_reroll() else ThemeBuilder.VAR_BUTTON_UNAFFORDABLE
+	)
 
 
 ## Hides the overlay without picking (a run ending or aborting behind it).
@@ -113,6 +131,10 @@ func is_open() -> bool:
 
 func model() -> DraftModel:
 	return _model
+
+
+func reroll_button() -> Button:
+	return _reroll
 
 
 func card(i: int) -> DraftCard:
@@ -151,6 +173,14 @@ func _draw_fx() -> void:
 		var a: float = DraftOpenFx.alpha(p)
 		if a > 0.0:
 			_fx.draw_arc(c, DraftOpenFx.radius(p), 0.0, TAU, 96, Color(Palette.AMBER, a), DraftOpenFx.WIDTH_PX, true)
+
+
+## Rerolls all cards once per draft. Runs from an input event, so it lands between frames.
+func _on_reroll_pressed() -> void:
+	if not _open or _world == null:
+		return
+	if _world.command_reroll():
+		_populate()
 
 
 func _on_card_chosen(slot: int) -> void:

@@ -1,6 +1,7 @@
 # 08 - MVP Scope
 
 Changelog: 2026-11-10 - section 1.7: Skin Burn damage-taken hardening (x0.85 / x0.70 / x0.55 in bands 1 / 2 / 3) is the first band modifier, added by R1-05; the other modifiers stay out - 2026-11-07 - number type changed to BigNum for currency/cost values from ROADMAP M2 (section 5); milestone sequencing superseded by `docs/ROADMAP.md` (section 3 note); MVP gate = end of ROADMAP M5, where FC1-FC12 are run; N2 approved, N1/N3/N4 approved for Launch, N5 deferred.
+Changelog: 2026-11-10 (R1-04: s1.5 draft waves 5, 10, 15, 20, 30, 40, 50, 75, ...; one ARMS, CHASSIS and SYSTEMS card per draft, one reroll; the nine patches are unchanged and gain a family) - 2026-11-07 - number type changed to BigNum for currency/cost values from ROADMAP M2 (section 5); milestone sequencing superseded by `docs/ROADMAP.md` (section 3 note); MVP gate = end of ROADMAP M5, where FC1-FC12 are run; N2 approved, N1/N3/N4 approved for Launch, N5 deferred.
 
 Purpose: the smallest playable build that proves the core loop is fun, playable on an Android emulator within the first few milestones. If this build is not fun, nothing else matters. The MVP deliberately contains **one sector, five enemies, ten run upgrades, two currencies, one meta screen and a small patch draft**.
 
@@ -30,7 +31,7 @@ All ids below are final ids from the other documents. Tag meanings are in 00 sec
 `scrap` and `data`. No `flux`, `cipher`, `merit` in the UI. Starting `scrap` = 20. `data` per kill and per wave per 03 section 3 (no `data_per_wave`/`data_yield` upgrades; `patch_extraction` and `patch_t_greed` affect `data`).
 
 ### 1.5 Patches (drafts) (9)
-Draft waves per 02 section 10 (10, 20, 30, 40, 50, 75, 100, ...). 3 offers (70% standard, 15% gamble; the weapon-system 15% share goes to standard since no weapon systems exist). Included patches: standard `patch_overcharge`, `patch_plating`, `patch_rate`, `patch_extraction`, `patch_regen`, `patch_ceramic`; gamble `patch_t_glass`, `patch_t_greed`, `patch_t_hardhide`. Manual pick only (no auto-pick).
+Draft waves per 02 section 10 (5, 10, 15, 20, 30, 40, 50, 75, 100, ...). 3 offers, one per family ARMS / CHASSIS / SYSTEMS (gamble roll 15% per family slot, replacing the card of the gamble's own family; the weapon-system share goes to standard since no weapon systems exist), and one reroll per draft. Families: ARMS overcharge, rate, t_glass; CHASSIS plating, regen, ceramic, t_hardhide; SYSTEMS extraction, t_greed. Included patches: standard `patch_overcharge`, `patch_plating`, `patch_rate`, `patch_extraction`, `patch_regen`, `patch_ceramic`; gamble `patch_t_glass`, `patch_t_greed`, `patch_t_hardhide`. Manual pick only (no auto-pick).
 
 ### 1.6 Meta feature (1)
 **Foundry** with 4 rows only:

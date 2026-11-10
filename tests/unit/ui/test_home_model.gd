@@ -42,7 +42,8 @@ func test_next_unlock_at_best_4_names_crit_chance_and_wave_5() -> void:
 func test_all_unlocked_at_best_12() -> void:
 	var m: HomeModel = _model(1, 12, "0")
 	assert_bool(m.all_unlocked).is_true()
-	assert_str(m.hint_text).is_equal(Strings.get_text("home.all_unlocked"))
+	assert_str(m.hint_text).contains("4X SPEED").contains("30")  # R1-03: the chip names the next game speed
+	assert_str(_model(1, 60, "0").hint_text).is_equal(Strings.get_text("home.all_unlocked"))
 
 
 func test_foundry_nav_hidden_for_a_fresh_profile_and_shown_after_one_run() -> void:

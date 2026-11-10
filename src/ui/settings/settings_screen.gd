@@ -27,6 +27,10 @@ var feedback_hint: Label
 ## B1-08: the URL the SEND FEEDBACK button opens (empty hides the button) and how it is opened (tests inject).
 var feedback_url: String = FeedbackLink.URL
 var feedback_opener: Callable = Callable()
+## R1-08: COPY PLAY SUMMARY; the clipboard write is injected by tests (default `DisplayServer.clipboard_set`).
+var summary_button: Button
+var summary_hint: Label
+var clipboard_setter: Callable = Callable()
 var reset_button: Button
 var example_label: Label
 var _value_labels: Dictionary[String, Label] = {}
@@ -63,6 +67,10 @@ func _build() -> void:
 	list.add_child(feedback_button)
 	feedback_hint = label("settings.feedback_hint", &"LabelDim", Palette.TEXT_DIM, NOTE_PX)
 	list.add_child(feedback_hint)
+	summary_button = make_button("settings.summary", _on_summary_pressed)
+	list.add_child(summary_button)
+	summary_hint = label("settings.summary_hint", &"LabelDim", Palette.TEXT_DIM, NOTE_PX)
+	list.add_child(summary_hint)
 	set_feedback_url(feedback_url)
 	back_button = make_button("settings.back", _on_back)
 	content.add_child(back_button)
@@ -131,6 +139,18 @@ func _on_feedback_pressed() -> void:
 	AudioHooks.tap()
 	@warning_ignore("return_value_discarded")
 	FeedbackLink.open(feedback_url, feedback_opener)
+
+
+## Copies the local play summary to the clipboard and says so; nothing is sent anywhere.
+func _on_summary_pressed() -> void:
+	AudioHooks.tap()
+	var text: String = PlaySummary.build(Game.profile(), Game.clock, VersionInfo.text())
+	if clipboard_setter.is_valid():
+		@warning_ignore("return_value_discarded")
+		clipboard_setter.call(text)
+	else:
+		DisplayServer.clipboard_set(text)
+	summary_hint.text = Strings.get_text("settings.summary_done")
 
 
 func _on_reset_pressed() -> void:
