@@ -63,4 +63,17 @@ if (-not $sawDaemon) {
 }
 [System.IO.File]::WriteAllText($props, (($out -join "`n") + "`n"))
 
+# B1-04: androidx.profileinstaller (pulled in by AndroidX Core/Startup) adds an exported, permission-guarded
+# ProfileInstallReceiver that tools\aab_check.ps1 rejects ("no exported component except the launcher"). Nothing in the
+# game triggers profile installation, so remove the receiver in the merged manifest. Idempotent.
+$manifest = Join-Path $buildDir 'src\main\AndroidManifest.xml'
+if (Test-Path $manifest) {
+    $mx = [System.IO.File]::ReadAllText($manifest)
+    if ($mx -notmatch 'ProfileInstallReceiver') {
+        $rm = '        <receiver android:name="androidx.profileinstaller.ProfileInstallReceiver" tools:node="remove" />' + "`n`n    </application>"
+        $re = [regex]'(?m)^\s*</application>'
+        $mx = $re.Replace($mx, $rm, 1)
+        [System.IO.File]::WriteAllText($manifest, $mx, (New-Object System.Text.UTF8Encoding($false)))
+    }
+}
 Write-Host "OK android template $templateVersion ready at $buildDir"

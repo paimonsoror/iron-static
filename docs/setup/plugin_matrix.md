@@ -76,3 +76,21 @@ Order: do this after Billing/AdMob are green, one plugin at a time, re-running `
 4. **Play Games** (only when the user has a Play Console game): enable `GodotPlayGameServices` editor plugin, set `godot_play_game_services/game_id`, OAuth client with `com.ironstatic.game` + SHA-1 of the signing key (debug key for emulator tests). Verify: logcat `GodotPlayGameServices` and no `DEVELOPER_ERROR`.
 5. Check `aapt dump permissions` / merged manifest after each step and record the permission delta in `plugin_matrix.md` (Data safety form).
 
+## Beta build: plugins stripped (B1-04)
+
+Changelog: 2026-11-09 B1-04 (branch `b1-plugins`).
+
+The beta AAB (`IronStaticBeta`) contains none of the plugins above. The debug preset `IronStatic` and `tools\deploy_android.ps1 -Preset IronStatic` keep all of them (`--probe-services` still works).
+
+| Plugin | Beta decision | How it is kept out |
+|---|---|---|
+| Google Play Billing | not in the beta (no purchases) | addon folder absent from the export workspace; `BillingAndroid` script excluded from the pck |
+| AdMob / UMP | not in the beta (no ads) | same; also removes `AD_ID`, `INTERNET`, `ACCESS_NETWORK_STATE`, `WAKE_LOCK`, `FOREGROUND_SERVICE`, `READ_BASIC_PHONE_STATE` and the WorkManager components that came with the ads SDK |
+| Sentry | not in the beta (Q81: no crash reporting) | addon folder absent from the workspace, so neither the GDExtension nor its Android plugin AAR exists; `[sentry]` settings removed from the workspace `project.godot` |
+| Nakama client | not constructed (`BackendOffline` only); addon not in the bundle | addon folder absent; preset `permissions/internet=false` |
+
+Mechanism (per preset, source tree never modified): the plugins are project-wide (editor plugins in `[editor_plugins]`, a GDExtension that registers its own Android plugin, AARs under `addons/`), and a preset `exclude_filter` only filters the pck, not Gradle dependencies. The first attempt (a gitignored `override.cfg` that emptied `editor_plugins`, plus moving `addons/sentry` out of the tree) still produced a bundle with AdMob, Billing and WorkManager (63 MB, 21 MB of dex), and it mutated the working tree, so a crashed build left the repo without Sentry. Instead `tools\release_build.ps1 -Preset IronStaticBeta` copies the project to `build\beta_ws` (robocopy, without `.git`, `addons/{sentry,admob,GodotGooglePlayBilling,com.heroiclabs.nakama,gdUnit4}`, docs, tests, tools, secrets), empties `[editor_plugins] enabled`, drops `[sentry]`, imports and exports there, then deletes the copy. A killed run leaves only that disposable folder; the next run wipes it first. The `exclude_filter` and `permissions/internet=false` in the preset are a second line of defence.
+
+Fallback: `Services` loads `billing_android.gd` / `ads_android.gd` by path (`load()`), only on Android, only when the singleton exists and the script exists; otherwise `BillingStub` / `AdsStub`. Those two scripts reference plugin classes (`BillingClient`, `MobileAds`) and are excluded from the beta pck, so nothing in the beta names a plugin class. `tests/unit/test_beta_services.gd` covers the fallback.
+
+Re-enabling for M7: remove the matching entry from the `$xd` list in `New-StripWorkspace` (`tools\release_build.ps1`) and from the preset `exclude_filter`, set `permissions/internet=true` if the plugin needs it, keep `[editor_plugins]` intact in the workspace (change the regex in `New-StripWorkspace`), then re-run `aab_check.ps1` with the matching `-AllowedPermissions` and redo the Data safety form (`docs/release/data_safety_answers.md`).

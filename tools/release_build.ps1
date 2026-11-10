@@ -8,6 +8,8 @@
             ...-TESTKEY.aab and must NEVER be uploaded to Play.
   -RunTests also run the full test suite first.   -AllowDirty skip the clean-tree check (loud warning).
   -Preset   export preset name (default IronStaticBeta; canary: pass a bad name to see the failure path).
+  -Preset IronStaticBeta (B1-04): exported from a disposable copy (build\beta_ws) with the Billing/AdMob/Sentry/Nakama addons removed;
+            the source tree is never modified, so an interrupted build leaves only that copy (wiped on the next run).
   Exit: 0 ok, 1 build/verification failure, 2 usage/secrets error.
 #>
 param(
@@ -99,18 +101,47 @@ $outDir = Join-Path $BuildRoot 'release'
 New-Item -ItemType Directory -Force $outDir | Out-Null
 $raw = Join-Path $outDir 'ironstatic-beta.aab'
 if (Test-Path $raw) { Remove-Item $raw -Force }
-$imp = Invoke-GodotRetry @('--headless', '--import') -TimeoutSec 300
+# B1-04: the beta carries no Billing, AdMob/UMP, Sentry or Nakama code. The plugins are project-wide (editor plugins,
+# a GDExtension that registers its own Android plugin, local AARs), so the beta is exported from a THROWAWAY COPY of the
+# project (build\beta_ws, gitignored) in which those addon folders are gone and [editor_plugins] is empty. The source
+# tree is never modified, so a killed build can leave nothing behind but that disposable copy, which the next run wipes.
+# The debug preset (IronStatic) is untouched and keeps every plugin.
+$srcRoot = $RepoRoot
+$strip = ($Preset -eq 'IronStaticBeta')
+$ws = Join-Path $BuildRoot 'beta_ws'
+function Remove-Tree([string]$p) {
+    if (Test-Path $p) { $e = Join-Path $env:TEMP 'empty_for_robocopy'; New-Item -ItemType Directory -Force $e | Out-Null; & robocopy.exe $e $p /MIR /NFL /NDL /NJH /NJS /NP | Out-Null; Remove-Item $p -Recurse -Force -ErrorAction SilentlyContinue }
+}
+function New-StripWorkspace {
+    Remove-Tree $ws
+    $xd = @('.git', '.venv', '.claude', '.github', 'build', 'docs', 'site', 'tests', 'tools', 'backend', 'reports', '.godot',
+        'addons\sentry', 'addons\admob', 'addons\GodotGooglePlayBilling', 'addons\com.heroiclabs.nakama', 'addons\gdUnit4',
+        'android\build\build', 'android\build\.gradle') | ForEach-Object { Join-Path $srcRoot $_ }
+    $null = & robocopy.exe $srcRoot $ws /E /NFL /NDL /NJH /NJS /NP /XD @xd /XF secrets.local.json override.cfg
+    if ($LASTEXITCODE -ge 8) { throw "robocopy failed ($LASTEXITCODE)" }
+    $pg = Join-Path $ws 'project.godot'
+    $txt = [System.IO.File]::ReadAllText($pg)
+    $txt = [regex]::Replace($txt, '(?m)^enabled=PackedStringArray\([^\r\n]*\)', 'enabled=PackedStringArray()')
+    $txt = [regex]::Replace($txt, '(?ms)^\[sentry\].*?(?=^\[|\z)', '')
+    [System.IO.File]::WriteAllText($pg, $txt, (New-Object System.Text.UTF8Encoding($false)))
+    foreach ($leak in 'sentry', 'admob', 'GodotGooglePlayBilling', 'com.heroiclabs.nakama') {
+        if (Test-Path (Join-Path $ws "addons\$leak")) { throw "strip workspace still contains addons\$leak" }
+    }
+}
 $start = Get-Date
 $env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH = $keyPath
 $env:GODOT_ANDROID_KEYSTORE_RELEASE_USER = $keyUser
 $env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD = $keyPass
 try {
-    $r = Invoke-GodotRetry @('--headless', '--export-release', $Preset, $raw) -TimeoutSec 1200
+    if ($strip) { New-StripWorkspace; $RepoRoot = $ws; Set-Location $ws }
+    $imp = Invoke-GodotRetry @('--headless', '--import') -TimeoutSec 600
+    $r = Invoke-GodotRetry @('--headless', '--export-release', $Preset, $raw) -TimeoutSec 1800
 }
 finally {
+    $RepoRoot = $srcRoot; Set-Location $srcRoot
+    if ($strip) { Remove-Tree $ws }
     Remove-Item Env:\GODOT_ANDROID_KEYSTORE_RELEASE_PATH, Env:\GODOT_ANDROID_KEYSTORE_RELEASE_USER, Env:\GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD -ErrorAction SilentlyContinue
-}
-$lines = $r.Output -split "`r?`n"
+}$lines = $r.Output -split "`r?`n"
 $lines | Where-Object { $_ -match 'ERROR|FAILED|error:' } | ForEach-Object { Write-Host ($_.Replace($keyPass, '***')).Trim() }
 if (-not (Test-Path $raw) -or (Get-Item $raw).LastWriteTime -lt $start) {
     Fail "export produced no new AAB at $raw (Godot exit code $($r.ExitCode)); preset '$Preset'"
