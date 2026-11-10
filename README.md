@@ -24,7 +24,7 @@
   <a href="https://github.com/paimonsoror/iron-static/actions/workflows/pages.yml"><img src="https://github.com/paimonsoror/iron-static/actions/workflows/pages.yml/badge.svg" alt="Codex build"></a>
   <img src="https://img.shields.io/badge/Godot-4.7.2-478cbf?logo=godotengine&logoColor=white" alt="Godot 4.7.2">
   <img src="https://img.shields.io/badge/platform-Android%20(portrait)-3ddc84?logo=android&logoColor=white" alt="Android, portrait">
-  <img src="https://img.shields.io/badge/milestone-M4%20in%20progress-ffb000" alt="Milestone M4 in progress">
+  <img src="https://img.shields.io/badge/milestone-M4%20built%2C%20exit%20check%20running-ffb000" alt="Milestone M4: features built, exit check running">
 </p>
 
 ## Start here
@@ -32,7 +32,7 @@
 | If you want to | Go here |
 |---|---|
 | See what the game looks like | [Screenshots](#what-it-is) below, or the [codex home](https://paimonsoror.github.io/iron-static/) |
-| Learn how a deployment plays | [The run loop and waves](https://paimonsoror.github.io/iron-static/systems/run-loop/), [Run upgrades](https://paimonsoror.github.io/iron-static/systems/upgrades/), [Enemies](https://paimonsoror.github.io/iron-static/characters/enemies/) |
+| Learn how a deployment plays | [The run loop and waves](https://paimonsoror.github.io/iron-static/systems/run-loop/), [Run upgrades](https://paimonsoror.github.io/iron-static/systems/upgrades/), [Patch drafts](https://paimonsoror.github.io/iron-static/systems/patches/), [Intel](https://paimonsoror.github.io/iron-static/systems/intel/), [Enemies](https://paimonsoror.github.io/iron-static/characters/enemies/) |
 | Read the story | [Lore](https://paimonsoror.github.io/iron-static/lore/) and [Cinder](https://paimonsoror.github.io/iron-static/characters/cinder/) |
 | Know what works today and what is next | [Development status](https://paimonsoror.github.io/iron-static/status/) and the [roadmap](docs/ROADMAP.md) |
 | Build it and run it on a phone | [Quick start](#quick-start) below, then [Building and tools](https://paimonsoror.github.io/iron-static/dev/building/) |
@@ -46,28 +46,47 @@ You are **Cinder**, a reprogrammed cybernetic combat unit fixed at the center of
 
 | | | | |
 |:-:|:-:|:-:|:-:|
-| <img src="site/docs/assets/img/title_screen.jpg" width="200" alt="Title screen with CONTINUE, NEW GAME and SETTINGS"> | <img src="site/docs/assets/img/frame_bay.jpg" width="200" alt="Frame bay with a locked BULWARK card"> | <img src="site/docs/assets/img/home.jpg" width="200" alt="Home screen"> | <img src="site/docs/assets/img/foundry.jpg" width="200" alt="Foundry with four rows"> |
-| Title screen | Frame bay | Home | Foundry |
-| <img src="docs/readme/01_wave1.png" width="200" alt="Wave 1, Cinder centered, ARMS panel"> | <img src="docs/readme/02_crowd_boss.png" width="200" alt="Wave 20 crowd with the boss hulk"> | <img src="docs/readme/03_upgrades.png" width="200" alt="Upgrade panel with a formula tooltip"> | <img src="docs/readme/04_results.png" width="200" alt="Results screen"> |
+| <img src="site/docs/assets/img/title_screen.jpg" width="200" alt="Title screen with CONTINUE, NEW GAME and SETTINGS"> | <img src="site/docs/assets/img/frame_bay.jpg" width="200" alt="Frame bay with a locked BULWARK card"> | <img src="site/docs/assets/img/home_modes.jpg" width="200" alt="Home with the TIMED and PURGE picker above DEPLOY"> | <img src="site/docs/assets/img/foundry.jpg" width="200" alt="Foundry with two rows over the soft cap in orange and a RECOMMENDED tag"> |
+| Title screen | Frame bay | Home, with the wave mode picker | Foundry, with rows over the soft cap |
+| <img src="site/docs/assets/img/wave1.jpg" width="200" alt="Wave 1, Cinder centered, ARMS panel"> | <img src="site/docs/assets/img/crowd_boss.jpg" width="200" alt="Wave 20 crowd with the boss hulk and the speed control at 8x falling back to 2x"> | <img src="site/docs/assets/img/upgrades.jpg" width="200" alt="Upgrade panel with a formula tooltip"> | <img src="site/docs/assets/img/results.jpg" width="200" alt="Results screen"> |
 | Wave 1 | Wave 20 and the boss hulk | Upgrades and a formula tooltip | Results |
 
-<sub>Captures of the current build at 1080x2400, downscaled. Menu screens use test profiles; the wave 20 shot is a debug scenario (invulnerable, fast-forwarded).</sub>
+<sub>Captures of the current build, rendered on a desktop at 1080x2400 (a phone-sized screen) and downscaled. Menu screens use test profiles. The wave 20 shot is a debug scenario: an invulnerable Cinder played by a bot, with the 8x speed setting forced on (the top bar shows the fall-back to 2x while a boss is alive).</sub>
 
-**In the build today:** 24-second waves of four enemy types plus a boss hulk every ten waves; ten run upgrades with tap and hold-to-buy; the title screen, Home, the Foundry, three frames (VANGUARD, BULWARK, STRIKER) and Settings; crash-safe saving with resume after the app is killed; synthesized sound and adaptive music. Every system, with its numbers and status, is in the [codex](https://paimonsoror.github.io/iron-static/systems/).
+**New since M3** (patch draft, Intel, skin burn, guided first runs, damage numbers, results):
+
+| | | | |
+|:-:|:-:|:-:|:-:|
+| <img src="site/docs/assets/img/draft.jpg" width="200" alt="A patch draft with three cards, one a gamble with its cost, and REROLL ALL"> | <img src="site/docs/assets/img/intel_wave.jpg" width="200" alt="The Intel Wave panel with current wave, time left, next boss and next draft"> | <img src="site/docs/assets/img/burn_intel.jpg" width="200" alt="Skin burn band 2 with the Intel Stats panel showing BURN HARDENING minus 45 percent"> | <img src="site/docs/assets/img/ftue_pointer.jpg" width="200" alt="First run: a pointer on Laser Output reading TAP: MORE DAMAGE"> |
+| Patch draft: one card per family, one reroll, a gamble | Intel, the WAVE panel | Skin burn band 2, and Intel's BURN HARDENING row | A guided first run |
+| <img src="site/docs/assets/img/damage_numbers.jpg" width="200" alt="Damage numbers around Cinder with beam afterglow"> | <img src="site/docs/assets/img/results_new_best.jpg" width="200" alt="Results after a PURGE death: NEW BEST, kill strip and a PURGE MODE UNLOCKED chip"> | <img src="site/docs/assets/img/foundry_explainer.jpg" width="200" alt="The Foundry explainer dialog"> | <img src="site/docs/assets/img/intel_stats.jpg" width="200" alt="The Intel Stats panel"> |
+| Damage numbers and beam afterglow | Results with NEW BEST | The Foundry explainer | Intel, the STATS panel |
+
+<sub>The draft is shown over a plain backdrop and the numbers shot is a debug scenario (an invulnerable Cinder at wave 9). The first-run capture is at window resolution on a fresh in-memory profile.</sub>
+
+**Upgrades change how Cinder looks.** The laser beam at Laser Output MK I to IV (run levels 0, 5, 12, 25), and the hull plates at Hull Integrity MK I to IV:
+
+<p align="center">
+  <img src="site/docs/assets/img/tiers_beam.jpg" width="100%" alt="The laser beam at MK I, MK II, MK III and MK IV: a thin beam, then a wider glow, an impact flare, and a ring with a white-hot core">
+  <img src="site/docs/assets/img/tiers_hull.jpg" width="100%" alt="Cinder's hull at MK I to IV: no plates, corner plates, a bridge, then a lip of outer plates">
+</p>
+
+**In the build today:** 24-second waves of four enemy types plus a boss hulk every ten waves, in two wave modes (TIMED, and PURGE where a wave ends when its enemies are destroyed); ten run upgrades with tap and hold-to-buy and MK I to IV looks; patch drafts at waves 5, 10, 15 and 20 and later, with a reroll and gambles; the Intel tab; damage numbers; skin burn that also hardens the frame; speeds up to 8x with an automatic fall-back to 2x; the title screen, Home, the Foundry (with a best-wave soft cap), three frames (VANGUARD, BULWARK, STRIKER) and Settings with haptics, colorblind and high-contrast modes and a local play summary; guided first runs; crash-safe saving with resume after the app is killed; synthesized sound and adaptive music. Every system, with its numbers and status, is in the [codex](https://paimonsoror.github.io/iron-static/systems/).
 
 ## Status
 
-Milestones M0 to M3 are done, along with the V1 visual pass and the A1 audio pass; M3 closed on 2026-11-09 after checks on a real phone. **M4 is in progress**, starting with two wave modes chosen before each deployment: **TIMED** (today's 24-second waves) and **PURGE** (a wave ends when every enemy in it is destroyed; unlocks at best TIMED wave 20, each mode keeps its own record). The patch draft, the Intel tab, damage numbers, haptics and a guided first ten minutes follow.
+Milestones M0 to M3 are done, along with the V1 visual pass and the A1 audio pass. **M4's features are built**: the wave modes, the patch draft, the Intel tab, damage numbers, haptics, the guided first runs and the upgrade visual tiers. Its exit check (M4-28) is running, so the milestone is not closed yet. **R1 Phase A**, a feel pass that followed an independent review, is merged: the draft rework, speeds up to 8x, burn hardening, the Foundry soft cap, beam afterglow, a local play summary and readable text. **Next is a phone playtest with five to eight people**, then the open beta track on Google Play.
 
 | Milestone | Goal | Status |
 |---|---|---|
 | M0 to M2 | Foundation, deterministic combat, in-run economy | Done |
 | V1 / A1 | Visual pass / audio pass | Done |
 | M3 | Meta loop: Foundry, saving and resume, title screen, frames | Done |
-| M4 | Wave modes, patch draft, Intel, feel, first-time experience | In progress |
+| M4 | Wave modes, patch draft, Intel, feel, first-time experience | Features built; exit check running |
+| R1 | Review follow-up: the feel pass | Phase A merged; phone playtest next |
 | M5 to M7 | MVP validation, launch content, online and release | Planned |
 
-On a Pixel 11 Pro Fold the game holds 60 fps with 165 enemies on screen. Details: [development status](https://paimonsoror.github.io/iron-static/status/) and [`docs/ROADMAP.md`](docs/ROADMAP.md).
+On a Pixel 11 Pro Fold the game held 60 fps with 165 enemies on screen in the last device measurement. Details: [development status](https://paimonsoror.github.io/iron-static/status/) and [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Quick start
 

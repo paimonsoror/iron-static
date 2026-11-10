@@ -101,6 +101,6 @@ Swipe or use the arrows to browse the cards. SELECT picks an unlocked frame and 
 
 Each frame is a variant of the same layered Cinder rig, so every frame also burns through the four [exposure bands](../systems/skin-burn.md). From top to bottom the rows below are VANGUARD, BULWARK and STRIKER; left to right, intact to white-hot.
 
-![Three frames across four exposure bands](../assets/img/frames_bands.png)
+![Three frames across four exposure bands](../assets/img/frames_bands.jpg)
 
 Back to [Characters](index.md).

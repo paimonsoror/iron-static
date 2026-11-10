@@ -13,7 +13,7 @@ Timed research bought with **data** and **time**, unlocked at best wave 25 in Se
 - **Rush:** 3 flux per remaining hour (rounded up), **free when less than 10 minutes remain**. A rewarded ad can shave 30 minutes (up to 6 a day).
 - Cancelling refunds all the data and loses the progress. Research completion can notify you (opt-in).
 
-The catalogue covers game speed (3x at research level 5, 4x at level 15), Lab and Foundry discounts, starting scrap, interest cap, target-priority modes, patch choices, auto-buy and auto-pick lists, stat tuning (laser, cycle, hull, repair, crit, range, plating, scrap and data yield), adaptation filters, overdrive, the skip-lull button, and **enemy studies** that reduce a given enemy's health, damage or speed.
+The catalogue covers Lab and Foundry discounts, starting scrap, interest cap, target-priority modes, patch choices, auto-buy and auto-pick lists, stat tuning (laser, cycle, hull, repair, crit, range, plating, scrap and data yield), adaptation filters, overdrive, the skip-lull button, and **enemy studies** that reduce a given enemy's health, damage or speed. (The faster game speeds are not research: 4x and 8x are already in the build and unlock by best wave, see [Controls](controls.md#game-speed).)
 
 ## Arsenal
 
