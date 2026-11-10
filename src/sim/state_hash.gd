@@ -22,6 +22,8 @@ static func compute(w: SimWorld) -> String:
 	if w.draft.open:  # an open draft is state (its offers decide the pick); a closed one adds nothing
 		_put(ctx, PackedInt64Array([w.draft.wave]).to_byte_array())
 		_put(ctx, w.draft.offers.to_byte_array())
+		if w.draft.rerolls_used > 0:  # R1-04: a draft with no reroll hashes as before
+			_put(ctx, PackedInt64Array([w.draft.rerolls_used]).to_byte_array())
 	return ctx.finish().hex_encode()
 
 

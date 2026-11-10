@@ -18,7 +18,8 @@ func test_idle_run_has_no_purchases_and_is_deterministic() -> void:
 			@warning_ignore("return_value_discarded")  # a draft takes the first offer (M4-15)
 			PolicyBot.settle_draft(world)
 			world.step()
-		assert_int(world.input_log.size()).is_equal(0)
+		for k: int in world.input_log.size():  # only draft picks are logged (R1-04: from wave 5), never a buy
+			assert_int(world.input_log.kinds[k]).is_equal(InputLog.CMD_PICK)
 		assert_bool(hashes.append(world.state_hash())).is_false()
 	assert_str(hashes[0]).is_equal(hashes[1])
 

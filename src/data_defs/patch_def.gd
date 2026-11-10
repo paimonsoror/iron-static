@@ -8,6 +8,7 @@ extends Resource
 @export var id: String = ""
 @export var kind: String = "standard"  ## "standard" or "gamble"
 @export var stat: String = ""
+@export var family: String = "arms"  ## draft slot: "arms", "chassis" or "systems" (R1-04)
 @export var op: String = "bonus"
 @export var per_pick: float = 0.0
 @export var max_picks: int = 0

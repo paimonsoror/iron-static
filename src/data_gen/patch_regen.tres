@@ -7,6 +7,7 @@ script = ExtResource("1_script")
 id = "patch_regen"
 kind = "standard"
 stat = "nano_repair"
+family = "chassis"
 op = "bonus"
 per_pick = 0.5
 max_picks = 5

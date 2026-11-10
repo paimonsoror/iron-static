@@ -1,2 +1,2 @@
-id,kind,stat,op,per_pick,max_picks,cost_stat,cost_op,cost_value,name_key,desc_key,tag,source
-patch_overcharge,standard,laser_power,bonus,0.15,5,,,,patch.overcharge.name,patch.overcharge.desc,MVP,gdd:02 s10.1
+id,kind,stat,family,op,per_pick,max_picks,cost_stat,cost_op,cost_value,name_key,desc_key,tag,source
+patch_overcharge,standard,laser_power,arms,bonus,0.15,5,,,,patch.overcharge.name,patch.overcharge.desc,MVP,gdd:02 s10.1

@@ -201,7 +201,15 @@ patch.cost_line,COST: {cost}
 draft.title,WAVE {n} CLEARED
 draft.picks,PICKS: {list}
 draft.gamble,GAMBLE
-draft.note,PATCHES LAST THIS DEPLOYMENT
+draft.note,PATCHES LAST THIS DEPLOYMENT. ONE REROLL PER DRAFT.
+draft.change,{stat} {a} > {b}
+draft.stat.data_yield,DATA YIELD
+draft.stat.enemy_damage,ENEMY DAMAGE
+draft.family.arms,ARMS
+draft.family.chassis,CHASSIS
+draft.family.systems,SYSTEMS
+draft.reroll,REROLL ALL
+draft.rerolled,REROLLED
 results.wave_big,WAVE {n}
 results.best_short,BEST {n}
 results.killed_by,DESTROYED BY

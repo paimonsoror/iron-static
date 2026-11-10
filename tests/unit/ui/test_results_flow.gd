@@ -48,6 +48,7 @@ func _to_results() -> Array:
 	assert_bool(router.dispatch(AppFlow.Event.CONTINUE)).is_true()  # boot is the title
 	assert_bool(router.dispatch(AppFlow.Event.DEPLOY)).is_true()
 	@warning_ignore("return_value_discarded")
+	Game.controller.auto_pick_draft = true  # the first draft (wave 5) would otherwise hold the run (R1-04)
 	Game.controller.fast_forward(60000)
 	assert_int(router.current_screen()).is_equal(AppFlow.Screen.RESULTS)
 	return [main, router]

@@ -9,6 +9,7 @@ const COLUMNS: PackedStringArray = [
 	"id",
 	"kind",
 	"stat",
+	"family",
 	"op",
 	"per_pick",
 	"max_picks",
@@ -21,6 +22,7 @@ const COLUMNS: PackedStringArray = [
 	"source",
 ]
 const KINDS: PackedStringArray = ["standard", "gamble"]
+const FAMILIES: PackedStringArray = ["arms", "chassis", "systems"]
 const OPS: PackedStringArray = ["bonus", "mult", "add"]
 ## Stats a patch may change (`add` only on PLATING_PCT_ADD).
 const STATS: PackedStringArray = [
@@ -81,6 +83,9 @@ static func _row(rd: DataRowReader, table: CsvTable, r: int, ctx: String) -> Dic
 		if op == "add":
 			rd.require(ADD_STATS.has(s), ctx, "op add is only valid on plating_pct")
 	p["stat"] = stat_text
+	var family: String = rd.text(ctx + " family", table.get_value(r, "family"))
+	rd.require(FAMILIES.has(family), ctx, "family must be arms, chassis or systems")
+	p["family"] = family
 	p["op"] = op
 	var per_pick: float = rd.number(ctx + " per_pick", table.get_value(r, "per_pick"))
 	rd.require(per_pick > 0.0, ctx, "per_pick must be > 0")

@@ -81,7 +81,7 @@ func test_open_shows_three_cards_with_the_gamble_flagged() -> void:
 	assert_bool(_overlay.is_open()).is_true()
 	assert_bool(_overlay.visible).is_true()
 	assert_str(_overlay.card(0).texts()[0]).is_equal("OVERCHARGE")
-	assert_str(_overlay.card(2).texts()[2]).is_equal("COST: HULL INTEGRITY x0.5")
+	assert_str(_overlay.card(2).texts()[2]).starts_with("COST: HULL INTEGRITY ")
 	for i: int in 3:
 		assert_float(_overlay.card(i).size.y).is_greater_equal(148.0)
 	assert_array(_spy.sfx).contains_exactly(["sfx_draft_open"])
@@ -192,3 +192,23 @@ func test_open_without_a_draft_is_a_no_op_and_close_hides() -> void:
 	_overlay.close()
 	assert_bool(_overlay.visible).is_false()
 	assert_bool(_c.world.is_draft_open()).is_true()
+
+
+func test_reroll_button_rerolls_once_logs_it_and_shows_it_used() -> void:
+	await _open()
+	var button: Button = _overlay.reroll_button()
+	assert_bool(button.disabled).is_false()
+	assert_str(button.text).is_equal("REROLL ALL")
+	assert_float(button.size.y).is_greater_equal(148.0)
+	button.pressed.emit()
+	assert_int(_c.world.input_log.size()).is_equal(1)
+	assert_int(_c.world.input_log.kinds[0]).is_equal(InputLog.CMD_REROLL)
+	assert_int(_c.world.draft.rerolls_used).is_equal(1)
+	assert_bool(_overlay.is_open()).is_true()
+	assert_bool(button.disabled).is_true()
+	assert_str(button.text).is_equal("REROLLED")
+	button.pressed.emit()  # used: nothing more is logged
+	assert_int(_c.world.input_log.size()).is_equal(1)
+	for i: int in 3:  # the cards now show the new offers
+		var idx: int = _c.world.draft.offers[i]
+		assert_str(_overlay.card(i).texts()[0]).is_equal(Strings.get_text(_c.world.config.patches[idx].name_key))

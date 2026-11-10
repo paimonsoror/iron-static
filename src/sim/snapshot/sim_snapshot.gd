@@ -39,7 +39,13 @@ static func capture(world: SimWorld, run_id: int = -1) -> PackedByteArray:
 		"overclock_kills": world.overclock_kills,
 		"run_levels": world.run_levels,
 		"patch_picks": world.patches.picks,
-		"draft": {"open": world.draft.open, "wave": world.draft.wave, "offers": world.draft.offers},
+		"draft":
+		{
+			"open": world.draft.open,
+			"wave": world.draft.wave,
+			"offers": world.draft.offers,
+			"rerolls_used": world.draft.rerolls_used
+		},
 		"visible": world.visible,
 		"economy": _economy(eco),
 		"run": _run(world.run),
@@ -146,6 +152,8 @@ static func _apply(w: SimWorld, d: Dictionary) -> bool:
 	w.draft.open = draft["open"]
 	w.draft.wave = draft["wave"]
 	w.draft.offers = offers
+	var used: int = draft.get("rerolls_used", 0)
+	w.draft.rerolls_used = used
 	w.stats = w.resolve_stats()
 	_apply_economy(w.economy, _sub(d, "economy"))
 	_apply_run(w.run, _sub(d, "run"))

@@ -3,22 +3,25 @@ extends GdUnitTestSuite
 ## InputLog, RunRecord, ConfigHash and Replay (M2-07).
 
 const MAX_TICKS: int = 60000
+## SimVersion 6 (R1 Phase A, R1-04 part): the draft tuning rows changed (waves 5, 10, 15, 20, ... plus the mid
+## spacing and `draft_rerolls`) and the patch defs gained `family`, so both config hashes changed; the 3000-tick final
+## hashes did not (the run ends before the wave 5 draft). The draft twin below picks four times now (new hash).
 ## SimVersion 5 (FO-3): the Foundry milestone moved from x1.25 per 10 levels to x1.75 per 25 (`Curves`), so runs with
 ## Foundry levels differ; these goldens use no Foundry levels and the config hash (tuning, defs) did not change,
 ## so every golden hash below is unchanged.
-const GOLDEN_SIM_VERSION: int = 5
-const GOLDEN_CONFIG_HASH: String = "5e8c00f974d442707d6927bdd03404c8488aec3f03f2d4706b6b44f8ed1af2a4"
+const GOLDEN_SIM_VERSION: int = 6
+const GOLDEN_CONFIG_HASH: String = "61a7cdfccc771f9d581c144e6da9f374ed742033c53e1fd1a5baad93a638139a"
 const GOLDEN_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 ## SimVersion 2 final hash: unchanged by the 2 to 3 bump (M4-04), asserted separately.
 const SIM_V2_FINAL_HASH: String = "495093804bfad776c3b35ab4d884f8bc1b4442525f259aa547ab326e64ceeda0"
 ## PURGE twin (M4-04): seed 7, invulnerable, same buys, real data via SimConfigLoader.apply_mode("purge").
-const GOLDEN_PURGE_CONFIG_HASH: String = "ee2d9937d40876d9cba8bb896fa96eab6475cd22f91e53123258c51b5ccb544d"
+const GOLDEN_PURGE_CONFIG_HASH: String = "c04873f6b2957051c24d73d813c0d429491ae7aed0ea931fb6753517a50abda9"
 const GOLDEN_PURGE_FINAL_HASH: String = "636348079d070790fd9139a8c72177f6931c9a237afcf06d09e3bea16dcd75f5"
 ## SimVersion 4 (M4-15): the config hashes changed (draft tuning and patch defs are hashed); the final hashes did not
-## (3000 ticks end before the wave 10 draft, no patch picked).
-## Draft twin: seed 7, invulnerable, same buys, the first offer picked at waves 10 and 20, 16000 ticks.
+## (3000 ticks end before the first draft, no patch picked).
+## Draft twin: seed 7, invulnerable, same buys, the first offer picked at waves 5, 10, 15 and 20, 16000 ticks.
 const GOLDEN_DRAFT_TICKS: int = 16000
-const GOLDEN_DRAFT_FINAL_HASH: String = "12c0f234f8ea439eb408fcc94ac52ed00f445a2a1629cc2d5fd17405d328e6f4"
+const GOLDEN_DRAFT_FINAL_HASH: String = "c0b354a759bcec51c25bfdc59238bb540803d7a755263ea58255a955753ee756"
 const GOLDEN_TICKS: int = 3000
 const NO_BUDGET_LIMIT: int = 1_000_000_000
 
@@ -256,7 +259,7 @@ func test_draft_golden_run_hash_and_replay() -> void:
 	var cfg: SimConfig = _cfg(7)
 	cfg.debug_invulnerable = true
 	var w: SimWorld = _scripted(cfg, GOLDEN_DRAFT_TICKS)
-	assert_int(w.patches.total_picks).is_equal(2)
+	assert_int(w.patches.total_picks).is_equal(4)
 	assert_str(w.state_hash()).is_equal(GOLDEN_DRAFT_FINAL_HASH)
 	var rec: RunRecord = RunRecord.from_world(w)
 	var rcfg: SimConfig = _cfg(99)
