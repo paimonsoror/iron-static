@@ -8,6 +8,8 @@ Rules (ids are printed on every finding):
   file-size                      .gd over 300 lines warns, over 500 fails
   class-name                     .gd under src/: one class_name, or an autoload/scene script
   filename-case                  snake_case file names
+  secret-*                       no private-key header, service-account key JSON or service-account email in any
+                                 tracked or not-ignored file (Play publishing credentials must stay outside the repo)
 A line ending in `# lint-allow: <rule> <reason>` suppresses layer findings on that line.
 Directories containing a `.lintignore` file are skipped (lint fixtures, the parse canary).
 Usage: lint_repo.py [--self-test] [--list-gd]
@@ -37,6 +39,15 @@ CLASS_NAME = re.compile(r"^class_name\s+\w+", re.M)
 SIZE_EXCLUDE = ("addons/", "src/data_gen/")
 
 Finding = tuple[str, str, int, str, bool]  # (rule, path, line, message, is_failure)
+
+# Credential patterns, assembled from parts so that this file (and its self-test) never matches itself.
+SECRET_MAX_BYTES = 16 * 1024 * 1024
+SECRET_PATTERNS: list[tuple[str, re.Pattern[bytes], str]] = [
+    ("secret-private-key-header", re.compile(b"-----" + b"BEGIN[ A-Z]*PRIV" + b"ATE KEY-----"), "private key block"),
+    ("secret-service-account-json", re.compile(rb'"type"\s*:\s*"service' + b'_account"'), "service-account key JSON"),
+    ("secret-private-key-field", re.compile(b'"private' + b'_key"'), "private key field"),
+    ("secret-service-account-email", re.compile(rb"[\w.-]+@[\w-]+\.iam\." + b"gservice" + rb"account\.com"), "service-account email"),
+]
 
 
 def code_part(line: str) -> str:
@@ -129,7 +140,17 @@ def check_file(path: str, data: bytes, referenced: set[str]) -> list[Finding]:
     )
 
 
-def candidate_files() -> list[str]:
+def check_secrets(path: str, data: bytes) -> list[Finding]:
+    found: list[Finding] = []
+    for rule, pat, what in SECRET_PATTERNS:
+        m = pat.search(data)
+        if m:
+            line = data[: m.start()].count(b"\n") + 1
+            found.append((rule, path, line, f"{what} found in a file that is not git-ignored; never commit credentials", True))
+    return found
+
+
+def git_files() -> list[str]:
     """Tracked + untracked-but-not-ignored files (git), else a directory walk."""
     try:
         raw = subprocess.run(
@@ -143,6 +164,12 @@ def candidate_files() -> list[str]:
             p.relative_to(ROOT).as_posix() for p in ROOT.rglob("*")
             if p.is_file() and not any(part in skip for part in p.relative_to(ROOT).parts)
         ]
+    return files
+
+
+def candidate_files() -> list[str]:
+    """git_files() minus directories that carry a .lintignore (fixtures, the parse canary)."""
+    files = git_files()
     skipped: set[str] = set()
     for f in files:
         if f.endswith(".lintignore"):
@@ -176,6 +203,11 @@ def run_lint() -> int:
     files = candidate_files()
     refs = referenced_scripts(files)
     findings: list[Finding] = []
+    # The secret scan covers every file git would add, including .lintignore directories and binary files.
+    for f in git_files():
+        fp = ROOT / f
+        if fp.is_file() and fp.stat().st_size <= SECRET_MAX_BYTES:
+            findings += check_secrets(f, fp.read_bytes())
     for f in files:
         if Path(f).suffix.lower() not in TEXT_EXT and Path(f).name not in TEXT_EXT:
             continue
@@ -215,6 +247,13 @@ def self_test() -> int:
     expect("synthetic crlf", check_file("src/x.gd", b"class_name X\r\n", set()), "encoding-crlf")
     big = ("class_name Big\n" + "var a: int = 0\n" * 520).encode()
     expect("synthetic 520 lines", check_file("src/big.gd", big, set()), "file-size")
+    pem = ("-----" + "BEGIN RSA PRIV" + "ATE KEY-----\nabc\n").encode()
+    expect("synthetic key header", check_secrets("x.txt", pem), "secret-private-key-header")
+    sa = ('{"type": "service' + '_account", "x": 1}').encode()
+    expect("synthetic service-account json", check_secrets("k.json", sa), "secret-service-account-json")
+    expect("synthetic private key field", check_secrets("k.json", ('{"private' + '_key": "x"}').encode()), "secret-private-key-field")
+    expect("synthetic service-account email", check_secrets("n.md", b"a-b@proj-1.iam." + b"gservice" + b"account.com"), "secret-service-account-email")
+    expect("ordinary text is clean", check_secrets("n.md", b'{"type": "player"} private key notes'), None)
     print(f"lint_repo self-test: {n - bad}/{n} ok")
     return 1 if bad else 0
 

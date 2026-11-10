@@ -61,6 +61,12 @@ $ok = ($LASTEXITCODE -eq 0)
 Step "art lint self-test (expected failures)" $ok (($out.Trim() -split "`n") | Select-Object -Last 1)
 if (-not $ok) { Write-Host $out }
 
+# Play publishing tool: offline self-test (fake API, no network, no Google libraries; docs/release/play_publish.md)
+$out = & $vpy -I "$PSScriptRoot\play_publish.py" --self-test 2>&1 | Out-String
+$ok = ($LASTEXITCODE -eq 0)
+Step "play_publish self-test" $ok (($out.Trim() -split "`n") | Select-Object -Last 1)
+if (-not $ok) { Write-Host $out }
+
 if (-not $SkipCompile) {
     # Import first so global classes (GdUnit4, class_name) resolve. Compile via tools/compile_check.gd
     # (autoloads exist in that mode; `--check-only` does not know them and fails on `Log`/`Game`).

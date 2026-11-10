@@ -13,6 +13,8 @@ You have published before, but not for a while. This guide is the whole path fro
   - **Path B (account created after 2023-11-13, or you are not sure):** internal test -> closed test (12+ testers, 14 days) -> apply for production access (about 7 days) -> open test. About 5-7 weeks. Start recruiting testers before the first build is ready.
 - Roughly 20 hours of your own time, spread over those weeks, plus the work the agents do first (milestone B1 in `docs/ROADMAP.md`).
 
+Optional automation: once the app exists in Play Console, `tools\play_publish.ps1` can upload the AAB and the store listing through the API instead of by hand. It is safe by design (dry run by default, key kept outside the repo); one-time setup and rules are in `docs/release/play_publish.md`.
+
 ## 1. Is your account exempt? (do this first, 5 minutes)
 
 You do not remember when you created the account. How to find out, best first:

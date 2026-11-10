@@ -40,3 +40,13 @@ Thumbs.db
 # Codex site (GitHub Pages): local venv and build output
 site/.venv/
 site/public/
+
+# Play publishing credentials (tools/play_publish.py): keys live OUTSIDE the repo; these are belt and braces
+*service-account*.json
+*service_account*.json
+*serviceaccount*.json
+play-*.json
+client_secret*.json
+*.p12
+*.pfx
+*.pem
