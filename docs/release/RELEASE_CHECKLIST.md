@@ -14,7 +14,7 @@ Owner: **U** = user, **A** = agents.
 - [ ] **A** `tools\aab_check.ps1` PASS on the release AAB (permissions, exported components, 16 KB, target SDK 36, min SDK 24).
 - [ ] **A** B1-07 smoke test on the exact AAB: emulator and phone, report with AAB sha256.
 - [ ] **U** Real-phone smoke done: install, full run to Results and back, resume after killing the app, haptics, no black screen over 30 seconds.
-- [ ] **A** B1-05 privacy page merged to `main`, Pages workflow green. **U** `https://paimonsoror.github.io/iron-static/privacy/` loads in a private window.
+- [ ] **A** B1-05 privacy page merged to `main`, Pages workflow green. **U** `https://paimonsoror.github.io/iron-static/privacy/` loads in a private window. (A done 2026-11-09: d3d307d, Pages green after one rerun of a GitHub-side deploy error, URL returns 200; the U check is yours.)
 - [x] **U** Placeholders filled in `site/docs/privacy.md` (2026-11-09): developer name `Paimon Sorornejad` (must match the name shown on Google Play) and support email `support@normalexception.net`. No personal email committed anywhere (grep below).
 - [ ] **U** Public developer details decided (Q83): developer name `Paimon Sorornejad` and support email `support@normalexception.net` decided 2026-11-09; the address shown on the store page and the EU trader status still open.
 - [ ] **U** Trademark and name search done (Q31): Google Play, USPTO, EUIPO, web, handles. Result recorded. Fallback name EMBER CHASSIS.
