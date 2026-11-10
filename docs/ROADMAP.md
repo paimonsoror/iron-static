@@ -1,6 +1,6 @@
 # IRON STATIC - Roadmap
 
-Changelog: 2026-11-09 v1.6 - added milestone B1 Play open beta (parallel with M5; plan in `docs/tasks/B1.md`, user guide `docs/release/PLAY_BETA_GUIDE.md`); no other milestone changed. 2026-11-09 v1.5 - M3 marked done (M3-20). 2026-11-08 v1.4 - inserted the A1 audio pass (Claude-synthesized SFX and music, swappable audio slots; runs in parallel with the V1 tail); placeholder SFX and the ambient loop moved out of M4 (M4 keeps haptics and the settings UI); tasks `docs/tasks/A1.md`. 2026-11-08 v1.3 - M2 status line ticked (M2-16). 2026-11-08 v1.2 - inserted milestone V1 Visual pass between M2 and M3 (user decision 2026-11-08: hybrid illustrated-SVG + vector FX + styled HUD, now); overlapping visual items moved out of M4; art bible `docs/design/10_art_bible.md`, tasks `docs/tasks/V1.md`. 2026-11-07 v1.1 - M1 status line ticked (M1-26). 2026-11-07 v1.0 - first version. Merges the technical plan (`docs/TECH_ARCHITECTURE.md` section 12) with the GDD MVP scope (`docs/design/08_mvp_scope.md`) and applies the user decisions of 2026-11-07 (title, novel mechanics N1-N4 approved and N5 deferred, Standby Patrol approved, staged online rollout, BigNum). This file is the single source for milestone scope, order, exit criteria and sizing. Agent-ready task files: `docs/tasks/M0.md`, `M1.md`, `M2.md`, `V1.md`; later milestones get their task files when the previous milestone closes.
+Changelog: 2026-11-10 v1.7 - inserted R1 Review follow-up (feel pass) after M4, from the user's decisions on the independent review (`docs/review/2026-11_fable_review.md`, 09 Q88-Q90, tasks `docs/tasks/R1.md`); the B1 open track now waits for a human playtest (Q88); M4-28 and B1-06/B1-07 run after R1 Phase A. 2026-11-09 v1.6 - added milestone B1 Play open beta (parallel with M5; plan in `docs/tasks/B1.md`, user guide `docs/release/PLAY_BETA_GUIDE.md`); no other milestone changed. 2026-11-09 v1.5 - M3 marked done (M3-20). 2026-11-08 v1.4 - inserted the A1 audio pass (Claude-synthesized SFX and music, swappable audio slots; runs in parallel with the V1 tail); placeholder SFX and the ambient loop moved out of M4 (M4 keeps haptics and the settings UI); tasks `docs/tasks/A1.md`. 2026-11-08 v1.3 - M2 status line ticked (M2-16). 2026-11-08 v1.2 - inserted milestone V1 Visual pass between M2 and M3 (user decision 2026-11-08: hybrid illustrated-SVG + vector FX + styled HUD, now); overlapping visual items moved out of M4; art bible `docs/design/10_art_bible.md`, tasks `docs/tasks/V1.md`. 2026-11-07 v1.1 - M1 status line ticked (M1-26). 2026-11-07 v1.0 - first version. Merges the technical plan (`docs/TECH_ARCHITECTURE.md` section 12) with the GDD MVP scope (`docs/design/08_mvp_scope.md`) and applies the user decisions of 2026-11-07 (title, novel mechanics N1-N4 approved and N5 deferred, Standby Patrol approved, staged online rollout, BigNum). This file is the single source for milestone scope, order, exit criteria and sizing. Agent-ready task files: `docs/tasks/M0.md`, `M1.md`, `M2.md`, `V1.md`; later milestones get their task files when the previous milestone closes.
 
 ## 1. How to read this
 
@@ -21,6 +21,7 @@ Changelog: 2026-11-09 v1.6 - added milestone B1 Play open beta (parallel with M5
 | A1 | Audio pass | Claude-synthesized SFX and adaptive ambient-to-industrial music in swappable audio slots, bus layout, director code, then wired to sim/view events; sketch gate first | 10 + gate | 1-2 (parallel to the V1 tail) | M2 (gate and tooling start now; wiring waits for the V1 hooks) |
 | M3 | Meta loop and persistence | `data` banking, Foundry (4 rows), Home/Results/Foundry, versioned HMAC save, run resume; part B: title screen and Cinder frames (user addition, `docs/design/11_title_and_frames.md`) | 20 + 12 | 3-4 | M2 |
 | M4 | Patches, feel and FTUE | 9 patches and draft, Intel, VFX/juice, damage numbers, 2x speed, haptics, settings UI, FTUE | 26 | 3-4 | M3 |
+| R1 | Review follow-up: feel pass | Act on the independent review: drafts that matter, a burn state the player lives in, faster speeds, Foundry soft cap, visible beam, readable text (Phase A); phone checks (B); identity mechanics (C); reasons to return (D) | about 8 + outlines | 2-6 | M4 (most of it), review 2026-11-10 |
 | M5 | MVP validation (MVP gate) | Balance pass, perf pass on a real device, determinism, fun checks FC1-FC12 | 12 | 2-3 | M4 |
 | B1 | Play open beta | Signed AAB of the MVP build with no ads, billing or data collection, a privacy page and store listing, run through the Play testing path (closed test if the account needs it) to an open test anyone can join | 12 (3 need the user in Play Console) | 1-2 of agent work, then 1-2 weeks (account exempt) or 5-7 weeks (closed test first) of waiting | M4 exit (parallel with M5) |
 | M6 | Launch content | Lab, weapon systems, firmware, companions, N1/N3/N4, sectors S2-S12, Standby Patrol, Ops Board | about 75 | 14-20 | M5 |
@@ -94,6 +95,12 @@ Totals: MVP (M0-M5, with V1) about 130 tasks (V1 adds 22; M4 shrinks by about 6)
 - **Dependencies:** M3 (and V1 for the look). Art lock for the icon and logo waits for Q31.
 - **User playtest:** a fresh-install first 10 minutes, as a new player. Questions: FC2 (understanding without text), FC7 (patch choice), FC8 (skin burn legibility), overall feel.
 
+### R1 Review follow-up: feel pass (added 2026-11-10)
+- **Status:** [ ] planned 2026-11-10 (`docs/tasks/R1.md`).
+- **Why:** the independent review (`docs/review/2026-11_fable_review.md`) found the code and art solid but the loop thin for a human player: choices barely matter, the burn bands are on screen for seconds, there is no swarm, late runs have long dead time, and the FO-3 hard cap creates a wall in the first week. The user decided (09 Q88-Q90) to fix the middle of the run before more meta.
+- **Order:** Phase A quick wins (R1-01 to R1-08) -> M4-28 exit check and B1-06/B1-07 -> human fun checks with 5-8 people (Q88) -> Phase B phone checks -> Phase C identity -> Phase D reasons to return. Lab, firmware and backend work wait.
+- **Exit criteria:** each task's acceptance in `docs/tasks/R1.md`; the journey pacing targets of R1-01/R1-02 met; the human fun checks recorded in `docs/playtests/`.
+
 ### M5 MVP validation, the MVP gate (about 12 tasks, 2-3 weeks)
 - **Goal:** prove the core loop is fun and the numbers match the GDD before building any more meta.
 - **Scope:** balance pass of 03 s6 and 05 s8 targets with the headless simulator (policy bot, Foundry multipliers x1/x2/x4/x10); performance pass on the real device (FC6); determinism checks (same seed, 1x vs 2x, FC11); crash-free and soak run; closed-test build prepared (privacy policy URL live, Q34).
@@ -143,7 +150,7 @@ Totals: MVP (M0-M5, with V1) about 130 tasks (V1 adds 22; M4 shrinks by about 6)
 ## 4. Critical path
 
 ```
-M0 -> M1 -> M2 -> V1 -> M3 -> M4 -> M5 (MVP gate) -> M6 (6A -> 6B || 6C -> 6D) -> M7 (7D) -> Launch -> P1 -> P2
+M0 -> M1 -> M2 -> V1 -> M3 -> M4 -> R1 -> M5 (MVP gate) -> M6 (6A -> 6B || 6C -> 6D) -> M7 (7D) -> Launch -> P1 -> P2
 ```
 
 Parallel tracks that must not slip, because they gate the critical path:
@@ -158,7 +165,7 @@ Parallel tracks that must not slip, because they gate the critical path:
 | Audio and art commission (Q19, Q14) | M5 | M7 | Placeholders must be replaced before the closed test is public-facing; V1 art is agent-drawn SVG in swappable slots (`10_art_bible.md` 4.3), so a commissioned set can replace it file by file |
 | Style-frame gate (V1) | start of V1 | before any V1 art production | Prevents producing 20+ sheets in a direction the user rejects |
 
-B1 (Play open beta) note: for the beta, the tester clock starts at M4 exit instead of end of M5 (section B1); the rows above still describe the later production-access and launch path.
+B1 (Play open beta) note (2026-11-10, Q88): the open track (B1-12) waits for the human fun checks after R1 Phase A; internal and closed tracks are not held. For the beta, the tester clock starts at M4 exit instead of end of M5 (section B1); the rows above still describe the later production-access and launch path.
 
 Gates: G0 plugins (end M0), G1 perf bench (end M1), G2 fun checks (end M5), G3 sector scope (mid M6), G4 closed test passed (M7), G5 soft-launch KPIs (before global launch).
 
