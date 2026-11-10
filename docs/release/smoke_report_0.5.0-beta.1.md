@@ -2,6 +2,8 @@
 
 Status: emulator half done 2026-11-10. Phone half is open and needs the user (section "Phone (user present)").
 
+**Package rename (2026-11-10, after the emulator run):** the package ID changed from `com.normalexception.game` to `com.normalexception.games.ironstatic` (09 Q30/Q79, user decision, before any Play upload). The builds in the table below carry the old ID. The phone session installs a test-key AAB rebuilt with the new ID; its sha256 is recorded in the phone section. Uninstall any old `com.normalexception.game` test install first: it is a separate app.
+
 ## Build under test
 
 | Item | Value |
