@@ -81,7 +81,7 @@ func is_teal() -> bool:
 
 
 func _paint_next() -> void:
-	var color: Color = Palette.TEAL if is_teal() else (Palette.AMBER_DIM if _top else Palette.TEXT_DIM)
+	var color: Color = Palette.TEAL if is_teal() else (Palette.AMBER_TEXT if _top else Palette.TEXT_DIM)
 	if color != _next_color:
 		_next_color = color
 		_next.add_theme_color_override("font_color", color)

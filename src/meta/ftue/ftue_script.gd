@@ -2,7 +2,7 @@ class_name FtueScript
 extends RefCounted
 ## The first-time-user-experience beat list (M4-25, docs/design/07 s3). Pure: wraps the rows of data/ftue.csv
 ## (generated `FtueTable`, CSV order = the 07 s3 order). A beat has a trigger (an event name), a target (what the
-## overlay points at), a one-line text key and `max_runs` (the last run number, 1 or 2, that shows it).
+## overlay points at), a one-line text key and `max_runs` (the last run number, 1 to `MAX_RUNS`, that shows it).
 ##
 ## Public API:
 ##   static load_default() -> FtueScript        (the generated table)
@@ -10,8 +10,9 @@ extends RefCounted
 ##   static is_silent(beat) / is_row(beat) / row_id(beat) / foundry_id(beat)
 
 const TABLE_PATH: String = "res://src/data_gen/ftue_table.tres"
-## Only the first two runs of a fresh profile show hints.
-const MAX_RUNS: int = 2
+## Only the first three runs of a fresh profile show hints. Most beats stop after run 2; the hull hint (a player who
+## took no damage early would otherwise never see it) keeps firing on the first damage up to run 3 (R1-07, O-04).
+const MAX_RUNS: int = 3
 
 const COLD_OPEN: String = "cold_open"
 const RUN1_START: String = "run1_start"

@@ -35,6 +35,8 @@ EXTRA_FORBIDDEN = {"text", "tspan", "animate", "animateTransform", "animateMotio
                    "foreignObject", "switch", "feDropShadow", "feColorMatrix", "pattern"}
 # Gate decisions block (10_art_bible.md top): per-type accent colors.
 GATE_ACCENTS = ["#FF2D4B", "#FF4FD8", "#FF7A1A", "#A35CFF", "#FF1F3D"]
+# Colors baked into sprites that no longer match a Palette constant (R1-07 lifted UNAFFORDABLE; the ui_kit lock art keeps it).
+BAKED_LEGACY = ["#5C5546"]
 # CLAUDE.md IP guardrail list (lowercase regexes, matched against ids, comments, titles, file names).
 BANNED = [
     r"terminator", r"skynet", r"cyberdyne", r"\bt-?800\b", r"\bt-?1000\b", r"\bt-?x\b", r"\bt-\d+", r"hunter[- _]?killer",
@@ -72,6 +74,7 @@ def build() -> dict:
     pal = set(h.upper() for h in re.findall(r"#[0-9A-Fa-f]{6}\b", sec32))
     pal |= set(GATE_ACCENTS)
     pal |= set(h.upper() for h in re.findall(r'Color\("(#[0-9A-Fa-f]{6})"\)', PALETTE_GD.read_text(encoding="utf-8")))
+    pal |= set(BAKED_LEGACY)
     pal |= {"#000000", "#FFFFFF"}
     return {
         "_generated_by": "tools/art_rules_gen.py from docs/art/svg_support.md, docs/design/10_art_bible.md 3.2/4.4 and src/ui/palette.gd; do not hand-edit",

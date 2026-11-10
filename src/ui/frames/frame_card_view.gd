@@ -68,7 +68,7 @@ func _build_top() -> Control:
 	_name = _short(MenuScreen.label("", &"LabelHeading", Palette.AMBER, 72))
 	_role = _short(MenuScreen.label("", &"LabelDim", Palette.TEXT_DIM, 44))
 	_tag = _short(MenuScreen.label("frame.selected", &"LabelHeading", Palette.TEAL, 44))
-	_lock = _short(MenuScreen.label("", &"LabelHeading", Palette.AMBER_DIM, 50))
+	_lock = _short(MenuScreen.label("", &"LabelHeading", Palette.AMBER_TEXT, 50))
 	_progress = _short(MenuScreen.label("", &"LabelNumber", Palette.TEXT_DIM, 44))
 	for l: Label in [_name, _role, _tag, _lock, _progress]:
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT

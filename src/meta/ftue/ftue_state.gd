@@ -1,6 +1,7 @@
 class_name FtueState
 extends RefCounted
-## Progress through the FTUE script (M4-25). Pure. Hints show only in runs 1 and 2 of a fresh profile: `run_no` is
+## Progress through the FTUE script (M4-25). Pure. Hints show only in runs 1 to `MAX_RUNS` (3) of a fresh profile, each
+## beat up to its own `max_runs`: `run_no` is
 ## the number of the run being played (`runs_total + 1` at run start) and a state with `run_no > MAX_RUNS` or
 ## `skipped` shows nothing. At most one beat is `active` (drawn); events that fire while one is up queue their beats
 ## in CSV order. Silent beats complete at once. Every hint is skippable (`skip_all` ends every beat for good) and
@@ -68,7 +69,7 @@ func to_dict() -> Dictionary:
 	return {"v": VERSION, "done": ids, "skipped": skipped}
 
 
-## Hints can still show: not skipped and within the first two runs.
+## Hints can still show: not skipped and within the first `MAX_RUNS` runs (a beat may still be past its own `max_runs`).
 func enabled() -> bool:
 	return not skipped and run_no <= FtueScript.MAX_RUNS
 
@@ -148,8 +149,15 @@ func complete(id: String) -> bool:
 	return true
 
 
-## The player bought upgrade row `upgrade_id`: ends the active beat when it points at that row.
+## The player bought upgrade row `upgrade_id`: ends the active beat when it points at that row, and drops a queued
+## beat for that row unless it follows the active beat of the same row (R1-02 start scrap lets a new player buy
+## several rows at once: no hint for a row already bought).
 func row_bought(upgrade_id: String) -> bool:
+	var follows_active: bool = _active != null and FtueScript.row_id(_active) == upgrade_id  # hull hint, then hold hint
+	for queued: FtueBeatDef in _queue.duplicate():
+		if not follows_active and FtueScript.row_id(queued) == upgrade_id:
+			_finish(queued)
+			_queue.erase(queued)
 	if _active != null and FtueScript.row_id(_active) == upgrade_id:
 		return complete(_active.id)
 	return false

@@ -133,16 +133,66 @@ func test_skip_all_ends_every_beat_and_persists() -> void:
 	assert_str(again.current_id()).is_equal("")
 
 
-func test_a_profile_with_two_runs_shows_no_beats() -> void:
+func test_a_profile_with_three_runs_shows_no_beats() -> void:
 	var p: PlayerProfile = PlayerProfile.fresh(0, "t")
-	p.runs_total = 2
+	p.runs_total = 3
 	var s: FtueState = FtueState.load_from(_script, p)
 	assert_bool(s.enabled()).is_false()
 	assert_bool(s.cold_open_due()).is_false()
 	for trigger: String in FtueScript.TRIGGERS:
 		assert_array(s.on_event(trigger)).is_empty()
-	assert_array(s.begin_run(2)).is_empty()
+	assert_array(s.begin_run(3)).is_empty()
 	assert_object(s.active()).is_null()
+
+
+func test_hull_hint_fires_on_first_damage_in_any_of_the_first_three_runs() -> void:
+	# R1-07 (O-04): runs 1 and 2 may pass without damage; run 3 still shows the hull hint, and nothing else.
+	for banked: int in [0, 1, 2]:
+		var p: PlayerProfile = PlayerProfile.fresh(0, "t")
+		p.runs_total = banked
+		var s: FtueState = FtueState.load_from(_script, p)
+		@warning_ignore("return_value_discarded")
+		s.begin_run(banked)
+		assert_bool(s.enabled()).is_true()
+		var shown: Array[String] = _ids(s.on_event(FtueScript.FIRST_DAMAGE_TAKEN))
+		if banked < 2:
+			assert_array(shown).is_equal(["upgrade_hull", "hold_hint"])
+		else:
+			assert_array(shown).is_equal(["upgrade_hull"])
+			assert_str(s.active().id).is_equal("upgrade_hull")
+	# Run 3: the other triggers stay silent.
+	var late: PlayerProfile = PlayerProfile.fresh(0, "t")
+	late.runs_total = 2
+	var s3: FtueState = FtueState.load_from(_script, late)
+	for trigger: String in [FtueScript.DART_FIRST_SEEN, FtueScript.DRAFT_OPEN_FIRST, FtueScript.RESULTS_FIRST]:
+		assert_array(s3.on_event(trigger)).is_empty()
+	# Once shown (done) it does not come back in a later run.
+	@warning_ignore("return_value_discarded")
+	s3.on_event(FtueScript.FIRST_DAMAGE_TAKEN)
+	@warning_ignore("return_value_discarded")
+	s3.complete("upgrade_hull")
+	assert_array(s3.on_event(FtueScript.FIRST_DAMAGE_TAKEN)).is_empty()
+
+
+func test_hull_hint_texts_carry_a_verb_and_a_reason() -> void:
+	assert_str(Strings.get_text(_script.beat("upgrade_laser").text_key)).is_equal("TAP: MORE DAMAGE")
+	assert_str(Strings.get_text(_script.beat("upgrade_rate").text_key)).is_equal("TAP: FIRE FASTER")
+	assert_str(Strings.get_text(_script.beat("upgrade_hull").text_key)).is_equal("TAP: SURVIVE LONGER")
+
+
+func test_a_queued_hint_for_a_row_the_player_already_bought_is_dropped() -> void:
+	# R1-02: with 230 start scrap the player can buy cycle rate while its hint waits behind the laser hint.
+	var s: FtueState = _fresh()
+	@warning_ignore("return_value_discarded")
+	s.begin_run(0)
+	assert_str(s.active().id).is_equal("upgrade_laser")
+	assert_array(_ids(s.on_event(FtueScript.SCRAP_AFFORDS_CYCLE_RATE))).is_equal(["upgrade_rate"])
+	assert_int(s.queued_count()).is_equal(1)
+	assert_bool(s.row_bought("cycle_rate")).is_false()
+	assert_int(s.queued_count()).is_equal(0)
+	assert_bool(s.is_done("upgrade_rate")).is_true()
+	assert_bool(s.row_bought("laser_output")).is_true()
+	assert_object(s.active()).is_null()  # nothing left to show
 
 
 func test_run_two_shows_only_beats_that_allow_it() -> void:
@@ -197,7 +247,8 @@ func test_every_text_key_exists_in_strings() -> void:
 		assert_bool(Strings.has_key(key)).is_true()
 	assert_str(Strings.get_text("ftue.cold.1")).is_equal("RELAY 06 ONLINE")
 	assert_str(Strings.get_text("ftue.dart")).is_equal("DART - FAST")
-	assert_str(Strings.get_text("draft.note")).is_equal("PATCHES LAST THIS DEPLOYMENT. ONE REROLL PER DRAFT.")  # R1-04
+	# R1-04 note, sentence case since R1-07
+	assert_str(Strings.get_text("draft.note")).is_equal("Patches last this deployment. One reroll per draft.")
 
 
 func test_targets_parse() -> void:

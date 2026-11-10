@@ -47,7 +47,7 @@ func test_picks_line_lists_picks_with_max() -> void:
 func test_first_draft_shows_the_note_and_no_picks_line() -> void:
 	var c: RunController = DraftTestWorld.controller_with_draft(STANDARD)
 	var m: DraftModel = DraftModel.from_world(c.world)
-	assert_str(m.note()).is_equal("PATCHES LAST THIS DEPLOYMENT. ONE REROLL PER DRAFT.")
+	assert_str(m.note()).is_equal("Patches last this deployment. One reroll per draft.")
 	assert_str(m.picks_line()).is_equal("")
 
 

@@ -24,7 +24,8 @@ const WINDOW_MAX: int = 6
 const MIN_FRACTION: float = 0.01
 ## Font size per kind in px at the 1080 px wide base viewport: GDD 07 5.5 values x1.7 (18 px numbers vanished next to
 ## Cinder in the desktop render, too small for a phone; main-agent change at merge).
-const SIZES: Array[int] = [30, 44, 56, 36, 34]
+## R1-07 (I-08): NORMAL 30 -> 36 (a 30 px digit is about 1.5 mm tall on a phone).
+const SIZES: Array[int] = [36, 44, 56, 36, 34]
 
 ## Maximum live numbers (the layer lowers it on the LOW quality tier).
 var live_cap: int = POOL

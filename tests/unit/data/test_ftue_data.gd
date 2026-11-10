@@ -51,5 +51,5 @@ func test_importer_rejections_name_the_row() -> void:
 	_expect_rejected("ftue_bad_trigger.csv", "row 2 (nap): unknown trigger 'nap_time'")
 	_expect_rejected("ftue_bad_target.csv", "row 2 (up): bad target 'row:no_such_row'")
 	_expect_rejected("ftue_unknown_key.csv", "row 2 (up): unknown text_key 'ftue.missing_key'")
-	_expect_rejected("ftue_bad_max_runs.csv", "row 2 (up): max_runs must be 1 to 2")
+	_expect_rejected("ftue_bad_max_runs.csv", "row 2 (up): max_runs must be 1 to 3")
 	_expect_rejected("ftue_missing_cold_open.csv", "row 'cold_open' is missing")

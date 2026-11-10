@@ -111,7 +111,7 @@ func test_an_over_limit_row_stays_enabled_shows_the_x3_line_and_is_recommended_l
 	var s: FoundryScreen = _screen(p)
 	var row: FoundryRow = s.row_at(2)
 	assert_bool(row.buy_button().disabled).is_false()
-	assert_str(row.afford_text()).is_equal("x2 COST UNTIL WAVE 10")
+	assert_str(row.afford_text()).is_equal("x2 cost until wave 10")
 	assert_bool(row.is_recommended()).is_false()
 	assert_int(s.recommended_index()).is_not_equal(2)
 	s.row_at(2).buy_pressed.emit(2, 1)
@@ -217,7 +217,7 @@ func test_locked_profile_shows_the_locked_line_and_no_list() -> void:
 	assert_bool(s.is_locked()).is_true()
 	assert_bool(s.locked_label.visible).is_true()
 	assert_bool(s.scroll.visible).is_false()
-	assert_str(s.locked_label.text).is_equal("COMPLETE A DEPLOYMENT TO UNLOCK")
+	assert_str(s.locked_label.text).is_equal("Complete a deployment to unlock")
 
 
 func test_back_and_deploy_emit_and_play_tap() -> void:

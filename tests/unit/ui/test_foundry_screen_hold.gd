@@ -203,7 +203,7 @@ func test_a_hold_stops_at_the_first_over_limit_level_and_a_fresh_tap_continues()
 	_mouse(pos, false)
 	assert_int(p.foundry_level("laser_output")).is_equal(6)  # the hold never crossed the limit
 	assert_bool(row.buy_button().disabled).is_false()  # never locked
-	assert_str(row.afford_text()).is_equal("x2 COST UNTIL WAVE 10")
+	assert_str(row.afford_text()).is_equal("x2 cost until wave 10")
 	assert_int(_spy.buy_ends).is_equal(1)
 	# A hold that starts over the limit buys nothing (it ends on its first repeat) ...
 	var again: Vector2 = _press(row)

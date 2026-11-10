@@ -64,7 +64,7 @@ foundry.level,F{n}
 foundry.value,{a} -> {b}
 foundry.value_start,STARTS AT {v}
 foundry.milestone,MILESTONE F{n}  x{m}
-foundry.over_cost,x{m} COST UNTIL WAVE {n}
+foundry.over_cost,x{m} cost until wave {n}
 foundry.max,MAX
 foundry.recommended,RECOMMENDED
 foundry.afford_now,AFFORDABLE
@@ -76,7 +76,7 @@ foundry.tooltip_d,"Permanent. Every deployment starts with this stat boosted by 
 foundry.tooltip_rule,"Levels from F{cap} up cost x{m} at your best wave. Reaching further waves raises that limit."
 foundry.tooltip_over,"This level costs x{m}. Reach wave {n} to buy it at the normal price."
 foundry.tooltip_c,"Permanent. Every deployment starts with free levels of this stat. Level F{f}. Next level costs {cost} data. Cap F{cap}."
-foundry.locked,COMPLETE A DEPLOYMENT TO UNLOCK
+foundry.locked,Complete a deployment to unlock
 results.best_delta,BEST {b}  (+{d})
 results.best_same,BEST {b}
 results.new_best,NEW BEST
@@ -105,12 +105,12 @@ settings.opt.fps60,60
 settings.version,VERSION {v}
 settings.note_session,OVERRIDDEN THIS SESSION
 save.problem_title,SAVE PROBLEM
-save.corrupt_body,"YOUR SAVE FILE IS DAMAGED AND NO BACKUP COULD BE READ. THE DAMAGED FILES ARE KEPT."
+save.corrupt_body,Your save file is damaged and no backup could be read. The damaged files are kept.
 save.start_new,START NEW PROFILE
-save.too_new_body,THIS SAVE IS FROM A NEWER VERSION. UPDATE THE APP.
+save.too_new_body,This save is from a newer version. Update the app.
 save.recovered,SAVE RESTORED FROM BACKUP
 save.resumed,RUN RESTORED
-save.run_ended_by_update,"RUN ENDED BY UPDATE, DATA BANKED"
+save.run_ended_by_update,"Run ended by update, data banked"
 exit.back_again,BACK AGAIN TO EXIT
 title.continue,CONTINUE
 title.new_game,NEW GAME
@@ -119,7 +119,7 @@ title.quit_title,QUIT?
 title.quit_yes,YES
 title.quit_no,NO
 title.newgame_confirm_title,NEW GAME
-title.newgame_confirm_body,START OVER? THIS ERASES YOUR PROGRESS.
+title.newgame_confirm_body,Start over? This erases your progress.
 title.version,v{v}
 frame.name.vanguard,VANGUARD
 frame.name.bulwark,BULWARK
@@ -158,8 +158,8 @@ frame.chip,FRAME {name}
 home.frame_button,FRAME: {name}  >
 settings.data,DATA
 settings.reset,RESET PROFILE
-settings.reset_confirm1,RESET YOUR PROFILE? ALL PROGRESS IS LOST.
-settings.reset_confirm2,"LAST CHANCE: {data} DATA AND BEST WAVE {wave} WILL BE LOST."
+settings.reset_confirm1,Reset your profile? All progress is lost.
+settings.reset_confirm2,Last chance: {data} data and best wave {wave} will be lost.
 settings.reset_done,PROFILE RESET
 frame.confirm,CONTINUE
 results.save_failed,SAVE FAILED
@@ -201,7 +201,7 @@ patch.cost_line,COST: {cost}
 draft.title,WAVE {n} CLEARED
 draft.picks,PICKS: {list}
 draft.gamble,GAMBLE
-draft.note,PATCHES LAST THIS DEPLOYMENT. ONE REROLL PER DRAFT.
+draft.note,Patches last this deployment. One reroll per draft.
 draft.change,{stat} {a} > {b}
 draft.stat.data_yield,DATA YIELD
 draft.stat.enemy_damage,ENEMY DAMAGE
@@ -230,7 +230,7 @@ pause.resume,RESUME
 pause.abort,ABORT MISSION
 pause.exit,EXIT GAME
 pause.abort_title,ABORT MISSION?
-pause.abort_body,THE RUN ENDS NOW. DATA EARNED IS KEPT.
+pause.abort_body,The run ends now. Data earned is kept.
 pause.abort_yes,ABORT
 pause.abort_no,CANCEL
 home.aborted,MISSION ABORTED: +{data} DATA
@@ -306,7 +306,9 @@ ftue.cold.1,RELAY 06 ONLINE
 ftue.cold.2,HOSTILE SWARM DETECTED
 ftue.cold.3,HOLD THE RELAY
 ftue.cold.skip,TAP TO SKIP
-ftue.upgrade,UPGRADE
+ftue.upgrade_laser,TAP: MORE DAMAGE
+ftue.upgrade_rate,TAP: FIRE FASTER
+ftue.upgrade_hull,TAP: SURVIVE LONGER
 ftue.dart,DART - FAST
 ftue.hold,HOLD TO BUY SEVERAL
 ftue.foundry,FOUNDRY - UPGRADES STAY
@@ -314,7 +316,7 @@ ftue.run2,FOUNDRY LEVELS CARRY OVER
 ftue.skip,SKIP HINTS
 settings.about,ABOUT
 settings.feedback,SEND FEEDBACK
-settings.feedback_hint,OPENS THE IRON STATIC FEEDBACK PAGE IN YOUR BROWSER. NOTHING IS SENT FROM THE GAME.
+settings.feedback_hint,Opens the Iron Static feedback page in your browser. Nothing is sent from the game.
 summary.title,IRON STATIC PLAY SUMMARY
 summary.version,"Version {v}, {date} UTC"
 summary.none,No play recorded yet.
@@ -325,13 +327,13 @@ summary.best,"Best wave in that time: {w} (all-time timed {timed}, purge {purge}
 summary.screens,Deepest screen: {d}. Last screen before quit: {l}.
 summary.day,"{date}  sessions {s}  min {m}  runs {r}  best {b}  last {l}"
 settings.summary,COPY PLAY SUMMARY
-settings.summary_hint,COPIES A SHORT TEXT SUMMARY OF YOUR RECENT PLAY TO THE CLIPBOARD. IT STAYS ON THIS DEVICE UNLESS YOU PASTE IT SOMEWHERE.
-settings.summary_done,COPIED. NOTHING IS SENT ANYWHERE UNLESS YOU PASTE IT.
+settings.summary_hint,Copies a short text summary of your recent play to the clipboard. It stays on this device unless you paste it somewhere.
+settings.summary_done,Copied. Nothing is sent anywhere unless you paste it.
 foundry.help,?
 foundry.intro.title,THE FOUNDRY
-foundry.intro.p1,PERMANENT UPGRADES. SCRAP UPGRADES RESET WHEN A DEPLOYMENT ENDS; FOUNDRY LEVELS STAY.
-foundry.intro.p2,PAID IN DATA FROM KILLS. IT IS BANKED WHEN A DEPLOYMENT ENDS - EVEN IF CINDER FALLS.
-foundry.intro.p3,EACH LEVEL RAISES YOUR STARTING STATS: EVERY DEPLOYMENT BEGINS STRONGER AND REACHES FURTHER.
-foundry.intro.p4,TAP A COST TO BUY. HOLD TO KEEP BUYING. HIGHER LEVELS COST MORE UNTIL YOU REACH FURTHER WAVES.
+foundry.intro.p1,Permanent upgrades. Scrap upgrades reset when a deployment ends; Foundry levels stay.
+foundry.intro.p2,Paid in data from kills. It is banked when a deployment ends - even if Cinder falls.
+foundry.intro.p3,Each level raises your starting stats: every deployment begins stronger and reaches further.
+foundry.intro.p4,Tap a cost to buy. Hold to keep buying. Higher levels cost more until you reach further waves.
 foundry.intro.hide,DON'T SHOW THIS AGAIN
 foundry.intro.ok,GOT IT

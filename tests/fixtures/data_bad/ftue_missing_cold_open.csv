@@ -1,2 +1,2 @@
 id,trigger,target,text_key,max_runs
-up,run1_start,field,ftue.upgrade,1
+up,run1_start,field,ftue.upgrade_laser,1
