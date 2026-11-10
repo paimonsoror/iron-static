@@ -24,6 +24,8 @@ The one extra fix needed: AndroidX Core/Startup (engine template, not a plugin) 
 
 Not run: emulator run of the exact AAB (`smoke_android.ps1`, 16 KB image, Android 16 notes) belongs to B1-07 and was not done here (no emulator or device touched).
 
+Package note: this AAB was built on branch `b1-plugins` before the package rename (739b814), so its manifest says `com.ironstatic.game`. The next build (B1-07) is `com.normalexception.game` with the label `Iron Static`; rerun `tools\aab_check.ps1` on it.
+
 ## History: results before B1-04
 
 ## Results on the current build (before B1-04)

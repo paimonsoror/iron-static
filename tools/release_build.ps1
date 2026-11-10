@@ -141,7 +141,8 @@ finally {
     $RepoRoot = $srcRoot; Set-Location $srcRoot
     if ($strip) { Remove-Tree $ws }
     Remove-Item Env:\GODOT_ANDROID_KEYSTORE_RELEASE_PATH, Env:\GODOT_ANDROID_KEYSTORE_RELEASE_USER, Env:\GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD -ErrorAction SilentlyContinue
-}$lines = $r.Output -split "`r?`n"
+}
+$lines = $r.Output -split "`r?`n"
 $lines | Where-Object { $_ -match 'ERROR|FAILED|error:' } | ForEach-Object { Write-Host ($_.Replace($keyPass, '***')).Trim() }
 if (-not (Test-Path $raw) -or (Get-Item $raw).LastWriteTime -lt $start) {
     Fail "export produced no new AAB at $raw (Godot exit code $($r.ExitCode)); preset '$Preset'"
