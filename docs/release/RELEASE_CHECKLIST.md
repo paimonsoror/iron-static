@@ -15,8 +15,8 @@ Owner: **U** = user, **A** = agents.
 - [ ] **A** B1-07 smoke test on the exact AAB: emulator and phone, report with AAB sha256.
 - [ ] **U** Real-phone smoke done: install, full run to Results and back, resume after killing the app, haptics, no black screen over 30 seconds.
 - [ ] **A** B1-05 privacy page merged to `main`, Pages workflow green. **U** `https://paimonsoror.github.io/iron-static/privacy/` loads in a private window.
-- [ ] **U** Placeholders filled in `site/docs/privacy.md`: `<DEVELOPER NAME>` (exactly as shown on Google Play) and `[SUPPORT EMAIL]`. No personal email committed anywhere (grep below).
-- [ ] **U** Public developer details decided (Q83): name, address and support email shown on the store page; EU trader status read and answered.
+- [ ] **U** Placeholders filled in `site/docs/privacy.md`: `<DEVELOPER NAME>` (exactly as shown on Google Play) still open; the support email is filled (`support@normalexception.net`, 2026-11-09). No personal email committed anywhere (grep below).
+- [ ] **U** Public developer details decided (Q83): support email decided (`support@normalexception.net`, 2026-11-09); name and address shown on the store page and the EU trader status still open.
 - [ ] **U** Trademark and name search done (Q31): Google Play, USPTO, EUIPO, web, handles. Result recorded. Fallback name EMBER CHASSIS.
 - [x] **U** Package name final (Q79): `com.normalexception.game`, decided 2026-11-09 and applied to both presets, the tools and the docs (permanent after the first upload).
 - [ ] **U** Upload keystore created and **backed up in two places** (not in the repo, never pasted into chat); passwords in a password manager; only in `secrets.local.json` or environment variables locally.
@@ -54,7 +54,7 @@ git grep -n -i -E "terminator|skynet|cyberdyne|t-800|t-1000|hunter-killer|judgme
 git grep -n -E "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,}" -- site/docs/privacy.md docs/release/store_listing.md docs/release/data_safety_answers.md docs/release/content_rating_answers.md docs/release/declarations.md
 ```
 
-Both should print nothing (the checklist file is excluded from the first one because it contains the pattern). Matches that are quotations in the IP guardrail documents themselves (`docs/design/00_overview.md`, `CLAUDE.md`) are expected and not part of these paths. The profanity scan of the strings file is described in `content_rating_answers.md`.
+The first should print nothing (the checklist file is excluded from it because it contains the pattern). The second may print only the public support address `support@normalexception.net` (Q83), which is meant to be public; any other address is a mistake. Matches that are quotations in the IP guardrail documents themselves (`docs/design/00_overview.md`, `CLAUDE.md`) are expected and not part of these paths. The profanity scan of the strings file is described in `content_rating_answers.md`.
 
 ## Release log
 

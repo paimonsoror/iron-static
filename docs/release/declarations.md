@@ -20,7 +20,7 @@ Where: Play Console > Policy and programs > App content (the console moves items
 | Account deletion / data deletion | "My app does not allow users to create an account" | No accounts. A web deletion link is only required for apps with accounts (`research_2026-11.md` 2.8). Local data is removed by Clear data or uninstall. | |
 | Other special declarations (health apps, contact tracing, etc.) | Not applicable | | |
 | EU trader status (DSA) | **Not a trader** while the beta earns nothing (Q83 default). Read the prompt Play shows; revisit before M7 (purchases, ads). | A free game from an individual with no income. Uncertain: Google's prompt decides the exact wording. | `research_2026-11.md` section 2.13 |
-| Developer details shown publicly (personal account) | Legal name and address from the payments profile; public support email `[SUPPORT EMAIL]` | Play requires and shows them (Q83). | Nothing personal is committed to the repo. |
+| Developer details shown publicly (personal account) | Legal name and address from the payments profile; public support email `support@normalexception.net` | Play requires and shows them (Q83). | Nothing personal is committed to the repo. |
 | App signing | Play App Signing (automatic on first upload); we keep only the upload key | | `research_2026-11.md` 2.6 |
 | Countries for the test | US, CA, UK, IE, AU, NZ and the Nordics at first | Q85 | |
 | Default store language | English (United States) | | `store_listing.md` |

@@ -23,7 +23,7 @@ Changes from the guide's draft, each checked against the build:
 - **App name:** `IRON STATIC`
 - **Default language:** English (United States). **App or game:** Game. **Free or paid:** Free.
 - **Category:** Game > Strategy. **Tags** (only those Play offers, up to 5): Strategy, Idle, Tower defense, Sci-fi, Offline.
-- **Contact:** email `[SUPPORT EMAIL]` (public, user chooses, Q83; never committed), website `https://paimonsoror.github.io/iron-static/`, phone: not required. Privacy policy: `https://paimonsoror.github.io/iron-static/privacy/`. Feedback channel (open test): the Google Form URL from Q82, `[FEEDBACK FORM URL]`.
+- **Contact:** email `support@normalexception.net` (public support address on the developer domain, decided 2026-11-09, Q83), website `https://paimonsoror.github.io/iron-static/`, phone: not required. Privacy policy: `https://paimonsoror.github.io/iron-static/privacy/`. Feedback channel (open test): the Google Form URL from Q82, `[FEEDBACK FORM URL]`.
 
 ## Short description
 

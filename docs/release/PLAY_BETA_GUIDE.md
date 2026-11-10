@@ -57,7 +57,7 @@ All of these are one-time. An upload with a wrong answer here can be impossible 
 2. [ ] Look at the top banner and **Inbox** for anything unfinished: identity verification, payments profile, "Verify your device", "Android developer verification" notices. Finish each. Personal accounts must verify identity with a government ID if the payments profile is not verified yet, and verify a public developer email with a 6-digit code (Settings > Developer account > Account details / Identity verification).
 3. [ ] **Public details warning.** For a personal account Google shows your legal name and home address on the store page ("Developer contact" section). Decide whether that is acceptable (open question Q83). If not, a registered organization account would be needed (D-U-N-S number; exempt from the tester rule), which is a different path.
 4. [ ] Install the **Play Console** mobile app on your Android phone, sign in, and complete "device verification" if it asks.
-5. [ ] Decide the public support email (use a dedicated address, not one you would hate to get spam at). It will be public. Do not paste it into the repo.
+5. [x] Public support email: `support@normalexception.net` (a dedicated address on your domain, decided 2026-11-09). It is public, so it appears on the privacy page and in the listing records. Never put a personal email in the repo.
 
 ## 5. Phase 2 - Your release key (YOU, 15 minutes)
 
@@ -283,7 +283,7 @@ These are also in `docs/design/09_open_questions.md` as Q78-Q86. If you do not a
 | Q80 | Target audience for the beta | 13-15, 16-17, 18+ (not under 13); no age gate in the beta; alternative 16+ only |
 | Q81 | Sentry crash reporting in the beta build? | Remove it from the beta; use Play Console vitals and tester feedback; re-add at M7 with a DSN and an updated Data safety form |
 | Q82 | Feedback channel | A Google Form linked from the codex Feedback page and from Settings; the same link goes in Play's feedback-channel field |
-| Q83 | Public developer details and EU trader status | Use your own name and address as Play requires; a dedicated public email; "not a trader" while there is no income; revisit before M7 |
+| Q83 | Public developer details and EU trader status | Support email decided 2026-11-09: `support@normalexception.net`. Use your own name and address as Play requires; "not a trader" while there is no income; revisit before M7 |
 | Q84 | Where B1 sits in the roadmap | After M4 exits; closed test runs in parallel with M5; open test opens while M5 and M6 run |
 | Q85 | Beta countries | US, CA, UK, IE, AU, NZ and the Nordics; widen after two weeks without crash spikes |
 | Q86 | Closed-test size and who | 20 testers (12 minimum) via a Google Group; this replaces the Q36 plan to wait until M5 |

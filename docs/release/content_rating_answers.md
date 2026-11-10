@@ -2,7 +2,7 @@
 
 Changelog: 2026-11-09 v1.0 (B1-09, branch `b1-docs`).
 
-Where: Play Console > Policy and programs > App content > Content rating > Start. Email: the public support email `[SUPPORT EMAIL]`. Category: **Game**. The answers come from `docs/release/PLAY_BETA_GUIDE.md` phase 5. The console's wording can change: read each question and map it to the closest row here.
+Where: Play Console > Policy and programs > App content > Content rating > Start. Email: the public support email `support@normalexception.net`. Category: **Game**. The answers come from `docs/release/PLAY_BETA_GUIDE.md` phase 5. The console's wording can change: read each question and map it to the closest row here.
 
 ## Answers
 
