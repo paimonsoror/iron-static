@@ -1,0 +1,15 @@
+REV fresh_best12 buy=greedy4 draft=first frame=vanguard mode=timed runs=30 mean=11.73 min=10 p10=10 p50=12 p90=13 max=14 mean_min_1x=4.5 buys_per_run=16
+REV fresh_best12 buy=all draft=first frame=vanguard mode=timed runs=30 mean=11.83 min=10 p10=10 p50=12 p90=13 max=13 mean_min_1x=4.5 buys_per_run=17
+REV fresh_best12 buy=cheapest draft=first frame=vanguard mode=timed runs=30 mean=11.90 min=10 p10=10 p50=12 p90=13 max=13 mean_min_1x=4.6 buys_per_run=21
+REV fresh_best12 buy=random draft=first frame=vanguard mode=timed runs=30 mean=11.90 min=10 p10=10 p50=12 p90=13 max=14 mean_min_1x=4.6 buys_per_run=20
+REV fresh_best12 buy=none draft=first frame=vanguard mode=timed runs=30 mean=8.17 min=8 p10=8 p50=8 p90=9 max=9 mean_min_1x=3.1 buys_per_run=0
+REV mid_best35 buy=greedy4 draft=first frame=vanguard mode=timed runs=30 mean=45.47 min=30 p10=32 p50=46 p90=54 max=57 mean_min_1x=18.0 buys_per_run=86
+REV mid_best35 buy=all draft=first frame=vanguard mode=timed runs=30 mean=49.53 min=29 p10=36 p50=52 p90=59 max=64 mean_min_1x=19.6 buys_per_run=101
+REV mid_best35 buy=cheapest draft=first frame=vanguard mode=timed runs=30 mean=40.40 min=29 p10=34 p50=40 p90=45 max=50 mean_min_1x=16.0 buys_per_run=94
+REV mid_best35 buy=random draft=first frame=vanguard mode=timed runs=30 mean=40.27 min=28 p10=33 p50=40 p90=45 max=50 mean_min_1x=15.9 buys_per_run=93
+REV mid_best35 buy=none draft=first frame=vanguard mode=timed runs=30 mean=20.50 min=15 p10=19 p50=21 p90=22 max=23 mean_min_1x=8.0 buys_per_run=2
+REV mid_frames buy=all draft=first frame=vanguard mode=timed runs=30 mean=49.53 min=29 p10=36 p50=52 p90=59 max=64 mean_min_1x=19.6 buys_per_run=101
+REV mid_frames buy=all draft=first frame=bulwark mode=timed runs=30 mean=50.57 min=32 p10=38 p50=52 p90=60 max=64 mean_min_1x=20.0 buys_per_run=107
+REV mid_frames buy=all draft=first frame=striker mode=timed runs=30 mean=56.33 min=33 p10=45 p50=57 p90=63 max=66 mean_min_1x=22.3 buys_per_run=115
+REV mid_purge buy=all draft=first frame=vanguard mode=purge runs=30 mean=67.37 min=57 p10=62 p50=67 p90=73 max=74 mean_min_1x=39.9 buys_per_run=150
+REV OK

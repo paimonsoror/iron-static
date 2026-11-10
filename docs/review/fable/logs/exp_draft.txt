@@ -1,0 +1,23 @@
+REV fresh_best12 buy=greedy4 draft=none frame=vanguard mode=timed runs=30 mean=11.43 min=10 p10=10 p50=12 p90=12 max=12 mean_min_1x=4.4 buys_per_run=15
+REV fresh_best12 buy=greedy4 draft=first frame=vanguard mode=timed runs=30 mean=11.73 min=10 p10=10 p50=12 p90=13 max=14 mean_min_1x=4.5 buys_per_run=16
+REV fresh_best12 buy=greedy4 draft=last frame=vanguard mode=timed runs=30 mean=11.80 min=10 p10=10 p50=12 p90=13 max=15 mean_min_1x=4.5 buys_per_run=16
+REV fresh_best12 buy=greedy4 draft=safe frame=vanguard mode=timed runs=30 mean=11.70 min=10 p10=10 p50=12 p90=13 max=14 mean_min_1x=4.5 buys_per_run=16
+REV fresh_best12 buy=greedy4 draft=gamble frame=vanguard mode=timed runs=30 mean=12.13 min=10 p10=10 p50=12 p90=14 max=17 mean_min_1x=4.6 buys_per_run=17
+REV fresh_best12 buy=greedy4 draft=id:patch_overcharge frame=vanguard mode=timed runs=30 mean=11.67 min=10 p10=10 p50=12 p90=12 max=13 mean_min_1x=4.5 buys_per_run=17
+REV fresh_best12 buy=greedy4 draft=id:patch_rate frame=vanguard mode=timed runs=30 mean=11.80 min=10 p10=10 p50=12 p90=13 max=14 mean_min_1x=4.5 buys_per_run=17
+REV fresh_best12 buy=greedy4 draft=id:patch_plating frame=vanguard mode=timed runs=30 mean=11.83 min=10 p10=10 p50=12 p90=13 max=14 mean_min_1x=4.5 buys_per_run=17
+REV fresh_best12 buy=greedy4 draft=id:patch_extraction frame=vanguard mode=timed runs=30 mean=11.70 min=10 p10=10 p50=12 p90=13 max=14 mean_min_1x=4.5 buys_per_run=17
+REV fresh_best12 buy=greedy4 draft=id:patch_regen frame=vanguard mode=timed runs=30 mean=11.63 min=10 p10=10 p50=12 p90=12 max=13 mean_min_1x=4.5 buys_per_run=16
+REV fresh_best12 buy=greedy4 draft=id:patch_ceramic frame=vanguard mode=timed runs=30 mean=11.63 min=10 p10=10 p50=12 p90=12 max=14 mean_min_1x=4.5 buys_per_run=16
+REV mid_best35 buy=greedy4 draft=none frame=vanguard mode=timed runs=30 mean=35.93 min=34 p10=34 p50=36 p90=37 max=44 mean_min_1x=14.2 buys_per_run=65
+REV mid_best35 buy=greedy4 draft=first frame=vanguard mode=timed runs=30 mean=45.47 min=30 p10=32 p50=46 p90=54 max=57 mean_min_1x=18.0 buys_per_run=86
+REV mid_best35 buy=greedy4 draft=last frame=vanguard mode=timed runs=30 mean=43.90 min=32 p10=33 p50=46 p90=53 max=57 mean_min_1x=17.4 buys_per_run=83
+REV mid_best35 buy=greedy4 draft=safe frame=vanguard mode=timed runs=30 mean=44.90 min=36 p10=36 p50=46 p90=54 max=57 mean_min_1x=17.8 buys_per_run=86
+REV mid_best35 buy=greedy4 draft=gamble frame=vanguard mode=timed runs=30 mean=42.90 min=27 p10=31 p50=45 p90=53 max=55 mean_min_1x=17.0 buys_per_run=80
+REV mid_best35 buy=greedy4 draft=id:patch_overcharge frame=vanguard mode=timed runs=30 mean=47.83 min=36 p10=37 p50=49 p90=53 max=55 mean_min_1x=18.9 buys_per_run=91
+REV mid_best35 buy=greedy4 draft=id:patch_rate frame=vanguard mode=timed runs=30 mean=48.47 min=36 p10=36 p50=51 p90=54 max=55 mean_min_1x=19.2 buys_per_run=93
+REV mid_best35 buy=greedy4 draft=id:patch_plating frame=vanguard mode=timed runs=30 mean=42.00 min=35 p10=36 p50=38 p90=52 max=53 mean_min_1x=16.6 buys_per_run=81
+REV mid_best35 buy=greedy4 draft=id:patch_extraction frame=vanguard mode=timed runs=30 mean=44.60 min=36 p10=36 p50=46 p90=54 max=57 mean_min_1x=17.6 buys_per_run=88
+REV mid_best35 buy=greedy4 draft=id:patch_regen frame=vanguard mode=timed runs=30 mean=41.90 min=34 p10=36 p50=38 p90=50 max=54 mean_min_1x=16.6 buys_per_run=77
+REV mid_best35 buy=greedy4 draft=id:patch_ceramic frame=vanguard mode=timed runs=30 mean=41.63 min=34 p10=36 p50=38 p90=48 max=52 mean_min_1x=16.4 buys_per_run=79
+REV OK

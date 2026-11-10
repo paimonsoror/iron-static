@@ -1,0 +1,21 @@
+# tools\perf_bench.ps1 (stress bench, this dev machine, 2026-11-10)
+PERF avg_ms p95_ms max_ms enemies bolts
+PERF avg_ms=1.752 p95_ms=2.146 max_ms=3.579 enemies=600 bolts=603
+PERF OK
+
+# godot --headless --path . -s res://tools/_rev_exp.gd -- perf   (real late run, Foundry L42 C27 H41 N39, seed 3, greedy4 bot)
+REV perf never reached 120 alive; measuring at end state
+REV perf dense wave=71 alive=22 bolts=1 high_water=27 input_log=131
+REV perf snapshot bytes=7496 capture_us=2619 state_hash_us=110 checkpoint_total_us=9931 worst_us=13509
+REV perf view fill_6_passes_us=122 data_image_x6_us=32 (per rendered frame, CPU only)
+REV perf profile encode bytes=280 us=65
+REV perf late_run death=71 ticks_measured=15773 tick_avg_us=62 p95_us=116 max_us=440 input_log=131 bot_ms_total=1376
+
+# python -I contrast.py tools docs/playtests/m4/fo3/capped_row_1080x2400.png <regions>   (WCAG contrast, fg = brightest 0.5 % of the region)
+milestone_dim: bg=(8, 11, 16) fg_peak=(138, 95, 0) contrast=3.5 ink_share=0.066
+next_level_at: bg=(8, 11, 16) fg_peak=(154, 143, 120) contrast=6.2 ink_share=0.115
+affordable: bg=(8, 11, 16) fg_peak=(255, 210, 122) contrast=13.8 ink_share=0.179
+title_name: bg=(8, 11, 16) fg_peak=(242, 230, 201) contrast=15.9 ink_share=0.321
+cap_label: bg=(13, 17, 23) fg_peak=(92, 85, 70) contrast=2.6 ink_share=0.000
+value_line: bg=(8, 11, 16) fg_peak=(242, 230, 201) contrast=15.9 ink_share=0.128
+recommended: bg=(30, 28, 21) fg_peak=(255, 210, 122) contrast=12.0 ink_share=0.187

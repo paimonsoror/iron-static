@@ -1,0 +1,11 @@
+REV late seed=1 death=72 min1x=28.5 first_dmg_wave=34 half_hp_wave=72 max_alive=21 buys=140 buys_q1=31 buys_q4=29 kills=1311
+REV late seed=2 death=79 min1x=31.4 first_dmg_wave=31 half_hp_wave=79 max_alive=22 buys=162 buys_q1=36 buys_q4=38 kills=1530
+REV late seed=3 death=71 min1x=28.4 first_dmg_wave=29 half_hp_wave=69 max_alive=27 buys=131 buys_q1=30 buys_q4=31 kills=1279
+REV late seed=4 death=68 min1x=27.2 first_dmg_wave=26 half_hp_wave=68 max_alive=30 buys=127 buys_q1=26 buys_q4=32 kills=1250
+REV late seed=5 death=73 min1x=29.2 first_dmg_wave=35 half_hp_wave=73 max_alive=27 buys=133 buys_q1=31 buys_q4=30 kills=1368
+REV late seed=6 death=78 min1x=31.1 first_dmg_wave=45 half_hp_wave=78 max_alive=25 buys=156 buys_q1=33 buys_q4=38 kills=1479
+REV late seed=7 death=82 min1x=32.7 first_dmg_wave=24 half_hp_wave=77 max_alive=29 buys=153 buys_q1=37 buys_q4=38 kills=1607
+REV late seed=8 death=72 min1x=28.7 first_dmg_wave=29 half_hp_wave=72 max_alive=33 buys=143 buys_q1=31 buys_q4=35 kills=1328
+REV late seed=9 death=78 min1x=30.9 first_dmg_wave=29 half_hp_wave=77 max_alive=21 buys=149 buys_q1=34 buys_q4=38 kills=1502
+REV late seed=10 death=63 min1x=24.8 first_dmg_wave=31 half_hp_wave=62 max_alive=37 buys=122 buys_q1=26 buys_q4=31 kills=1063
+REV OK

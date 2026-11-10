@@ -1,0 +1,110 @@
+extends SceneTree
+## TEMPORARY review experiment 2 (Fable review 2026-11). Not part of the game; deleted before commit.
+## Usage: godot --headless --path . -s res://tools/_rev_exp2.gd -- <exp>   (exp: bands | swarm)
+
+const MID: Dictionary = {"laser_output": 21, "cycle_rate": 16, "hull_integrity": 21, "nano_repair": 21}
+const LATE: Dictionary = {"laser_output": 42, "cycle_rate": 27, "hull_integrity": 41, "nano_repair": 39}
+const WAVE_CAP: int = 150
+
+
+func _initialize() -> void:
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	var exp: String = args[0] if args.size() > 0 else "bands"
+	if exp == "bands":
+		_exp_bands()
+	else:
+		_exp_swarm()
+	print("REV OK")
+	quit(0)
+
+
+func _profile(label: String) -> Dictionary:
+	return {} if label == "fresh" else (MID if label == "mid" else LATE)
+
+
+func _best(label: String) -> int:
+	return 12 if label == "fresh" else (35 if label == "mid" else 72)
+
+
+## Seconds (1x) spent in each exposure band, and the time from the last moment at or above 75% hull to death.
+func _exp_bands() -> void:
+	for label: String in ["fresh", "mid", "late"]:
+		var band_s: PackedFloat64Array = PackedFloat64Array([0.0, 0.0, 0.0, 0.0])
+		var total_s: float = 0.0
+		var cliff_s: float = 0.0
+		var runs: int = 20
+		for r: int in runs:
+			var cfg: SimConfig = BalanceSetup.make_config(1 + r, 1, _best(label), _profile(label), "vanguard", "timed")
+			var world: SimWorld = SimWorld.new(cfg)
+			var bot: PolicyBot = PolicyBot.new("greedy4")
+			var last_high: int = 0
+			while not world.is_over() and world.wave <= WAVE_CAP:
+				if world.is_draft_open():
+					@warning_ignore("return_value_discarded")
+					world.command_pick(0)
+				if world.tick % PolicyBot.THINK_INTERVAL == 0:
+					bot.think(world)
+				world.step()
+				band_s[world.cinder.band] += SimWorld.DT
+				if world.cinder.hp >= 0.75 * world.cinder.max_hp:
+					last_high = world.tick
+			total_s += float(world.tick) * SimWorld.DT
+			cliff_s += float(world.tick - last_high) * SimWorld.DT
+		var n: float = float(runs)
+		print(
+			(
+				"REV bands %s runs=%d run_s=%.0f band0_s=%.0f band1_s=%.1f band2_s=%.1f band3_s=%.1f last_75pct_to_death_s=%.1f"
+				% [label, runs, total_s / n, band_s[0] / n, band_s[1] / n, band_s[2] / n, band_s[3] / n, cliff_s / n]
+			)
+		)
+
+
+## Same total wave HP, damage and rewards split over k times as many bodies.
+func _exp_swarm() -> void:
+	for label: String in ["fresh", "mid", "late"]:
+		for k: int in [1, 2, 4]:
+			var runs: int = 12
+			var dw: float = 0.0
+			var alive_peak: float = 0.0
+			var kills: float = 0.0
+			var secs: float = 0.0
+			var step_us: int = 0
+			var ticks: int = 0
+			for r: int in runs:
+				var cfg: SimConfig = BalanceSetup.make_config(1 + r, 1, _best(label), _profile(label), "vanguard", "timed")
+				var t: SimTuning = cfg.tuning
+				var kf: float = float(k)
+				t.n_base *= kf
+				t.n_coef *= kf
+				t.n_cap = roundi(float(t.n_cap) * kf)
+				t.hp0 /= kf
+				t.d0 /= kf
+				t.scrap_k /= kf
+				for def: EnemyDef in cfg.enemies:
+					if def.group != "boss":
+						def.data_base /= kf
+				var world: SimWorld = SimWorld.new(cfg)
+				var bot: PolicyBot = PolicyBot.new("greedy4")
+				var peak: int = 0
+				while not world.is_over() and world.wave <= WAVE_CAP:
+					if world.is_draft_open():
+						@warning_ignore("return_value_discarded")
+						world.command_pick(0)
+					if world.tick % PolicyBot.THINK_INTERVAL == 0:
+						bot.think(world)
+					var t0: int = Time.get_ticks_usec()
+					world.step()
+					step_us += Time.get_ticks_usec() - t0
+					peak = maxi(peak, world.enemies.alive_count)
+				ticks += world.tick
+				dw += float(world.run.death_wave)
+				alive_peak += float(peak)
+				kills += float(world.run.kills)
+				secs += float(world.tick) * SimWorld.DT
+			var n: float = float(runs)
+			print(
+				(
+					"REV swarm %s k=%d runs=%d death_mean=%.1f peak_alive_mean=%.0f kills_per_s=%.2f tick_avg_us=%.0f"
+					% [label, k, runs, dw / n, alive_peak / n, kills / secs, float(step_us) / float(maxi(ticks, 1))]
+				)
+			)

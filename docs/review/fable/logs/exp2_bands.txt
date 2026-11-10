@@ -1,0 +1,4 @@
+REV bands fresh runs=20 run_s=270 band0_s=258 band1_s=5.4 band2_s=2.8 band3_s=4.3 last_75pct_to_death_s=10.3
+REV bands mid runs=20 run_s=1131 band0_s=1108 band1_s=12.2 band2_s=6.7 band3_s=4.0 last_75pct_to_death_s=13.8
+REV bands late runs=20 run_s=1773 band0_s=1760 band1_s=5.8 band2_s=3.9 band3_s=3.4 last_75pct_to_death_s=8.2
+REV OK

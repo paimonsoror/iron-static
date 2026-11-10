@@ -1,0 +1,282 @@
+extends SceneTree
+## TEMPORARY review experiment (Fable review 2026-11). Not part of the game; deleted before commit.
+## Usage: godot --headless --path . -s res://tools/_rev_exp.gd -- <exp>   (exp: policy | draft | dist | late | perf)
+
+const MID: Dictionary = {"laser_output": 21, "cycle_rate": 16, "hull_integrity": 21, "nano_repair": 21}
+const LATE: Dictionary = {"laser_output": 42, "cycle_rate": 27, "hull_integrity": 41, "nano_repair": 39}
+const WAVE_CAP: int = 150
+
+var _rng := RandomNumberGenerator.new()
+
+
+func _initialize() -> void:
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	var exp: String = args[0] if args.size() > 0 else "policy"
+	match exp:
+		"policy":
+			_exp_policy()
+		"draft":
+			_exp_draft()
+		"dist":
+			_exp_dist()
+		"late":
+			_exp_late()
+		"perf":
+			_exp_perf()
+	print("REV OK")
+	quit(0)
+
+
+func _cfg(seed_value: int, best: int, foundry: Dictionary, frame: String = "vanguard", mode: String = "timed") -> SimConfig:
+	return BalanceSetup.make_config(seed_value, 1, best, foundry, frame, mode)
+
+
+## Runs one deployment. buy: greedy4 | all | none | cheapest | random. draft: first | last | none | gamble | safe | id:<patch id>
+func _run(cfg: SimConfig, buy: String, draft: String, probe: Dictionary = {}) -> SimWorld:
+	if draft == "none":
+		cfg.patches.clear()
+	var world: SimWorld = SimWorld.new(cfg)
+	var bot: PolicyBot = PolicyBot.new(buy if buy in ["greedy4", "all"] else "greedy4")
+	_rng.seed = cfg.seed_value * 7919 + 13
+	var first_dmg_wave: int = -1
+	var half_wave: int = -1
+	var max_alive: int = 0
+	while not world.is_over() and world.wave <= WAVE_CAP:
+		if world.is_draft_open():
+			world.command_pick(_pick(world, draft))
+		if world.tick % PolicyBot.THINK_INTERVAL == 0:
+			match buy:
+				"greedy4", "all":
+					bot.think(world)
+				"cheapest":
+					_buy_cheapest(world)
+				"random":
+					_buy_random(world)
+		world.step()
+		if first_dmg_wave < 0 and world.cinder.hp < world.cinder.max_hp:
+			first_dmg_wave = world.wave
+		if half_wave < 0 and world.cinder.hp < 0.5 * world.cinder.max_hp:
+			half_wave = world.wave
+		max_alive = maxi(max_alive, world.enemies.alive_count)
+	probe["first_dmg_wave"] = first_dmg_wave
+	probe["half_wave"] = half_wave
+	probe["max_alive"] = max_alive
+	return world
+
+
+func _pick(world: SimWorld, draft: String) -> int:
+	var offers: PackedInt32Array = world.draft.offers
+	var defs: Array[PatchDef] = world.config.patches
+	match draft:
+		"last":
+			return offers.size() - 1
+		"gamble":
+			for s: int in offers.size():
+				if defs[offers[s]].is_gamble():
+					return s
+			return 0
+		"safe":
+			for s: int in offers.size():
+				if not defs[offers[s]].is_gamble():
+					return s
+			return 0
+	if draft.begins_with("id:"):
+		var want: String = draft.trim_prefix("id:")
+		for s: int in offers.size():
+			if defs[offers[s]].id == want:
+				return s
+		for s: int in offers.size():
+			if not defs[offers[s]].is_gamble():
+				return s
+	return 0
+
+
+func _buy_cheapest(world: SimWorld) -> void:
+	for _k: int in 64:
+		var best: int = -1
+		var best_cost: float = INF
+		for i: int in world.config.upgrades.size():
+			var p: UpgradePreview = UpgradeSystem.preview(world, i, 1)
+			if not p.visible or p.maxed:
+				continue
+			var c: float = p.cost.to_float()
+			if c < best_cost:
+				best_cost = c
+				best = i
+		if best < 0 or world.command_buy(best, 1) == 0:
+			return
+
+
+func _buy_random(world: SimWorld) -> void:
+	for _k: int in 64:
+		var ok: PackedInt32Array = PackedInt32Array()
+		for i: int in world.config.upgrades.size():
+			var p: UpgradePreview = UpgradeSystem.preview(world, i, 1)
+			if p.visible and not p.maxed and p.affordable:
+				ok.append(i)
+		if ok.is_empty():
+			return
+		world.command_buy(ok[_rng.randi_range(0, ok.size() - 1)], 1)
+
+
+func _stats(v: PackedInt32Array) -> String:
+	var s: PackedInt32Array = v.duplicate()
+	s.sort()
+	var sum: float = 0.0
+	for x: int in s:
+		sum += float(x)
+	var n: int = s.size()
+	return "mean=%.2f min=%d p10=%d p50=%d p90=%d max=%d" % [sum / float(n), s[0], s[int(0.1 * (n - 1))], s[int(0.5 * (n - 1))], s[int(0.9 * (n - 1))], s[n - 1]]
+
+
+func _batch(label: String, best: int, foundry: Dictionary, buy: String, draft: String, runs: int = 30, frame: String = "vanguard", mode: String = "timed") -> void:
+	var dw: PackedInt32Array = PackedInt32Array()
+	var mins: float = 0.0
+	var buys: int = 0
+	for r: int in runs:
+		var w: SimWorld = _run(_cfg(1 + r, best, foundry, frame, mode), buy, draft)
+		dw.append(w.wave if not w.is_over() else w.run.death_wave)
+		mins += float(w.tick) / 1800.0
+		buys += w.input_log.size()
+	print("REV %s buy=%s draft=%s frame=%s mode=%s runs=%d %s mean_min_1x=%.1f buys_per_run=%.0f" % [label, buy, draft, frame, mode, runs, _stats(dw), mins / float(runs), float(buys) / float(runs)])
+
+
+func _exp_policy() -> void:
+	for buy: String in ["greedy4", "all", "cheapest", "random", "none"]:
+		_batch("fresh_best12", 12, {}, buy, "first")
+	for buy: String in ["greedy4", "all", "cheapest", "random", "none"]:
+		_batch("mid_best35", 35, MID, buy, "first")
+	for frame: String in ["vanguard", "bulwark", "striker"]:
+		_batch("mid_frames", 35, MID, "all", "first", 30, frame)
+	_batch("mid_purge", 35, MID, "all", "first", 30, "vanguard", "purge")
+
+
+func _exp_draft() -> void:
+	for draft: String in ["none", "first", "last", "safe", "gamble", "id:patch_overcharge", "id:patch_rate", "id:patch_plating", "id:patch_extraction", "id:patch_regen", "id:patch_ceramic"]:
+		_batch("fresh_best12", 12, {}, "greedy4", draft)
+	for draft: String in ["none", "first", "last", "safe", "gamble", "id:patch_overcharge", "id:patch_rate", "id:patch_plating", "id:patch_extraction", "id:patch_regen", "id:patch_ceramic"]:
+		_batch("mid_best35", 35, MID, "greedy4", draft)
+
+
+func _exp_dist() -> void:
+	for label: String in ["fresh", "mid", "late"]:
+		var f: Dictionary = {} if label == "fresh" else (MID if label == "mid" else LATE)
+		var best: int = 0 if label == "fresh" else (35 if label == "mid" else 72)
+		var line: String = ""
+		for r: int in 40:
+			var w: SimWorld = _run(_cfg(1 + r, best, f), "greedy4", "first")
+			line += "%d " % w.run.death_wave
+		print("REV dist %s: %s" % [label, line])
+
+
+func _exp_late() -> void:
+	for r: int in 10:
+		var probe: Dictionary = {}
+		var w: SimWorld = _run(_cfg(1 + r, 72, LATE), "greedy4", "first", probe)
+		var n: int = w.input_log.size()
+		var q1_tick: int = floori(float(w.tick) / 4.0)
+		var early: int = 0
+		var late: int = 0
+		for i: int in n:
+			if w.input_log.ticks[i] < q1_tick:
+				early += 1
+			elif w.input_log.ticks[i] >= w.tick - q1_tick:
+				late += 1
+		print("REV late seed=%d death=%d min1x=%.1f first_dmg_wave=%d half_hp_wave=%d max_alive=%d buys=%d buys_q1=%d buys_q4=%d kills=%d" % [1 + r, w.run.death_wave, float(w.tick) / 1800.0, probe["first_dmg_wave"], probe["half_wave"], probe["max_alive"], n, early, late, w.run.kills])
+
+
+func _exp_perf() -> void:
+	# Late run: time ticks in the last waves, then checkpoint and view-fill costs at the densest moment.
+	var cfg: SimConfig = _cfg(3, 72, LATE)
+	var world: SimWorld = SimWorld.new(cfg)
+	var bot: PolicyBot = PolicyBot.new("greedy4")
+	var tick_us: PackedInt64Array = PackedInt64Array()
+	var bot_us: int = 0
+	var dense_done: bool = false
+	while not world.is_over() and world.wave <= WAVE_CAP:
+		if world.is_draft_open():
+			world.command_pick(0)
+		if world.tick % PolicyBot.THINK_INTERVAL == 0:
+			var b0: int = Time.get_ticks_usec()
+			bot.think(world)
+			bot_us += Time.get_ticks_usec() - b0
+		var t0: int = Time.get_ticks_usec()
+		world.step()
+		if world.wave >= 50:
+			tick_us.append(Time.get_ticks_usec() - t0)
+		if not dense_done and world.enemies.alive_count >= 120:
+			dense_done = true
+			_measure_dense(world)
+	if not dense_done:
+		print("REV perf never reached 120 alive; measuring at end state")
+		_measure_dense(world)
+	var s: PackedInt64Array = tick_us.duplicate()
+	s.sort()
+	var sum: int = 0
+	for v: int in s:
+		sum += v
+	print("REV perf late_run death=%d ticks_measured=%d tick_avg_us=%.0f p95_us=%d max_us=%d input_log=%d bot_ms_total=%d" % [world.run.death_wave, s.size(), float(sum) / float(maxi(s.size(), 1)), s[int(0.95 * (s.size() - 1))], s[s.size() - 1], world.input_log.size(), floori(float(bot_us) / 1000.0)])
+
+
+func _measure_dense(world: SimWorld) -> void:
+	var n_iter: int = 200
+	print("REV perf dense wave=%d alive=%d bolts=%d high_water=%d input_log=%d" % [world.wave, world.enemies.alive_count, world.projectiles.alive_count, world.enemies.high_water, world.input_log.size()])
+	# snapshot + checkpoint
+	var t0: int = Time.get_ticks_usec()
+	var raw: PackedByteArray = PackedByteArray()
+	for _i: int in 20:
+		raw = SimSnapshot.capture(world, 1)
+	var cap_us: float = float(Time.get_ticks_usec() - t0) / 20.0
+	t0 = Time.get_ticks_usec()
+	for _i: int in 20:
+		world.state_hash()
+	var hash_us: float = float(Time.get_ticks_usec() - t0) / 20.0
+	var store: SaveStore = SaveStore.new(DiskSaveFs.new("user://rev_tmp/"), "run_snapshot", SaveCodec.MAGIC_SNAPSHOT, 1)
+	var worst: int = 0
+	t0 = Time.get_ticks_usec()
+	for _i: int in 20:
+		var c0: int = Time.get_ticks_usec()
+		var raw2: PackedByteArray = SimSnapshot.capture(world, 1)
+		store.save(1, raw2)
+		world.state_hash()
+		worst = maxi(worst, Time.get_ticks_usec() - c0)
+	var cp_us: float = float(Time.get_ticks_usec() - t0) / 20.0
+	store.remove_all()
+	print("REV perf snapshot bytes=%d capture_us=%.0f state_hash_us=%.0f checkpoint_total_us=%.0f worst_us=%d" % [raw.size(), cap_us, hash_us, cp_us, worst])
+	# view fill: 5 enemy types + bolts, 512-capacity buffers, plus the 6 data images (CPU side only; no GPU upload headless)
+	var bufs: Array[PackedFloat32Array] = []
+	var datas: Array[PackedFloat32Array] = []
+	for _t: int in 6:
+		var b := PackedFloat32Array()
+		b.resize(512 * MultiMeshBuffer.FLOATS_PER_INSTANCE)
+		var d := PackedFloat32Array()
+		d.resize(512 * MultiMeshBuffer.DATA_FLOATS)
+		bufs.append(b)
+		datas.append(d)
+	var spec := EnemyDrawSpec.new()
+	spec.scale_px = 1.0
+	spec.frames = 4
+	spec.fps = 8.0
+	var fx := EnemyFxState.new()
+	fx.bind(world.events, world.enemies.capacity)
+	spec.fx = fx
+	var cull := Rect2(-600, -700, 1200, 1400)
+	t0 = Time.get_ticks_usec()
+	for _i: int in n_iter:
+		for t: int in 5:
+			MultiMeshBuffer.fill(world.enemies, t, 0.5, 20.0, bufs[t], datas[t], 1.0, true, cull, spec)
+		MultiMeshBuffer.fill_bolts(world.projectiles, 0.5, SimWorld.DT, 20.0, 0.0, bufs[5], datas[5], 1.0, true, cull, spec)
+	var fill_us: float = float(Time.get_ticks_usec() - t0) / float(n_iter)
+	t0 = Time.get_ticks_usec()
+	for _i: int in n_iter:
+		for t: int in 6:
+			MultiMeshBuffer.data_image(datas[t])
+	var img_us: float = float(Time.get_ticks_usec() - t0) / float(n_iter)
+	print("REV perf view fill_6_passes_us=%.0f data_image_x6_us=%.0f (per rendered frame, CPU only)" % [fill_us, img_us])
+	# profile save cost
+	var prof: PlayerProfile = PlayerProfile.fresh(0, "rev")
+	t0 = Time.get_ticks_usec()
+	var enc: PackedByteArray = PackedByteArray()
+	for _i: int in 20:
+		enc = SaveCodec.encode_json(SaveCodec.MAGIC_PROFILE, 2, prof.to_dict())
+	print("REV perf profile encode bytes=%d us=%.0f" % [enc.size(), float(Time.get_ticks_usec() - t0) / 20.0])
