@@ -108,16 +108,20 @@ static func _tooltip(view: FoundryRowView) -> String:
 	var key: String = "foundry.tooltip_d" if view.kind == "D" else "foundry.tooltip_c"
 	var cost: String = "-" if view.maxed else NumberFormat.format(view.cost)
 	var text: String = (
-		Strings
-		. fill(
-			key,
-			{
-				"f": str(view.level),
-				"cost": cost,
-				"cap": str(view.cap),
-				"m": UpgradeRowModel.mult_arg(view.milestone_mult),
-				"s": str(view.milestone_step),
-			}
+		UpgradeRowModel.upgrade_desc(view.id)
+		+ "\n"
+		+ (
+			Strings
+			. fill(
+				key,
+				{
+					"f": str(view.level),
+					"cost": cost,
+					"cap": str(view.cap),
+					"m": UpgradeRowModel.mult_arg(view.milestone_mult),
+					"s": str(view.milestone_step),
+				}
+			)
 		)
 	)
 	if not view.maxed:

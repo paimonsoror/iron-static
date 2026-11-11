@@ -25,7 +25,7 @@ Rows you have not unlocked are not shown. A single line at the bottom says "Next
 - **Tap** the cost button to buy 1 level.
 - **Hold** it to repeat-buy. The first repeat comes after 0.35 seconds and speeds up. After 3 seconds each step buys 10 levels; after 6 seconds, 100. The buy sound steps up in pitch while you hold.
 - **Partial buys** are allowed: if you can afford only 7 of 10 levels, you buy 7. A buy only fails when not even one level is affordable.
-- **Tap a row** (anywhere but the cost button) to open its formula tooltip: base value, step, caps and the Foundry bonus. Nothing is hidden.
+- **Tap a row** (anywhere but the cost button) to open its tooltip. The first line says in plain words what the upgrade improves, the second shows what you have now and what the next level gives (for example `Now 12% -> next 18%`, or `Now 90% (max)` at the cap), and the rest is the formula: base value, step, caps and the Foundry bonus. Nothing is hidden. It stays up a few seconds (longer for longer text); tap the row again to close it.
 
 ## The ten upgrades
 
@@ -72,11 +72,28 @@ Type D applies to Laser Output, Hull Integrity and Nano Repair. Laser Output and
 
 Permanent bonuses multiply the final value: `final = base * run factor * Foundry multiplier * frame and other multipliers`. See [The Foundry](foundry.md).
 
+## What each upgrade improves
+
+These are the sentences the tooltip shows, in the order of the panel.
+
+| Upgrade | What the tooltip says |
+|---|---|
+| Laser Output | More damage on every laser shot, so enemies die faster. |
+| Cycle Rate | Laser shots per second. More shots means more damage over time. |
+| Crit Chance | Chance that a laser shot is a critical hit with bonus damage. |
+| Crit Mult | How much more damage a critical hit deals than a normal shot. |
+| Optic Range | How far Cinder's laser reaches. Enemies are shot from farther away. |
+| Hull Integrity | Cinder's maximum hull. More hull means surviving more hits. |
+| Nano Repair | Hull points Cinder repairs every second while alive. |
+| Plating | Blocks this share of the damage from every hit on Cinder. |
+| Scrap Yield | Multiplies the scrap each kill drops, so upgrades come sooner. |
+| Reinvest | Each wave end your unspent scrap earns this share as interest. |
+
 ## What each upgrade is for
 
 - **Laser Output and Cycle Rate** are your damage. Output is the deep, scalable one; rate is capped at 12 shots a second.
 - **Crit Chance and Crit Mult** reward volume. They multiply each other, so neither is worth much without the other.
-- **Optic Range** hits lancers and darts sooner, and lets Cinder shoot while enemies are still far away.
+- **Optic Range** is how far Cinder can shoot, so enemies take fire earlier. Lancers stop at 85 percent of it (at least 16 m, at most 48 m), so more range also keeps them further out.
 - **Hull Integrity and Nano Repair** are survival. Hull also heals when bought, so buying armor mid-fight is a small heal.
 - **Plating** is a percentage shield: 6 points per level up to a hard 90 percent cap (level 15), so integrity stays relevant.
 - **Scrap Yield** raises income. **Reinvest** pays interest on what you have not spent, up to half of that wave's kill scrap, so it rewards saving.

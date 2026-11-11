@@ -220,7 +220,7 @@ func _tap_moved(pos: Vector2) -> void:
 		_tap_armed = false
 
 
-## Tapping the row body shows the formula tooltip, tapping again (or waiting TOOLTIP_S) hides it.
+## Tapping the row body shows the formula tooltip, tapping again (or waiting `RowTooltip.hold_seconds`) hides it.
 func toggle_tooltip() -> void:
 	if _tip.visible:
 		_hide_tip()

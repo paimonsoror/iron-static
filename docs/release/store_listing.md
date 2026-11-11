@@ -7,7 +7,7 @@ Changelog: 2026-11-09 v1.0 (B1-09, branch `b1-docs`). Refines the drafts in `PLA
 | App name | 30 | 11 |
 | Short description | 80 | 76 |
 | Full description | 4,000 | 1,506 |
-| Release notes (per release, current upload) | 500 | 339 |
+| Release notes (per release, current upload) | 500 | 421 |
 
 Changes from the guide's draft, each checked against the build:
 - "armor plates burn away" became "synthetic skin burns away": the game burns Cinder's skin to expose the frame (GDD 00, skin burn), not plates.
@@ -61,6 +61,7 @@ Portrait, one-handed, short sessions or long idle stretches. Built for phones ru
 
 ```
 Beta 0.5.1. New: a LASER SOUND switch in Settings turns off the sound of Cinder's shots. Hits, alarms and music still play.
+New: tap an upgrade's name to see what it improves and what the next level gives.
 Tell us what feels off: use SEND FEEDBACK in Settings.
 Known: first launch can show a black screen for up to 30 seconds while shaders compile.
 No ads, no purchases, no account. Progress is saved on this device only.
