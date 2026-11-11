@@ -38,6 +38,11 @@ jobs:
       - name: Repo rules
         run: python tools/lint_repo.py
 
+      - name: Release workflow rules
+        run: |
+          python -I tools/check_workflows.py --self-test
+          python -I tools/check_workflows.py
+
       - name: Art SVG lint
         run: |
           python tools/art_rules_gen.py --check
