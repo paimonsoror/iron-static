@@ -1,6 +1,6 @@
 # Publishing to Google Play from the command line
 
-Changelog: 2026-11-11 v1.1 (branch `play-closed`): the default track is now closed testing, the default status is `completed`, new `status` command and `--changes-not-sent-for-review`. 2026-11-10 v1.0 (branch `play-publish`). Tool: `tools/play_publish.py` (wrapper `tools\play_publish.ps1`), self-test `tools/play_publish_selftest.py`.
+Changelog: 2026-11-11 v1.1 (branch `play-closed`): the default status is `completed`; new `status` and `promote` commands and `--changes-not-sent-for-review`. Routine: tag, then internal (no review, ready in minutes), check it on the phone, then promote to closed testing (Google reviews it). 2026-11-10 v1.0 (branch `play-publish`). Tool: `tools/play_publish.py` (wrapper `tools\play_publish.ps1`), self-test `tools/play_publish_selftest.py`.
 
 The tool uploads a signed AAB to a **testing** track and can push the store listing text and graphics that are already in this repo. It uses the Google Play Developer API (Android Publisher v3). It is optional: everything it does can also be done by hand in Play Console (`PLAY_BETA_GUIDE.md`). The repo is public, so the design rule is: the tool must be unable to leak a credential or a personal detail, even by mistake.
 
@@ -50,25 +50,42 @@ All commands run from the repo root. The tool is always run as `python -I` (the 
 | `... release <aab> --validate` | uploads into an edit, sets the track, runs `edits.validate`, then **deletes the edit**: nothing is committed |
 | `... release <aab> --commit` | same, then commits. Prints the plan first and asks you to type the versionCode (`--yes` skips the question) |
 | `.\tools\play_publish.ps1 status` | **read-only**: lists every track with its releases (name, status, versionCodes, userFraction). Opens an edit and deletes it. Uploads nothing |
+| `... promote [--validate\|--commit]` | **no upload.** Moves the build that is already on internal to closed testing (see below). Without `--validate` or `--commit` it only reads |
 | `... listing [--validate\|--commit]` | the same three modes for the store listing text and graphics |
 
-Options for `release`: `--track closed|internal|open` (default `closed`), `--status completed|draft` (default `completed`), `--allow-open`, `--changes-not-sent-for-review`, `--notes <file in the repo>` (default: the release-notes block of `docs/release/store_listing.md`), `--skip-aab-check` (prints a warning; by default the tool runs `tools\aab_check.ps1` on the bundle).
+Options for `release`: `--track closed|internal|open` (default `internal`), `--status completed|draft` (default `completed`), `--allow-open`, `--changes-not-sent-for-review`, `--notes <file in the repo>` (default: the release-notes block of `docs/release/store_listing.md`), `--skip-aab-check` (prints a warning; by default the tool runs `tools\aab_check.ps1` on the bundle).
 
 Track names. The tool uses friendly names. Play uses other names in its API:
 
 | `--track` | Play Console | API name | Notes |
 |---|---|---|---|
-| `closed` (default) | Closed testing | `alpha` | where the testers are now |
-| `internal` | Internal testing | `internal` | quick checks, no review |
+| `internal` (default) | Internal testing | `internal` | first stop for every build, no review |
+| `closed` | Closed testing | `alpha` | where the testers are; reached by `promote` |
 | `open` | Open testing | `beta` | on hold (Q88); refused without `--allow-open` |
 
 The plan prints both, for example `track  closed testing (API: alpha)`. Production is not available.
 
 Status. `completed` rolls the release out to all testers on that track. `userFraction` is not used. `draft` saves the release without rolling it out. You then finish it in Console.
 
-Review. Closed-track releases go through Google review, unlike internal. After a successful commit the tool says so. Review usually takes hours to a few days. Testers get the update after approval.
+Review. Closed-track releases go through Google review, unlike internal. After a successful commit the tool says so. Review usually takes hours to a few days. Testers get the update after approval. A new closed release replaces one that is still in review.
 
 If Google says "changes cannot be sent for review automatically" (the message names `changesNotSentForReview`), nothing was committed. Run the same command again with `--changes-not-sent-for-review`. The release is then committed. You send it for review yourself in Play Console > Publishing overview.
+
+Promote. `promote` moves a build that is already on one track to another. It uploads nothing.
+
+```
+.\tools\play_publish.ps1 promote                      # dry: reads the internal track, prints the plan, no change
+.\tools\play_publish.ps1 promote --validate           # update + edits.validate, then the edit is deleted
+.\tools\play_publish.ps1 promote --commit             # type the versionCode to confirm
+```
+
+- Defaults: `--from internal --to closed --status completed`. `--version-code N` defaults to the code in `release/version.json`.
+- In one edit it reads the source track and refuses unless that versionCode is in a release there with status `completed`. It says what is there instead. It copies the release name and notes, and sets the target track with one release.
+- Never production. `--from` and `--to` must differ. `--to open` needs `--allow-open` (on hold, Q88).
+- The confirmation reads "PROMOTE N from internal to closed testing (roll out)". Afterwards the tool says that Google reviews the release. The `--changes-not-sent-for-review` rule above applies here too.
+- The same step in Console is "Promote release" on the internal testing page. In GitHub: Run workflow with `publish=promote` ([ci_release.md](ci_release.md)).
+
+The routine: tag, then internal (no review, ready in minutes), check it on the phone, then promote to closed testing (Google reviews it).
 
 Typical release:
 
@@ -90,7 +107,7 @@ Notes on Play behaviour:
 
 ## Running it in GitHub Actions
 
-The release workflow can run `--validate`, a draft `--commit --yes` or a rollout to closed testing for you, with the keys held in a protected GitHub environment. Setup and the leak steps for those secrets: [ci_release.md](ci_release.md).
+The release workflow can run `--validate`, a draft `--commit --yes`, a rollout, or a promote to closed testing for you, with the keys held in a protected GitHub environment. Setup and the leak steps for those secrets: [ci_release.md](ci_release.md).
 
 ## If a key leaks
 

@@ -6,15 +6,15 @@ You have published before, but not for a while. This guide is the whole path fro
 
 ## 0. The short version
 
-**Where things stand (2026-11-11).** Testers get the game from the **Closed testing** track, through the email list. New builds go to Closed testing by default. The internal track stays for quick checks, with no review wait. Open testing is on hold until the human playtest passes. `tools/play_publish.py` uses friendly names for the tracks. Play's API uses other names:
+**Where things stand (2026-11-11).** Testers get the game from the **Closed testing** track, through the email list. The routine for a new build: tag it, it goes to **Internal testing** (no review, ready in minutes), you check it on your phone, then you **promote** it to Closed testing (Google reviews it, hours to a few days). A new closed release replaces one that is still in review. Open testing is on hold until the human playtest passes. `tools/play_publish.py` uses friendly names for the tracks. Play's API uses other names:
 
 | Play Console | `--track` | API name |
 |---|---|---|
-| Closed testing | `closed` (default) | `alpha` |
-| Internal testing | `internal` | `internal` |
+| Internal testing | `internal` (default) | `internal` |
+| Closed testing | `closed` | `alpha` |
 | Open testing | `open` (on hold) | `beta` |
 
-Closed-track releases go through Google review (hours to a few days). Details: `docs/release/play_publish.md`.
+To promote: Run workflow with `publish=promote`, or `play_publish promote --commit` on your PC, or "Promote release" in Console. Details: `docs/release/play_publish.md`.
 
 - The beta is an **open test**: anyone can find IRON STATIC on Google Play and install it. No ads, no purchases, no accounts, no data collected.
 - **Big catch:** if your developer account was created after 13 November 2023, Google locks the open test until you have run a **closed test with 12 testers for 14 days in a row** and been granted production access. Google's page says: "Open testing becomes available after you gain production access."

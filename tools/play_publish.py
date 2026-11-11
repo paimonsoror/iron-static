@@ -5,6 +5,7 @@ Run with isolated mode:  python -I tools/play_publish.py <command> ...   (tools\
 
   release <file.aab>   dry run (local checks only) | --auth-check | --validate | --commit
   listing              store listing text + images from the repo, same modes
+  promote              move a build that is already on one track to another (no upload), same modes
   status               read-only: every track with its releases (opens an edit, then deletes it)
   --self-test          no network, no Google libraries needed
 
@@ -14,7 +15,7 @@ Safety rules (each one is covered by --self-test):
   * default is a dry run: local checks only, zero network calls
   * test-key / debug-signed / wrong-package / wrong-version / sha-mismatch bundles are refused before any network call
   * only --commit commits, only after printing exactly what it commits and asking for confirmation
-  * no production track (closed = API alpha is the default; open = API beta stays on hold and needs --allow-open),
+  * no production track (internal is the default, promote moves a tested build to closed = API alpha; open = API beta stays on hold and needs --allow-open),
     no tester emails, no personal data: the tool sends the AAB, release notes, listing text
     and images that are already in the repo
 Exit: 0 ok, 1 refused or failed, 2 usage or configuration error.
@@ -47,7 +48,7 @@ LANG = "en-US"
 TRACK_API = {"closed": "alpha", "internal": "internal", "open": "beta"}
 TRACK_LABEL = {"closed": "closed testing", "internal": "internal testing", "open": "open testing"}
 TRACKS = tuple(TRACK_API)
-DEFAULT_TRACK = "closed"
+DEFAULT_TRACK = "internal"
 API_FRIENDLY = {"alpha": "closed testing", "internal": "internal testing", "beta": "open testing", "production": "production"}
 NOTES_MAX = 500
 SECRETS_KEY = "play_service_account_json"
@@ -250,6 +251,9 @@ class PlayApi:
     def commit_edit(self, package: str, edit: str, not_sent_for_review: bool = False) -> None:
         extra = {"changesNotSentForReview": True} if not_sent_for_review else {}
         self._do("edits.commit", self._svc.edits().commit(packageName=package, editId=edit, **extra))
+
+    def get_track(self, package: str, edit: str, track: str) -> dict[str, Any]:
+        return dict(self._do("edits.tracks.get", self._svc.edits().tracks().get(packageName=package, editId=edit, track=track)))
 
     def list_tracks(self, package: str, edit: str) -> list[dict[str, Any]]:
         r = self._do("edits.tracks.list", self._svc.edits().tracks().list(packageName=package, editId=edit))
@@ -676,15 +680,110 @@ def cmd_release(a: argparse.Namespace, repo: Path, tools: Any, api_factory: Call
     if mode == "validate":
         emit("VALIDATE OK: edit deleted, nothing committed.")
     if mode == "commit":
+        after_commit(a.track, a.status, a.changes_not_sent_for_review)
+    return 0
+
+
+def after_commit(track: str, status: str, not_sent: bool) -> None:
+    label = TRACK_LABEL[track]
+    if not_sent:
+        emit("COMMITTED, NOT sent for review. Open Play Console > Publishing overview and send the changes for review.")
+    elif status != "completed":
+        emit(f"Saved as a DRAFT on {label}. Finish the rollout in Play Console, or run again with --status completed.")
+    elif track == "internal":
+        emit("Rolled out to internal testing. Internal releases are not reviewed; testers get it within minutes.")
+    else:
+        emit(f"Submitted to {label}. Google reviews {track}-track releases, usually within hours to a few days; "
+             "testers get the update after approval. A new release on this track replaces one that is still in review.")
+
+
+def cmd_promote(a: argparse.Namespace, repo: Path, tools: Any, api_factory: Callable[[], Any],
+                ask: Callable[[str], str] | None = None) -> int:
+    """Move a build that is already on one track to another. No upload. Dry mode only reads."""
+    mode = mode_of(a)
+    if a.to_track == "production" or a.from_track == "production":
+        raise Refuse("the production track is never available in this tool")
+    if a.to_track not in TRACK_API or a.from_track not in TRACK_API:
+        raise Refuse("unknown track; use closed, internal or open")
+    if a.from_track == a.to_track:
+        raise Refuse("--from and --to must differ")
+    if a.to_track == "internal":
+        raise Refuse("promote moves a build up to closed (or open); internal is not a target")
+    if a.to_track == "open":
+        emit("WARNING: the open testing track is ON HOLD (decision Q88: no open track until the human playtest passes).")
+        if not a.allow_open:
+            raise Refuse("the open track is on hold; add --allow-open only if the user has lifted Q88")
+    pkg = expected_package(repo)
+    if a.version_code is not None:
+        code = int(a.version_code)
+    else:
+        code = tools.release_version()[1]
+    src, dst = TRACK_API[a.from_track], TRACK_API[a.to_track]
+    src_label, dst_label = TRACK_LABEL[a.from_track], TRACK_LABEL[a.to_track]
+    rollout = a.status == "completed"
+    what = f"PROMOTE {code} from {a.from_track} to {dst_label} ({'roll out' if rollout else 'save as draft'})"
+    emit("Local checks passed.")
+    if mode == "commit":
+        emit(f"ABOUT TO COMMIT TO GOOGLE PLAY ({what}):")
         if a.changes_not_sent_for_review:
-            emit("COMMITTED, NOT sent for review. Open Play Console > Publishing overview and send the changes for review.")
-        elif not rollout:
-            emit(f"Saved as a DRAFT on {label}. Finish the rollout in Play Console, or run again with --status completed.")
-        elif a.track == "internal":
-            emit("Rolled out to internal testing. Internal releases are not reviewed; testers get it within minutes.")
-        else:
-            emit(f"Submitted to {label}. Google reviews {a.track}-track releases, usually within hours to a few days; "
-                 "testers get the update after approval.")
+            emit("  The release will NOT be sent for review automatically; you send it in Play Console > Publishing overview.")
+        confirm(code, a.yes, ask, what)
+    api = api_factory()
+    state: dict[str, Any] = {}
+
+    def read_source(edit: str) -> dict[str, Any]:
+        t = api.get_track(pkg, edit, src)
+        rels = t.get("releases") or []
+        hits = [r for r in rels if str(code) in [str(v) for v in r.get("versionCodes", [])]]
+        if not hits:
+            there = "; ".join(f"'{r.get('name', '')}' {r.get('status', '?')} {','.join(str(v) for v in r.get('versionCodes', []))}"
+                              for r in rels) or "no releases"
+            raise Refuse(f"versionCode {code} is not on the {src_label} track (API {src}). There: {there}")
+        done = [r for r in hits if r.get("status") == "completed"]
+        if not done:
+            raise Refuse(f"versionCode {code} is on {src_label} with status '{hits[0].get('status')}', not 'completed'; "
+                         "it must be fully rolled out there before you promote it")
+        rel = done[0]
+        notes = rel.get("releaseNotes")
+        if not notes:
+            notes = [{"language": LANG, "text": load_notes(Path("docs/release/store_listing.md"), repo)}]
+            emit("  source release has no notes; using the current notes block of store_listing.md")
+        state["release"] = {"name": rel.get("name") or str(code), "versionCodes": [str(code)], "status": a.status, "releaseNotes": notes}
+        emit(f"  source: release '{state['release']['name']}' on {src_label} is completed")
+        return state["release"]
+
+    def plan() -> str:
+        r = state["release"]
+        txt = "\n".join("    | " + str(n.get("text", "")) for n in r["releaseNotes"])
+        return (f"  package      {pkg}\n  from         {src_label} (API: {src})\n  to           {dst_label} (API: {dst})\n"
+                f"  versionCode  {code}\n  name         {r['name']}\n  status       {a.status}\n  notes:\n{txt}")
+
+    if mode == "dry":
+        edit = api.insert_edit(pkg)
+        emit(f"  edit {edit} opened (read only)")
+        try:
+            read_source(edit)
+        finally:
+            try:
+                api.delete_edit(pkg, edit)
+                emit(f"  edit {edit} deleted (nothing changed)")
+            except Exception as e:  # noqa: BLE001
+                emit(f"WARNING: could not delete edit {edit}: {type(e).__name__}", err=True)
+        emit("DRY RUN: only read calls were made (open edit, read the source track, delete edit). Would promote:\n" + plan())
+        emit("Next: add --validate, then --commit.")
+        return 0
+
+    def work(edit: str) -> None:
+        read_source(edit)
+        emit("  plan:\n" + plan())
+        api.set_track(pkg, edit, dst, state["release"])
+        emit(f"  track '{a.to_track}' (API {dst}) set to {a.status}")
+
+    run_edit(api, pkg, mode, work, a.changes_not_sent_for_review)
+    if mode == "validate":
+        emit("VALIDATE OK: edit deleted, nothing committed.")
+    if mode == "commit":
+        after_commit(a.to_track, a.status, a.changes_not_sent_for_review)
     return 0
 
 
@@ -770,10 +869,10 @@ def build_parser() -> argparse.ArgumentParser:
         g.add_argument("--commit", action="store_true", help="really commit (asks for confirmation unless --yes)")
         p.add_argument("--yes", action="store_true", help="skip the interactive confirmation of --commit")
 
-    r = sub.add_parser("release", help="upload an AAB to a testing track (default: closed testing, rolled out)")
+    r = sub.add_parser("release", help="upload an AAB to a testing track (default: internal testing, rolled out)")
     r.add_argument("aab", type=Path)
     r.add_argument("--track", choices=TRACKS, default=DEFAULT_TRACK,
-                   help="closed (API alpha, default), internal, open (API beta, on hold: needs --allow-open)")
+                   help="internal (default), closed (API alpha), open (API beta, on hold: needs --allow-open)")
     r.add_argument("--status", choices=("draft", "completed"), default="completed",
                    help="completed = roll out to all testers on the track (default); draft = save without rolling out")
     r.add_argument("--allow-open", action="store_true", help="permit the open track (on hold, decision Q88)")
@@ -785,6 +884,15 @@ def build_parser() -> argparse.ArgumentParser:
     li = sub.add_parser("listing", help="push store listing text and graphics from the repo")
     li.add_argument("--allow-draft-assets", action="store_true", help="push even though store_assets.md says Draft")
     common(li)
+    pr = sub.add_parser("promote", help="move a build already on one track to another (no upload); default internal -> closed")
+    pr.add_argument("--version-code", type=int, default=None, help="default: versionCode from release/version.json")
+    pr.add_argument("--from", dest="from_track", choices=TRACKS, default="internal")
+    pr.add_argument("--to", dest="to_track", choices=TRACKS, default="closed", help="closed (default) or open (needs --allow-open)")
+    pr.add_argument("--status", choices=("draft", "completed"), default="completed")
+    pr.add_argument("--allow-open", action="store_true", help="permit the open track (on hold, decision Q88)")
+    pr.add_argument("--changes-not-sent-for-review", action="store_true",
+                    help="commit without sending for review (then send in Play Console > Publishing overview)")
+    common(pr)
     sub.add_parser("status", help="read-only: list every track and its releases")
     return ap
 
@@ -826,6 +934,8 @@ def main(argv: list[str]) -> int:
     factory = lambda: make_real_api(a.secrets, ROOT, env)  # noqa: E731
     if a.cmd == "release":
         return guarded(lambda: cmd_release(a, ROOT, RealTools(ROOT), factory))
+    if a.cmd == "promote":
+        return guarded(lambda: cmd_promote(a, ROOT, RealTools(ROOT), factory))
     if a.cmd == "status":
         return guarded(lambda: cmd_status(a, ROOT, factory))
     return guarded(lambda: cmd_listing(a, ROOT, factory))
