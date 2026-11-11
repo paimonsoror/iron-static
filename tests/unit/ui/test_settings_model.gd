@@ -9,6 +9,7 @@ func test_order_and_label_keys_exist() -> void:
 			"sfx",
 			"music",
 			"muted",
+			"laser",
 			"reduce_motion",
 			"shake",
 			"scanlines",

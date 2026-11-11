@@ -60,7 +60,7 @@ func test_fixture_settings_carry_every_known_key() -> void:
 	var xp: Dictionary = fix["profile"]
 	var st: Dictionary = xp["settings"]
 	# M4-23 keys are optional on read and absent from the v2 fixture on purpose (no schema bump).
-	var later: Array[String] = ["haptics", "colorblind", "high_contrast"]
+	var later: Array[String] = ["laser", "haptics", "colorblind", "high_contrast"]
 	for key: String in PlayerSettings.KNOWN_KEYS:
 		assert_bool(st.has(key) or later.has(key)).is_true()
 

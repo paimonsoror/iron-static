@@ -14,6 +14,8 @@ const ARG_MUTE: String = "--mute"
 var music_volume: float = DEFAULT_MUSIC
 var sfx_volume: float = DEFAULT_SFX
 var muted: bool = false
+## Cinder's per-shot tick (`sfx_laser_shot`); off silences only that sound. Read live by `AudioEventRouter`.
+var laser_sound: bool = true
 
 
 static func is_mute_arg(args: PackedStringArray) -> bool:
@@ -35,7 +37,7 @@ func set_sfx_volume(v: float) -> void:
 
 
 func to_dict() -> Dictionary:
-	return {"music": music_volume, "sfx": sfx_volume, "muted": muted}
+	return {"music": music_volume, "sfx": sfx_volume, "muted": muted, "laser": laser_sound}
 
 
 static func from_dict(d: Dictionary) -> AudioSettings:
@@ -46,6 +48,10 @@ static func from_dict(d: Dictionary) -> AudioSettings:
 	if mu is bool:
 		var flag: bool = mu
 		s.muted = flag
+	var laser: Variant = d.get("laser", true)
+	if laser is bool:
+		var on: bool = laser
+		s.laser_sound = on
 	return s
 
 

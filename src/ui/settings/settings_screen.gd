@@ -89,6 +89,7 @@ func enter() -> void:
 	_slider_set(SettingsModel.KEY_SFX, s.sfx)
 	_slider_set(SettingsModel.KEY_MUSIC, s.music)
 	_toggle_set(SettingsModel.KEY_MUTED, s.muted)
+	_toggle_set(SettingsModel.KEY_LASER, s.laser)
 	_toggle_set(SettingsModel.KEY_REDUCE_MOTION, s.reduce_motion)
 	_toggle_set(SettingsModel.KEY_HAPTICS, s.haptics)
 	_toggle_set(SettingsModel.KEY_HIGH_CONTRAST, s.high_contrast)
@@ -192,12 +193,10 @@ func _make_row(setting: String) -> Control:
 			sl.value_changed.connect(_on_slider.bind(setting))
 			sl.drag_released.connect(_on_slider_released)
 			box.add_child(_plate([_header(setting, title_text), sl]))
-		SettingsModel.KEY_MUTED, SettingsModel.KEY_REDUCE_MOTION, SettingsModel.KEY_HAPTICS, SettingsModel.KEY_HIGH_CONTRAST:
-			var t := SettingsToggle.new()
-			t.text = title_text
-			t.toggled.connect(_on_toggle.bind(setting))
-			toggles[setting] = t
-			box.add_child(t)
+		SettingsModel.KEY_MUTED, SettingsModel.KEY_LASER, SettingsModel.KEY_REDUCE_MOTION:
+			box.add_child(_toggle_row(setting, title_text))
+		SettingsModel.KEY_HAPTICS, SettingsModel.KEY_HIGH_CONTRAST:
+			box.add_child(_toggle_row(setting, title_text))
 		_:
 			var c := SettingsChoice.new()
 			c.setup(SettingsModel.option_keys(setting), 0)
@@ -211,6 +210,14 @@ func _make_row(setting: String) -> Control:
 	_notes[setting] = note
 	box.add_child(note)
 	return box
+
+
+func _toggle_row(setting: String, title_text: String) -> SettingsToggle:
+	var t := SettingsToggle.new()
+	t.text = title_text
+	t.toggled.connect(_on_toggle.bind(setting))
+	toggles[setting] = t
+	return t
 
 
 func _header(setting: String, title_text: String) -> Control:
@@ -265,6 +272,8 @@ func _on_toggle(on: bool, setting: String) -> void:
 	match setting:
 		SettingsModel.KEY_MUTED:
 			SettingsActions.set_muted(on)
+		SettingsModel.KEY_LASER:
+			SettingsActions.set_laser_sound(on)
 		SettingsModel.KEY_HAPTICS:
 			SettingsActions.set_haptics(on)
 		SettingsModel.KEY_HIGH_CONTRAST:

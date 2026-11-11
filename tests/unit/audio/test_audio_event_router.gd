@@ -59,6 +59,24 @@ func test_normal_hit_and_crit_hit() -> void:
 	assert_int(_spy.count("sfx_laser_shot")).is_equal(3)
 
 
+func test_laser_sound_off_silences_only_the_shot_tick() -> void:
+	_spy.settings.laser_sound = false
+	_push(SimEventKind.SHOT_FIRED, 7, 0)
+	_push(SimEventKind.ENEMY_HIT, 7, 10)
+	_push(SimEventKind.SHOT_FIRED, 8, 1)
+	_push(SimEventKind.ENEMY_HIT, 8, 30)
+	_push(SimEventKind.SHOT_FIRED, 9, 0)
+	_router.update()
+	assert_int(_spy.count("sfx_laser_shot")).is_equal(0)
+	assert_int(_spy.count("sfx_crit")).is_equal(1)
+	assert_int(_spy.count("sfx_hit_metal")).is_equal(1)
+	# Switching it back on takes effect at once.
+	_spy.settings.laser_sound = true
+	_push(SimEventKind.SHOT_FIRED, 1, 0)
+	_router.update()
+	assert_int(_spy.count("sfx_laser_shot")).is_equal(1)
+
+
 func test_crit_pairing_survives_a_frame_boundary() -> void:
 	_push(SimEventKind.SHOT_FIRED, 4, 1)
 	_router.update()

@@ -22,6 +22,11 @@ static func set_muted(on: bool) -> void:
 	_persist()
 
 
+static func set_laser_sound(on: bool) -> void:
+	Game.audio.settings.laser_sound = on
+	_persist()
+
+
 static func set_reduce_motion(on: bool) -> void:
 	Game.visual.reduce_motion = on
 	_persist()

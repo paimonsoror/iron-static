@@ -28,6 +28,7 @@ func apply(
 	game_audio.set_music_volume(settings.music)
 	game_audio.set_sfx_volume(settings.sfx)
 	game_audio.muted = settings.muted
+	game_audio.laser_sound = settings.laser
 	game_visual.reduce_motion = settings.reduce_motion
 	game_visual.screen_shake = VisualSettings.parse_shake(settings.shake)
 	game_visual.scanline_intensity = settings.scanline_intensity()
@@ -46,6 +47,7 @@ func capture(game_visual: VisualSettings, game_audio: AudioSettings) -> PlayerSe
 	var s: PlayerSettings = PlayerSettings.from_dict(_persisted.to_dict())
 	s.music = game_audio.music_volume
 	s.sfx = game_audio.sfx_volume
+	s.laser = game_audio.laser_sound
 	s.reduce_motion = game_visual.reduce_motion
 	s.scanlines = PlayerSettings.scanline_level_for(game_visual.scanline_intensity)
 	s.number_format = NumberFormat.STYLE_NAMES[clampi(NumberFormat.style, 0, 2)]

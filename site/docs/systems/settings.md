@@ -9,6 +9,7 @@
 | Music volume | Slider | Set by the game | <span class="badge live">Implemented</span> |
 | Sound (effects) volume | Slider | Set by the game | <span class="badge live">Implemented</span> |
 | Mute | On or off | Off | <span class="badge live">Implemented</span> |
+| Laser sound | On or off | On | <span class="badge live">Implemented</span> turns off only the tick of Cinder's shots; hits, alarms and music still play, takes effect at once |
 | Reduce motion | On or off | Off | <span class="badge live">Implemented</span> |
 | Screen shake | Off, Low, Normal | Low | <span class="badge live">Implemented</span> |
 | Scanlines | Off, Low, Normal | Normal | <span class="badge live">Implemented</span> |
