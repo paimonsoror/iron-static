@@ -14,7 +14,8 @@ const ARG_MUTE: String = "--mute"
 var music_volume: float = DEFAULT_MUSIC
 var sfx_volume: float = DEFAULT_SFX
 var muted: bool = false
-## Cinder's per-shot tick (`sfx_laser_shot`); off silences only that sound. Read live by `AudioEventRouter`.
+## Cinder's per-shot sounds: the shot tick (`sfx_laser_shot`) and its impact (`sfx_hit_metal` / `sfx_crit`); off
+## silences both. Kills, alarms, UI and music are unaffected. Read live by `AudioEventRouter`.
 var laser_sound: bool = true
 
 

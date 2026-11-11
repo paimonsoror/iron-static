@@ -70,7 +70,9 @@ static func from_preview(
 		m.cost_text = NumberFormat.format(preview.cost)
 	m._apply_tier(def.id, lvl)
 	# The strings CSV holds a literal backslash-n; make it a real line break.
-	m.tooltip_text = tooltip_for(def, foundry_level, foundry_f, tuning).replace("\\n", "\n")
+	var formula: String = tooltip_for(def, foundry_level, foundry_f, tuning)
+	var head: String = upgrade_desc(def.id) + "\n" + now_next_text(def.id, preview)
+	m.tooltip_text = (head + "\n" + formula).replace("\\n", "\n")
 	return m
 
 
@@ -79,6 +81,21 @@ static func from_preview(
 ## string-key scan of the screen folders sees no partial literals (Home, Foundry and the run panel use it).
 static func upgrade_name(id: String) -> String:
 	return Strings.get_text("upgrade." + id)
+
+
+## One plain sentence of what upgrade `id` improves (string key "upgrade.<id>.desc"; the run tooltip and the Foundry
+## tooltip both lead with it).
+static func upgrade_desc(id: String) -> String:
+	return Strings.get_text("upgrade." + id + ".desc")
+
+
+## "Now 12% -> next 18%" in the row's own units from the preview (the value the row and the sim use, Foundry included);
+## "Now 90% (max)" at the level cap or when the next level changes nothing (hard limit).
+static func now_next_text(id: String, preview: UpgradePreview) -> String:
+	var cur: String = format_value(id, preview.current_value)
+	if preview.maxed or is_equal_approx(preview.next_value, preview.current_value):
+		return Strings.fill1("tooltip.now_max", "a", cur)
+	return Strings.fill("tooltip.now_next", {"a": cur, "b": format_value(id, preview.next_value)})
 
 
 static func format_value(id: String, v: float) -> String:

@@ -10,6 +10,16 @@ upgrade.nano_repair,NANO REPAIR
 upgrade.plating_pct,PLATING
 upgrade.scrap_yield,SCRAP YIELD
 upgrade.reinvest,REINVEST
+upgrade.laser_output.desc,"More damage on every laser shot, so enemies die faster."
+upgrade.cycle_rate.desc,Laser shots per second. More shots means more damage over time.
+upgrade.crit_chance.desc,Chance that a laser shot is a critical hit with bonus damage.
+upgrade.crit_mult.desc,How much more damage a critical hit deals than a normal shot.
+upgrade.optic_range.desc,How far Cinder's laser reaches. Enemies are shot from farther away.
+upgrade.hull_integrity.desc,Cinder's maximum hull. More hull means surviving more hits.
+upgrade.nano_repair.desc,Hull points Cinder repairs every second while alive.
+upgrade.plating_pct.desc,Blocks this share of the damage from every hit on Cinder.
+upgrade.scrap_yield.desc,"Multiplies the scrap each kill drops, so upgrades come sooner."
+upgrade.reinvest.desc,Each wave end your unspent scrap earns this share as interest.
 tab.arms,ARMS
 tab.chassis,CHASSIS
 tab.systems,SYSTEMS
@@ -22,6 +32,8 @@ row.value,{a} > {b}
 tooltip.d,"Base {base}. Each level adds {step} of base. Every {ms} levels: x{mm}. Level cap {cap}.\nFoundry: {foundry}"
 tooltip.c,"Base {base}, {step} per level. Level cap {cap}, limit {limit}.\nFoundry: {foundry}"
 tooltip.none,none
+tooltip.now_next,Now {a} -> next {b}
+tooltip.now_max,Now {a} (max)
 tooltip.foundry_none,--
 hud.wave,WAVE {n}
 hud.scrap,SCRAP {v}

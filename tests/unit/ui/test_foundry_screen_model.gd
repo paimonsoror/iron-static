@@ -121,3 +121,11 @@ func test_milestone_and_tooltip_numbers_come_from_the_tuning() -> void:
 	assert_str(m.milestone_text).is_equal("MILESTONE F10  x2")
 	assert_str(m.tooltip_text).contains("plus x2 for every 10 levels")
 	assert_str(m.tooltip_text).contains("cost x2.5")
+
+
+func test_tooltip_leads_with_the_upgrade_description() -> void:
+	var p: PlayerProfile = _profile(0)
+	for i: int in _service().rows(p).size():
+		var m: FoundryRowModel = _model(p, i)
+		assert_str(m.tooltip_text).starts_with(UpgradeRowModel.upgrade_desc(m.id) + "\n")
+	assert_str(_model(p, 0).tooltip_text).contains("Permanent.")

@@ -59,22 +59,30 @@ func test_normal_hit_and_crit_hit() -> void:
 	assert_int(_spy.count("sfx_laser_shot")).is_equal(3)
 
 
-func test_laser_sound_off_silences_only_the_shot_tick() -> void:
+func test_laser_sound_off_silences_the_shot_and_its_impact() -> void:
 	_spy.settings.laser_sound = false
 	_push(SimEventKind.SHOT_FIRED, 7, 0)
 	_push(SimEventKind.ENEMY_HIT, 7, 10)
 	_push(SimEventKind.SHOT_FIRED, 8, 1)
 	_push(SimEventKind.ENEMY_HIT, 8, 30)
 	_push(SimEventKind.SHOT_FIRED, 9, 0)
+	_push(SimEventKind.ENEMY_KILLED, 9, 0)
 	_router.update()
 	assert_int(_spy.count("sfx_laser_shot")).is_equal(0)
+	assert_int(_spy.count("sfx_crit")).is_equal(0)
+	assert_int(_spy.count("sfx_hit_metal")).is_equal(0)
+	# Kills are not part of the per-shot chain and still play.
+	assert_int(_spy.count("sfx_enemy_death_small")).is_equal(1)
+	# Switching it back on takes effect at once, and crit pairing still works after the silent stretch.
+	_spy.settings.laser_sound = true
+	_push(SimEventKind.SHOT_FIRED, 1, 1)
+	_push(SimEventKind.ENEMY_HIT, 1, 30)
+	_push(SimEventKind.SHOT_FIRED, 2, 0)
+	_push(SimEventKind.ENEMY_HIT, 2, 10)
+	_router.update()
+	assert_int(_spy.count("sfx_laser_shot")).is_equal(2)
 	assert_int(_spy.count("sfx_crit")).is_equal(1)
 	assert_int(_spy.count("sfx_hit_metal")).is_equal(1)
-	# Switching it back on takes effect at once.
-	_spy.settings.laser_sound = true
-	_push(SimEventKind.SHOT_FIRED, 1, 0)
-	_router.update()
-	assert_int(_spy.count("sfx_laser_shot")).is_equal(1)
 
 
 func test_crit_pairing_survives_a_frame_boundary() -> void:

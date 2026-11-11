@@ -101,3 +101,73 @@ func test_foundry_tooltip_line_shows_the_real_contribution() -> void:
 	assert_str(UpgradeRowModel.foundry_text(c, 5, 0.0)).starts_with("F5  +")
 	assert_str(UpgradeRowModel.tooltip_for(c, 5, 0.0)).not_contains("Foundry: --")
 	assert_str(UpgradeRowModel.tooltip_for(c)).contains("Foundry: --")
+
+
+func _model_with_foundry(w: SimWorld, id: String, f_level: int, f: float) -> UpgradeRowModel:
+	var i: int = _row(w, id)
+	var p: UpgradePreview = UpgradeSystem.preview(w, i, 1)
+	return UpgradeRowModel.from_preview(p, p.affordable, p.level, w.config.upgrades[i], f_level, f, w.config.tuning)
+
+
+func test_tooltip_leads_with_description_then_now_and_next() -> void:
+	var w: SimWorld = _world()
+	var i: int = _row(w, "plating_pct")
+	w.run_levels[i] = 2
+	var lines: PackedStringArray = _model(w, "plating_pct").tooltip_text.split("\n")
+	assert_str(lines[0]).is_equal("Blocks this share of the damage from every hit on Cinder.")
+	assert_str(lines[1]).is_equal("Now 12% -> next 18%")
+	assert_str(lines[2]).starts_with("Base 0.0%")
+	var d: PackedStringArray = _model(w, "laser_output").tooltip_text.split("\n")
+	assert_str(d[0]).is_equal(UpgradeRowModel.upgrade_desc("laser_output"))
+	assert_str(d[1]).is_equal("Now 10 -> next 11")
+	assert_str(d[2]).starts_with("Base 10")
+
+
+func test_now_next_matches_the_row_values_with_foundry_levels() -> void:
+	var w: SimWorld = _world()
+	var n: int = w.config.upgrades.size()
+	w.config.foundry_levels = PackedInt32Array()
+	w.config.foundry_f = PackedFloat64Array()
+	for k: int in n:
+		w.config.foundry_levels.append(5)
+		w.config.foundry_f.append(0.1)
+	for id: String in ["cycle_rate", "laser_output"]:
+		var i: int = _row(w, id)
+		w.run_levels[i] = 3
+		var def: RunUpgradeDef = w.config.upgrades[i]
+		var cur: String = UpgradeRowModel.format_value(
+			id, StatResolver.value_at(def, 3, 5, 0.1, 1.0, 0.0, w.config.tuning)
+		)
+		var nxt: String = UpgradeRowModel.format_value(
+			id, StatResolver.value_at(def, 4, 5, 0.1, 1.0, 0.0, w.config.tuning)
+		)
+		var m: UpgradeRowModel = _model_with_foundry(w, id, 5, 0.1)
+		var lines: PackedStringArray = m.tooltip_text.split("\n")
+		assert_str(lines[0]).is_equal(UpgradeRowModel.upgrade_desc(id))
+		assert_str(lines[1]).is_equal("Now " + cur + " -> next " + nxt)
+		assert_str(m.value_text).is_equal(cur + " > " + nxt)  # the row shows the same pair
+		assert_str(m.tooltip_text).contains("Foundry: F5")
+
+
+func test_now_next_says_max_at_the_level_cap_and_at_the_hard_limit() -> void:
+	var w: SimWorld = _world()
+	var i: int = _row(w, "cycle_rate")
+	w.run_levels[i] = w.config.upgrades[i].l_cap
+	var capped: PackedStringArray = _model(w, "cycle_rate").tooltip_text.split("\n")
+	assert_str(capped[1]).is_equal("Now 5 (max)")
+	# A hard limit below the level cap: the next level changes nothing, so the line reads max, not "5 -> 5".
+	w.config.upgrades[i].hard_cap = 1.04
+	w.run_levels[i] = 1
+	var limited: PackedStringArray = _model(w, "cycle_rate").tooltip_text.split("\n")
+	assert_str(limited[1]).is_equal("Now 1.04 (max)")
+	var below: PackedStringArray = _model(w, "crit_chance").tooltip_text.split("\n")
+	assert_str(below[1]).starts_with("Now 2.0% -> next ")
+
+
+func test_tooltip_hold_time_scales_with_text_and_is_capped() -> void:
+	assert_float(RowTooltip.hold_seconds("")).is_equal(RowTooltip.TOOLTIP_S)
+	assert_float(RowTooltip.hold_seconds("x".repeat(100))).is_greater(RowTooltip.hold_seconds("x".repeat(20)))
+	assert_float(RowTooltip.hold_seconds("x".repeat(5000))).is_equal(RowTooltip.TOOLTIP_MAX_S)
+	var w: SimWorld = _world()
+	var longest: float = RowTooltip.hold_seconds(_model(w, "laser_output").tooltip_text)
+	assert_float(longest).is_greater_equal(6.0).is_less_equal(RowTooltip.TOOLTIP_MAX_S)

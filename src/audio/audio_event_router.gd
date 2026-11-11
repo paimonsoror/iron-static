@@ -12,7 +12,8 @@ extends RefCounted
 ## VT-5: a purchase that reaches a new visual tier with a banner plays exactly ONE sting: sfx_tier_up for MK II and III,
 ## the milestone chime for the top mark (MK IV, the x25 overclock; also when a multi-buy skips past it); other
 ## purchases keep the multiple-of-25 rule. play_results_tally() from the results screen.
-## The player option "laser sound" off skips only the SHOT_FIRED play call (crit tracking and budgets are unaffected).
+## The player option "laser sound" off silences the whole per-shot chain: the SHOT_FIRED tick and the ENEMY_HIT impact
+## (sfx_hit_metal or sfx_crit; only the laser emits ENEMY_HIT). Crit tracking and budgets are unaffected.
 ## Not wired (no sim event yet): sfx_overcrit and the feature sounds.
 ## Load control: at most CAP_PER_FRAME starts per id per update, at most MAX_BATCHES * 64 events read per update;
 ## a reader further behind skips the oldest events (no backlog; voice caps and cooldowns do the rest).
@@ -154,13 +155,15 @@ func _route(kind: int, a: int, b: int) -> void:
 	match kind:
 		SimEventKind.SHOT_FIRED:
 			_crit_enemy = a if b != 0 else -1
-			# Crit tracking above must run even when the shot sound is off (player option).
+			# Crit tracking above must run even when the laser sound is off (player option).
 			if _director.settings.laser_sound:
 				_play(SFX_SHOT, SHOT_JITTER)
 		SimEventKind.ENEMY_HIT:
 			var crit: bool = a == _crit_enemy
 			_crit_enemy = -1
-			_play(SFX_CRIT if crit else SFX_HIT)
+			# v0.5.1-beta.2: the impact is the loud, bright part of the per-shot sound, so LASER SOUND off silences it too.
+			if _director.settings.laser_sound:
+				_play(SFX_CRIT if crit else SFX_HIT)
 		SimEventKind.ENEMY_KILLED:
 			var heavy: bool = b >= 0 and b < _heavy.size() and _heavy[b] != 0
 			var boss: bool = b >= 0 and b < _boss.size() and _boss[b] != 0
