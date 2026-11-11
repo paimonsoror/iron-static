@@ -5,13 +5,15 @@ extends MenuScreen
 ## selected frame, the next-unlock hint, a Foundry hint chip when something is affordable, DEPLOY and the nav.
 ## Locked and not-yet-existing items (Foundry before the first death, flux, cipher, merit, Standby, ads) are
 ## hidden, not grayed. Signals are final: deploy_pressed, foundry_pressed, settings_pressed, frames_pressed (the
-## frame chip, opens the frame bay). Menu screens never
+## frame chip, opens the frame bay), record_pressed (the RECORD tab of the nav, opens the Service Record; shown with
+## the Foundry, after the first deployment). Menu screens never
 ## tick the sim: everything is read from `Game.profile()` (or the profile given to `setup`).
 
 signal deploy_pressed
 signal foundry_pressed
 signal settings_pressed
 signal frames_pressed
+signal record_pressed
 signal mode_selected(id: String)
 
 const TOP_ROW_H: float = 148.0
@@ -30,6 +32,7 @@ const FOOT_PAD: float = 16.0
 const MIN_ARENA_GAP: float = 240.0
 
 var nav_foundry: Button
+var nav_record: Button
 var deploy_button: Button
 var gear_button: Button
 var hint_chip: Button
@@ -139,6 +142,7 @@ func refresh() -> void:
 	hint_chip.text = model.foundry_hint_text
 	hint_chip.visible = model.hint_chip_visible()
 	nav_foundry.visible = model.foundry_visible
+	nav_record.visible = model.record_visible
 	nav_row.visible = model.nav_visible()
 	diorama.set_frame(model.frame_id)
 	mode_picker.setup(model.mode_cards, model.selected_mode)
@@ -224,7 +228,8 @@ func _nav() -> HBoxContainer:
 	nav_home.mouse_filter = Control.MOUSE_FILTER_IGNORE  # the active tab: nothing to do, no sound
 	nav_home.focus_mode = Control.FOCUS_NONE
 	nav_foundry = _plate_button(Strings.get_text("nav.foundry"), _on_foundry, ThemeBuilder.VAR_BUTTON_PLATE, CHIP_PX)
-	for b: Button in [nav_home, nav_foundry]:
+	nav_record = _plate_button(Strings.get_text("record.nav"), _on_record, ThemeBuilder.VAR_BUTTON_PLATE, CHIP_PX)
+	for b: Button in [nav_home, nav_foundry, nav_record]:
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		nav_row.add_child(b)
 	return nav_row
@@ -303,6 +308,11 @@ func _on_foundry() -> void:
 func _on_settings() -> void:
 	AudioHooks.tap()
 	settings_pressed.emit()
+
+
+func _on_record() -> void:
+	AudioHooks.tap()
+	record_pressed.emit()
 
 
 func _on_frames() -> void:

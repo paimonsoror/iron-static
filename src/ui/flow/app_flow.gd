@@ -14,10 +14,10 @@ extends RefCounted
 ##        SAVE_PROBLEM -START_NEW-> HOME;  HOME -DEPLOY-> BATTLE;  HOME <-> FOUNDRY (after the first death) and
 ##        HOME <-> SETTINGS;  BATTLE -RUN_ENDED-> RESULTS | -ABORT_MISSION-> HOME (pause menu, skips Results);
 ##        RESULTS -DEPLOY-> BATTLE | -GO_HOME-> HOME |
-##        -OPEN_FOUNDRY-> FOUNDRY;  FOUNDRY -DEPLOY-> BATTLE;  FOUNDRY and SETTINGS return to the screen they were
-##        opened from (`OPENER`).
+##        -OPEN_FOUNDRY-> FOUNDRY;  FOUNDRY -DEPLOY-> BATTLE;  HOME <-> SERVICE_RECORD (lifetime stats);
+##        FOUNDRY, SETTINGS and SERVICE_RECORD return to the screen they were opened from (`OPENER`).
 
-enum Screen { SAVE_PROBLEM, HOME, FOUNDRY, SETTINGS, BATTLE, RESULTS, TITLE, FRAME_BAY, COLD_OPEN }
+enum Screen { SAVE_PROBLEM, HOME, FOUNDRY, SETTINGS, BATTLE, RESULTS, TITLE, FRAME_BAY, COLD_OPEN, SERVICE_RECORD }
 enum Event {
 	DEPLOY,
 	OPEN_FOUNDRY,
@@ -34,6 +34,7 @@ enum Event {
 	OPEN_FRAMES,
 	ABORT_MISSION,
 	COLD_OPEN_DONE,
+	OPEN_RECORD,
 }
 
 ## Boot into the title screen (flipped on by M3-30).
@@ -54,7 +55,9 @@ const TABLE: Dictionary = {
 		Event.OPEN_FOUNDRY: Screen.FOUNDRY,
 		Event.OPEN_SETTINGS: Screen.SETTINGS,
 		Event.OPEN_FRAMES: Screen.FRAME_BAY,
+		Event.OPEN_RECORD: Screen.SERVICE_RECORD,
 	},
+	Screen.SERVICE_RECORD: {Event.BACK_TO_OPENER: OPENER},
 	Screen.FOUNDRY: {Event.DEPLOY: Screen.BATTLE, Event.BACK_TO_OPENER: OPENER},
 	Screen.SETTINGS: {Event.BACK_TO_OPENER: OPENER, Event.PROFILE_RESET: Screen.TITLE},
 	Screen.BATTLE: {Event.RUN_ENDED: Screen.RESULTS, Event.ABORT_MISSION: Screen.HOME},
@@ -70,6 +73,7 @@ const MENU_SCREENS: Array[Screen] = [
 	Screen.TITLE,
 	Screen.FRAME_BAY,
 	Screen.COLD_OPEN,
+	Screen.SERVICE_RECORD,
 ]
 
 var current: Screen = Screen.HOME
@@ -125,6 +129,6 @@ func apply(event: AppFlow.Event) -> int:
 
 ## Forces the current screen (boot) and tracks the opener of FOUNDRY / SETTINGS / FRAME_BAY.
 func enter(to: AppFlow.Screen) -> void:
-	if to == Screen.FOUNDRY or to == Screen.SETTINGS or to == Screen.FRAME_BAY:
+	if to == Screen.FOUNDRY or to == Screen.SETTINGS or to == Screen.FRAME_BAY or to == Screen.SERVICE_RECORD:
 		opener = current
 	current = to

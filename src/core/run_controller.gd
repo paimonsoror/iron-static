@@ -57,6 +57,8 @@ var run_id: int = 0
 ## records and replays stay exact). The game turns it OFF (main.gd, M4-16) and shows `DraftOverlay` instead; tests and
 ## bare controllers keep it on. The debug load fast-forward settles regardless (nothing renders, nobody could pick).
 var auto_pick_draft: bool = true
+## Event counters of the current run for the Service Record (lifetime stats); rebuilt with every run.
+var tally: RunTally = RunTally.new()
 var _pending_buys: Array[Vector2i] = []
 var _load_run: bool = false
 
@@ -89,6 +91,7 @@ func start_run(
 			Log.warn("run start: " + mode_errors[0])
 	world = SimWorld.new(cfg)
 	driver = TickDriver.new()
+	_bind_tally(false, {})
 	load_wave = load_target
 	time_scale = 1.0
 	_load_run = invulnerable or load_target > 0
@@ -111,12 +114,14 @@ func banks_rewards() -> bool:
 
 
 ## Enters IN_RUN on a world rebuilt from a run snapshot (M3-13). Resumes PAUSED: the player taps to continue.
-func resume_run(restored: SimWorld, resumed_run_id: int) -> SimWorld:
+## `tally_state` is the run tally saved in the snapshot ({} = none: the tally is then partial, see `RunTally`).
+func resume_run(restored: SimWorld, resumed_run_id: int, tally_state: Dictionary = {}) -> SimWorld:
 	world = restored
 	seed_value = restored.config.seed_value
 	run_id = resumed_run_id
 	mode_best_at_start = -1
 	driver = TickDriver.new()
+	_bind_tally(true, tally_state)
 	load_wave = 0
 	time_scale = 1.0
 	_load_run = false
@@ -164,6 +169,7 @@ func fast_forward(max_ticks: int) -> int:
 	while ran < max_ticks and state == State.IN_RUN and not world.is_over():
 		_settle_draft()
 		world.step()
+		tally.poll(world)
 		ran += 1
 	_check_over()
 	return ran
@@ -223,6 +229,16 @@ func _load_step(start_usec: int) -> int:
 	return ran
 
 
+## A new tally for `world`; a resumed run restores the one saved with its snapshot.
+func _bind_tally(resumed: bool, saved: Dictionary) -> void:
+	if resumed:
+		tally = RunTally.from_dict(saved, world)
+	else:
+		tally = RunTally.new()
+		tally.bind(world)
+	driver.observer = tally
+
+
 func _apply_pending_buys() -> void:
 	if _pending_buys.is_empty():
 		return
@@ -258,6 +274,7 @@ func _check_over() -> void:
 ## Shared end-of-run bookkeeping (a death and an abort): session best (TIMED only, Q71) and the run record.
 func _finish(aborted: bool) -> void:
 	load_wave = 0
+	tally.poll(world)  # buys made after the last tick are still in the stream
 	var wave: int = world.wave if aborted else world.run.death_wave
 	if not _load_run and world.config.wave_mode == SimConfig.MODE_TIMED:
 		best_wave_s1 = maxi(best_wave_s1, wave)

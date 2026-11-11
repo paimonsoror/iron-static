@@ -17,6 +17,8 @@ var budget_usec: int = DEFAULT_BUDGET_USEC
 var tick_limit: int = 0
 ## True when the last advance() dropped ticks (cap or budget); the UI shows a throttled indicator.
 var throttled: bool = false
+## Reads the sim events after every tick (the Service Record's run tally); null = nobody. Never changes a tick.
+var observer: RunTally = null
 ## Leftover simulated time in seconds (0 <= acc < DT after each call).
 var acc: float = 0.0
 
@@ -41,6 +43,8 @@ func advance(world: SimWorld, delta: float, speed: int) -> int:
 			break
 		world.step()
 		ran += 1
+		if observer != null:
+			observer.poll(world)
 	if ran < due:
 		throttled = true
 	return ran

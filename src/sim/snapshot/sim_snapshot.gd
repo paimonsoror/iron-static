@@ -11,7 +11,9 @@ extends RefCounted
 const FORMAT: int = 1
 
 
-static func capture(world: SimWorld, run_id: int = -1) -> PackedByteArray:
+## `extras` is an opaque payload of the caller (meta data that must stay in step with this snapshot, e.g. the Service
+## Record's run tally); it is stored under "extras", never read by `restore`, and omitted when empty.
+static func capture(world: SimWorld, run_id: int = -1, extras: Dictionary = {}) -> PackedByteArray:
 	var cfg: SimConfig = world.config
 	var eco: EconomyState = world.economy
 	var d: Dictionary = {
@@ -56,7 +58,19 @@ static func capture(world: SimWorld, run_id: int = -1) -> PackedByteArray:
 		"rng": _rng(world),
 		"input_log": _log(world.input_log),
 	}
+	if not extras.is_empty():
+		d["extras"] = extras
 	return var_to_bytes(d)
+
+
+## The `extras` the snapshot was captured with ({} when none or unreadable).
+static func extras_of(bytes: PackedByteArray) -> Dictionary:
+	var d: Dictionary = _decode(bytes)
+	var v: Variant = d.get("extras", null)
+	if v is Dictionary:
+		var out: Dictionary = v
+		return out
+	return {}
 
 
 ## Header only; null for bytes that are not a snapshot of this format.

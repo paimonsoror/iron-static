@@ -23,7 +23,7 @@ const ARG_HOLD: String = "--debug-hold"
 const ARG_NOVSYNC: String = "--debug-novsync"
 const ARG_NO_SAVE: String = "--no-save"
 const ARG_MODE: String = "--mode"
-const PLAY_FLUSH_S: float = 30.0
+const PLAY_FLUSH_S: int = 30
 
 var controller: RunController = RunController.new()
 var debug_load: bool = false
@@ -58,8 +58,10 @@ var best_wave_s1: int:
 		controller.best_wave_s1 = value
 var _pending_resume: ResumeResult = null
 var _was_paused: bool = false
-## Foreground seconds not yet written to the flight recorder (R1-08); flushed in whole seconds, at least every 30 s.
-var _play_acc: float = 0.0
+## Foreground play time (R1-08 flight recorder and the Service Record): sampled each frame through the clock, written in
+## whole seconds, at least every 30 s and whenever the app goes to the background (background time never counts).
+var _play_timer: PlayTimer = PlayTimer.new()
+var _play_flush_at_ms: int = 0
 
 
 func _ready() -> void:
@@ -91,7 +93,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	controller.update(delta)
-	_count_play_time(delta)
+	_count_play_time()
 	if saves != null:
 		if controller.paused and not _was_paused:
 			@warning_ignore("return_value_discarded")  # the pause overlay opened: checkpoint between ticks
@@ -114,6 +116,7 @@ func _notification(what: int) -> void:
 	)
 	if flush:
 		_flush_play_time()
+		_play_timer.suspend()
 		saves.flush_for_background()
 
 
@@ -201,7 +204,7 @@ func start_run(mode: String = "") -> void:
 		var res: ResumeResult = _pending_resume
 		_pending_resume = null
 		@warning_ignore("return_value_discarded")
-		controller.resume_run(res.world, res.info.run_id)
+		controller.resume_run(res.world, res.info.run_id, res.extras)
 		Log.info("run resumed run=%d tick=%d" % [res.info.run_id, res.world.tick])
 		return
 	_pending_resume = null
@@ -271,16 +274,18 @@ func note_screen(screen: String) -> void:
 		saves.request_save()
 
 
-func _count_play_time(delta: float) -> void:
-	_play_acc += delta
-	if _play_acc >= PLAY_FLUSH_S:
+func _count_play_time() -> void:
+	_play_timer.sample(clock)
+	if clock.monotonic_ms() - _play_flush_at_ms >= PLAY_FLUSH_S * 1000:
 		_flush_play_time()
 
 
-## Writes the whole seconds counted so far into today's record (the profile save follows with the next save).
+## Writes the whole seconds counted so far into today's flight record and the Service Record (the profile save follows
+## with the next save). Seconds counted while play is not recorded (a debug load, a save problem) are dropped.
 func _flush_play_time() -> void:
-	var whole: int = floori(_play_acc)
+	_play_flush_at_ms = clock.monotonic_ms()
+	var whole: int = _play_timer.take_seconds()
 	if whole <= 0 or not _records_play():
 		return
-	_play_acc -= float(whole)
 	FlightRecorder.note_seconds(saves.profile, clock, whole)
+	ServiceRecord.note_seconds(saves.profile, whole)

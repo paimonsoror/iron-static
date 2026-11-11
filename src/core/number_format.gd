@@ -46,7 +46,9 @@ static func format(value: BigNum, style_id: int = USE_DEFAULT) -> String:
 	var st: int = style if style_id == USE_DEFAULT else style_id
 	if value.is_zero():
 		return "0"
-	var key: String = "%d|%s" % [st, value.to_text()]
+	# The key holds the exact mantissa: `to_text` rounds to 12 decimals, so 5.9999999999999 and 6 shared a key and the
+	# first one formatted (floor: "5") was shown for the other too.
+	var key: String = "%d|%s|%d" % [st, String.num(value.m, 17), value.e]
 	if _cache.has(key):
 		var hit: String = _cache[key]
 		return hit

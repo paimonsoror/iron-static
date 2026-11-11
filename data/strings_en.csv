@@ -350,3 +350,40 @@ foundry.intro.p3,Each level raises your starting stats: every deployment begins 
 foundry.intro.p4,Tap a cost to buy. Hold to keep buying. Higher levels cost more until you reach further waves.
 foundry.intro.hide,DON'T SHOW THIS AGAIN
 foundry.intro.ok,GOT IT
+record.nav,RECORD
+record.title,SERVICE RECORD
+record.back,BACK
+record.since,TRACKED SINCE {date}
+record.seeded_note,Started from your existing save: deployments and time played (last 30 days) carry over; best waves and Foundry totals are read from the save. Everything else counts from the date above.
+record.gaps_note,{n} deployment(s) are missing some totals (an update cut them short). Totals only add up deployments that were fully counted.
+record.footnote,Totals update when a deployment ends. Stored on this device only; RESET PROFILE clears them.
+record.sec_general,GENERAL
+record.sec_combat,COMBAT
+record.sec_kills,MACHINES DESTROYED
+record.sec_economy,ECONOMY
+record.sec_frames,FRAMES
+record.time_played,TIME PLAYED
+record.time_deployed,TIME DEPLOYED
+record.deployments,DEPLOYMENTS
+record.mode_runs,{name} DEPLOYMENTS
+record.mode_best,BEST WAVE {name}
+record.earlier_runs,EARLIER DEPLOYMENTS
+record.waves_cleared,WAVES CLEARED
+record.longest,LONGEST DEPLOYMENT
+record.destroyed,MACHINES DESTROYED
+record.bosses,BOSSES DESTROYED
+record.shots,SHOTS FIRED
+record.crits,CRITICAL HITS
+record.crit_rate,CRIT RATE
+record.damage,DAMAGE DEALT
+record.hit_max,HIGHEST SINGLE HIT
+record.hull,HULL DAMAGE TAKEN
+record.scrap_in,SCRAP EARNED
+record.scrap_out,SCRAP SPENT
+record.upgrades,UPGRADES BOUGHT
+record.data_in,DATA EARNED
+record.data_out,DATA SPENT IN FOUNDRY
+record.foundry_levels,FOUNDRY LEVELS BOUGHT
+record.patches,PATCHES PICKED
+record.frame_value,{n} RUNS  BEST W{b}
+record.none,-

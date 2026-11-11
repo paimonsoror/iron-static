@@ -87,6 +87,11 @@ func test_cache_returns_same_and_stays_bounded() -> void:
 	assert_int(NumberFormat._cache.size()).is_less_equal(NumberFormat.CACHE_LIMIT)
 
 
+func test_a_value_just_below_a_whole_number_does_not_poison_the_cache_of_the_whole_number() -> void:
+	assert_str(NumberFormat.format(BigNum.from_float(5.999999999999999))).is_equal("5")  # floors, as designed
+	assert_str(NumberFormat.format(BigNum.from_int(6))).is_equal("6")  # same rounded text, different value
+
+
 func test_format_float() -> void:
 	assert_str(NumberFormat.format_float(1.44, 2)).is_equal("1.44")
 	assert_str(NumberFormat.format_float(12.0, 2)).is_equal("12")

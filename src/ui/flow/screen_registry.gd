@@ -19,7 +19,13 @@ const ENTRIES: Array[Dictionary] = [
 			&"foundry_pressed": AppFlow.Event.OPEN_FOUNDRY,
 			&"frames_pressed": AppFlow.Event.OPEN_FRAMES,
 			&"settings_pressed": AppFlow.Event.OPEN_SETTINGS,
+			&"record_pressed": AppFlow.Event.OPEN_RECORD,
 		},
+	},
+	{
+		"screen": AppFlow.Screen.SERVICE_RECORD,
+		"scene": "res://src/ui/record/service_record_screen.tscn",
+		"signals": {&"back_pressed": AppFlow.Event.BACK_TO_OPENER},
 	},
 	{
 		"screen": AppFlow.Screen.FOUNDRY,

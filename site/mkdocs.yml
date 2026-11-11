@@ -66,6 +66,7 @@ nav:
       - Run upgrades: systems/upgrades.md
       - Patch drafts: systems/patches.md
       - Intel: systems/intel.md
+      - Service record: systems/service-record.md
       - Skin burn: systems/skin-burn.md
       - Economy and currencies: systems/economy.md
       - The Foundry: systems/foundry.md
