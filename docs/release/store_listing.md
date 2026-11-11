@@ -7,7 +7,7 @@ Changelog: 2026-11-09 v1.0 (B1-09, branch `b1-docs`). Refines the drafts in `PLA
 | App name | 30 | 11 |
 | Short description | 80 | 76 |
 | Full description | 4,000 | 1,506 |
-| Release notes (per release, current upload) | 500 | 494 |
+| Release notes (per release, current upload) | 500 | 484 |
 
 Changes from the guide's draft, each checked against the build:
 - "armor plates burn away" became "synthetic skin burns away": the game burns Cinder's skin to expose the frame (GDD 00, skin burn), not plates.
@@ -57,12 +57,11 @@ This beta has no ads, no in-app purchases and no sign-in. Your progress is saved
 Portrait, one-handed, short sessions or long idle stretches. Built for phones running Android 7 or newer.
 ```
 
-## Release notes (current upload: 0.5.1-beta.2)
+## Release notes (current upload: 0.5.2-beta.1)
 
 ```
-Beta 0.5.1. New: a LASER SOUND switch in Settings turns off the sound of Cinder's shots and their hits. Kills, alarms and music still play.
-New: tap an upgrade's name to see what it improves and what the next level gives.
-Fixed: the INTEL tab and Settings scroll by touch again.
+Beta 0.5.2. New: SERVICE RECORD, a RECORD tab on the Home screen with lifetime stats: time played, machines destroyed by type, shots, crits, scrap, data and more.
+Counts start with this update; your deployments, best waves and the last 30 days of play time carry over.
 Tell us what feels off: use SEND FEEDBACK in Settings.
 Known: first launch can show a black screen for up to 30 seconds while shaders compile.
 No ads, no purchases, no account. Progress is saved on this device only.
@@ -73,6 +72,17 @@ Later releases: one short note per upload, plain facts (what changed, what to te
 ## Past release notes
 
 Kept for the record. `play_publish` reads the first fenced block under the first heading that starts with "Release notes". Keep this section below it and do not start its headings with those words.
+
+### 0.5.1-beta.2
+
+```
+Beta 0.5.1. New: a LASER SOUND switch in Settings turns off the sound of Cinder's shots and their hits. Kills, alarms and music still play.
+New: tap an upgrade's name to see what it improves and what the next level gives.
+Fixed: the INTEL tab and Settings scroll by touch again.
+Tell us what feels off: use SEND FEEDBACK in Settings.
+Known: first launch can show a black screen for up to 30 seconds while shaders compile.
+No ads, no purchases, no account. Progress is saved on this device only.
+```
 
 ### 0.5.0-beta.1 (first build)
 
