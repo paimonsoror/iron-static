@@ -1,8 +1,10 @@
 # CI (GitHub Actions)
 
-Changelog: 2026-11-07 (M0-14): recorded the real first-run time (41 s); pinned the runner to `ubuntu-24.04`.
+Changelog: 2026-11-10 added the pointer to the release workflow; 2026-11-07 (M0-14): recorded the real first-run time (41 s); pinned the runner to `ubuntu-24.04`.
 
 Workflow: `.github/workflows/ci.yml`, one job `check` on `ubuntu-24.04` (pinned, see Runner image). Triggers: push to `main` and every pull request. No export, signing or secrets (`permissions: contents: read`). Export and release workflows come later (TECH_ARCHITECTURE 10.5 items 2-3).
+
+The release build (AAB, test key or upload key) is a separate workflow: `.github/workflows/release.yml`, described in [../release/ci_release.md](../release/ci_release.md). `ci.yml` also runs `tools/check_workflows.py` on it (pinned actions, secrets only in the `release` environment job).
 
 ## What runs (in order, any failure fails the job)
 

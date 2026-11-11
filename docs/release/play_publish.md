@@ -70,6 +70,10 @@ Notes on Play behaviour:
 - **Listing.** `listing` reads the app name, short and full description from `docs/release/store_listing.md` (limits 30 / 80 / 4,000) and the images from `release/store/` (`icon_512.png`, `feature_1024x500.png`, `phone_*.png`, sizes checked). It **refuses while `docs/release/store_assets.md` carries the "Draft: do not upload" banner** (Q31, the trademark search, is open). `--allow-draft-assets` overrides that; use it only for `--validate` or after you have said the set is approved. Contact details, privacy URL and category stay in Console. Existing images of the three types are replaced.
 - Exit codes: 0 ok, 1 refused or failed, 2 usage or configuration.
 
+## Running it in GitHub Actions
+
+The release workflow can run `--validate` or a draft `--commit --yes` for you, with the keys held in a protected GitHub environment. Setup and the leak steps for those secrets: [ci_release.md](ci_release.md).
+
 ## If a key leaks
 
 1. Google Cloud Console > IAM and Admin > Service accounts > your account > Keys: **delete the key**. A deleted key stops working at once.

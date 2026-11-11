@@ -16,12 +16,12 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $RepoRoot = Split-Path $PSScriptRoot -Parent
-$Java = 'C:\dev\tools\jdk-17\bin\java.exe'
+$Java = Join-Path $(if ($env:IRONSTATIC_JDK) { $env:IRONSTATIC_JDK } else { 'C:\dev\tools\jdk-17' }) 'bin\java.exe'
 $Sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { "$env:LOCALAPPDATA\Android\Sdk" }
 $verLines = Get-Content (Join-Path $PSScriptRoot 'bundletool_version.txt')
 $btVer = $verLines[0].Trim()
 $btSha = ($verLines[1] -replace '^sha256=', '').Trim()
-$Bundletool = "C:\dev\tools\bundletool\bundletool-all-$btVer.jar"
+$Bundletool = if ($env:IRONSTATIC_BUNDLETOOL) { $env:IRONSTATIC_BUNDLETOOL } else { "C:\dev\tools\bundletool\bundletool-all-$btVer.jar" }
 $BuildTools = Get-ChildItem "$Sdk\build-tools" -Directory | Where-Object { $_.Name -match '^\d+\.\d+\.\d+$' } | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
 $Zipalign = Join-Path $BuildTools.FullName 'zipalign.exe'
 $Objdump = Get-ChildItem "$Sdk\ndk\*\toolchains\llvm\prebuilt\windows-x86_64\bin\llvm-objdump.exe" -ErrorAction SilentlyContinue | Select-Object -Last 1

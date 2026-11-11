@@ -290,8 +290,9 @@ def _run(cmd: list[str], timeout: int = 600) -> tuple[int, str]:
 class RealTools:
     def __init__(self, repo: Path) -> None:
         self.repo = repo
-        self.keytool = _first_existing(r"C:\dev\tools\jdk-17\bin\keytool.exe", "keytool")
-        self.java = _first_existing(r"C:\dev\tools\jdk-17\bin\java.exe", "java")
+        jdk = os.environ.get("IRONSTATIC_JDK") or r"C:\dev\tools\jdk-17"
+        self.keytool = _first_existing(os.path.join(jdk, "bin", "keytool.exe"), "keytool")
+        self.java = _first_existing(os.path.join(jdk, "bin", "java.exe"), "java")
         self.ps = _first_existing("powershell", "pwsh")
 
     def signer_text(self, aab: Path) -> str:
@@ -320,7 +321,7 @@ class RealTools:
         if not self.java:
             raise Refuse("java not found; cannot read the bundle manifest")
         lines = (ROOT / "tools" / "bundletool_version.txt").read_text(encoding="utf-8").splitlines()
-        jar = Path(rf"C:\dev\tools\bundletool\bundletool-all-{lines[0].strip()}.jar")
+        jar = Path(os.environ.get("IRONSTATIC_BUNDLETOOL") or rf"C:\dev\tools\bundletool\bundletool-all-{lines[0].strip()}.jar")
         if not jar.is_file() or hashlib.sha256(jar.read_bytes()).hexdigest() != lines[1].replace("sha256=", "").strip().lower():
             raise Refuse("bundletool jar missing or its hash differs from tools/bundletool_version.txt")
         code, out = _run([self.java, "-jar", str(jar), "dump", "manifest", f"--bundle={aab}"], 300)

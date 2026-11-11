@@ -4,13 +4,17 @@
 $RepoRoot = Split-Path $PSScriptRoot -Parent
 
 # Godot path comes from docs/setup/DEV_ENVIRONMENT.md; version pinned in tools/GODOT_VERSION.
+# CI (docs/release/ci_release.md) overrides the tool locations with environment variables; unset means the local defaults.
+#   IRONSTATIC_GODOT = full path of the Godot console exe;  IRONSTATIC_JDK = JDK 17 home;  IRONSTATIC_BUNDLETOOL = bundletool jar.
 $Godot = "C:\dev\tools\godot\4.7.2\Godot_v4.7.2-stable_win64_console.exe"
 $GodotVersionFile = Join-Path $PSScriptRoot "GODOT_VERSION"
 $pinned = (Get-Content -Raw $GodotVersionFile).Trim()
 $pinnedMajorMinor = ($pinned -split '\.')[0..1] -join '.'
-if ($Godot -notmatch "\\godot\\$([regex]::Escape($pinnedMajorMinor))(\.\d+)?\\") {
+if ($env:IRONSTATIC_GODOT) { $Godot = $env:IRONSTATIC_GODOT }
+elseif ($Godot -notmatch "\\godot\\$([regex]::Escape($pinnedMajorMinor))(\.\d+)?\\") {
     throw "tools/GODOT_VERSION ($pinned) major.minor does not match Godot path: $Godot"
 }
+$JdkHome = if ($env:IRONSTATIC_JDK) { $env:IRONSTATIC_JDK } else { 'C:\dev\tools\jdk-17' }
 
 # build/ holds nested projects and PNGs; .gdignore keeps Godot from scanning it.
 $BuildRoot = Join-Path $RepoRoot "build"

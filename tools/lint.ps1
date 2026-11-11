@@ -67,6 +67,16 @@ $ok = ($LASTEXITCODE -eq 0)
 Step "play_publish self-test" $ok (($out.Trim() -split "`n") | Select-Object -Last 1)
 if (-not $ok) { Write-Host $out }
 
+# Release pipeline files: SHA-pinned actions, secrets only in the job with environment: release (docs/release/ci_release.md)
+$out = & $vpy -I "$PSScriptRoot\check_workflows.py" --self-test 2>&1 | Out-String
+$ok = ($LASTEXITCODE -eq 0)
+Step "workflow rules self-test (expected failures)" $ok (($out.Trim() -split "`n") | Select-Object -Last 1)
+if (-not $ok) { Write-Host $out }
+$out = & $vpy -I "$PSScriptRoot\check_workflows.py" 2>&1 | Out-String
+$ok = ($LASTEXITCODE -eq 0)
+Step "workflow rules (release.yml)" $ok (($out.Trim() -split "`n") | Select-Object -Last 1)
+if (-not $ok) { Write-Host $out }
+
 if (-not $SkipCompile) {
     # Import first so global classes (GdUnit4, class_name) resolve. Compile via tools/compile_check.gd
     # (autoloads exist in that mode; `--check-only` does not know them and fails on `Log`/`Game`).

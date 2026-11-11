@@ -1,0 +1,220 @@
+name: Release
+
+# Builds the beta AAB with the same scripts as the local build (tools/release_build.ps1, tools/aab_check.ps1,
+# tools/play_publish.py). Docs: docs/release/ci_release.md
+#
+#   testkey  throwaway key, no secrets, no environment. Proves the pipeline. The bundle is never published.
+#   upload   real upload key from the "release" environment (needs approval). Optional Play validate/draft.
+on:
+  push:
+    branches: [ci-release] # TEMPORARY: remove before merge
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      signing:
+        description: "Signing key: testkey (throwaway, no secrets) or upload (real key, needs approval)"
+        type: choice
+        options: [testkey, upload]
+        default: testkey
+      publish:
+        description: "Google Play: none, validate (no commit) or draft (internal track, draft). Needs signing=upload"
+        type: choice
+        options: [none, validate, draft]
+        default: none
+
+permissions:
+  contents: read
+
+# Two releases never run at once; a running release is never cancelled.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    name: guard
+    if: github.repository == 'paimonsoror/iron-static'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check the inputs
+        env:
+          SIGNING: ${{ inputs.signing }}
+          PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [ -n "$PUBLISH" ] && [ "$PUBLISH" != "none" ] && [ "$SIGNING" != "upload" ]; then
+            echo "::error::publish=$PUBLISH needs signing=upload"
+            exit 1
+          fi
+
+  testkey:
+    name: build (test key)
+    needs: guard
+    if: >-
+      github.repository == 'paimonsoror/iron-static' &&
+      ((github.event_name == 'push' && github.ref_type == 'branch') ||
+       (github.event_name == 'workflow_dispatch' && inputs.signing == 'testkey'))
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/prepare-runner
+
+      - name: Build the AAB (test key)
+        shell: powershell
+        run: .\tools\release_build.ps1 -TestKey
+
+      - name: Check the AAB
+        shell: powershell
+        run: |
+          $aab = @(Get-ChildItem build\release\*-TESTKEY.aab)
+          if ($aab.Count -ne 1) { throw "expected exactly one TESTKEY bundle, found $($aab.Count)" }
+          $ErrorActionPreference = 'Continue'
+          .\tools\aab_check.ps1 $aab[0].FullName 2>&1 | Tee-Object -FilePath build\release\aab_check.txt
+          exit $LASTEXITCODE
+
+      # Text reports only. The AAB itself is never uploaded: on a public repository any signed-in user could download it.
+      - name: Upload text reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: testkey-reports
+          path: |
+            build/release/*.txt
+            build/release/*.sha256
+          retention-days: 7
+          if-no-files-found: warn
+
+  upload:
+    name: build (upload key)
+    needs: guard
+    if: >-
+      github.repository == 'paimonsoror/iron-static' &&
+      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+       (github.event_name == 'workflow_dispatch' && inputs.signing == 'upload' &&
+        (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))))
+    runs-on: windows-2025
+    timeout-minutes: 90
+    environment: release
+    env:
+      # A tag push always means: upload key and a draft on the internal track.
+      PUBLISH_MODE: ${{ github.event_name == 'push' && 'draft' || inputs.publish }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check that every secret is set
+        shell: powershell
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          SA_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          KEY_ALIAS: ${{ vars.ANDROID_UPLOAD_KEY_ALIAS }}
+        run: |
+          $missing = @()
+          if (-not $env:KEYSTORE_B64) { $missing += 'secret ANDROID_UPLOAD_KEYSTORE_B64' }
+          if (-not $env:KEYSTORE_PASSWORD) { $missing += 'secret ANDROID_UPLOAD_KEYSTORE_PASSWORD' }
+          if (-not $env:KEY_ALIAS) { $missing += 'variable ANDROID_UPLOAD_KEY_ALIAS' }
+          if ($env:PUBLISH_MODE -ne 'none' -and -not $env:SA_JSON) { $missing += 'secret PLAY_SERVICE_ACCOUNT_JSON' }
+          if ($missing.Count -gt 0) {
+            Write-Host "::error::Missing in the 'release' environment: $($missing -join ', '). See docs/release/ci_release.md. This job never falls back to the test key."
+            exit 1
+          }
+
+      - name: Tag must match the version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: powershell
+        run: |
+          . .\tools\release_version.ps1 -NoRun
+          $want = 'v' + (Get-ReleaseVersion).Name
+          if ($env:GITHUB_REF_NAME -ne $want) {
+            Write-Host "::error::tag $env:GITHUB_REF_NAME does not match release/version.json (expected $want)"
+            exit 1
+          }
+
+      - uses: ./.github/actions/prepare-runner
+
+      - name: Write signing files to RUNNER_TEMP
+        shell: powershell
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          SA_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          KEY_ALIAS: ${{ vars.ANDROID_UPLOAD_KEY_ALIAS }}
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'release-secrets'
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          $utf8 = New-Object System.Text.UTF8Encoding($false)
+          $ks = Join-Path $dir 'upload.jks'
+          [System.IO.File]::WriteAllBytes($ks, [Convert]::FromBase64String($env:KEYSTORE_B64))
+          $cfg = [ordered]@{
+            android_release_keystore_path     = $ks
+            android_release_keystore_user     = $env:KEY_ALIAS
+            android_release_keystore_password = $env:KEYSTORE_PASSWORD
+          }
+          [System.IO.File]::WriteAllText((Join-Path $dir 'secrets.json'), ($cfg | ConvertTo-Json), $utf8)
+          if ($env:SA_JSON) { [System.IO.File]::WriteAllText((Join-Path $dir 'service-account.json'), $env:SA_JSON, $utf8) }
+          Write-Host 'signing files written (contents not shown)'
+
+      - name: Build the AAB (upload key)
+        shell: powershell
+        run: .\tools\release_build.ps1 -SecretsPath "$env:RUNNER_TEMP\release-secrets\secrets.json"
+
+      - name: Check the AAB
+        id: check
+        shell: powershell
+        run: |
+          $aab = @(Get-ChildItem build\release\ironstatic-*.aab | Where-Object { $_.Name -notmatch 'TESTKEY' })
+          if ($aab.Count -ne 1) { throw "expected exactly one upload-signed bundle, found $($aab.Count)" }
+          [System.IO.File]::AppendAllText($env:GITHUB_OUTPUT, "aab=$($aab[0].FullName)`n")
+          $ErrorActionPreference = 'Continue'
+          .\tools\aab_check.ps1 $aab[0].FullName 2>&1 | Tee-Object -FilePath build\release\aab_check.txt
+          exit $LASTEXITCODE
+
+      - name: Set up the Play publishing tool
+        if: env.PUBLISH_MODE != 'none'
+        shell: powershell
+        run: |
+          $venv = Join-Path $env:RUNNER_TEMP 'venv-play'
+          python -m venv $venv
+          if ($LASTEXITCODE -ne 0) { throw 'venv creation failed' }
+          & "$venv\Scripts\python.exe" -m pip install -q --disable-pip-version-check -r tools\requirements-play.txt
+          if ($LASTEXITCODE -ne 0) { throw 'pip install failed' }
+          [System.IO.File]::AppendAllText($env:GITHUB_ENV, "PLAY_VENV=$venv`n")
+
+      # draft = validate first, then commit a DRAFT release on the internal track. Never a completed release.
+      - name: Google Play (validate or draft)
+        if: env.PUBLISH_MODE != 'none'
+        shell: powershell
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ runner.temp }}\release-secrets\service-account.json
+          AAB: ${{ steps.check.outputs.aab }}
+        run: |
+          $ErrorActionPreference = 'Continue'
+          .\tools\play_publish.ps1 release $env:AAB --track internal --status draft --validate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($env:PUBLISH_MODE -eq 'draft') {
+            .\tools\play_publish.ps1 release $env:AAB --track internal --status draft --commit --yes
+            exit $LASTEXITCODE
+          }
+
+      - name: Delete signing files
+        if: always()
+        shell: powershell
+        run: Remove-Item -Recurse -Force (Join-Path $env:RUNNER_TEMP 'release-secrets') -ErrorAction SilentlyContinue
+
+      # Text reports only (see the test-key job).
+      - name: Upload text reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: upload-reports
+          path: |
+            build/release/*.txt
+            build/release/*.sha256
+          retention-days: 7
+          if-no-files-found: warn

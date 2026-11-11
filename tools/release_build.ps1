@@ -21,7 +21,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\_common.ps1"
-$Jdk = 'C:\dev\tools\jdk-17'
+$Jdk = $JdkHome
 $Keytool = Join-Path $Jdk 'bin\keytool.exe'
 $Jarsigner = Join-Path $Jdk 'bin\jarsigner.exe'
 if (-not $SecretsPath) { $SecretsPath = Join-Path $RepoRoot 'secrets.local.json' }

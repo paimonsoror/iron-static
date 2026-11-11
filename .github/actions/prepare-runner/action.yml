@@ -1,0 +1,15 @@
+name: Prepare Windows runner
+description: Godot editor, export templates, bundletool (all hash-verified) and the Android SDK/JDK settings. Uses no secret values.
+runs:
+  using: composite
+  steps:
+    # Only the downloaded archives are cached. tools/ci_setup_windows.ps1 re-verifies their hashes on every run.
+    - name: Cache verified downloads
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ runner.temp }}\ci-tools\dl
+        key: ci-tools-${{ hashFiles('tools/GODOT_VERSION', 'tools/godot_sha512.txt', 'tools/bundletool_version.txt') }}
+
+    - name: Install and verify tools
+      shell: powershell
+      run: .\tools\ci_setup_windows.ps1 -Root "$env:RUNNER_TEMP\ci-tools"
