@@ -88,6 +88,7 @@ settings.title,SETTINGS
 settings.sound,SOUND
 settings.music,MUSIC
 settings.mute,MUTE
+settings.laser_sound,LASER SOUND
 settings.reduce_motion,REDUCE MOTION
 settings.shake,SCREEN SHAKE
 settings.scanlines,SCANLINES

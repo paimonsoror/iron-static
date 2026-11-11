@@ -17,6 +17,7 @@ const KNOWN_KEYS: Array[String] = [
 	"music",
 	"sfx",
 	"muted",
+	"laser",
 	"reduce_motion",
 	"shake",
 	"scanlines",
@@ -31,6 +32,8 @@ var music: float = AudioSettings.DEFAULT_MUSIC
 ## Labelled "Sound" in the UI.
 var sfx: float = AudioSettings.DEFAULT_SFX
 var muted: bool = false
+## Cinder's shot sound (optional on read, default on; no schema bump).
+var laser: bool = true
 var reduce_motion: bool = false
 var shake: String = DEFAULT_SHAKE
 var scanlines: String = DEFAULT_SCANLINES
@@ -65,6 +68,7 @@ func to_dict() -> Dictionary:
 	audio.set_music_volume(music)
 	audio.set_sfx_volume(sfx)
 	audio.muted = muted
+	audio.laser_sound = laser
 	d.merge(audio.to_dict(), true)
 	d["reduce_motion"] = reduce_motion
 	d["shake"] = shake
@@ -83,6 +87,7 @@ static func from_dict(d: Dictionary) -> PlayerSettings:
 	s.music = audio.music_volume
 	s.sfx = audio.sfx_volume
 	s.muted = audio.muted
+	s.laser = audio.laser_sound
 	var rm: Variant = d.get("reduce_motion", false)
 	if rm is bool:
 		var flag: bool = rm

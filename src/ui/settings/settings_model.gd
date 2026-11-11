@@ -5,6 +5,7 @@ extends RefCounted
 const KEY_SFX: String = "sfx"
 const KEY_MUSIC: String = "music"
 const KEY_MUTED: String = "muted"
+const KEY_LASER: String = "laser"
 const KEY_REDUCE_MOTION: String = "reduce_motion"
 const KEY_SHAKE: String = "shake"
 const KEY_SCANLINES: String = "scanlines"
@@ -19,6 +20,7 @@ const ORDER: Array[String] = [
 	KEY_SFX,
 	KEY_MUSIC,
 	KEY_MUTED,
+	KEY_LASER,
 	KEY_REDUCE_MOTION,
 	KEY_SHAKE,
 	KEY_SCANLINES,
@@ -33,6 +35,7 @@ const LABEL_KEYS: Dictionary = {
 	KEY_SFX: "settings.sound",
 	KEY_MUSIC: "settings.music",
 	KEY_MUTED: "settings.mute",
+	KEY_LASER: "settings.laser_sound",
 	KEY_REDUCE_MOTION: "settings.reduce_motion",
 	KEY_SHAKE: "settings.shake",
 	KEY_SCANLINES: "settings.scanlines",

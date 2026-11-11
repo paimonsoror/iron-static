@@ -34,6 +34,20 @@ func test_dict_roundtrip_and_bad_input() -> void:
 	assert_bool(junk.muted).is_false()
 
 
+func test_laser_sound_defaults_on_round_trips_and_ignores_junk() -> void:
+	assert_bool(AudioSettings.new().laser_sound).is_true()
+	var s: AudioSettings = AudioSettings.new()
+	s.laser_sound = false
+	assert_bool(AudioSettings.from_dict(s.to_dict()).laser_sound).is_false()
+	assert_bool(AudioSettings.from_dict({"music": 0.5, "sfx": 1.0, "muted": false}).laser_sound).is_true()
+	assert_bool(AudioSettings.from_dict({"laser": "off"}).laser_sound).is_true()
+	assert_bool(AudioSettings.from_dict({"laser": 0}).laser_sound).is_true()
+	var ps: PlayerSettings = PlayerSettings.from_dict({"laser": false})
+	assert_bool(ps.laser).is_false()
+	assert_bool(PlayerSettings.from_dict(ps.to_dict()).laser).is_false()
+	assert_bool(ps.extra.has("laser")).is_false()
+
+
 func test_bus_layout_has_the_four_buses_and_effects() -> void:
 	for b: StringName in AudioBuses.ALL:
 		assert_int(AudioBuses.index_of(b)).is_greater_equal(0)

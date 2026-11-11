@@ -5,6 +5,7 @@ extends Node
 ##   godot --path . --windowed --resolution 540x600 res://src/debug/menu_shots.tscn -- [--ms-out=build/m4_polish]
 
 const PORTRAIT: Vector2i = Vector2i(1080, 2400)
+const SHORT: Vector2i = Vector2i(1080, 1920)
 const WIDE: Vector2i = Vector2i(1990, 1920)
 
 
@@ -19,6 +20,7 @@ func _ready() -> void:
 	await _shot(out, "frame_bay", "res://src/ui/frames/frame_bay.tscn", PORTRAIT)
 	await _shot(out, "foundry", "res://src/ui/foundry/foundry_screen.tscn", PORTRAIT)
 	await _shot(out, "settings", "res://src/ui/settings/settings_screen.tscn", PORTRAIT)
+	await _shot(out, "settings_1920", "res://src/ui/settings/settings_screen.tscn", SHORT)
 	await _shot(out, "title", "res://src/ui/title/title_screen.tscn", PORTRAIT)
 	await _dialog(out)
 	get_tree().quit()
