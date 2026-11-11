@@ -22,6 +22,7 @@ const SCREEN_RANK: Dictionary[String, int] = {
 	"frame_bay": 2,
 	"home": 3,
 	"settings": 3,
+	"service_record": 3,
 	"foundry": 4,
 	"battle": 5,
 	"results": 6,

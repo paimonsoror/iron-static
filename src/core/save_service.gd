@@ -83,6 +83,8 @@ func load_profile() -> LoadResult.Status:
 			_block(Problem.CORRUPT)
 		LoadResult.Status.TOO_NEW:
 			_block(Problem.TOO_NEW)
+	if not writes_blocked:
+		ServiceRecord.ensure(profile, clock)
 	return last_load_status
 
 
@@ -97,6 +99,7 @@ func resolve_start_new() -> bool:
 	@warning_ignore("return_value_discarded")  # a stale snapshot may not exist
 	checkpointer.store.quarantine()
 	profile = PlayerProfile.fresh(clock.now_utc(), _device_id)
+	ServiceRecord.ensure(profile, clock)
 	problem = Problem.NONE
 	writes_blocked = false
 	last_load_status = LoadResult.Status.FRESH
@@ -119,6 +122,7 @@ func reset_profile() -> bool:
 	var kept: Dictionary = profile.settings.duplicate(true)
 	profile = PlayerProfile.fresh(clock.now_utc(), _device_id)
 	profile.settings = kept
+	ServiceRecord.ensure(profile, clock)  # the lifetime record dies with the profile; a new one starts now
 	if _controller != null:
 		_controller.best_wave_s1 = 0  # the session value mirrors the old profile's best wave
 	scheduler.notify_saved()
@@ -197,8 +201,10 @@ func start_run(mode: String = "") -> SimWorld:
 
 
 ## Banks a finished run (`FrameRules.bank`: profile bank plus frame unlocks), saves synchronously and only
-## then deletes the run snapshot. True when the run was banked (false for debug runs and duplicates).
-func bank_run(summary: RunSummary) -> bool:
+## then deletes the run snapshot. True when the run was banked (false for debug runs and duplicates). `totals` is
+## what the run adds to the Service Record (summary basics only when null); it is committed here and nowhere else, so
+## a run counts once however often it is resumed.
+func bank_run(summary: RunSummary, totals: RunTotals = null) -> bool:
 	var before: int = profile.last_banked_run
 	last_unlocked_frames = FrameRules.bank(profile, summary, _frames())
 	var banked: bool = profile.last_banked_run != before
@@ -206,6 +212,7 @@ func bank_run(summary: RunSummary) -> bool:
 	last_unlocked_modes = []
 	if not banked:
 		return false
+	ServiceRecord.commit_run(profile, totals if totals != null else RunTotals.from_summary(summary))
 	last_unlocked_modes = ModeRules.apply_unlocks(profile, _modes())
 	last_bank_saved = save_now()
 	if last_bank_saved:
@@ -218,7 +225,8 @@ func bank_run(summary: RunSummary) -> bool:
 func checkpoint_now() -> bool:
 	if _controller == null or not _checkpointable():
 		return false
-	var ok: bool = checkpointer.checkpoint(_controller.world, _controller.run_id)
+	_controller.tally.poll(_controller.world)  # the tally is saved in step with the snapshot
+	var ok: bool = checkpointer.checkpoint(_controller.world, _controller.run_id, _controller.tally.to_dict())
 	if ok:
 		scheduler.notify_checkpointed()
 	return ok
@@ -245,6 +253,7 @@ func try_resume(cfg_factory: Callable) -> ResumeResult:
 			# A PURGE run ended by an update banks to the PURGE record; an unknown mode id counts as timed.
 			var known: bool = ModeRules.find_def(_modes(), res.info.wave_mode) != null
 			s.mode = res.info.wave_mode if known else SimConfig.MODE_TIMED
+			s.frame_id = res.info.frame_id
 			@warning_ignore("return_value_discarded")  # a duplicate run id is simply not banked again
 			bank_run(s)
 			notice = NOTICE_ENDED_BY_UPDATE
@@ -260,14 +269,16 @@ static func summary_from(world: SimWorld, run_id: int, counts: bool) -> RunSumma
 	if s.aborted:
 		s.death_wave = world.wave
 	s.mode = world.config.wave_mode
+	s.frame_id = world.config.frame_id
 	s.counts_for_progress = counts
 	return s
 
 
 func _on_run_ended(world: SimWorld) -> void:
 	var counts: bool = _controller.banks_rewards() and _controller.run_id > 0
+	var summary: RunSummary = summary_from(world, _controller.run_id, counts)
 	@warning_ignore("return_value_discarded")  # banking outcome is in last_bank_saved / last_unlocked_frames
-	bank_run(summary_from(world, _controller.run_id, counts))
+	bank_run(summary, RunTotals.from_world(world, _controller.tally, summary))
 
 
 func _checkpointable() -> bool:

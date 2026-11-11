@@ -28,10 +28,10 @@ static func make_store(fs: SaveFs) -> SaveStore:
 
 
 ## Writes a checkpoint of `world`. Call only between ticks. False when the write failed (the previous one
-## stays loadable).
-func checkpoint(world: SimWorld, run_id: int) -> bool:
+## stays loadable). `extras` ride inside the snapshot file (the Service Record's run tally).
+func checkpoint(world: SimWorld, run_id: int, extras: Dictionary = {}) -> bool:
 	var t0: int = Time.get_ticks_msec()
-	var raw: PackedByteArray = SimSnapshot.capture(world, run_id)
+	var raw: PackedByteArray = SimSnapshot.capture(world, run_id, extras)
 	var ok: bool = store.save(SNAPSHOT_SCHEMA, raw)
 	last_ms = Time.get_ticks_msec() - t0
 	if not ok:
@@ -93,6 +93,7 @@ func try_resume(cfg_factory: Callable, last_banked_run: int) -> ResumeResult:
 		return res
 	res.status = ResumeResult.Status.RESUMED
 	res.world = restored
+	res.extras = SimSnapshot.extras_of(loaded.raw)
 	_log("[RESUME] tick=%d hash=%s" % [restored.tick, restored.state_hash()])
 	return res
 

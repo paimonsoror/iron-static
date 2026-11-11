@@ -21,6 +21,8 @@ var all_unlocked: bool = false
 var next_unlock_id: String = ""
 var next_unlock_wave: int = 0
 var foundry_visible: bool = false
+## The RECORD tab (Service Record) is shown from the first banked deployment, like the Foundry.
+var record_visible: bool = false
 ## Number of Foundry rows whose next level is affordable; the hint chip shows only when above 0.
 var affordable: int = 0
 var foundry_hint_text: String = ""
@@ -55,6 +57,7 @@ static func build(
 	m.best_known = best > 0
 	m.nav = MetaUnlocks.visible_nav(profile)
 	m.foundry_visible = MetaUnlocks.foundry_screen_unlocked(profile)
+	m.record_visible = m.foundry_visible
 	var nu: Vector2i = MetaUnlocks.next_unlock_line(upgrades, best)
 	if nu.x >= 0 and nu.x < upgrades.size():
 		m.next_unlock_id = upgrades[nu.x].id

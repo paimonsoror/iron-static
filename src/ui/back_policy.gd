@@ -7,8 +7,8 @@ extends RefCounted
 ## menu, anything else quits.
 ## Per screen (`decide_screen`, a table, `SCREEN_ACTIONS`): an open debug panel closes first on every screen;
 ## SAVE_PROBLEM quits; HOME arms exit (first back shows `exit.back_again`, a second back within `EXIT_WINDOW_S`
-## quits); FOUNDRY / SETTINGS / FRAME_BAY go back to the opener; RESULTS goes HOME; COLD_OPEN skips (the screen
-## consumes back); TITLE asks "QUIT?";
+## quits); FOUNDRY / SETTINGS / FRAME_BAY / SERVICE_RECORD go back to the opener; RESULTS goes HOME; COLD_OPEN skips
+## (the screen consumes back); TITLE asks "QUIT?";
 ## an open confirm dialog (NEW GAME, Settings reset) closes first on every menu screen (CLOSE_DIALOG);
 ## BATTLE is `decide` unchanged.
 
@@ -27,6 +27,7 @@ const SCREEN_ACTIONS: Dictionary = {
 	AppFlow.Screen.RESULTS: Action.GO_HOME,
 	AppFlow.Screen.TITLE: Action.CONFIRM_QUIT,
 	AppFlow.Screen.COLD_OPEN: Action.GO_BACK,
+	AppFlow.Screen.SERVICE_RECORD: Action.GO_BACK,
 }
 
 

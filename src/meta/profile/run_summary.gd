@@ -6,6 +6,8 @@ var run_id: int = 0
 var sector: int = 1
 ## Wave mode the run was played in (`SimConfig.wave_mode`); decides which record banking writes.
 var mode: String = "timed"
+## Frame the run was played with ("" when unknown); the Service Record counts deployments per frame.
+var frame_id: String = ""
 var death_wave: int = 0
 var data_run: BigNum = BigNum.zero()
 var kills: int = 0
