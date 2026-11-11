@@ -81,6 +81,9 @@ func _add_card() -> void:
 	var card := PanelContainer.new()
 	card.add_theme_stylebox_override("panel", UiKit.inset(CARD_PAD_H, CARD_PAD_V))
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# A PanelContainer stops mouse events by default, which swallowed touch drags and the wheel before the host's
+	# ScrollContainer saw them (INTEL would not scroll on the phone). PASS lets them bubble up, like the upgrade rows.
+	card.mouse_filter = Control.MOUSE_FILTER_PASS
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 2)
 	card.add_child(box)
