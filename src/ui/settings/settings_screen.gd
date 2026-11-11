@@ -240,6 +240,7 @@ func _header(setting: String, title_text: String) -> Control:
 func _plate(parts: Array[Control]) -> PanelContainer:
 	var p := PanelContainer.new()
 	p.theme_type_variation = ThemeBuilder.VAR_PANEL_PLATE
+	p.mouse_filter = Control.MOUSE_FILTER_PASS  # STOP would swallow a touch drag before the ScrollContainer sees it
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)
 	for c: Control in parts:
