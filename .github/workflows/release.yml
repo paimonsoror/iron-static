@@ -4,7 +4,10 @@ name: Release
 # tools/play_publish.py). Docs: docs/release/ci_release.md
 #
 #   testkey  throwaway key, no secrets, no environment. Proves the pipeline. The bundle is never published.
-#   upload   real upload key from the "release" environment (needs approval). Optional Play validate/draft.
+#   upload   real upload key from the "release" environment (needs approval). Optional Play validate/draft/rollout.
+#            Default track is internal. A v* tag push = upload key + rollout to internal testing (no Google review).
+#   promote  publish=promote: no build. Moves the versionCode of release/version.json from internal to closed testing
+#            (Google reviews it). Job "promote", environment "release", needs approval, only the service-account secret.
 on:
   push:
     tags: ['v*']
@@ -16,10 +19,15 @@ on:
         options: [testkey, upload]
         default: testkey
       publish:
-        description: "Google Play: none, validate (no commit) or draft (internal track, draft). Needs signing=upload"
+        description: "Google Play: none, validate (no commit), draft (save a draft), rollout (roll out to all testers on the track) or promote (no build: internal to closed). All but none need signing=upload, except promote"
         type: choice
-        options: [none, validate, draft]
+        options: [none, validate, draft, rollout, promote]
         default: none
+      track:
+        description: "Play track for validate/draft/rollout: internal (default) or closed (closed testing). Ignored by promote"
+        type: choice
+        options: [internal, closed]
+        default: internal
 
 permissions:
   contents: read
@@ -41,7 +49,7 @@ jobs:
           SIGNING: ${{ inputs.signing }}
           PUBLISH: ${{ inputs.publish }}
         run: |
-          if [ -n "$PUBLISH" ] && [ "$PUBLISH" != "none" ] && [ "$SIGNING" != "upload" ]; then
+          if [ -n "$PUBLISH" ] && [ "$PUBLISH" != "none" ] && [ "$PUBLISH" != "promote" ] && [ "$SIGNING" != "upload" ]; then
             echo "::error::publish=$PUBLISH needs signing=upload"
             exit 1
           fi
@@ -51,7 +59,7 @@ jobs:
     needs: guard
     if: >-
       github.repository == 'paimonsoror/iron-static' &&
-      github.event_name == 'workflow_dispatch' && inputs.signing == 'testkey'
+      github.event_name == 'workflow_dispatch' && inputs.signing == 'testkey' && inputs.publish != 'promote'
     runs-on: windows-2025
     timeout-minutes: 60
     steps:
@@ -86,20 +94,85 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
 
+  # No build. Promotes the build that is already on the internal track to closed testing.
+  promote:
+    name: promote (internal to closed)
+    needs: guard
+    if: >-
+      github.repository == 'paimonsoror/iron-static' &&
+      github.event_name == 'workflow_dispatch' && inputs.publish == 'promote' &&
+      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    runs-on: windows-2025
+    timeout-minutes: 20
+    environment: release
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check that the secret is set
+        shell: powershell
+        env:
+          SA_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if (-not $env:SA_JSON) {
+            Write-Host "::error::Missing secret PLAY_SERVICE_ACCOUNT_JSON in the 'release' environment. See docs/release/ci_release.md."
+            exit 1
+          }
+
+      - name: Set up the Play publishing tool
+        shell: powershell
+        run: |
+          $venv = Join-Path $env:RUNNER_TEMP 'venv-play'
+          python -m venv $venv
+          if ($LASTEXITCODE -ne 0) { throw 'venv creation failed' }
+          & "$venv\Scripts\python.exe" -m pip install -q --disable-pip-version-check -r tools\requirements-play.txt
+          if ($LASTEXITCODE -ne 0) { throw 'pip install failed' }
+          [System.IO.File]::AppendAllText($env:GITHUB_ENV, "PLAY_VENV=$venv`n")
+
+      - name: Write the service-account file to RUNNER_TEMP
+        shell: powershell
+        env:
+          SA_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          $dir = Join-Path $env:RUNNER_TEMP 'release-secrets'
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          $utf8 = New-Object System.Text.UTF8Encoding($false)
+          [System.IO.File]::WriteAllText((Join-Path $dir 'service-account.json'), $env:SA_JSON, $utf8)
+          Write-Host 'service-account file written (contents not shown)'
+
+      # The versionCode comes from release/version.json of the checked-out ref. Validate first, then commit.
+      - name: Google Play (promote internal to closed)
+        shell: powershell
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ runner.temp }}\release-secrets\service-account.json
+        run: |
+          $ErrorActionPreference = 'Continue'
+          .\tools\play_publish.ps1 promote --from internal --to closed --status completed --validate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          .\tools\play_publish.ps1 promote --from internal --to closed --status completed --commit --yes
+          exit $LASTEXITCODE
+
+      - name: Delete the service-account file
+        if: always()
+        shell: powershell
+        run: Remove-Item -Recurse -Force (Join-Path $env:RUNNER_TEMP 'release-secrets') -ErrorAction SilentlyContinue
+
   upload:
     name: build (upload key)
     needs: guard
     if: >-
       github.repository == 'paimonsoror/iron-static' &&
       ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
-       (github.event_name == 'workflow_dispatch' && inputs.signing == 'upload' &&
+       (github.event_name == 'workflow_dispatch' && inputs.signing == 'upload' && inputs.publish != 'promote' &&
         (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))))
     runs-on: windows-2025
     timeout-minutes: 90
     environment: release
     env:
-      # A tag push always means: upload key and a draft on the internal track.
-      PUBLISH_MODE: ${{ github.event_name == 'push' && 'draft' || inputs.publish }}
+      # A tag push always means: upload key and a rollout to internal testing.
+      PUBLISH_MODE: ${{ github.event_name == 'push' && 'rollout' || inputs.publish }}
+      PLAY_TRACK: ${{ github.event_name == 'push' && 'internal' || inputs.track }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -184,8 +257,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'pip install failed' }
           [System.IO.File]::AppendAllText($env:GITHUB_ENV, "PLAY_VENV=$venv`n")
 
-      # draft = validate first, then commit a DRAFT release on the internal track. Never a completed release.
-      - name: Google Play (validate or draft)
+      # Always validate first. draft = commit a DRAFT; rollout = commit with status completed (all testers on the track).
+      # The track is closed or internal only; the tool cannot reach production, and open needs --allow-open (never passed here).
+      - name: Google Play (validate, draft or rollout)
         if: env.PUBLISH_MODE != 'none'
         shell: powershell
         env:
@@ -193,10 +267,14 @@ jobs:
           AAB: ${{ steps.check.outputs.aab }}
         run: |
           $ErrorActionPreference = 'Continue'
-          .\tools\play_publish.ps1 release $env:AAB --track internal --status draft --validate
+          $track = $env:PLAY_TRACK
+          if ($track -ne 'closed' -and $track -ne 'internal') { Write-Host "::error::unknown track '$track'"; exit 1 }
+          $status = 'completed'
+          if ($env:PUBLISH_MODE -eq 'draft') { $status = 'draft' }
+          .\tools\play_publish.ps1 release $env:AAB --track $track --status $status --validate
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if ($env:PUBLISH_MODE -eq 'draft') {
-            .\tools\play_publish.ps1 release $env:AAB --track internal --status draft --commit --yes
+          if ($env:PUBLISH_MODE -eq 'draft' -or $env:PUBLISH_MODE -eq 'rollout') {
+            .\tools\play_publish.ps1 release $env:AAB --track $track --status $status --commit --yes
             exit $LASTEXITCODE
           }
 

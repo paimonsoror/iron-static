@@ -76,6 +76,9 @@ class FakeApi:
         self.fail = fail or {}
         self.code = code
         self.track_body: dict[str, Any] = {}
+        self.commit_args: tuple[Any, ...] = ()
+        self.tracks: list[dict[str, Any]] = []
+        self.track_data: dict[str, dict[str, Any]] = {}
 
     def _c(self, name: str) -> None:
         self.calls.append(name)
@@ -92,8 +95,17 @@ class FakeApi:
     def validate_edit(self, package: str, edit: str) -> None:
         self._c("validate")
 
-    def commit_edit(self, package: str, edit: str) -> None:
+    def commit_edit(self, package: str, edit: str, not_sent_for_review: bool = False) -> None:
+        self.commit_args = (not_sent_for_review,)
         self._c("commit")
+
+    def get_track(self, package: str, edit: str, track: str) -> dict[str, Any]:
+        self._c("get_track")
+        return self.track_data.get(track, {"track": track, "releases": []})
+
+    def list_tracks(self, package: str, edit: str) -> list[dict[str, Any]]:
+        self._c("list_tracks")
+        return self.tracks
 
     def upload_bundle(self, package: str, edit: str, path: Path) -> int:
         self._c("upload")
@@ -125,7 +137,8 @@ def run(pp: Any) -> int:
     notes_text = "First beta. Try both wave modes.\nNo ads, no purchases, no account."
     listing = ("# Listing\n- **App name:** `Fake Game`\n\n## Short description\n\n```\nShort text.\n```\n\n"
                "## Full description\n\n```\nFull text here.\n```\n\n"
-               f"## Release notes, first build\n\n```\n{notes_text}\n```\n")
+               f"## Release notes (current upload: 0.5.0-beta.1)\n\n```\n{notes_text}\n```\n\n"
+               "## Past release notes\n\n### First build\n\n```\nOLD NOTES MUST NOT BE PICKED.\n```\n")
     listing_path = repo / "docs" / "release" / "store_listing.md"
     listing_path.write_text(listing, encoding="utf-8")
     assets = repo / "docs" / "release" / "store_assets.md"
@@ -145,9 +158,10 @@ def run(pp: Any) -> int:
         return p
 
     def ns(aab: Path | None = None, **kw: Any) -> argparse.Namespace:
-        d: dict[str, Any] = dict(aab=aab, track="internal", status="draft", notes=Path("docs/release/store_listing.md"),
+        d: dict[str, Any] = dict(aab=aab, track="closed", status="completed", allow_open=False, changes_not_sent_for_review=False,
+                                 notes=Path("docs/release/store_listing.md"),
                                  skip_aab_check=False, auth_check=False, validate=False, commit=False, yes=False,
-                                 allow_draft_assets=False)
+                                 allow_draft_assets=False, version_code=None, from_track="internal", to_track="closed")
         d.update(kw)
         return argparse.Namespace(**d)
 
@@ -286,10 +300,11 @@ def run(pp: Any) -> int:
     rc, text = capture(lambda: pp.cmd_release(ns(good, commit=True, yes=True), repo, T(), lambda: api))
     check("--commit calls commit once and does not delete", rc == 0 and api.calls.count("commit") == 1 and "delete" not in api.calls, str(api.calls))
     check("--commit prints package, track, versionCode, status, notes before the first call",
-          all(s in text for s in (PKG, "internal", "50001", "draft", "No ads, no purchases"))
+          all(s in text for s in (PKG, "closed testing (API: alpha)", "50001", "completed", "ROLL OUT to closed testing", "No ads, no purchases"))
           and text.index("ABOUT TO COMMIT") < text.index("edit edit1 opened"))
-    check("release body has draft status, string versionCode and the notes",
-          api.track_body.get("status") == "draft" and api.track_body.get("versionCodes") == ["50001"]
+    check("default release goes to API track alpha, completed, string versionCode, current notes",
+          api.track_body.get("track") == "alpha" and api.track_body.get("status") == "completed"
+          and api.track_body.get("versionCodes") == ["50001"] and "OLD NOTES" not in api.track_body["releaseNotes"][0]["text"]
           and api.track_body["releaseNotes"][0]["text"] == notes_text)
     api = FakeApi()
     rc, _ = capture(lambda: pp.cmd_release(ns(good, commit=True), repo, T(), lambda: api, ask=lambda _q: "no"))
@@ -297,6 +312,132 @@ def run(pp: Any) -> int:
     api = FakeApi()
     rc, _ = capture(lambda: pp.cmd_release(ns(good, commit=True), repo, T(), lambda: api, ask=lambda _q: "50001"))
     check("--commit with the typed versionCode proceeds", rc == 0 and "commit" in api.calls)
+    asked: list[str] = []
+    api = FakeApi()
+    capture(lambda: pp.cmd_release(ns(good, commit=True), repo, T(), lambda: api, ask=lambda q: asked.append(q) or "50001"))
+    check("the confirmation says ROLL OUT to closed testing", "ROLL OUT to closed testing" in asked[0], asked[0])
+    asked.clear()
+    capture(lambda: pp.cmd_release(ns(good, commit=True, status="draft"), repo, T(), lambda: FakeApi(), ask=lambda q: asked.append(q) or "50001"))
+    check("the draft confirmation says save as DRAFT", "save as DRAFT" in asked[0] and "ROLL OUT" not in asked[0], asked[0])
+    api = FakeApi()
+    rc, text = capture(lambda: pp.cmd_release(ns(good, commit=True, yes=True, status="draft"), repo, T(), lambda: api))
+    check("draft status is still available", rc == 0 and api.track_body.get("status") == "draft" and "DRAFT" in text)
+    api = FakeApi()
+    rc, text = capture(lambda: pp.cmd_release(ns(good, commit=True, yes=True), repo, T(), lambda: api))
+    check("a closed commit says Google reviews it", rc == 0 and "Google reviews closed-track releases" in text and api.commit_args == (False,), text[-300:])
+    api = FakeApi()
+    rc, text = capture(lambda: pp.cmd_release(ns(good, commit=True, yes=True, track="internal"), repo, T(), lambda: api))
+    check("internal maps to API internal and is not called reviewed",
+          rc == 0 and api.track_body.get("track") == "internal" and "not reviewed" in text and "Google reviews" not in text)
+    api = FakeApi()
+    refused("open track is refused without --allow-open", lambda: pp.cmd_release(ns(good, track="open"), repo, T(), lambda: api), "on hold")
+    check("the open refusal made no API call", api.calls == [])
+    api = FakeApi()
+    rc, text = capture(lambda: pp.cmd_release(ns(good, track="open", allow_open=True, validate=True), repo, T(), lambda: api))
+    check("open with --allow-open maps to API beta and warns",
+          rc == 0 and api.track_body.get("track") == "beta" and "ON HOLD" in text and "(API beta)" in text)
+    msg_nsr = "Changes cannot be sent for review automatically. Set the query parameter changesNotSentForReview to true."
+    api = FakeApi(fail={"commit": pp.ApiError(400, msg_nsr, "edits.commit")})
+    rc, text = capture(lambda: pp.cmd_release(ns(good, commit=True, yes=True), repo, T(), lambda: api))
+    check("a changesNotSentForReview error is explained and the edit is deleted",
+          rc == 1 and "--changes-not-sent-for-review" in text and "Publishing overview" in text and api.calls[-1] == "delete", text[-300:])
+    api = FakeApi()
+    rc, text = capture(lambda: pp.cmd_release(ns(good, commit=True, yes=True, changes_not_sent_for_review=True), repo, T(), lambda: api))
+    check("--changes-not-sent-for-review passes the parameter and says to send it in Console",
+          rc == 0 and api.commit_args == (True,) and "NOT sent for review" in text and "Publishing overview" in text, text[-300:])
+
+    # --- status (read-only)
+    api = FakeApi()
+    api.tracks = [{"track": "alpha", "releases": [{"name": "0.5.0-beta.1", "status": "completed", "versionCodes": ["50001"]}]},
+                  {"track": "internal", "releases": [{"name": "x", "status": "inProgress", "versionCodes": ["1", "2"], "userFraction": 0.5}]},
+                  {"track": "beta", "releases": []}]
+    rc, text = capture(lambda: pp.cmd_status(ns(), repo, lambda: api))
+    check("status lists tracks with friendly and API names, then deletes the edit",
+          rc == 0 and api.calls == ["insert", "list_tracks", "delete"] and "closed testing (API: alpha)" in text
+          and "open testing (API: beta)" in text and "versionCodes 50001" in text and "userFraction 0.5" in text and "(no releases)" in text, text)
+    api = FakeApi(fail={"list_tracks": pp.ApiError(403, f"denied {TOKEN}", "edits.tracks.list")})
+    rc, text = capture(lambda: pp.cmd_status(ns(), repo, lambda: api))
+    check("status error still deletes the edit and leaks nothing", rc == 1 and api.calls[-1] == "delete" and TOKEN not in text)
+    api = FakeApi()
+    api.tracks = [{"track": "alpha", "releases": [{"name": f"n {EMAIL} {TOKEN}", "status": "draft", "versionCodes": ["1"]}]}]
+    rc, text = capture(lambda: pp.cmd_status(ns(), repo, lambda: api))
+    check("status output is scrubbed", EMAIL not in text and TOKEN not in text)
+    check("parser: defaults are internal and completed; status and promote subcommands exist",
+          pp.build_parser().parse_args(["release", "x.aab"]).track == "internal"
+          and pp.build_parser().parse_args(["release", "x.aab"]).status == "completed"
+          and pp.build_parser().parse_args(["status"]).cmd == "status"
+          and pp.build_parser().parse_args(["promote"]).from_track == "internal"
+          and pp.build_parser().parse_args(["promote"]).to_track == "closed"
+          and pp.build_parser().parse_args(["promote"]).status == "completed"
+          and pp.build_parser().parse_args(["promote"]).version_code is None)
+
+    # --- promote
+    src_rel = {"name": "0.5.0-beta.1", "status": "completed", "versionCodes": ["50001"],
+               "releaseNotes": [{"language": "en-US", "text": "Source notes."}]}
+
+    def papi(**rel: Any) -> FakeApi:
+        a_ = FakeApi()
+        a_.track_data = {"internal": {"track": "internal", "releases": [{**src_rel, **rel}]}}
+        return a_
+
+    api = papi()
+    rc, text = capture(lambda: pp.cmd_promote(ns(), repo, T(), lambda: api))
+    check("promote dry mode makes only read calls and says so",
+          rc == 0 and api.calls == ["insert", "get_track", "delete"] and "only read calls" in text and "Source notes." in text
+          and "closed testing (API: alpha)" in text and "50001" in text, f"{api.calls} {text[-300:]}")
+    api = papi()
+    rc, text = capture(lambda: pp.cmd_promote(ns(validate=True), repo, T(), lambda: api))
+    check("promote --validate updates, validates, deletes the edit, never commits",
+          rc == 0 and api.calls == ["insert", "get_track", "track", "validate", "delete"], str(api.calls))
+    api = papi()
+    asked = []
+    rc, text = capture(lambda: pp.cmd_promote(ns(commit=True), repo, T(), lambda: api, ask=lambda q: asked.append(q) or "50001"))
+    b = api.track_body
+    check("promote happy path commits one alpha release with the source name and notes",
+          rc == 0 and api.calls.count("commit") == 1 and "upload" not in api.calls and b.get("track") == "alpha"
+          and b.get("status") == "completed" and b.get("versionCodes") == ["50001"] and b.get("name") == "0.5.0-beta.1"
+          and b["releaseNotes"][0]["text"] == "Source notes." and "Google reviews closed-track" in text, f"{api.calls} {b} {text[-200:]}")
+    check("promote confirmation text", "PROMOTE 50001 from internal to closed testing (roll out)" in asked[0], asked[0])
+    api = papi()
+    rc, _ = capture(lambda: pp.cmd_promote(ns(commit=True), repo, T(), lambda: api, ask=lambda _q: "no"))
+    check("promote --commit without the typed code does nothing", rc == 1 and api.calls == [])
+    api = papi()
+    rc, _ = capture(lambda: pp.cmd_promote(ns(commit=True, yes=True, status="draft"), repo, T(), lambda: api))
+    check("promote --status draft", rc == 0 and api.track_body.get("status") == "draft")
+    api = papi()
+    rc, _ = capture(lambda: pp.cmd_promote(ns(version_code=50002, commit=True, yes=True), repo, T(), lambda: api))
+    check("promote --version-code overrides version.json; a code not on the source is refused",
+          rc == 1 and "commit" not in api.calls and api.calls[-1] == "delete")
+    refused("promote refuses a code that is missing on the source and says what is there",
+            lambda: pp.cmd_promote(ns(version_code=49000, validate=True), repo, T(), lambda: papi()), "There: '0.5.0-beta.1' completed 50001")
+    refused("promote refuses a source release that is not completed",
+            lambda: pp.cmd_promote(ns(validate=True), repo, T(), lambda: papi(status="inProgress")), "not 'completed'")
+    api = papi()
+    refused("promote refuses from == to", lambda: pp.cmd_promote(ns(to_track="internal"), repo, T(), lambda: api), "must differ")
+    refused("promote refuses production as a target", lambda: pp.cmd_promote(ns(to_track="production"), repo, T(), lambda: api), "production")
+    refused("promote refuses open without --allow-open", lambda: pp.cmd_promote(ns(to_track="open"), repo, T(), lambda: api), "on hold")
+    check("promote refusals made no API call", api.calls == [])
+    api = papi()
+    api.track_data["internal"]["releases"][0]["releaseNotes"] = []
+    rc, text = capture(lambda: pp.cmd_promote(ns(commit=True, yes=True), repo, T(), lambda: api))
+    check("promote falls back to the current notes block of store_listing.md",
+          rc == 0 and api.track_body["releaseNotes"][0]["text"] == notes_text and "no notes" in text, text[-300:])
+    api = papi()
+    rc, _ = capture(lambda: pp.cmd_promote(ns(to_track="open", allow_open=True, validate=True), repo, T(), lambda: api))
+    check("promote to open with --allow-open maps to API beta", rc == 0 and api.track_body.get("track") == "beta")
+    api = papi()
+    api.fail["commit"] = pp.ApiError(400, "Changes cannot be sent for review automatically (changesNotSentForReview).", "edits.commit")
+    rc, text = capture(lambda: pp.cmd_promote(ns(commit=True, yes=True), repo, T(), lambda: api))
+    check("promote commit error is explained and the edit is deleted",
+          rc == 1 and "--changes-not-sent-for-review" in text and api.calls[-1] == "delete", text[-300:])
+    api = papi()
+    rc, text = capture(lambda: pp.cmd_promote(ns(commit=True, yes=True, changes_not_sent_for_review=True), repo, T(), lambda: api))
+    check("promote with --changes-not-sent-for-review passes it and says to send in Console",
+          rc == 0 and api.commit_args == (True,) and "NOT sent for review" in text)
+    api = papi(name=f"n {EMAIL}")
+    api.track_data["internal"]["releases"][0]["releaseNotes"] = [{"language": "en-US", "text": f"x {TOKEN}"}]
+    rc, text = capture(lambda: pp.cmd_promote(ns(), repo, T(), lambda: api))
+    check("promote output is scrubbed", EMAIL not in text and TOKEN not in text)
     api = FakeApi(code=49999)
     rc, _ = capture(lambda: pp.cmd_release(ns(good, commit=True, yes=True), repo, T(), lambda: api))
     check("a versionCode mismatch reported by Play blocks the commit", rc == 1 and "commit" not in api.calls)
@@ -306,7 +447,8 @@ def run(pp: Any) -> int:
     api = FakeApi(fail={"upload": pp.ApiError(403, "forbidden", "edits.bundles.upload")})
     rc, text = capture(lambda: pp.cmd_release(ns(good, validate=True), repo, T(), lambda: api))
     check("a first-upload error points to a manual Console upload", rc == 1 and "first upload" in text and api.calls[-1] == "delete")
-    check("the production track is not selectable", "production" not in pp.TRACKS)
+    check("the production track is not selectable", "production" not in pp.TRACKS and "production" not in pp.TRACK_API.values())
+    check("friendly track names map to the API names", pp.TRACK_API == {"closed": "alpha", "internal": "internal", "open": "beta"})
 
     # --- release notes
     def notes_case(text: str) -> str:

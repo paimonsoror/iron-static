@@ -1,10 +1,20 @@
 # IRON STATIC - Google Play beta guide (for you)
 
-Changelog: v1.0 2026-11-09 (planning, milestone B1). Facts checked against Google's pages on 2026-11-09: `docs/release/research_2026-11.md` has every source link. Play Console is rearranged often: if a menu name below is not where I say, use the search box at the top of Play Console and the page title.
+Changelog: v1.1 2026-11-11: the testers now install from **Closed testing** (the email list); the open test stays on hold (Q88). Sections below that talk about the open test are the later plan. v1.0 2026-11-09 (planning, milestone B1). Facts checked against Google's pages on 2026-11-09: `docs/release/research_2026-11.md` has every source link. Play Console is rearranged often: if a menu name below is not where I say, use the search box at the top of Play Console and the page title.
 
 You have published before, but not for a while. This guide is the whole path from "nothing uploaded" to "anyone can install the beta from the store". Do the phases in order. Tick the boxes. Steps marked **YOU** only you can do. Steps marked **AGENTS** are prepared by Claude and the agents from `docs/tasks/B1.md`; you only check the result.
 
 ## 0. The short version
+
+**Where things stand (2026-11-11).** Testers get the game from the **Closed testing** track, through the email list. The routine for a new build: tag it, it goes to **Internal testing** (no review, ready in minutes), you check it on your phone, then you **promote** it to Closed testing (Google reviews it, hours to a few days). A new closed release replaces one that is still in review. Open testing is on hold until the human playtest passes. `tools/play_publish.py` uses friendly names for the tracks. Play's API uses other names:
+
+| Play Console | `--track` | API name |
+|---|---|---|
+| Internal testing | `internal` (default) | `internal` |
+| Closed testing | `closed` | `alpha` |
+| Open testing | `open` (on hold) | `beta` |
+
+To promote: Run workflow with `publish=promote`, or `play_publish promote --commit` on your PC, or "Promote release" in Console. Details: `docs/release/play_publish.md`.
 
 - The beta is an **open test**: anyone can find IRON STATIC on Google Play and install it. No ads, no purchases, no accounts, no data collected.
 - **Big catch:** if your developer account was created after 13 November 2023, Google locks the open test until you have run a **closed test with 12 testers for 14 days in a row** and been granted production access. Google's page says: "Open testing becomes available after you gain production access."
