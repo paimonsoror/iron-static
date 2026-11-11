@@ -4,7 +4,8 @@ name: Release
 # tools/play_publish.py). Docs: docs/release/ci_release.md
 #
 #   testkey  throwaway key, no secrets, no environment. Proves the pipeline. The bundle is never published.
-#   upload   real upload key from the "release" environment (needs approval). Optional Play validate/draft.
+#   upload   real upload key from the "release" environment (needs approval). Optional Play validate/draft/rollout.
+#            Default track is closed testing (API alpha). A v* tag push = upload key + rollout to closed testing.
 on:
   push:
     tags: ['v*']
@@ -16,10 +17,15 @@ on:
         options: [testkey, upload]
         default: testkey
       publish:
-        description: "Google Play: none, validate (no commit) or draft (internal track, draft). Needs signing=upload"
+        description: "Google Play: none, validate (no commit), draft (save a draft) or rollout (roll out to all testers). Needs signing=upload"
         type: choice
-        options: [none, validate, draft]
+        options: [none, validate, draft, rollout]
         default: none
+      track:
+        description: "Play track for validate/draft/rollout: closed (closed testing, default) or internal"
+        type: choice
+        options: [closed, internal]
+        default: closed
 
 permissions:
   contents: read
@@ -98,8 +104,9 @@ jobs:
     timeout-minutes: 90
     environment: release
     env:
-      # A tag push always means: upload key and a draft on the internal track.
-      PUBLISH_MODE: ${{ github.event_name == 'push' && 'draft' || inputs.publish }}
+      # A tag push always means: upload key and a rollout to closed testing.
+      PUBLISH_MODE: ${{ github.event_name == 'push' && 'rollout' || inputs.publish }}
+      PLAY_TRACK: ${{ github.event_name == 'push' && 'closed' || inputs.track }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -184,8 +191,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'pip install failed' }
           [System.IO.File]::AppendAllText($env:GITHUB_ENV, "PLAY_VENV=$venv`n")
 
-      # draft = validate first, then commit a DRAFT release on the internal track. Never a completed release.
-      - name: Google Play (validate or draft)
+      # Always validate first. draft = commit a DRAFT; rollout = commit with status completed (all testers on the track).
+      # The track is closed or internal only; the tool cannot reach production, and open needs --allow-open (never passed here).
+      - name: Google Play (validate, draft or rollout)
         if: env.PUBLISH_MODE != 'none'
         shell: powershell
         env:
@@ -193,10 +201,14 @@ jobs:
           AAB: ${{ steps.check.outputs.aab }}
         run: |
           $ErrorActionPreference = 'Continue'
-          .\tools\play_publish.ps1 release $env:AAB --track internal --status draft --validate
+          $track = $env:PLAY_TRACK
+          if ($track -ne 'closed' -and $track -ne 'internal') { Write-Host "::error::unknown track '$track'"; exit 1 }
+          $status = 'completed'
+          if ($env:PUBLISH_MODE -eq 'draft') { $status = 'draft' }
+          .\tools\play_publish.ps1 release $env:AAB --track $track --status $status --validate
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if ($env:PUBLISH_MODE -eq 'draft') {
-            .\tools\play_publish.ps1 release $env:AAB --track internal --status draft --commit --yes
+          if ($env:PUBLISH_MODE -eq 'draft' -or $env:PUBLISH_MODE -eq 'rollout') {
+            .\tools\play_publish.ps1 release $env:AAB --track $track --status $status --commit --yes
             exit $LASTEXITCODE
           }
 

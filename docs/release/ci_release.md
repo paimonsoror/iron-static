@@ -1,6 +1,6 @@
 # Release pipeline (GitHub Actions)
 
-Changelog: 2026-11-10 v1.0 (branch `ci-release`). Workflow `.github/workflows/release.yml`, runner setup `tools/ci_setup_windows.ps1`.
+Changelog: 2026-11-11 v1.1 (branch `play-closed`): new `track` input, new `rollout` choice, a tag now rolls out to closed testing. 2026-11-10 v1.0 (branch `ci-release`). Workflow `.github/workflows/release.yml`, runner setup `tools/ci_setup_windows.ps1`.
 
 The workflow builds the beta AAB on a GitHub runner with the same scripts you run on your PC. It has no build logic of its own.
 
@@ -8,7 +8,7 @@ The workflow builds the beta AAB on a GitHub runner with the same scripts you ru
 |---|---|
 | Build, sign, check signer | `tools\release_build.ps1` |
 | Audit the bundle | `tools\aab_check.ps1` |
-| Validate / upload a draft to Play | `tools\play_publish.py` (through `tools\play_publish.ps1`) |
+| Validate / draft / roll out to Play | `tools\play_publish.py` (through `tools\play_publish.ps1`) |
 
 Before the scripts run, `tools\ci_setup_windows.ps1` installs the tools. Every download is checked against a hash that is pinned in this repo.
 
@@ -16,7 +16,7 @@ Before the scripts run, `tools\ci_setup_windows.ps1` installs the tools. Every d
 
 **Test key.** No secrets, no approval. It signs with a throwaway key made on the runner. It proves the pipeline works. The result is named `...-TESTKEY.aab` and is never published.
 
-**Upload.** Uses the real upload key from the GitHub environment `release`. A job that uses this environment waits for your approval. It can also validate or upload a draft to Google Play.
+**Upload.** Uses the real upload key from the GitHub environment `release`. A job that uses this environment waits for your approval. It can also validate, save a draft or roll out to Google Play.
 
 ## How to run it
 
@@ -24,12 +24,17 @@ Before the scripts run, `tools\ci_setup_windows.ps1` installs the tools. Every d
 gh workflow run release.yml -f signing=testkey
 gh workflow run release.yml -f signing=upload -f publish=validate
 gh workflow run release.yml -f signing=upload -f publish=draft
+gh workflow run release.yml -f signing=upload -f publish=rollout
+gh workflow run release.yml -f signing=upload -f publish=rollout -f track=internal
 ```
 
-- `publish` is `none` (default), `validate` (checks the bundle with Google, commits nothing) or `draft` (validates, then commits a **draft** release on the **internal** track).
+- `signing` is `testkey` (default) or `upload`.
+- `publish` is `none` (default), `validate` (checks the bundle with Google, commits nothing), `draft` (validates, then commits a **draft**) or `rollout` (validates, then commits with status `completed`: all testers on the track get it).
+- `track` is `closed` (default, Closed testing, API `alpha`) or `internal`. The open track cannot be chosen here.
 - Any `publish` other than `none` needs `signing=upload`. The `guard` job fails the run otherwise.
 - `signing=upload` only runs from `main` or from a `v*` tag.
-- Pushing a tag `v<versionName>` (for example `v0.5.0-beta.1`) runs upload signing and a `draft` publish. The tag must equal `v` plus `versionName` in `release/version.json`. If it does not, the job fails before it builds.
+- Pushing a tag `v<versionName>` (for example `v0.5.0-beta.1`) runs upload signing and a `rollout` to **closed testing**. The tag must equal `v` plus `versionName` in `release/version.json`. If it does not, the job fails before it builds.
+- Closed-track releases go through Google review. A rollout is not live for testers until Google approves it, usually within hours to a few days. If Google says it cannot send changes for review automatically, the job fails and commits nothing. Run `play_publish.ps1 release ... --changes-not-sent-for-review` on your PC, then send the changes for review in Play Console > Publishing overview.
 - Only one release runs at a time. A second one waits.
 
 ## What the runner uses
@@ -43,7 +48,7 @@ gh workflow run release.yml -f signing=upload -f publish=draft
 
 ## What it stores
 
-The AAB is **never** uploaded as a workflow artifact. On a public repo, anyone signed in to GitHub could download it. Only text is kept, for 7 days: the `aab_check` output, the size report (`.txt`) and the `.sha256` file. In upload mode the bundle reaches Google only through `play_publish` and only as a draft.
+The AAB is **never** uploaded as a workflow artifact. On a public repo, anyone signed in to GitHub could download it. Only text is kept, for 7 days: the `aab_check` output, the size report (`.txt`) and the `.sha256` file. In upload mode the bundle reaches Google only through `play_publish`, on the closed or internal track.
 
 ## One-time setup for the upload path (you)
 
@@ -85,5 +90,5 @@ Only the `upload` job reads secrets. `tools/check_workflows.py` (part of `lint.p
 - 2026-11-11, test key, run 42932673695 (branch `ci-release`, temporary push trigger, since removed): cold cache, test-key job 3 min 18 s. All three downloads passed their hash checks. Bundle 56.2 MB, signer = test key, `aab_check` PASS (targetSdk 36, VIBRATE only, 16 KB alignment). The upload job was skipped as designed.
 - 2026-11-11, test key from `main` via Run workflow, run 42934760850: 3 min 38 s (cache miss: caches are per branch).
 - 2026-11-11, upload key, `publish=none`, run 42938295496 (approved in the `release` environment): warm cache, job 3 min 28 s. Signer SHA-256 `FF:38:E9:CC:...:EC:33:BC` = the upload key. Bundle 56.2 MB, `aab_check` PASS. Secret values masked in the log; the signing files step and the delete step ran.
-- Not run yet: `publish=validate` or `draft` (Play rejects versionCode 50001, which is already uploaded). First real use: the `v0.5.0-beta.2` tag.
+- Not run yet: `publish=validate`, `draft` or `rollout` (Play rejects versionCode 50001, which is already uploaded). First real use: the `v0.5.0-beta.2` tag.
 - Cosmetic: because the service-account JSON is a multi-line secret, GitHub masks each of its lines, including the lone `{` and `}`, so braces show as `***` in the logs. Harmless.

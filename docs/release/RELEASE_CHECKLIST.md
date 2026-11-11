@@ -41,7 +41,7 @@ Owner: **U** = user, **A** = agents.
 9. [ ] Scans clean on the changed files: franchise/brand scan and profanity scan of `data/strings_en.csv` (commands below), no email pattern in the privacy page and the record files.
 10. [ ] Release notes written (what changed, what to test, known issues).
     Optional: `tools\play_publish.ps1` can do this upload through the Play API (dry run by default, `--validate`, then `--commit`); setup and safety rules in `docs/release/play_publish.md`.
-11. [ ] **U** Upload the AAB to the chosen track (internal first, then closed/open per the guide). Read the warnings; read the pre-launch report when it arrives; any permission or SDK notice other than vibration means stop.
+11. [ ] **U** Upload the AAB to the chosen track. The default is Closed testing (`play_publish ... --track closed`, status `completed` = roll out to testers; Google reviews it first). Use `--track internal` for a quick check. Open testing is on hold (Q88). Read the warnings; read the pre-launch report when it arrives; any permission or SDK notice other than vibration means stop.
 12. [ ] Tag the release commit `v<versionName>` (local tag; the user pushes). Record the Play release date, track and versionCode in this file's log below.
 
 ## Re-do when
