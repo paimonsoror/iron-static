@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="IRON STATIC"
-config/version="0.5.1-beta.1"
+config/version="0.5.1-beta.2"
 run/main_scene="res://src/ui/main.tscn"
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "GL Compatibility")
