@@ -79,3 +79,8 @@ Only the `upload` job reads secrets. `tools/check_workflows.py` (part of `lint.p
 - Download the failed log (`gh run view <id> --log-failed`). Secret values are masked there.
 - Most likely causes: a changed runner image (SDK or JDK version), a download that changed (the hash check names the file), Godot export errors (the build script prints them).
 - The same commands work on your PC: `tools\release_build.ps1 -TestKey` then `tools\aab_check.ps1 <aab>`.
+
+## Verified runs
+
+- 2026-11-11, test key, run 42932673695 (branch `ci-release`, temporary push trigger, since removed): cold cache, test-key job 3 min 18 s. All three downloads passed their hash checks. Bundle 56.2 MB, signer = test key, `aab_check` PASS (targetSdk 36, VIBRATE only, 16 KB alignment). The upload job was skipped as designed.
+- The upload path (environment `release`, secrets, Play validate/draft) has not run yet.

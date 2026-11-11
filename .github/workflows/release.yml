@@ -7,7 +7,6 @@ name: Release
 #   upload   real upload key from the "release" environment (needs approval). Optional Play validate/draft.
 on:
   push:
-    branches: [ci-release] # TEMPORARY: remove before merge
     tags: ['v*']
   workflow_dispatch:
     inputs:
@@ -52,8 +51,7 @@ jobs:
     needs: guard
     if: >-
       github.repository == 'paimonsoror/iron-static' &&
-      ((github.event_name == 'push' && github.ref_type == 'branch') ||
-       (github.event_name == 'workflow_dispatch' && inputs.signing == 'testkey'))
+      github.event_name == 'workflow_dispatch' && inputs.signing == 'testkey'
     runs-on: windows-2025
     timeout-minutes: 60
     steps:
